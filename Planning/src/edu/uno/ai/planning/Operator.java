@@ -46,7 +46,7 @@ public class Operator {
 	}
 	
 	/**
-	 * Constructs a new action teamplte.
+	 * Constructs a new action template.
 	 * 
 	 * @param name the name of the action
 	 * @param parameters the parameters that provide specific detail
