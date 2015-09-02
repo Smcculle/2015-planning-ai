@@ -5,7 +5,7 @@ import org.junit.Test;
 public class HashBindingsTest extends BindingsTest {
 
 	@Test
-	public void setEquals() {
-		super.setEquals(new HashBindings());
+	public void setEqual() {
+		super.setEqual(new HashBindings());
 	}
 }
