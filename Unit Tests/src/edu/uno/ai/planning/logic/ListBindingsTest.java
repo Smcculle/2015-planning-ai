@@ -43,4 +43,9 @@ public class ListBindingsTest extends BindingsTest {
 	public void transitivity() {
 		super.transitivity(new ListBindings());
 	}
+
+	@Test
+	public void deepTransitivity() {
+		super.deepTransitivity(new ListBindings());
+	}
 }

@@ -12,6 +12,7 @@ public class BindingsTest {
 	private static final Variable v1 = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v2 = new Variable(Settings.DEFAULT_TYPE, "v2");
 	private static final Variable v3 = new Variable(Settings.DEFAULT_TYPE, "v3");
+	private static final Variable v4 = new Variable(Settings.DEFAULT_TYPE, "v4");
 
 	protected void immutability(Bindings empty) {
 		Bindings bindings = empty.setEqual(v1, c1);
@@ -75,4 +76,14 @@ public class BindingsTest {
 		assertThat(bindings2.setNotEqual(v2, c1), is(nullValue()));
 		assertThat(bindings2.setEqual(v2, c2), is(nullValue()));
 	}
+
+	protected void deepTransitivity(Bindings empty) {
+		Bindings bindings = empty
+				.setEqual(v1, v2).setEqual(v3, v4)
+				.setEqual(v1, c1)
+				.setEqual(v2, v3);
+
+		assertThat(bindings.get(v4), is((Term) c1));
+	}
+
 }
