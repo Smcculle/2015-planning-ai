@@ -35,8 +35,11 @@ public abstract class Term implements Formula {
 	
 	@Override
 	public boolean equals(Formula other, Substitution substitution) {
-		if(other instanceof Term)
-			return substitute(substitution) == other.substitute(substitution);
+		if(other instanceof Term) {
+			Term me = substitute(substitution);
+			Term otherTerm = (Term) other.substitute(substitution);
+			return me.getClass() == otherTerm.getClass() && type.equals(otherTerm.name) && name.equals(otherTerm.name);
+		}
 		else
 			return false;
 	}
