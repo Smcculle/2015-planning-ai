@@ -31,13 +31,13 @@ public class ListBindings implements Bindings {
 	protected final Constant constant;
 
 	/** The list of variables that are constrained to codesignate */
-	protected final Set<Variable> cdSet;
+	protected final TermSet<Variable> cdSet;
 
 	/**
 	 * The list of variables and constants that are constrained not to
 	 * codesignate with any of the variables in the cdSet.
 	 */
-	protected final Set<Term> ncdSet;
+	protected final TermSet<Term> ncdSet;
 
 	/** The next binding node in the list */
 	protected final ListBindings next;
@@ -45,8 +45,8 @@ public class ListBindings implements Bindings {
 	/** Default constructor for creating an empty bindings */
 	public ListBindings() {
 		constant = null;
-		cdSet = new HashSet<>();
-		ncdSet = new HashSet<>();
+		cdSet = new TermSet<>();
+		ncdSet = new TermSet<>();
 		next = null;
 	}
 
@@ -58,7 +58,7 @@ public class ListBindings implements Bindings {
 	 * @param ncdSet variables constrained not to codesignate
 	 */
 	public ListBindings(ListBindings next, Constant constant,
-						Set<Variable> cdSet, Set<Term> ncdSet) {
+						TermSet<Variable> cdSet, TermSet<Term> ncdSet) {
 		this.constant = constant;
 		this.cdSet = cdSet;
 		this.ncdSet = ncdSet;
@@ -78,6 +78,10 @@ public class ListBindings implements Bindings {
 
 	@Override
 	public Bindings setEqual(Term t1, Term t2) {
+		if (t1.equals(t2)) {
+			return this;
+		}
+
 		if (t1 instanceof Constant && t2 instanceof Constant) {
 			return setEqualTwoConstants((Constant) t1, (Constant) t2);
 		} else if (t1 instanceof Variable && t2 instanceof Variable) {
@@ -95,6 +99,10 @@ public class ListBindings implements Bindings {
 
 	@Override
 	public Bindings setNotEqual(Term t1, Term t2) {
+		if (t1.equals(t2)) {
+			return null;
+		}
+
 		if (t1 instanceof Constant && t2 instanceof Constant) {
 			return setNotEqualTwoConstants((Constant) t1, (Constant) t2);
 		} else if (t1 instanceof Variable && t2 instanceof Variable) {
@@ -203,7 +211,7 @@ public class ListBindings implements Bindings {
 	 * @return a new set of bindings or null in case of failure
 	 */
 	private ListBindings mergeCdSets(ListBindings b1, ListBindings b2) {
-		if (b1.equals(b2)) {
+		if (b1 == b2) {
 			return this;
 		} else if (b1.constant != null && b2.constant != null) {
 			if (b1.constant.equals(b2.constant)) {
@@ -211,10 +219,10 @@ public class ListBindings implements Bindings {
 			}
 			return null;
 		} else {
-			HashSet<Variable> newCdSet = new HashSet<>(b1.cdSet);
+			TermSet<Variable> newCdSet = new TermSet<>(b1.cdSet);
 			newCdSet.addAll(b2.cdSet);
 
-			HashSet<Term> newNcdSet = new HashSet<>(b1.ncdSet);
+			TermSet<Term> newNcdSet = new TermSet<>(b1.ncdSet);
 			newNcdSet.addAll(b2.ncdSet);
 
 			if (intersection(newCdSet, newNcdSet).size() > 0) {
@@ -306,12 +314,12 @@ public class ListBindings implements Bindings {
 		if (b1.ncdSet.contains(t2) && b2.ncdSet.contains(t1)) {
 			return this;
 		} else {
-			HashSet<Variable> b1CdSet = new HashSet<>(b1.cdSet);
-			HashSet<Term> b1NcdSet = new HashSet<>(b1.ncdSet);
+			TermSet<Variable> b1CdSet = new TermSet<>(b1.cdSet);
+			TermSet<Term> b1NcdSet = new TermSet<>(b1.ncdSet);
 			b1NcdSet.add(t2);
 
-			HashSet<Variable> b2CdSet = new HashSet<>(b2.cdSet);
-			HashSet<Term> b2NcdSet = new HashSet<>(b2.ncdSet);
+			TermSet<Variable> b2CdSet = new TermSet<>(b2.cdSet);
+			TermSet<Term> b2NcdSet = new TermSet<>(b2.ncdSet);
 			b2NcdSet.add(t1);
 
 			return new ListBindings(
@@ -327,7 +335,7 @@ public class ListBindings implements Bindings {
 	 * @return new bindings node
 	 */
 	private ListBindings createBindingsWithCdSet(Constant c) {
-		return new ListBindings(null, c, new HashSet<>(), new HashSet<>());
+		return new ListBindings(null, c, new TermSet<>(), new TermSet<>());
 	}
 
 	/**
@@ -336,9 +344,9 @@ public class ListBindings implements Bindings {
 	 * @return new bindings node
 	 */
 	private ListBindings createBindingsWithCdSet(Variable v) {
-		HashSet<Variable> cdSet = new HashSet<>();
+		TermSet<Variable> cdSet = new TermSet<>();
 		cdSet.add(v);
-		return new ListBindings(null, null, cdSet, new HashSet<>());
+		return new ListBindings(null, null, cdSet, new TermSet<>());
 	}
 
 	/**
@@ -351,5 +359,33 @@ public class ListBindings implements Bindings {
 		HashSet<Term> intersection = new HashSet<>(ncdSet);
 		intersection.retainAll(cdSet);
 		return intersection;
+	}
+}
+
+/**
+ * Slightly modified HashSet that uses equals() instead of hashCode() when
+ * searching for members.
+ *
+ * (This is sort of a hack. The proper hashCode() method should be defined in
+ * the Term class)
+ * @param <E>
+ */
+class TermSet<E extends Term> extends HashSet<E> {
+
+	public TermSet() {
+		super();
+	}
+
+	public TermSet(TermSet<E> var1) {
+		super(var1);
+	}
+
+	public boolean contains(Term term) {
+		for (E t : this) {
+			if (t.equals(term)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
