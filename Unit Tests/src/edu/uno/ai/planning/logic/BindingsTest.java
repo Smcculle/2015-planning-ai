@@ -8,9 +8,12 @@ import edu.uno.ai.planning.Settings;
 public class BindingsTest {
 
 	private static final Constant c1 = new Constant(Settings.DEFAULT_TYPE, "c1");
+	private static final Constant c1_ = new Constant(Settings.DEFAULT_TYPE, "c1");
 	private static final Constant c2 = new Constant(Settings.DEFAULT_TYPE, "c2");
 	private static final Variable v1 = new Variable(Settings.DEFAULT_TYPE, "v1");
+	private static final Variable v1_ = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v2 = new Variable(Settings.DEFAULT_TYPE, "v2");
+	private static final Variable v2_ = new Variable(Settings.DEFAULT_TYPE, "v2");
 	private static final Variable v3 = new Variable(Settings.DEFAULT_TYPE, "v3");
 	private static final Variable v4 = new Variable(Settings.DEFAULT_TYPE, "v4");
 
@@ -86,4 +89,14 @@ public class BindingsTest {
 		assertThat(bindings.get(v4), is((Term) c1));
 	}
 
+	protected void setEqualTwoInstancesOfTheSameTerm(Bindings empty) {
+		assertThat(empty.setEqual(c1, c1_), is(empty));
+		assertThat(empty.setEqual(v1, v1_), is(empty));
+		assertThat(empty.setEqual(v1, c1).get(v1_), is((Term) c1));
+	}
+
+	protected void setNotEqualTwoInstancesOfTheSameTerm(Bindings empty) {
+		assertThat(empty.setNotEqual(c1, c1_), is(nullValue()));
+		assertThat(empty.setNotEqual(v1, v1_), is(nullValue()));
+	}
 }
