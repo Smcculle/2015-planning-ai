@@ -131,7 +131,7 @@ public class ListBindings implements Bindings {
 	 * @return ListBindings node or null if not found
 	 */
 	protected ListBindings findBindingForConstant(Constant c) {
-		if (constant == c) {
+		if (c.equals(constant)) {
 			return this;
 		} else {
 			return next == null ? null : next.findBindingForConstant(c);
@@ -171,7 +171,7 @@ public class ListBindings implements Bindings {
 	 * @return this if the constants are the same, null if not
 	 */
 	private ListBindings setEqualTwoConstants(Constant c1, Constant c2) {
-		return c1 == c2 ? this : null;
+		return c1.equals(c2) ? this : null;
 	}
 
 	/**
@@ -203,10 +203,10 @@ public class ListBindings implements Bindings {
 	 * @return a new set of bindings or null in case of failure
 	 */
 	private ListBindings mergeCdSets(ListBindings b1, ListBindings b2) {
-		if (b1 == b2) {
+		if (b1.equals(b2)) {
 			return this;
 		} else if (b1.constant != null && b2.constant != null) {
-			if (b1.constant == b2.constant) {
+			if (b1.constant.equals(b2.constant)) {
 				throw new IllegalStateException("Same constant in two different bindings!");
 			}
 			return null;
@@ -264,7 +264,7 @@ public class ListBindings implements Bindings {
 	 * @return this if the constant are different, null otherwise
 	 */
 	private ListBindings setNotEqualTwoConstants(Constant c1, Constant c2) {
-		return c1 == c2 ? null : this;
+		return c1.equals(c2) ? null : this;
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class ListBindings implements Bindings {
 			bc = createBindingsWithCdSet(c);
 		}
 
-		if (bv.constant == c) {
+		if (c.equals(bv.constant)) {
 			return null;
 		} else {
 			return updateNcdSets(bv, bc, v, c);
