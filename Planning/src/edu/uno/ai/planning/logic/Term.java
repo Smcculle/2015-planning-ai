@@ -38,7 +38,7 @@ public abstract class Term implements Formula {
 		if(other instanceof Term) {
 			Term me = substitute(substitution);
 			Term otherTerm = (Term) other.substitute(substitution);
-			return me.getClass() == otherTerm.getClass() && type.equals(otherTerm.name) && name.equals(otherTerm.name);
+			return me.getClass() == otherTerm.getClass() && type.equals(otherTerm.type) && name.equals(otherTerm.name);
 		}
 		else
 			return false;
