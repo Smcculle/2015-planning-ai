@@ -113,4 +113,7 @@ public class HashVarSet implements Cloneable {
 		return Collections.unmodifiableSet(coDefines);
 	}
 
+	public Set<Term> getNonCoDefines(){
+		return Collections.unmodifiableSet(nonCoDefines);
+	}
 }

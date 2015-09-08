@@ -81,11 +81,16 @@ public class HashBindings implements Bindings {
 
 		if (bindings.containsKey(t1)) {
 			HashVarSet t1Binds = bindings.get(t1);
-			HashVarSet newt1Binds = t1Binds.setConstant(c);
-			if (newt1Binds != null) {
-				return useVarSet(newt1Binds);
-			} else {
-				return null;
+			if (t1Binds.getConstant()==c){
+				return this;
+			}
+			else {
+				HashVarSet newt1Binds = t1Binds.setConstant(c);
+				if (newt1Binds != null) {
+					return useVarSet(newt1Binds);
+				} else {
+					return null;
+				}
 			}
 		} else {
 			HashVarSet empty = new HashVarSet();
@@ -161,6 +166,9 @@ public class HashBindings implements Bindings {
 		if (bindings.containsKey(v1) && bindings.containsKey(v2)) {
 			HashVarSet t1Vars = bindings.get(v1);
 			HashVarSet t2Vars = bindings.get(v2);
+			if (t1Vars.getNonCoDefines().contains(v2)){
+				return this;
+			}
 			if (t1Vars == t2Vars) {
 				return null;
 			}
