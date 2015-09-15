@@ -43,9 +43,28 @@ public class HashBindingsTest extends BindingsTest {
 	public void transitivity() {
 		super.transitivity(new HashBindings());
 	}
+	@Test
+	public void transitivityWithConstant() {
+		super.transitivity(new HashBindings());
+	}
 
+	
 	@Test
 	public void deepTransitivity() {
 		super.deepTransitivity(new HashBindings());
+	}
+
+	@Test
+	public void deepTransitivityNotEquals() {
+		super.deepTransitivityNotEquals(new HashBindings());
+	}
+	@Test
+	public void setEqualTwoInstancesOfTheSameTerm() {
+		super.setEqualTwoInstancesOfTheSameTerm(new ListBindings());
+	}
+
+	@Test
+	public void setNotEqualTwoInstancesOfTheSameTerm() {
+		super.setNotEqualTwoInstancesOfTheSameTerm(new ListBindings());
 	}
 }

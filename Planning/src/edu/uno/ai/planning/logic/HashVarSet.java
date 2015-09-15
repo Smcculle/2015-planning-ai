@@ -97,15 +97,37 @@ public class HashVarSet implements Cloneable {
 	}
 
 	/**
+	 * Adds a set of terms to the cd set.  If done one at a time with the above method that would create numerous copies.
+	 */
+	@SuppressWarnings("unchecked")
+	public HashVarSet addCDs(Set<Variable> sv) {
+		HashSet<Variable> newCoDefines=(HashSet<Variable>)this.coDefines.clone();
+		newCoDefines.addAll(sv);
+		if (newCoDefines.size()==this.coDefines.size()){
+			return this;
+		}
+		else {
+			HashVarSet copy = this.typedClone();
+			copy.coDefines=newCoDefines;
+			return copy;
+		}
+	}
+	/**
 	 * Adds a set of terms to the ncd set.  If done one at a time with the above method that would create numerous copies.
 	 * Odd notation to allow a set of variables to be passed. 
 	 */
 	@SuppressWarnings("unchecked")
-	public HashVarSet addNCDs(Set<? extends Term> sv) {
-		HashVarSet copy = this.typedClone();
-		copy.nonCoDefines=(HashSet<Term>)this.nonCoDefines.clone();
-		copy.nonCoDefines.addAll(sv);
-		return copy;
+	public HashVarSet addNCDs(Set<? extends Term> st) {
+		HashSet<Term> newNonCoDefines=(HashSet<Term>)this.nonCoDefines.clone();
+		newNonCoDefines.addAll(st);
+		if (newNonCoDefines.size()==this.nonCoDefines.size()){
+			return this;
+		}
+		else {
+			HashVarSet copy = this.typedClone();
+			copy.nonCoDefines=newNonCoDefines;
+			return copy;
+		}
 	}
 	
 	/**

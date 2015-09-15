@@ -1,7 +1,7 @@
 package edu.uno.ai.planning.logic;
 
 import java.util.HashMap;
-
+import java.util.Set;
 /**
  * An implementation of the {@link Bindings} data structure based on a hash
  * table, which allows fast lookups but is costly to clone and modify.
@@ -99,20 +99,26 @@ public class HashBindings implements Bindings {
 	 * A variable can only be bound to one constant.
 	 */
 	protected HashBindings BindVariableConstant(Variable t1, Constant c) {
-
 		if (bindings.containsKey(t1)) {
 			HashVarSet t1Binds = bindings.get(t1);
 			if (t1Binds.getConstant()==c){
 				return this;
 			}
 			else {
-				HashVarSet newt1Binds = t1Binds.setConstant(c);
-				if (newt1Binds != null) {
-					return useVarSet(newt1Binds);
-				} else {
-					return null;
+				HashVarSet newt1Binds;
+				if (bindings.containsKey(c)){
+					HashVarSet cBinds=bindings.get(c);
+					newt1Binds=t1Binds.union(cBinds);
 				}
+				else{
+					newt1Binds = t1Binds.setConstant(c);
+				}
+				return useVarSet(newt1Binds);
 			}
+		} else if (bindings.containsKey(c)) {
+			HashVarSet cBinds=bindings.get(c);
+			HashVarSet newBinds=cBinds.addCD(t1);
+			return useVarSet(newBinds);
 		} else {
 			HashVarSet empty = new HashVarSet();
 			HashVarSet constant = empty.setConstant(c);
@@ -216,16 +222,32 @@ public class HashBindings implements Bindings {
 	 * Copy this hashbindings
 	 * for each variable in the cd set 
 	 *    update the lookup hash to point to the new hashvarset
+	 * for each variable in the ncd set 
+	 *    make sure it contains everything in the cdset
 	 * Return the hashbindings with the updated entries
 	 */
 	protected HashBindings useVarSet(HashVarSet newVars) {
 		if (newVars!=null){
 			@SuppressWarnings("unchecked")
 			HashMap<Term, HashVarSet> newBindings = (HashMap<Term, HashVarSet>) bindings.clone();
-			for (Variable v : newVars.getCoDefines()) {
+			Set<Variable> codefines=newVars.getCoDefines();
+			for (Variable v : codefines) {
 				newBindings.put(v, newVars);
 			}
-			return new HashBindings(newBindings);
+			if (newVars.getConstant()!=null){
+				newBindings.put(newVars.getConstant(),newVars);
+			}
+			HashBindings needNCDupdate=new HashBindings(newBindings);
+			for (Term t1 : newVars.getNonCoDefines()) {
+				if (bindings.containsKey(t1)){
+					HashVarSet t1Binds=bindings.get(t1);
+					HashVarSet newT1Binds=t1Binds.addNCDs(codefines);
+					if (newT1Binds!=t1Binds){
+						needNCDupdate=needNCDupdate.useVarSet(newT1Binds);
+					}
+				}
+			}
+			return needNCDupdate;
 		}
 		else {
 			return null;
