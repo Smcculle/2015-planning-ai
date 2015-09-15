@@ -55,7 +55,7 @@ public class HashBindings implements Bindings {
 			return null;
 		}
 		else if (t1 instanceof Constant && t2 instanceof Constant){
-			//This is alrady assumed no mapping must be made
+			//This is already assumed no mapping must be made
 			return this;
 		}
 		else if (t1 instanceof Constant){
