@@ -20,6 +20,9 @@ public class HashBindings implements Bindings {
 	}
 
 	@Override
+	/**
+	 * returns a constant associated with a variable or returns the term entered
+	 */
 	public Term get(Term term) {
 		HashVarSet v;
 		if (bindings.containsKey(term)) {
@@ -34,6 +37,12 @@ public class HashBindings implements Bindings {
 	}
 
 	@Override
+	/**
+	 * Defines two terms as equivalent
+	 * returns the current instance if the terms are already equivalent
+	 * returns null if making the terms equivalent would create an inconsistent state.
+	 * otherwise returns a new instance with added bindings
+	 */
 	public Bindings setEqual(Term t1, Term t2) {
 		if (t1 instanceof Constant && t2 instanceof Constant){
 			return EquateConstants((Constant)t1, (Constant)t2);
@@ -50,6 +59,12 @@ public class HashBindings implements Bindings {
 		}
 	}
 	@Override
+	/**
+	 * Defines two terms as definitely not equivalent
+	 * returns the current instance if the terms are already not equivalent
+	 * returns null if making the terms non equivalent would create an inconsistent state.
+	 * otherwise returns a new instance with added bindings
+	 */
 	public Bindings setNotEqual(Term t1, Term t2) {
 		if (t1.equals(t2)){
 			return null;
@@ -69,6 +84,9 @@ public class HashBindings implements Bindings {
 		}		
 	}
 	
+	/**
+	 * Constants with different names are required to be different by the unique name assumption. 
+	 */
 	protected HashBindings EquateConstants(Constant c1, Constant c2) {
 		if (c1.equals(c2)) {
 			return this;
@@ -77,6 +95,9 @@ public class HashBindings implements Bindings {
 		}
 	}
 
+	/**
+	 * A variable can only be bound to one constant.
+	 */
 	protected HashBindings BindVariableConstant(Variable t1, Constant c) {
 
 		if (bindings.containsKey(t1)) {
@@ -101,19 +122,24 @@ public class HashBindings implements Bindings {
 
 	}
 
-	
+	/**
+	 * Binding two variables has 4 cases
+	 *  neither is bound
+	 *  t1 is bound
+	 *  t2 is bound
+	 *  both are bound
+	 */
 	protected HashBindings BindVariables(Variable v1, Variable v2) {
 		if (bindings.containsKey(v1) && bindings.containsKey(v2)) {
 			HashVarSet t1Vars = bindings.get(v1);
 			HashVarSet t2Vars = bindings.get(v2);
 			if (t1Vars == t2Vars) {
 				return this;
-			} else if (t1Vars.canUnion(t2Vars)) {
+			} else  {
+				//the union function checks legality we don't have to do it here.
 				HashVarSet newVars = t1Vars.union(t2Vars);
 				return useVarSet(newVars);
-			} else {
-				return null;
-			}
+			} 
 		} else if (bindings.containsKey(v1)) {
 			HashVarSet newVars = bindings.get(v1).addCD(v2);
 			return useVarSet(newVars);
@@ -127,20 +153,10 @@ public class HashBindings implements Bindings {
 		}
 	}
 
-	protected HashBindings useVarSet(HashVarSet newVars) {
-		if (newVars!=null){
-			@SuppressWarnings("unchecked")
-			HashMap<Term, HashVarSet> newBindings = (HashMap<Term, HashVarSet>) bindings.clone();
-			for (Variable v : newVars.getCoDefines()) {
-				newBindings.put(v, newVars);
-			}
-			return new HashBindings(newBindings);
-		}
-		else {
-			return this;
-		}
-	}
-
+	/**
+	 * setting a variable not equal to a constant is simple 
+	 * add that constant to the NCD set
+	 */
 	protected HashBindings NoBindVariableConstant(Variable t1, Constant c) {
 
 		if (bindings.containsKey(t1)) {
@@ -160,6 +176,11 @@ public class HashBindings implements Bindings {
 
 	}
 
+	/**
+	 * setting a variable not equal to a is more complicated 
+	 * Everything that t1 is equivalent to, t2 is not equivalent to.
+	 * Everything that t2 is equivalent to, t1 is not equivalent to.
+	 */	
 	protected Bindings NoBindVariables(Variable v1, Variable v2) {
 		HashVarSet v1Binds=null;
 		HashVarSet v2Binds=null;
@@ -190,4 +211,24 @@ public class HashBindings implements Bindings {
 		return v1bound.useVarSet(v2Binds);
 	}
 
+	/**
+	 * helper function
+	 * Copy this hashbindings
+	 * for each variable in the cd set 
+	 *    update the lookup hash to point to the new hashvarset
+	 * Return the hashbindings with the updated entries
+	 */
+	protected HashBindings useVarSet(HashVarSet newVars) {
+		if (newVars!=null){
+			@SuppressWarnings("unchecked")
+			HashMap<Term, HashVarSet> newBindings = (HashMap<Term, HashVarSet>) bindings.clone();
+			for (Variable v : newVars.getCoDefines()) {
+				newBindings.put(v, newVars);
+			}
+			return new HashBindings(newBindings);
+		}
+		else {
+			return null;
+		}
+	}
 }
