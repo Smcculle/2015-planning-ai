@@ -42,14 +42,6 @@ class NormalForms {
 			return true;
 		}
 		
-		// TODO: Check i
-		if (expression instanceof Negation)
-		{
-			Negation negation = (Negation)expression;
-			if (isLiteral(negation.argument))
-				return true;
-		}
-		
 		return false;
 	}
 	
@@ -61,6 +53,9 @@ class NormalForms {
 	 * @return true if the expression is a conjunctive clause, false otherwise
 	 */
 	public static boolean isConjunctiveClause(Expression expression) {
+		if (isLiteral(expression))
+			return true;
+		
 		if (isClause(expression))
 			if (expression instanceof Conjunction)
 				return true;
@@ -76,6 +71,9 @@ class NormalForms {
 	 * @return true if the expression is a disjunctive clause, false otherwise
 	 */
 	public static boolean isDisjunctiveClause(Expression expression) {
+		if (isLiteral(expression))
+			return true;
+		
 		if (isClause(expression))
 			if (expression instanceof Disjunction)
 				return true;
@@ -145,6 +143,9 @@ class NormalForms {
 		conjunctiveNormalForm = dropAllUniversalQuantifiers(conjunctiveNormalForm);
 		conjunctiveNormalForm = distributeOrOverAnd(conjunctiveNormalForm);
 		
+		if (!(conjunctiveNormalForm instanceof Conjunction))
+			conjunctiveNormalForm = new Conjunction(conjunctiveNormalForm);
+		
 		return conjunctiveNormalForm;
 	}
 
@@ -164,6 +165,9 @@ class NormalForms {
 		disjunctiveNormalForm = dropAllUniversalQuantifiers(disjunctiveNormalForm);
 		disjunctiveNormalForm = distributeAndOverOr(disjunctiveNormalForm);
 		
+		if (!(disjunctiveNormalForm instanceof Disjunction))
+			disjunctiveNormalForm = new Disjunction(disjunctiveNormalForm);
+		
 		return disjunctiveNormalForm;
 	}
 
@@ -174,7 +178,7 @@ class NormalForms {
 	 * @return an expression in CNF
 	 */
 	public static Expression toCNF(Disjunction disjunction) {
-		return toCNF(new Conjunction(disjunction));
+		return toCNF(new Conjunction(disjunction.simplify()));
 	}
 	
 	/**
@@ -184,7 +188,7 @@ class NormalForms {
 	 * @return an expression in DNF
 	 */
 	public static Expression toDNF(Conjunction conjunction) {
-		return toDNF(new Disjunction(conjunction));
+		return toDNF(new Disjunction(conjunction.simplify()));
 	}
 	
 	private static Expression convertToNegationNormalForm(Expression expression) {
@@ -199,6 +203,10 @@ class NormalForms {
 	
 	private static Expression moveNotInwards(Expression expression) {
 		if (isLiteral(expression))
+			return expression;
+		if (isConjunctiveClause(expression))
+			return expression;
+		if (isDisjunctiveClause(expression))
 			return expression;
 		
 		if (expression instanceof Negation)
@@ -227,9 +235,9 @@ class NormalForms {
 					newArguments.add(argument);
 			
 			if (expression instanceof Conjunction)
-				return new Conjunction((Expression[])newArguments.toArray());
+				return new Conjunction(getArray(newArguments));
 			else if (expression instanceof Disjunction)
-				return new Disjunction((Expression[])newArguments.toArray());
+				return new Disjunction(getArray(newArguments));
 		}
 		return expression;
 	}
@@ -271,13 +279,13 @@ class NormalForms {
 			for (Expression argument : ((Disjunction) expression).arguments)
 				if (argument != complexConjunction)
 					arguments.add(argument);
-			Expression withoutComplexConjunction = new Disjunction((Expression[])arguments.toArray());
+			Expression withoutComplexConjunction = new Disjunction(getArray(arguments));
 			
 			ArrayList<Expression> newArguments = new ArrayList<Expression>();
 			for (Expression argument : complexConjunction.arguments)
 				newArguments.add(distributeOrOverAnd(new Disjunction(argument, withoutComplexConjunction)).simplify());
 				
-			return new Conjunction((Expression[])newArguments.toArray()).simplify();
+			return new Conjunction(getArray(newArguments)).simplify();
 			
 		}
 		
@@ -287,7 +295,7 @@ class NormalForms {
 			for (Expression argument : ((Conjunction)expression).arguments)
 				newArguments.add(distributeOrOverAnd(argument));
 				
-			return new Conjunction((Expression[])newArguments.toArray()).simplify();
+			return new Conjunction(getArray(newArguments)).simplify();
 		}
 		return expression;
 	}
@@ -317,13 +325,13 @@ class NormalForms {
 			for (Expression argument : ((Conjunction) expression).arguments)
 				if (argument != complexDisjunction)
 					arguments.add(argument);
-			Expression withoutComplexDisjunction = new Conjunction((Expression[])arguments.toArray());
+			Expression withoutComplexDisjunction = new Conjunction(getArray(arguments));
 			
 			ArrayList<Expression> newArguments = new ArrayList<Expression>();
 			for (Expression argument : complexDisjunction.arguments)
 				newArguments.add(distributeAndOverOr(new Conjunction(argument, withoutComplexDisjunction)).simplify());
 				
-			return new Disjunction((Expression[])newArguments.toArray()).simplify();
+			return new Disjunction(getArray(newArguments)).simplify();
 			
 		}
 		
@@ -333,8 +341,15 @@ class NormalForms {
 			for (Expression argument : ((Disjunction)expression).arguments)
 				newArguments.add(distributeAndOverOr(argument));
 				
-			return new Disjunction((Expression[])newArguments.toArray()).simplify();
+			return new Disjunction(getArray(newArguments)).simplify();
 		}
 		return expression;
+	}
+	
+	private static Expression[] getArray(ArrayList<Expression> expressionList)
+	{
+		Expression[] expressions = new Expression[expressionList.size()];
+		expressionList.toArray(expressions);
+		return expressions;
 	}
 }
