@@ -13,7 +13,6 @@ public class BindingsTest {
 	private static final Variable v1 = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v1_ = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v2 = new Variable(Settings.DEFAULT_TYPE, "v2");
-	private static final Variable v2_ = new Variable(Settings.DEFAULT_TYPE, "v2");
 	private static final Variable v3 = new Variable(Settings.DEFAULT_TYPE, "v3");
 	private static final Variable v4 = new Variable(Settings.DEFAULT_TYPE, "v4");
 

@@ -23,7 +23,7 @@ import java.util.Set;
  * data structure. On the inside, recursive search through the whole list is
  * used to obtain required information.
  *
- * @author Tobiáš Potoček <tobiaspotocek@gmail.com>
+ * @author TobiÃ¡Å¡ PotoÄ�ek <tobiaspotocek@gmail.com>
  */
 public class ListBindings implements Bindings {
 
@@ -355,7 +355,7 @@ public class ListBindings implements Bindings {
 	 * @param ncdSet the ncdSet to be searched
 	 * @return set of terms found in both input sets
 	 */
-	private Set intersection(Set<Variable> cdSet, Set<Term> ncdSet) {
+	private Set<Term> intersection(Set<Variable> cdSet, Set<Term> ncdSet) {
 		HashSet<Term> intersection = new HashSet<>(ncdSet);
 		intersection.retainAll(cdSet);
 		return intersection;
@@ -371,6 +371,8 @@ public class ListBindings implements Bindings {
  * @param <E>
  */
 class TermSet<E extends Term> extends HashSet<E> {
+
+	private static final long serialVersionUID = 1L;
 
 	public TermSet() {
 		super();
