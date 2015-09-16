@@ -83,6 +83,7 @@ public class NormalFormsTest extends NormalForms {
 	Conjunction notANotBNotC = new Conjunction(notA, notB, notC);
 	Disjunction _AB_vCv_XYZ_ = new Disjunction(AB, C, XYZ);
 	Disjunction _ANotB_v_XY_v_BXNotY_ = new Disjunction(new Conjunction(A, notB), XY, new Conjunction(B, X, notY));
+	Conjunction _AvB__NotBvCvNotX__XvNotY_ = new Conjunction(new Disjunction(A,B), new Disjunction(notB,C,notX), new Disjunction(X,notY));
 	
 	@Test
 	public void isLiteralTest() {
@@ -108,6 +109,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(false, isLiteral(notAvNotB));
 		assertEquals(false, isLiteral(_AB_vCv_XYZ_));
 		assertEquals(false, isLiteral(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(false, isLiteral(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -134,6 +136,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(true, isClause(notAvNotB));
 		assertEquals(false, isClause(_AB_vCv_XYZ_));
 		assertEquals(false, isClause(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(false, isClause(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -160,6 +163,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(false, isConjunctiveClause(notAvNotB));
 		assertEquals(false, isConjunctiveClause(_AB_vCv_XYZ_));
 		assertEquals(false, isConjunctiveClause(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(false, isConjunctiveClause(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -186,6 +190,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(true, isDisjunctiveClause(notAvNotB));
 		assertEquals(false, isDisjunctiveClause(_AB_vCv_XYZ_));
 		assertEquals(false, isDisjunctiveClause(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(false, isDisjunctiveClause(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -212,6 +217,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(false, isCNF(notAvNotB));
 		assertEquals(false, isCNF(_AB_vCv_XYZ_));
 		assertEquals(false, isCNF(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(true, isCNF(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -238,6 +244,7 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(true, isDNF(notAvNotB));
 		assertEquals(true, isDNF(_AB_vCv_XYZ_));
 		assertEquals(true, isDNF(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(false, isDNF(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -270,12 +277,8 @@ public class NormalFormsTest extends NormalForms {
 				new Disjunction(X,B,C),	new Disjunction(Y,B,C),	new Disjunction(Z,B,C)
 			), toCNF(_AB_vCv_XYZ_)
 		);
-//		assertEquals(
-//				new Conjunction(
-//					new Disjunction(X,A,C),	new Disjunction(Y,A,C),	new Disjunction(Z,A,C),
-//					new Disjunction(X,B,C),	new Disjunction(Y,B,C),	new Disjunction(Z,B,C)
-//				), toCNF(_ANotB_v_XY_v_BXNotY_)
-//			);
+		assertEquals(new Conjunction(new Disjunction(X,A), new Disjunction(B,Y,A), new Disjunction(X, notB)), toCNF(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(_AvB__NotBvCvNotX__XvNotY_, toCNF(_AvB__NotBvCvNotX__XvNotY_));
 	}
 	
 	@Test
@@ -304,5 +307,11 @@ public class NormalFormsTest extends NormalForms {
 		assertEquals(notAvNotB, toDNF(notAvNotB));
 		assertEquals(_AB_vCv_XYZ_, toDNF(_AB_vCv_XYZ_));
 		assertEquals(_ANotB_v_XY_v_BXNotY_, toDNF(_ANotB_v_XY_v_BXNotY_));
+		assertEquals(new Disjunction(
+			new Conjunction(X,notB,A),new Conjunction(notY,notB,A),new Conjunction(X,C,A),new Conjunction(notY,C,A),
+			new Conjunction(notY,notX,A),new Conjunction(X,C,B),new Conjunction(notY,C,B),new Conjunction(notY,notX,B)
+		), toDNF(_AvB__NotBvCvNotX__XvNotY_));
+		// (A || B) && (~B || C || ~X) && (X || ~Y) 
+		// (A && ~B && X) || (A && ~B && ~Y) || (A && C && X) || (A && C && ~Y) || (A && ~X && ~Y) || (B && C && X) || (B && C && ~Y) || (B && ~X && ~Y)
 	}	
 }

@@ -323,6 +323,7 @@ class NormalForms {
 		
 		if (expression instanceof Disjunction)
 		{
+			// Get First Complex Conjunction
 			Conjunction complexConjunction = null;
 			for (Expression argument : ((Disjunction) expression).arguments)
 				if (!isLiteral(argument))
@@ -333,12 +334,14 @@ class NormalForms {
 							break;
 						}
 			
+			// Get Other Arguments
 			ArrayList<Expression> arguments = new ArrayList<Expression>();
 			for (Expression argument : ((Disjunction) expression).arguments)
 				if (argument != complexConjunction)
 					arguments.add(argument);
 			Expression withoutComplexConjunction = new Disjunction(getArray(arguments));
 			
+			// Create a Disjunction with each argument of complex argument
 			ArrayList<Expression> newArguments = new ArrayList<Expression>();
 			for (Expression argument : complexConjunction.arguments)
 				newArguments.add(distributeOrOverAnd(new Disjunction(argument, withoutComplexConjunction)).simplify());
@@ -437,6 +440,10 @@ class NormalForms {
 	/**
 	 * Removes tautologies, or occurrences where a Predication and the Negation of that Predication
 	 * exist in the same clause.
+	 * 
+	 * Examples:
+	 * AvBvC~C == AvB
+	 * (A)(B)(Cv~C) = (A)(B)
 	 * 
 	 * @param An expression
 	 * @return An expression without tautologies.
@@ -567,7 +574,33 @@ class NormalForms {
 	 * @return
 	 */
 	private static Expression removePerfectSuperSets(Expression expression) {
-		// TODO Auto-generated method stub
+		if (expression instanceof NAryBooleanExpression)
+		{
+			NAryBooleanExpression nAryBooleanExpression = (NAryBooleanExpression)expression;
+			ArrayList<Expression> newArguments = new ArrayList<Expression>();
+			for (Expression arguments : nAryBooleanExpression.arguments)
+				newArguments.add(arguments);
+			
+			for (int i = newArguments.size() - 1; i >= 0; i--)
+			{
+				Expression argument = newArguments.get(i);
+				for (Expression otherArgument : newArguments)
+					if (argument != otherArgument)
+						if (areArgumentsWithin(otherArgument, argument))
+						{
+							newArguments.remove(i);
+							break;
+						}
+			}
+			
+			if (newArguments.size() != nAryBooleanExpression.arguments.length)
+			{
+				if (nAryBooleanExpression instanceof Conjunction)
+					return new Conjunction(getArray(newArguments));
+				else if (nAryBooleanExpression instanceof Disjunction)
+					return new Disjunction(getArray(newArguments));
+			}
+		}
 		return expression;
 	}
 	
