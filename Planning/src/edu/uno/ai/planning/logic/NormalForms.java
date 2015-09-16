@@ -199,17 +199,40 @@ class NormalForms {
 	public static Expression toDNF(Conjunction conjunction) {
 		return toDNF(new Disjunction(conjunction.simplify()));
 	}
+
+/***********************************************************************************************************
+************************************************************************************************************
+***********************************************************************************************************/
 	
+	/**
+	 * Converts any {@link Expression} to negation normal form.
+	 * 
+	 * @param expression to convert
+	 * @return negated normal form expression
+	 */
 	private static Expression convertToNegationNormalForm(Expression expression) {
 		Expression negationNormalForm = eliminateImplicationsAndEquivalancies(expression);
 		negationNormalForm = moveNotInwards(negationNormalForm);
 		return negationNormalForm;
 	}	
 	
+	/**
+	 * Removes all implications and equivalences from an {@link Expression}. 
+	 * 
+	 * @param An expression to eliminate implications and equivalences
+	 * @return An expression without an implications or equivalences
+	 */
 	private static Expression eliminateImplicationsAndEquivalancies(Expression expression) {
+		// TODO Auto-generated method stub
 		return expression;
 	}
 	
+	/**
+	 * Moves NOT inwards as much as possible in a given {@link Expression}. 
+	 * 
+	 * @param An expression to move NOT inwards
+	 * @return An expression with NOT moved inwards as much as possible
+	 */
 	private static Expression moveNotInwards(Expression expression) {
 		if (isConjunctiveClause(expression))
 			return expression;
@@ -248,18 +271,45 @@ class NormalForms {
 		return expression;
 	}
 	
+	/**
+	 * Standardizes variable names such that they are not conflicting with each other.
+	 * 
+	 * @param An expression
+	 * @return An expression with standardized variables
+	 */
 	private static Expression standardizeVariables(Expression expression) {
+		// TODO Auto-generated method stub
 		return expression;
 	}
 	
+	/**
+	 * Replace existential quantifiers with Skolem constants or functions
+	 * 
+	 * @param An expression
+	 * @return An expression with Skolem constants/functions without existential quantifiers.
+	 */
 	private static Expression skolemizeStatement(Expression expression) {
+		// TODO Auto-generated method stub
 		return expression;
 	}
 	
+	/**
+	 * Removes all universal quantifiers from an {@link Expression}
+	 * 
+	 * @param An expression
+	 * @return An expression without universal quantifiers
+	 */
 	private static Expression dropAllUniversalQuantifiers(Expression expression) {
+		// TODO Auto-generated method stub
 		return expression;
 	}
 
+	/**
+	 * Continuously distribute OR/{@link Disjunction} over AND/{@link Conjunction}
+	 * 
+	 * @param An expression
+	 * @return An expression in conjunctive normal form (albeit not simplified)
+	 */
 	private static Expression distributeOrOverAnd(Expression expression)
 	{
 		expression = expression.simplify();
@@ -307,6 +357,12 @@ class NormalForms {
 		return expression;
 	}
 
+	/**
+	 * Continuously distribute AND/{@link Conjunction} over OR/{@link Disjunction}
+	 * 
+	 * @param An expression
+	 * @return An expression in disjunctive normal form (albeit not simplified)
+	 */
 	private static Expression distributeAndOverOr(Expression expression)
 	{
 		expression = expression.simplify();
@@ -355,6 +411,12 @@ class NormalForms {
 		return expression;
 	}
 
+	/**
+	 * Removes duplication within an expression
+	 * 
+	 * @param An expression
+	 * @return An expression without duplicates
+	 */
 	private static Expression removeDuplicates(Expression expression) {
 		if (expression instanceof NAryBooleanExpression)
 		{
@@ -372,6 +434,13 @@ class NormalForms {
 		return expression;
 	}
 
+	/**
+	 * Removes tautologies, or occurrences where a Predication and the Negation of that Predication
+	 * exist in the same clause.
+	 * 
+	 * @param An expression
+	 * @return An expression without tautologies.
+	 */
 	private static Expression removeTautologies(Expression expression) {
 		if (!isCNF(expression) && !isDNF(expression))
 			return expression;
@@ -413,20 +482,164 @@ class NormalForms {
 		return expression;
 	}
 	
+	/**
+	 *  Remove terms that cancel out, or a predication that exist in one clause and its
+	 *  negation existing on another clause, but all else remaining the same.
+	 *  
+	 *  Examples:
+	 *  (AB)v(A~B) == A
+	 *  (AvB)(Av~B) == A
+	 * 
+	 * @param expression
+	 * @return
+	 */
 	private static Expression removeTermsThatCancelOut(Expression expression) {
-		// TODO Auto-generated method stub
+		if (expression instanceof NAryBooleanExpression)
+		{
+			NAryBooleanExpression nAryBooleanExpression = (NAryBooleanExpression)expression;
+			if (nAryBooleanExpression.arguments.length > 1)
+			{
+				ArrayList<Expression> newArguments = new ArrayList<Expression>();
+				for (Expression arguments : nAryBooleanExpression.arguments)
+					newArguments.add(arguments);
+				
+				for (int i = newArguments.size() - 1; i >= 0; i--)
+				{
+					Expression newArgument = newArguments.get(i); 
+					if (newArgument instanceof NAryBooleanExpression)
+					{
+						NAryBooleanExpression argument = (NAryBooleanExpression)newArguments.get(i);
+						for (Expression term : argument.arguments)
+						{
+							ArrayList<Expression> argumentsOutsideTheTerm = new ArrayList<>();
+							for (Expression otherArgument : ((NAryBooleanExpression) argument).arguments)
+								if (term != otherArgument)
+									argumentsOutsideTheTerm.add(otherArgument);
+							
+							Expression remainingExpression = null;
+							if (argument instanceof Conjunction)
+								remainingExpression = new Conjunction(getArray(argumentsOutsideTheTerm));
+							else if (argument instanceof Disjunction)
+								remainingExpression = new Disjunction(getArray(argumentsOutsideTheTerm));
+							
+							Expression cancelOutExpression = null;;
+							argumentsOutsideTheTerm.add(term.negate());
+							if (argument instanceof Conjunction)
+								cancelOutExpression = new Conjunction(getArray(argumentsOutsideTheTerm));
+							else if (argument instanceof Disjunction)
+								cancelOutExpression = new Disjunction(getArray(argumentsOutsideTheTerm));
+							
+							for (Expression testArgument : nAryBooleanExpression.arguments)
+								if (testArgument != argument)
+									if (areArgumentsEqual(cancelOutExpression, testArgument))
+									{
+										newArguments.remove(argument);
+										newArguments.remove(testArgument);
+										newArguments.add(remainingExpression);
+										break;
+									}
+						}
+					}
+				}
+				
+				if (newArguments.size() != nAryBooleanExpression.arguments.length)
+				{
+					if (nAryBooleanExpression instanceof Conjunction)
+						return new Conjunction(getArray(newArguments));
+					else if (nAryBooleanExpression instanceof Disjunction)
+						return new Disjunction(getArray(newArguments));
+				}
+			}
+		}
+		
 		return expression;
 	}
 	
+	/**
+	 * Removes Perfect Super Sets, or if one clause can fit entirely in another clause,
+	 * remove the other clause.
+	 * 
+	 * Examples:
+	 * (AB)v(ABC) == AB
+	 * (AvB)(AvBvC) == AvB
+	 * 
+	 * @param expression
+	 * @return
+	 */
 	private static Expression removePerfectSuperSets(Expression expression) {
 		// TODO Auto-generated method stub
 		return expression;
 	}
 	
+	/**
+	 * Converts ArrayList<Expression> to Expression[]
+	 * 
+	 * @param An ArrayList of Expression
+	 * @return An Array of Expression
+	 */
 	private static Expression[] getArray(ArrayList<Expression> expressionList)
 	{
 		Expression[] expressions = new Expression[expressionList.size()];
 		expressionList.toArray(expressions);
 		return expressions;
+	}
+	
+	/**
+	 * Checks to see if {@link Expression} are the same type (Disjunction/Conjunction)
+	 * and checks to see if they contain the same arguments
+	 * 
+	 * @param Two expressions
+	 * @return true if statements have same arguments and expressions are of same type.
+	 */
+	private static boolean areArgumentsEqual(Expression a, Expression b)
+	{
+		if (a == b)
+			return true;
+		
+		if ((a instanceof Conjunction && b instanceof Conjunction)
+			|| (a instanceof Disjunction && b instanceof Disjunction))
+		{
+			NAryBooleanExpression nAryA = (NAryBooleanExpression)a;
+			NAryBooleanExpression nAryB = (NAryBooleanExpression)b;
+			
+			if (nAryA.arguments.length != nAryB.arguments.length)
+				return false;
+			
+			for(Expression needleArgument : nAryA.arguments)
+				if (!nAryB.arguments.contains(needleArgument))
+					return false;
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Checks to see if needle {@link Expression} of same type (Conjunction/Disjunction)
+	 * have arguments within the haystack Expression.
+	 * 
+	 * @param Needle and haystack Expression
+	 * @return true if needle is in the haystack
+	 */
+	private static boolean areArgumentsWithin(Expression needle, Expression haystack)
+	{
+		if (needle == haystack)
+			return true;
+		
+		if ((needle instanceof Conjunction && haystack instanceof Conjunction)
+			|| (needle instanceof Disjunction && haystack instanceof Disjunction))
+		{
+			NAryBooleanExpression nNeedle = (NAryBooleanExpression)needle;
+			NAryBooleanExpression nHaystack = (NAryBooleanExpression)haystack;
+			
+			for(Expression needleArgument : nNeedle.arguments)
+				if (!nHaystack.arguments.contains(needleArgument))
+					return false;
+			
+			return true;
+		}
+		
+		return false;
 	}
 }
