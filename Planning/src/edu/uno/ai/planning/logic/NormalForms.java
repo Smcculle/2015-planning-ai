@@ -1,7 +1,6 @@
 package edu.uno.ai.planning.logic;
 
 import java.util.ArrayList;
-
 import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
@@ -146,6 +145,11 @@ class NormalForms {
 		if (!(conjunctiveNormalForm instanceof Conjunction))
 			conjunctiveNormalForm = new Conjunction(conjunctiveNormalForm);
 		
+		conjunctiveNormalForm = removeDuplicates(conjunctiveNormalForm);
+		conjunctiveNormalForm = removeTautologies(conjunctiveNormalForm);
+		conjunctiveNormalForm = removeTermsThatCancelOut(conjunctiveNormalForm);
+		conjunctiveNormalForm = removePerfectSuperSets(conjunctiveNormalForm);
+		
 		return conjunctiveNormalForm;
 	}
 
@@ -167,6 +171,11 @@ class NormalForms {
 		
 		if (!(disjunctiveNormalForm instanceof Disjunction))
 			disjunctiveNormalForm = new Disjunction(disjunctiveNormalForm);
+		
+		disjunctiveNormalForm = removeDuplicates(disjunctiveNormalForm);
+		disjunctiveNormalForm = removeTautologies(disjunctiveNormalForm);
+		disjunctiveNormalForm = removeTermsThatCancelOut(disjunctiveNormalForm);
+		disjunctiveNormalForm = removePerfectSuperSets(disjunctiveNormalForm);
 		
 		return disjunctiveNormalForm;
 	}
@@ -202,8 +211,6 @@ class NormalForms {
 	}
 	
 	private static Expression moveNotInwards(Expression expression) {
-		if (isLiteral(expression))
-			return expression;
 		if (isConjunctiveClause(expression))
 			return expression;
 		if (isDisjunctiveClause(expression))
@@ -218,7 +225,6 @@ class NormalForms {
 				return moveNotInwards(new Disjunction(((Conjunction) argument).negateArguments()));
 			else if (argument instanceof Disjunction)
 				return moveNotInwards(new Conjunction(((Disjunction) argument).negateArguments()));
-			// else handle universal and existential quantifiers if necessary
 		}
 		
 		ImmutableArray<Expression> arguments = null;
@@ -262,6 +268,8 @@ class NormalForms {
 			return expression;
 		if (isDisjunctiveClause(expression))
 			return expression;
+		if (isCNF(expression))
+			return expression;
 		
 		if (expression instanceof Disjunction)
 		{
@@ -285,8 +293,7 @@ class NormalForms {
 			for (Expression argument : complexConjunction.arguments)
 				newArguments.add(distributeOrOverAnd(new Disjunction(argument, withoutComplexConjunction)).simplify());
 				
-			return new Conjunction(getArray(newArguments)).simplify();
-			
+			return distributeOrOverAnd(new Conjunction(getArray(newArguments)).simplify());
 		}
 		
 		if (expression instanceof Conjunction)
@@ -299,7 +306,7 @@ class NormalForms {
 		}
 		return expression;
 	}
-	
+
 	private static Expression distributeAndOverOr(Expression expression)
 	{
 		expression = expression.simplify();
@@ -307,6 +314,8 @@ class NormalForms {
 		if (isDisjunctiveClause(expression))
 			return expression;
 		if (isConjunctiveClause(expression))
+			return expression;
+		if (isDNF(expression))
 			return expression;
 		
 		if (expression instanceof Conjunction)
@@ -331,7 +340,7 @@ class NormalForms {
 			for (Expression argument : complexDisjunction.arguments)
 				newArguments.add(distributeAndOverOr(new Conjunction(argument, withoutComplexDisjunction)).simplify());
 				
-			return new Disjunction(getArray(newArguments)).simplify();
+			return distributeAndOverOr(new Disjunction(getArray(newArguments)).simplify());
 			
 		}
 		
@@ -343,6 +352,74 @@ class NormalForms {
 				
 			return new Disjunction(getArray(newArguments)).simplify();
 		}
+		return expression;
+	}
+
+	private static Expression removeDuplicates(Expression expression) {
+		if (expression instanceof NAryBooleanExpression)
+		{
+			NAryBooleanExpression nAryBooleanExpression = (NAryBooleanExpression)expression;
+			ArrayList<Expression> nonDuplicateArguments = new ArrayList<Expression>();
+			for (Expression argument : nAryBooleanExpression.arguments)
+				if (!nonDuplicateArguments.contains(argument))
+					nonDuplicateArguments.add(removeDuplicates(argument));
+			
+			if(expression instanceof Conjunction) 
+				return new Conjunction(getArray(nonDuplicateArguments));
+			else if (expression instanceof Disjunction) 
+				return new Disjunction(getArray(nonDuplicateArguments));
+		}
+		return expression;
+	}
+
+	private static Expression removeTautologies(Expression expression) {
+		if (!isCNF(expression) && !isDNF(expression))
+			return expression;
+		
+		if (expression instanceof NAryBooleanExpression)
+		{
+			NAryBooleanExpression nAryBooleanExpression = (NAryBooleanExpression)expression;
+			ArrayList<Expression> newArguments = new ArrayList<Expression>();
+			for (Expression argument : nAryBooleanExpression.arguments)
+			{
+				if (argument instanceof NAryBooleanExpression)
+				{
+					if (isConjunctiveClause(argument) || isDisjunctiveClause(argument))
+					{
+						NAryBooleanExpression subExpression = (NAryBooleanExpression)argument;
+						boolean addArgument = true;
+						for (Expression subArgument : subExpression.arguments)
+						{
+							Expression negativeTest = subArgument.negate();
+							for (Expression subArgumentTest : subExpression.arguments)
+								if (subArgumentTest == negativeTest)
+								{
+									addArgument = false;
+									break;
+								}
+							if (!addArgument) break;
+						}
+						if (!addArgument) continue;
+					}
+				}
+				newArguments.add(argument);
+			}
+			
+			if(expression instanceof Conjunction) 
+				return new Conjunction(getArray(newArguments));
+			else if (expression instanceof Disjunction) 
+				return new Disjunction(getArray(newArguments));
+		}
+		return expression;
+	}
+	
+	private static Expression removeTermsThatCancelOut(Expression expression) {
+		// TODO Auto-generated method stub
+		return expression;
+	}
+	
+	private static Expression removePerfectSuperSets(Expression expression) {
+		// TODO Auto-generated method stub
 		return expression;
 	}
 	
