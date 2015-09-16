@@ -14,6 +14,9 @@ public abstract class Term implements Formula {
 	/** The name of the term */
 	public final String name;
 	
+	/** The hash code for this term */
+	private final int hashCode;
+	
 	/**
 	 * Constructs a new term with a given type and name.
 	 * 
@@ -23,6 +26,7 @@ public abstract class Term implements Formula {
 	public Term(String type, String name) {
 		this.type = type;
 		this.name = name;
+		this.hashCode = type.hashCode() * name.hashCode();
 	}
 	
 	@Override
@@ -42,6 +46,11 @@ public abstract class Term implements Formula {
 		}
 		else
 			return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return hashCode;
 	}
 	
 	@Override
