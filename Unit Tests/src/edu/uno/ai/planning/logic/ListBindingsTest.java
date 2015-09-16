@@ -50,6 +50,11 @@ public class ListBindingsTest extends BindingsTest {
 	}
 
 	@Test
+	public void deepTransitivityNotEqual() {
+		super.deepTransitivityNotEqual(new ListBindings());
+	}
+
+	@Test
 	public void setEqualTwoInstancesOfTheSameTerm() {
 		super.setEqualTwoInstancesOfTheSameTerm(new ListBindings());
 	}

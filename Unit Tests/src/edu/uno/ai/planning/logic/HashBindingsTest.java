@@ -48,4 +48,9 @@ public class HashBindingsTest extends BindingsTest {
 	public void deepTransitivity() {
 		super.deepTransitivity(new HashBindings());
 	}
+
+	@Test
+	public void deepTransitivityNotEqual() {
+		super.deepTransitivityNotEqual(new HashBindings());
+	}
 }
