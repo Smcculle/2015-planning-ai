@@ -104,14 +104,6 @@ public class BindingsTest {
 		assertThat(bindings.setEqual(v4, c1), is(nullValue()));
 	}
 
-	protected void deepTransitivityNotEquals(Bindings empty) {
-		Bindings bindings = empty
-				.setEqual(v1, v2).setEqual(v3, v4)
-				.setEqual(v1, c1)
-				.setNotEqual(v2, v3);
-
-		assertThat(bindings.setEqual(v4, c1),is(nullValue()));
-	}
 	protected void setEqualTwoInstancesOfTheSameTerm(Bindings empty) {
 		assertThat(empty.setEqual(c1, c1_), is(empty));
 		assertThat(empty.setEqual(v1, v1_), is(empty));
