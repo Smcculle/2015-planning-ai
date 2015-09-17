@@ -280,9 +280,9 @@ public class NormalFormsTest extends NormalForms {
 	@Test
 	public void toCNFTest() {
 		assertEquals(null, toCNF((Conjunction)nullExpression));
-		// assertEquals(emptyConjunction, toCNF(emptyConjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
-		// assertEquals(emptyConjunction, toCNF(emptyDisjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
-		// assertEquals(null, toCNF((Disjunction)nullExpression)); // TODO Failing Edge Case: Expression's otherNAB is NULL
+		// assertEquals(emptyConjunction, toCNF(emptyConjunction)); // TODO Failing Edge Case: Expression's checking equals, otherNAB is NULL
+		// assertEquals(emptyConjunction, toCNF(emptyDisjunction)); // TODO Failing Edge Case: Expression's checking equals, otherNAB is NULL
+		// assertEquals(null, toCNF((Disjunction)nullExpression)); // TODO Failing Edge Case: Expression's checking equals, otherNAB is NULL
 		assertEquals(new Conjunction(A), toCNF(new Conjunction(A)));
 		assertEquals(new Conjunction(X), toCNF(new Conjunction(X)));
 		assertEquals(new Conjunction(A), toCNF(new Disjunction(A)));

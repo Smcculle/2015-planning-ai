@@ -251,23 +251,21 @@ class NormalForms {
 		}
 		
 		ImmutableArray<Expression> arguments = null;
-		if (expression instanceof Conjunction) arguments = ((Conjunction) expression).arguments;
-		else if (expression instanceof Disjunction) arguments = ((Disjunction) expression).arguments;
+		if (expression instanceof NAryBooleanExpression)
+			arguments = ((NAryBooleanExpression) expression).arguments;
 		
 		if (arguments != null)
 		{
 			ArrayList<Expression> newArguments = new ArrayList<Expression>();
 			for (Expression argument : arguments)
-				if (argument instanceof Negation)
-					newArguments.add(moveNotInwards(argument));
-				else
-					newArguments.add(argument);
+				newArguments.add(moveNotInwards(argument));
 			
 			if (expression instanceof Conjunction)
 				return new Conjunction(getArray(newArguments));
 			else if (expression instanceof Disjunction)
 				return new Disjunction(getArray(newArguments));
 		}
+		
 		return expression;
 	}
 	
@@ -442,7 +440,7 @@ class NormalForms {
 	 * exist in the same clause.
 	 * 
 	 * Examples:
-	 * AvBvC~C == AvB
+	 * AvBv(C~C) == AvB
 	 * (A)(B)(Cv~C) = (A)(B)
 	 * 
 	 * @param An expression
