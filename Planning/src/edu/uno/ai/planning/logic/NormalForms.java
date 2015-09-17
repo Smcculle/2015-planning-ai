@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.logic;
 
 import java.util.ArrayList;
+
 import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
@@ -9,8 +10,7 @@ import edu.uno.ai.planning.util.ImmutableArray;
  * @author Stephen G. Ware
  * @author Edward Thomas Garcia
  */
-class NormalForms {
-
+class NormalForms {	
 	/**
 	 * Returns true if and only if the given expression is a literal.
 	 * 
@@ -133,7 +133,7 @@ class NormalForms {
 	 * @return an expression in CNF
 	 */
 	public static Expression toCNF(Conjunction conjunction) {
-		if (isCNF(conjunction))
+		if (isCNF(conjunction) || conjunction == null)
 			return conjunction;
 		
 		Expression conjunctiveNormalForm = convertToNegationNormalForm(conjunction);
@@ -160,7 +160,7 @@ class NormalForms {
 	 * @return an expression in DNF
 	 */
 	public static Expression toDNF(Disjunction disjunction) {
-		if (isDNF(disjunction))
+		if (isDNF(disjunction) || disjunction == null)
 			return disjunction;
 		
 		Expression disjunctiveNormalForm = convertToNegationNormalForm(disjunction);

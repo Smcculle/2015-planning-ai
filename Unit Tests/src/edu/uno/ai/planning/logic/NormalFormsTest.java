@@ -42,6 +42,12 @@ public class NormalFormsTest extends NormalForms {
 	NegatedLiteral notY = Y.negate();
 	NegatedLiteral notZ = Z.negate();
 	
+	// Test Empty Objects
+	Expression nullExpression = null;
+	Conjunction emptyConjunction = new Conjunction(nullExpression);
+	Disjunction emptyDisjunction = new Disjunction(nullExpression);
+	Negation emptyNegation = new Negation(nullExpression);
+	
 	// Test Double Negation
 	Negation notNotA = new Negation(notA);
 	Negation notNotB = new Negation(notB);
@@ -87,6 +93,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isLiteralTest() {
+		assertEquals(false, isLiteral(nullExpression));
+		assertEquals(false, isLiteral(emptyConjunction));
+		assertEquals(false, isLiteral(emptyDisjunction));
+		assertEquals(false, isLiteral(emptyNegation));
 		assertEquals(true, isLiteral(A));
 		assertEquals(true, isLiteral(X));
 		assertEquals(true, isLiteral(notA));
@@ -114,6 +124,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isClauseTest() {
+		assertEquals(false, isClause(nullExpression));
+		assertEquals(false, isClause(emptyConjunction));
+		assertEquals(false, isClause(emptyDisjunction));
+		assertEquals(false, isClause(emptyNegation));
 		assertEquals(true, isClause(A));
 		assertEquals(true, isClause(X));
 		assertEquals(true, isClause(notA));
@@ -141,6 +155,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isConjunctiveClauseTest() {
+		assertEquals(false, isConjunctiveClause(nullExpression));
+		assertEquals(false, isConjunctiveClause(emptyConjunction));
+		assertEquals(false, isConjunctiveClause(emptyDisjunction));
+		assertEquals(false, isConjunctiveClause(emptyNegation));
 		assertEquals(true, isConjunctiveClause(A));
 		assertEquals(true, isConjunctiveClause(X));
 		assertEquals(true, isConjunctiveClause(notA));
@@ -168,6 +186,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isDisjunctiveClauseTest() {
+		assertEquals(false, isDisjunctiveClause(nullExpression));
+		assertEquals(false, isDisjunctiveClause(emptyConjunction));
+		assertEquals(false, isDisjunctiveClause(emptyDisjunction));
+		assertEquals(false, isDisjunctiveClause(emptyNegation));
 		assertEquals(true, isDisjunctiveClause(A));
 		assertEquals(true, isDisjunctiveClause(X));
 		assertEquals(true, isDisjunctiveClause(notA));
@@ -195,6 +217,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isCNFTest() {
+		assertEquals(false, isCNF(nullExpression));
+		assertEquals(false, isCNF(emptyConjunction));
+		assertEquals(false, isCNF(emptyDisjunction));
+		assertEquals(false, isCNF(emptyNegation));
 		assertEquals(true, isCNF(A));
 		assertEquals(true, isCNF(X));
 		assertEquals(true, isCNF(notA));
@@ -222,6 +248,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void isDNFTest() {
+		assertEquals(false, isDNF(nullExpression));
+		assertEquals(false, isDNF(emptyConjunction));
+		assertEquals(false, isDNF(emptyDisjunction));
+		assertEquals(false, isDNF(emptyNegation));
 		assertEquals(true, isDNF(A));
 		assertEquals(true, isDNF(X));
 		assertEquals(true, isDNF(notA));
@@ -249,6 +279,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void toCNFTest() {
+		assertEquals(null, toCNF((Conjunction)nullExpression));
+		// assertEquals(emptyConjunction, toCNF(emptyConjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
+		// assertEquals(emptyConjunction, toCNF(emptyDisjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
+		// assertEquals(null, toCNF((Disjunction)nullExpression)); // TODO Failing Edge Case: Expression's otherNAB is NULL
 		assertEquals(new Conjunction(A), toCNF(new Conjunction(A)));
 		assertEquals(new Conjunction(X), toCNF(new Conjunction(X)));
 		assertEquals(new Conjunction(A), toCNF(new Disjunction(A)));
@@ -283,6 +317,10 @@ public class NormalFormsTest extends NormalForms {
 	
 	@Test
 	public void toDNFTest() {
+		assertEquals(null, toDNF((Disjunction)nullExpression));
+		// assertEquals(emptyConjunction, toDNF(emptyConjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
+		// assertEquals(emptyConjunction, toDNF(emptyDisjunction)); // TODO Failing Edge Case: Expression's otherNAB is NULL
+		// assertEquals(null, toDNF((Conjunction)nullExpression)); // TODO Failing Edge Case: Expression's otherNAB is NULL
 		assertEquals(new Disjunction(A), toDNF(new Disjunction(A)));
 		assertEquals(new Disjunction(X), toDNF(new Disjunction(X)));
 		assertEquals(new Disjunction(A), toDNF(new Conjunction(A)));
