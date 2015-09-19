@@ -55,12 +55,12 @@ public class NegatedLiteral extends Negation implements Literal {
 	
 	@Override
 	public Expression toCNF() {
-		return this;
+		return NormalForms.toCNF(this);
 	}
 
 	@Override
 	public Expression toDNF() {
-		return this;
+		return NormalForms.toDNF(this);
 	}
 	
 	@Override

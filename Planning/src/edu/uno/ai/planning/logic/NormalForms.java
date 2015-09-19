@@ -5,32 +5,30 @@ import java.util.ArrayList;
 import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
- * Utility methods for converting expressions to conjunctive normal form.
+ * Utility methods for converting expressions to conjunctive/disjunctive normal forms.
  * 
  * @author Stephen G. Ware
  * @author Edward Thomas Garcia
  */
 class NormalForms {	
 	/**
-	 * Returns true if and only if the given expression is a literal.
+	 * Returns true if and only if the given Expression is a Literal.
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is a literal, false otherwise
+	 * @param expression The Expression to test
+	 * @return true If the Expression is a Literal, false otherwise
 	 */
 	public static boolean isLiteral(Expression expression) {
 		return expression instanceof Literal;
 	}
 	
 	/**
-	 * Returns true if and only if the given expression is a clause.
+	 * Returns true if and only if the given Expression is a clause.
+	 * Note: Literal is not a clause
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is a clause, false otherwise
+	 * @param expression The Expression to test
+	 * @return true If the Expression is a clause, false otherwise
 	 */
 	public static boolean isClause(Expression expression) {
-		if (expression instanceof Literal)
-			return true;
-		
 		if (expression instanceof NAryBooleanExpression)
 		{
 			NAryBooleanExpression nAryBooleanExpression = (NAryBooleanExpression) expression;
@@ -45,16 +43,13 @@ class NormalForms {
 	}
 	
 	/**
-	 * Returns true if and only if the given expression is a conjunctive
+	 * Returns true if and only if the given Expression is a conjunctive
 	 * clause.
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is a conjunctive clause, false otherwise
+	 * @param expression The Expression to test
+	 * @return true If the Expression is a conjunctive clause, false otherwise
 	 */
 	public static boolean isConjunctiveClause(Expression expression) {
-		if (isLiteral(expression))
-			return true;
-		
 		if (isClause(expression))
 			if (expression instanceof Conjunction)
 				return true;
@@ -63,16 +58,13 @@ class NormalForms {
 	}
 	
 	/**
-	 * Returns true if and only if the given expression is a disjunctive
+	 * Returns true if and only if the given Expression is a disjunctive
 	 * clause.
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is a disjunctive clause, false otherwise
+	 * @param expression The Expression to test
+	 * @return true If the Expression is a disjunctive clause, false otherwise
 	 */
 	public static boolean isDisjunctiveClause(Expression expression) {
-		if (isLiteral(expression))
-			return true;
-		
 		if (isClause(expression))
 			if (expression instanceof Disjunction)
 				return true;
@@ -81,16 +73,13 @@ class NormalForms {
 	}
 	
 	/**
-	 * Returns true if and only if the given expression is in conjunctive
+	 * Returns true if and only if the given Expression is in conjunctive
 	 * normal form.
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is in CNF, false otherwise
+	 * @param expression The Expression to test
+	 * @return true if The Expression is in conjunctive normal form, false otherwise
 	 */
 	public static boolean isCNF(Expression expression) {
-		if (expression instanceof Literal)
-			return true;
-		
 		if (expression instanceof Conjunction)
 		{
 			Conjunction conjunction = (Conjunction)expression;
@@ -104,16 +93,13 @@ class NormalForms {
 	}
 	
 	/**
-	 * Returns true if and only if the given expression is in disjunctive
+	 * Returns true if and only if the given Expression is in disjunctive
 	 * normal form.
 	 * 
-	 * @param expression the expression to test
-	 * @return true if the expression is in DNF, false otherwise
+	 * @param expression The Expression to test
+	 * @return true If the Expression is in disjunctive normal form, false otherwise
 	 */
 	public static boolean isDNF(Expression expression) {
-		if (expression instanceof Literal)
-			return true;
-		
 		if (expression instanceof Disjunction)
 		{
 			Disjunction disjunction = (Disjunction)expression;
@@ -129,8 +115,8 @@ class NormalForms {
 	/**
 	 * Converts any {@link Conjunction} to conjunctive normal form.
 	 * 
-	 * @param conjunction the expression to convert
-	 * @return an expression in CNF
+	 * @param conjunction The Expression to convert
+	 * @return expression The Expression in conjunctive normal form
 	 */
 	public static Expression toCNF(Conjunction conjunction) {
 		if (isCNF(conjunction) || conjunction == null)
@@ -142,13 +128,15 @@ class NormalForms {
 		conjunctiveNormalForm = dropAllUniversalQuantifiers(conjunctiveNormalForm);
 		conjunctiveNormalForm = distributeOrOverAnd(conjunctiveNormalForm);
 		
-		if (!(conjunctiveNormalForm instanceof Conjunction))
-			conjunctiveNormalForm = new Conjunction(conjunctiveNormalForm);
-		
 		conjunctiveNormalForm = removeDuplicates(conjunctiveNormalForm);
 		conjunctiveNormalForm = removeTautologies(conjunctiveNormalForm);
 		conjunctiveNormalForm = removeTermsThatCancelOut(conjunctiveNormalForm);
 		conjunctiveNormalForm = removePerfectSuperSets(conjunctiveNormalForm);
+		
+		conjunctiveNormalForm = wrapLiteralsWithDisjunctions(conjunctiveNormalForm);
+		
+		if (!(conjunctiveNormalForm instanceof Conjunction))
+			conjunctiveNormalForm = new Conjunction(conjunctiveNormalForm);
 		
 		return conjunctiveNormalForm;
 	}
@@ -156,8 +144,8 @@ class NormalForms {
 	/**
 	 * Converts any {@link Disjunction} to disjunctive normal form.
 	 * 
-	 * @param disjunction the expression to convert
-	 * @return an expression in DNF
+	 * @param disjunction The Expression to convert
+	 * @return expression The Expression in disjunctive normal form
 	 */
 	public static Expression toDNF(Disjunction disjunction) {
 		if (isDNF(disjunction) || disjunction == null)
@@ -169,13 +157,15 @@ class NormalForms {
 		disjunctiveNormalForm = dropAllUniversalQuantifiers(disjunctiveNormalForm);
 		disjunctiveNormalForm = distributeAndOverOr(disjunctiveNormalForm);
 		
-		if (!(disjunctiveNormalForm instanceof Disjunction))
-			disjunctiveNormalForm = new Disjunction(disjunctiveNormalForm);
-		
 		disjunctiveNormalForm = removeDuplicates(disjunctiveNormalForm);
 		disjunctiveNormalForm = removeTautologies(disjunctiveNormalForm);
 		disjunctiveNormalForm = removeTermsThatCancelOut(disjunctiveNormalForm);
 		disjunctiveNormalForm = removePerfectSuperSets(disjunctiveNormalForm);
+		
+		disjunctiveNormalForm = wrapLiteralsWithConjunctions(disjunctiveNormalForm);
+		
+		if (!(disjunctiveNormalForm instanceof Disjunction))
+			disjunctiveNormalForm = new Disjunction(disjunctiveNormalForm);
 		
 		return disjunctiveNormalForm;
 	}
@@ -183,21 +173,41 @@ class NormalForms {
 	/**
 	 * Converts any {@link Disjunction} to conjunctive normal form.
 	 * 
-	 * @param disjunction the expression to convert
-	 * @return an expression in CNF
+	 * @param disjunction The Expression to convert
+	 * @return expression The Expression in conjunctive normal form
 	 */
 	public static Expression toCNF(Disjunction disjunction) {
-		return toCNF(new Conjunction(disjunction.simplify()));
+		return toCNF(new Conjunction(disjunction));
 	}
 	
 	/**
 	 * Converts any {@link Conjunction} to disjunctive normal form.
 	 * 
-	 * @param conjunction the expression to convert
-	 * @return an expression in DNF
+	 * @param conjunction The Expression to convert
+	 * @return expression The Expression in disjunctive normal form
 	 */
 	public static Expression toDNF(Conjunction conjunction) {
-		return toDNF(new Disjunction(conjunction.simplify()));
+		return toDNF(new Disjunction(conjunction));
+	}
+	
+	/**
+	 * Converts any {@link Expression} to conjunctive normal form.
+	 * 
+	 * @param expression The Expression to convert
+	 * @return expression The Expression in conjunctive normal form
+	 */
+	public static Expression toCNF(Expression expression) {
+		return toCNF(new Conjunction(expression));
+	}
+	
+	/**
+	 * Converts any {@link Expression} to disjunctive normal form.
+	 * 
+	 * @param conjunction The Expression to convert
+	 * @return expression The Expression in disjunctive normal form
+	 */
+	public static Expression toDNF(Expression expression) {
+		return toDNF(new Disjunction(expression));
 	}
 
 /***********************************************************************************************************
@@ -207,8 +217,8 @@ class NormalForms {
 	/**
 	 * Converts any {@link Expression} to negation normal form.
 	 * 
-	 * @param expression to convert
-	 * @return negated normal form expression
+	 * @param expression The Expression to convert
+	 * @return expression The Expression in negated normal form
 	 */
 	private static Expression convertToNegationNormalForm(Expression expression) {
 		Expression negationNormalForm = eliminateImplicationsAndEquivalancies(expression);
@@ -219,8 +229,8 @@ class NormalForms {
 	/**
 	 * Removes all implications and equivalences from an {@link Expression}. 
 	 * 
-	 * @param An expression to eliminate implications and equivalences
-	 * @return An expression without an implications or equivalences
+	 * @param expression The Expression to eliminate implications and equivalences
+	 * @return expression The Expression without implications or equivalences
 	 */
 	private static Expression eliminateImplicationsAndEquivalancies(Expression expression) {
 		// TODO Auto-generated method stub
@@ -230,13 +240,11 @@ class NormalForms {
 	/**
 	 * Moves NOT inwards as much as possible in a given {@link Expression}. 
 	 * 
-	 * @param An expression to move NOT inwards
-	 * @return An expression with NOT moved inwards as much as possible
+	 * @param expression The Expression to move NOT inwards
+	 * @return expression The Expression with NOT moved inwards
 	 */
 	private static Expression moveNotInwards(Expression expression) {
-		if (isConjunctiveClause(expression))
-			return expression;
-		if (isDisjunctiveClause(expression))
+		if (isClause(expression))
 			return expression;
 		
 		if (expression instanceof Negation)
@@ -272,8 +280,8 @@ class NormalForms {
 	/**
 	 * Standardizes variable names such that they are not conflicting with each other.
 	 * 
-	 * @param An expression
-	 * @return An expression with standardized variables
+	 * @param expression The Expression to standardize
+	 * @return expression The Expression with standardized variables
 	 */
 	private static Expression standardizeVariables(Expression expression) {
 		// TODO Auto-generated method stub
@@ -283,8 +291,8 @@ class NormalForms {
 	/**
 	 * Replace existential quantifiers with Skolem constants or functions
 	 * 
-	 * @param An expression
-	 * @return An expression with Skolem constants/functions without existential quantifiers.
+	 * @param expression The Expression to Skolemize
+	 * @return expression The Expression with Skolem constants/functions
 	 */
 	private static Expression skolemizeStatement(Expression expression) {
 		// TODO Auto-generated method stub
@@ -294,8 +302,8 @@ class NormalForms {
 	/**
 	 * Removes all universal quantifiers from an {@link Expression}
 	 * 
-	 * @param An expression
-	 * @return An expression without universal quantifiers
+	 * @param expression The Expression to remove all universal quantifiers
+	 * @return expression The Expression without universal quantifiers
 	 */
 	private static Expression dropAllUniversalQuantifiers(Expression expression) {
 		// TODO Auto-generated method stub
@@ -305,8 +313,8 @@ class NormalForms {
 	/**
 	 * Continuously distribute OR/{@link Disjunction} over AND/{@link Conjunction}
 	 * 
-	 * @param An expression
-	 * @return An expression in conjunctive normal form (albeit not simplified)
+	 * @param expression The Expression to distribute OR over AND
+	 * @return expression The Expression in conjunctive normal form (albeit not simplified)
 	 */
 	private static Expression distributeOrOverAnd(Expression expression)
 	{
@@ -332,11 +340,15 @@ class NormalForms {
 							break;
 						}
 			
+			if (complexConjunction == null) return expression;
+			
 			// Get Other Arguments
 			ArrayList<Expression> arguments = new ArrayList<Expression>();
 			for (Expression argument : ((Disjunction) expression).arguments)
 				if (argument != complexConjunction)
 					arguments.add(argument);
+			
+			if (arguments.size() == 0) return expression;
 			Expression withoutComplexConjunction = new Disjunction(getArray(arguments));
 			
 			// Create a Disjunction with each argument of complex argument
@@ -361,16 +373,14 @@ class NormalForms {
 	/**
 	 * Continuously distribute AND/{@link Conjunction} over OR/{@link Disjunction}
 	 * 
-	 * @param An expression
-	 * @return An expression in disjunctive normal form (albeit not simplified)
+	 * @param expression The Expression to distribute AND over OR
+	 * @return expression The Expression in disjunctive normal form (albeit not simplified)
 	 */
 	private static Expression distributeAndOverOr(Expression expression)
 	{
 		expression = expression.simplify();
 		
-		if (isDisjunctiveClause(expression))
-			return expression;
-		if (isConjunctiveClause(expression))
+		if (isClause(expression))
 			return expression;
 		if (isDNF(expression))
 			return expression;
@@ -387,10 +397,14 @@ class NormalForms {
 							break;
 						}
 			
+			if (complexDisjunction == null) return expression;
+			
 			ArrayList<Expression> arguments = new ArrayList<Expression>();
 			for (Expression argument : ((Conjunction) expression).arguments)
 				if (argument != complexDisjunction)
 					arguments.add(argument);
+			
+			if (arguments.size() == 0) return expression;
 			Expression withoutComplexDisjunction = new Conjunction(getArray(arguments));
 			
 			ArrayList<Expression> newArguments = new ArrayList<Expression>();
@@ -413,10 +427,10 @@ class NormalForms {
 	}
 
 	/**
-	 * Removes duplication within an expression
+	 * Removes duplication within an Expression
 	 * 
-	 * @param An expression
-	 * @return An expression without duplicates
+	 * @param expression The Expression which may contain duplicates
+	 * @return expression The Expression without duplicates
 	 */
 	private static Expression removeDuplicates(Expression expression) {
 		if (expression instanceof NAryBooleanExpression)
@@ -443,8 +457,8 @@ class NormalForms {
 	 * AvBv(C~C) == AvB
 	 * (A)(B)(Cv~C) = (A)(B)
 	 * 
-	 * @param An expression
-	 * @return An expression without tautologies.
+	 * @param expression The Expression which may contain tautologies
+	 * @return expression The Expression without tautologies.
 	 */
 	private static Expression removeTautologies(Expression expression) {
 		if (!isCNF(expression) && !isDNF(expression))
@@ -495,8 +509,8 @@ class NormalForms {
 	 *  (AB)v(A~B) == A
 	 *  (AvB)(Av~B) == A
 	 * 
-	 * @param expression
-	 * @return
+	 * @param expression The Expression that may contain terms that cancel out
+	 * @return expression The Expression after canceling terms out
 	 */
 	private static Expression removeTermsThatCancelOut(Expression expression) {
 		if (expression instanceof NAryBooleanExpression)
@@ -568,8 +582,8 @@ class NormalForms {
 	 * (AB)v(ABC) == AB
 	 * (AvB)(AvBvC) == AvB
 	 * 
-	 * @param expression
-	 * @return
+	 * @param expression The Expression which may contain perfect super sets
+	 * @return expression The Expression without perfect super super sets
 	 */
 	private static Expression removePerfectSuperSets(Expression expression) {
 		if (expression instanceof NAryBooleanExpression)
@@ -602,11 +616,68 @@ class NormalForms {
 		return expression;
 	}
 	
+
+	/**
+	 * Wraps any literals in {@link Expression} to with a new (@link Disjunction)
+	 * 
+	 * @param expression The Expression which may contain Literals not within a Disjunction
+	 * @return expression The Expression where all Literals are within a Disjunction
+	 */
+	private static Expression wrapLiteralsWithDisjunctions(Expression expression) {
+		if (isLiteral(expression))
+			return new Disjunction(expression);
+		
+		if (expression instanceof NAryBooleanExpression)
+		{
+			ArrayList<Expression> newArguments = new ArrayList<Expression>();
+			for (Expression argument : ((NAryBooleanExpression) expression).arguments)
+				newArguments.add(wrapLiteralsWithDisjunctions(argument));
+			
+			if (expression instanceof Conjunction)
+				return new Conjunction(getArray(newArguments)).simplify();
+			if (expression instanceof Disjunction)
+				return new Disjunction(getArray(newArguments)).simplify();
+		}
+		
+		if (expression instanceof Negation)
+			return new Negation(wrapLiteralsWithDisjunctions(((Negation) expression).argument));
+		
+		return expression;
+	}
+	
+	/**
+	 * Wraps any literals in {@link Expression} to with a new (@link Conjunction)
+	 * 
+	 * @param expression The Expression which may contain Literals not within a Conjunction
+	 * @return expression The Expression where all Literals are within a Conjunction
+	 */
+	private static Expression wrapLiteralsWithConjunctions(Expression expression) {
+		if (isLiteral(expression))
+			return new Conjunction(expression);
+		
+		if (expression instanceof NAryBooleanExpression)
+		{
+			ArrayList<Expression> newArguments = new ArrayList<Expression>();
+			for (Expression argument : ((NAryBooleanExpression) expression).arguments)
+				newArguments.add(wrapLiteralsWithConjunctions(argument));
+			
+			if (expression instanceof Conjunction)
+				return new Conjunction(getArray(newArguments)).simplify();
+			if (expression instanceof Disjunction)
+				return new Disjunction(getArray(newArguments)).simplify();
+		}
+		
+		if (expression instanceof Negation)
+			return new Negation(wrapLiteralsWithConjunctions(((Negation) expression).argument));
+		
+		return expression;
+	}
+	
 	/**
 	 * Converts ArrayList<Expression> to Expression[]
 	 * 
-	 * @param An ArrayList of Expression
-	 * @return An Array of Expression
+	 * @param expressionList The ArrayList of Expression
+	 * @return array The Array of Expression
 	 */
 	private static Expression[] getArray(ArrayList<Expression> expressionList)
 	{
@@ -619,8 +690,9 @@ class NormalForms {
 	 * Checks to see if {@link Expression} are the same type (Disjunction/Conjunction)
 	 * and checks to see if they contain the same arguments
 	 * 
-	 * @param Two expressions
-	 * @return true if statements have same arguments and expressions are of same type.
+	 * @param a First Expression to compare
+	 * @param b Second Expression to compare
+	 * @return true if statements have same arguments and Expressions are of same type.
 	 */
 	private static boolean areArgumentsEqual(Expression a, Expression b)
 	{
@@ -647,11 +719,12 @@ class NormalForms {
 	}
 	
 	/**
-	 * Checks to see if needle {@link Expression} of same type (Conjunction/Disjunction)
-	 * have arguments within the haystack Expression.
+	 * Checks to see if needle {@link Expression} have arguments within 
+	 * the haystack Expression of same type (Conjunction/Disjunction).
 	 * 
-	 * @param Needle and haystack Expression
-	 * @return true if needle is in the haystack
+	 * @param needle The Expression that may have arguments within the haystack
+	 * @param haystack The Expression that may contain the needle
+	 * @return true If the needle is in the haystack
 	 */
 	private static boolean areArgumentsWithin(Expression needle, Expression haystack)
 	{
