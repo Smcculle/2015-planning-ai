@@ -7,5 +7,6 @@ import org.junit.runner.RunWith;
 @Suite.SuiteClasses({
 	edu.uno.ai.planning.logic.HashBindingsTest.class,
 	edu.uno.ai.planning.logic.ListBindingsTest.class,
+	edu.uno.ai.planning.logic.NormalFormsTest.class,
 })
 public class AllTests {/* nothing */}
