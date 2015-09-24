@@ -39,12 +39,12 @@ public interface Literal extends Expression {
 	
 	@Override
 	public default Expression toCNF() {
-		return this;
+		return NormalForms.toCNF(this);
 	}
 
 	@Override
 	public default Expression toDNF() {
-		return this;
+		return NormalForms.toDNF(this);
 	}
 	
 	@Override
