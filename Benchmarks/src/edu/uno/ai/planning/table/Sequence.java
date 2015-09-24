@@ -14,9 +14,9 @@ public abstract class Sequence<T, V> implements Iterable<V> {
 		double total = 0;
 		for(V value : this) {
 			if(value instanceof Integer)
-				total += (int) value;
+				total += (Integer) value;
 			else if(value instanceof Double)
-				total += (double) value;
+				total += (Double) value;
 			else if(value instanceof Boolean)
 				total++;
 			else
