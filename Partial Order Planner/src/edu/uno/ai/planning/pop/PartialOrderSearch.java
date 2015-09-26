@@ -1,9 +1,11 @@
 package edu.uno.ai.planning.pop;
 
+import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Search;
 import edu.uno.ai.planning.pop.PartialOrderNode; 
 import edu.uno.ai.planning.pop.PartialOrderProblem;
 import edu.uno.ai.planning.pop.PartialOrderRoot;
+import edu.uno.ai.planning.Step;
 
 /**
  * Represents a search space whose
@@ -12,7 +14,7 @@ import edu.uno.ai.planning.pop.PartialOrderRoot;
  * 
  * @author
  */
-public abstract class PartialOrderSearch extends Search {
+public class PartialOrderSearch extends Search {
 	
 	/** The Partial Order problem being solved */
 	public final PartialOrderProblem problem;
@@ -48,4 +50,26 @@ public abstract class PartialOrderSearch extends Search {
 	public void setNodeLimit(int limit) {
 		((StateSpaceRoot) root).setNodeLimit(limit);
 	}
-}
+
+	@Override
+	//This is the bread and butter it is the method that is called to actually solve the problem
+	public Plan findNextSolution() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/**
+	 * This the the actual implementation of the POP algorithm. This method will recursively call itself till 
+	 * either a correct, problem solving plan is found, it fails to find a plan, or it runs out of search space.
+	 * We will not be implementing sepeation and thus we need to track the threats so we can resolve them later.
+	 * 
+	 * @param A A list or set or something of the steps involved in this plan so far
+	 * @param O A directed acyclic graph whose nodes are the steps in the plan and whose edges are the orderings 
+	 * @param L Some collection of the casual links between the steps in the plan
+	 * @param B Set of bindings used to ground the variables in the plan
+	 * @param T Set of threats to casual links in the plan
+	 * @return 
+	 */
+	private Plan pop(Step[] A, O,L,B,T){
+		return null;
+	}
