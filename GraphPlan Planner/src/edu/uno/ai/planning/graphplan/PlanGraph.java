@@ -1,10 +1,13 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
 
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.logic.Conjunction;
+import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.NegatedLiteral;
@@ -16,11 +19,19 @@ import edu.uno.ai.planning.logic.NegatedLiteral;
  * @author Christian Levi
  * 
  */
-public class PlanGraph {
+public class PlanGraph 
+{
+	/** List of all steps in current PlanGraph Level */
+	ArrayList<Step> _currentSteps = new ArrayList<Step>();
 	
-	private final ArrayList<Step> _currentSteps = new ArrayList<Step>();
+	/** List of all mutually exclusive steps in current PlanGraph Level */
+	Map<Step, ArrayList<Step>> _mutexSteps = new Hashtable<Step, ArrayList<Step>>();
 	
-	private PlanGraph _parent;
+	/** List of all mutually exclusive literals in current PlanGraph Level */
+	Map<Literal, ArrayList<Literal>> _mutexLiterals = new Hashtable<Literal, ArrayList<Literal>>();
+	
+	/** PlanGraph's Parent */
+	PlanGraph _parent;
 	
 	/**
 	 * Constructs a new root PlanGraph
@@ -42,6 +53,9 @@ public class PlanGraph {
 	public PlanGraph (PlanGraph parent)
 	{
 		_parent = parent;
+		ArrayList<Literal> parentEffectLiterals = parent.GetEffectLiterals();
+		for (Literal literal : parentEffectLiterals)
+			_currentSteps.add(new Step("Persistence Step", literal, literal));
 	}
 	
 	/**
@@ -69,29 +83,24 @@ public class PlanGraph {
 	}
 	
 	/**
-	 * Returns an ArrayList<Expression> of all effect Literals
+	 * Returns an ArrayList<Literal> of all effect Literals
 	 *  	
 	 * @return effectLiterals The list of all effect literals in PlanGraph 
 	 */
-	public ArrayList<Expression> GetEffectLiterals()
+	public ArrayList<Literal> GetEffectLiterals()
 	{
-		ArrayList<Expression> effectLiterals = new ArrayList<Expression>();
-		
-		if (_parent != null)
-			effectLiterals.addAll(_parent.GetEffectLiterals());
-		
+		ArrayList<Literal> effectLiterals = new ArrayList<Literal>();		
 		for (Step step : _currentSteps)
-			for (Expression effectLiteral : GetLiterals(step.effect))
+			for (Literal effectLiteral : GetLiterals(step.effect))
 				if (!effectLiterals.contains(effectLiteral))
 					effectLiterals.add(effectLiteral);
-		
 		return effectLiterals;
 	}
 	
 	/**
 	 * Returns all Steps in the current PlanGraph
 	 * 	
-	 * @return ArrayList<Expression> All steps used in current PlanGraph
+	 * @return ArrayList<Literal> All steps used in current PlanGraph
 	 */
 	public ArrayList<Step> GetCurrentSteps()
 	{
@@ -103,7 +112,7 @@ public class PlanGraph {
 	 * In other words, get all steps from the root PlanGraph to current
 	 * PlanGraph.
 	 * 	
-	 * @return ArrayList<Expression> All steps used in all PlanGraph
+	 * @return ArrayList<Literal> All steps used in all PlanGraph
 	 */
 	public ArrayList<Step> GetAllSteps()
 	{
@@ -124,101 +133,235 @@ public class PlanGraph {
 	 * @param step
 	 */
 	public void AddStep(Step step)
-	{
-		for (Step existingStep : GetAllSteps())
-			if (existingStep.equals(step))
-				return;
-		
+	{		
+		int previousCurrentStepsSize = _currentSteps.size();
 		if (_parent != null)
 		{			
-			ArrayList<Expression> existingLiterals = _parent.GetEffectLiterals();
-			ArrayList<Expression> preconditionLiterals = GetLiterals(step.precondition);
+			ArrayList<Literal> existingLiterals = _parent.GetEffectLiterals();
+			ArrayList<Literal> preconditionLiterals = GetLiterals(step.precondition);
 			
+			// Add implied NOT fact if not explicitly stated as Literal
 			for (Expression precondition : preconditionLiterals)
 				if (precondition instanceof NegatedLiteral)
 					if(!existingLiterals.contains(precondition))
 						if(!existingLiterals.contains(precondition.negate()))
-							existingLiterals.add(precondition);
+							existingLiterals.add((NegatedLiteral)precondition);
 			
 			if (existingLiterals.containsAll(preconditionLiterals))
 				_currentSteps.add(step);
 		}
 		else
 			_currentSteps.add(step);
-	}
-	
-	/**
-	 * Return an array of steps which will be the plan to get to the goal.
-	 * 
-	 * @param goal The Expression that represents the goal
-	 * @return ArrayList<Step> List of steps to get to goal
-	 */
-	public ArrayList<Step> GetPlan(Expression goal)
-	{		
-		ArrayList<Step> plan = new ArrayList<Step>();
-		ArrayList<Expression> goalLiterals = GetLiterals(goal);
-		return GetPlan(goalLiterals, plan);
-	}
-	
-	/**
-	 * Recursive function that will return the lists of steps to arrive at goal
-	 * 	
-	 * @param goalLiterals The list of literals that need to be obtained
-	 * @param plan The plan as it is being created
-	 * @return The final plan with all steps leading to the goal
-	 */
-	private ArrayList<Step> GetPlan(ArrayList<Expression> goalLiterals, ArrayList<Step> plan)
-	{		
-		if (_parent == null)
-			return plan;
 		
-		ArrayList<Step> currentPlan = new ArrayList<Step>();
+		if (_currentSteps.size() != previousCurrentStepsSize)
+		{
+			CheckForInconsistentEffects();
+			CheckForInterference();
+			CheckForCompetingNeeds();
+			CheckForOpposites();
+			CheckForInconsistentSupport();
+		}
+	}
+	
+	/**
+	 * Returns a Map of Mutually Exclusive Steps.
+	 * 
+	 * @return Map<Step, ArrayList<Step>> Mutually Exclusive Steps.
+	 */
+	public Map<Step, ArrayList<Step>> GetMutuallyExclusiveSteps()
+	{
+		return _mutexSteps;
+	}
+	
+	/**
+	 * Returns a Map of Mutually Exclusive Literals.
+	 * 
+	 * @return Map<Literal, ArrayList<Literal>> Mutually Exclusive Literals.
+	 */
+	public Map<Literal, ArrayList<Literal>> GetMutuallyExclusiveLiterals()
+	{
+		return _mutexLiterals;
+	}
+	
+	/**
+	 * Checks to see if there are inconsistent effects with newly added step.
+	 * Inconsistent effect: One action negates an effect of the other.
+	 */
+	private void CheckForInconsistentEffects() 
+	{
 		for (Step step : _currentSteps)
 		{
-			ArrayList<Expression> effectLiterals = GetLiterals(step.effect);
-			boolean stepAlreadyAdded = false;
-			for (int i = goalLiterals.size() - 1; i >= 0; i--)
+			for (Step otherStep : _currentSteps)
 			{
-				Expression goalLiteral = goalLiterals.get(i);
-				if (effectLiterals.contains(goalLiteral))
+				if (step != otherStep)
 				{
-					if (!stepAlreadyAdded && !plan.contains(step))
-						currentPlan.add(step);
-					
-					goalLiterals.remove(i);
-					
-					stepAlreadyAdded = true;
+					ArrayList<Literal> stepEffectLiterals = GetLiterals(step.effect);
+					ArrayList<Literal> otherStepEffectLiterals = GetLiterals(otherStep.effect);
+					for (Expression literal : stepEffectLiterals)
+					{
+						Expression negatedLiteral = literal.negate();
+						if (otherStepEffectLiterals.contains(negatedLiteral))
+						{
+							if (_mutexSteps.containsKey(step))
+							{
+								ArrayList<Step> steps = _mutexSteps.get(step);
+								if (!steps.contains(otherStep))
+									steps.add(otherStep);
+							}
+							else
+							{
+								ArrayList<Step> steps = new ArrayList<Step>();
+								steps.add(otherStep);
+								_mutexSteps.put(step, steps);
+							}
+							break;
+						}
+					}
 				}
 			}
-			
-			if (goalLiterals.size() <= 0)
-				break;
 		}
-		
-		for (Step step : currentPlan)
-			for (Expression preconditionLiteral : GetLiterals(step.precondition))
-				if (!goalLiterals.contains(preconditionLiteral))
-					goalLiterals.add(preconditionLiteral);
-		
-		plan.addAll(currentPlan);
-		return _parent.GetPlan(goalLiterals, plan);
+	}
+
+	/**
+	 * Checks to see if there is interference with newly added step.
+	 * Interference: One action negates the precondition of the other.
+	 */
+	private void CheckForInterference() 
+	{
+		for (Step step : _currentSteps)
+		{
+			for (Step otherStep : _currentSteps)
+			{
+				if (step != otherStep)
+				{
+					ArrayList<Literal> stepEffectLiterals = GetLiterals(step.effect);
+					ArrayList<Literal> otherStepPreconditionLiterals = GetLiterals(otherStep.precondition);
+					for (Expression literal : stepEffectLiterals)
+					{
+						Expression negatedLiteral = literal.negate();
+						if (otherStepPreconditionLiterals.contains(negatedLiteral))
+						{
+							if (_mutexSteps.containsKey(step))
+							{
+								ArrayList<Step> steps = _mutexSteps.get(step);
+								if (!steps.contains(otherStep))
+									steps.add(otherStep);
+							}
+							else
+							{
+								ArrayList<Step> steps = new ArrayList<Step>();
+								steps.add(otherStep);
+								_mutexSteps.put(step, steps);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks to see if there are competing need with newly added step.
+	 * Competing Needs: Actions have mutually exclusive preconditions.
+	 */
+	private void CheckForCompetingNeeds() 
+	{
+		for (Step step : _currentSteps)
+		{
+			for (Step otherStep : _currentSteps)
+			{
+				if (step != otherStep)
+				{
+					ArrayList<Literal> stepPreconditionLiterals = GetLiterals(step.precondition);
+					ArrayList<Literal> otherStepPreconditionLiterals = GetLiterals(otherStep.precondition);
+					for (Expression literal : stepPreconditionLiterals)
+					{
+						Expression negatedLiteral = literal.negate();
+						if (otherStepPreconditionLiterals.contains(negatedLiteral))
+						{
+							if (_mutexSteps.containsKey(step))
+							{
+								ArrayList<Step> steps = _mutexSteps.get(step);
+								if (!steps.contains(otherStep))
+									steps.add(otherStep);
+							}
+							else
+							{
+								ArrayList<Step> steps = new ArrayList<Step>();
+								steps.add(otherStep);
+								_mutexSteps.put(step, steps);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks to see if newly added effects contain opposites.
+	 * Opposites: One literal is a negation of another.
+	 */
+	private void CheckForOpposites() 
+	{
+		ArrayList<Literal> effects = GetEffectLiterals();
+		for (Literal effect : effects)
+		{
+			for (Literal otherEffect : effects)
+			{
+				if (effect != otherEffect)
+				{
+					Literal negatedEffect = effect.negate();
+					if (negatedEffect == otherEffect)
+					{
+						if (_mutexLiterals.containsKey(effect))
+						{
+							ArrayList<Literal> literals = _mutexLiterals.get(effect);
+							if (!literals.contains(otherEffect))
+								literals.add(otherEffect);
+						}
+						else
+						{
+							ArrayList<Literal> literals = new ArrayList<Literal>();
+							literals.add(otherEffect);
+							_mutexLiterals.put(effect, literals);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks to see if newly added effects contain inconsistent support.
+	 * Inconsistent Support: Every possible pair of actions that could achieve the literals
+	 * are mutually exclusive.
+	 */
+	private void CheckForInconsistentSupport() 
+	{
+		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * Helper function to get all the literals from an Expression
 	 * 
 	 * @param expression The Expression to convert to list
-	 * @return ArrayList<Expression> List of literals in expression
+	 * @return ArrayList<Literal> List of literals in expression
 	 */
-	private ArrayList<Expression> GetLiterals(Expression expression)
+	private ArrayList<Literal> GetLiterals(Expression expression)
 	{
-		ArrayList<Expression> literals = new ArrayList<Expression>();
+		ArrayList<Literal> literals = new ArrayList<Literal>();
 		if (expression instanceof Literal)
-			literals.add(expression);
+			literals.add((Literal)expression);
 		else
 		{
-			for (Expression conjunct : ((Conjunction) expression).arguments)
-				literals.add(conjunct);
+			Conjunction cnf = (Conjunction)expression.toCNF();
+			for (Expression disjunction : cnf.arguments)
+				if (((Disjunction) disjunction).arguments.length == 1)
+					literals.add((Literal)((Disjunction) disjunction).arguments.get(0));
+				// else -- Do Nothing!
 		}
 		return literals;
 	}
