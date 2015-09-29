@@ -32,6 +32,6 @@ public class PartialOrderPlanner extends Planner<PartialOrderSearch> {
 	 * @return a state space search object for solving this problem
 	 */
 	protected PartialOrderSearch makePartialOrderSearch(PartialOrderProblem problem){
-		return null;
+		return new PartialOrderSearch(problem);
 	}
 }
