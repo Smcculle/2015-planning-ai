@@ -1,6 +1,7 @@
 package edu.uno.ai.planning;
 
 import edu.uno.ai.planning.logic.Conjunction;
+import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
@@ -66,7 +67,18 @@ public class Operator {
 	 */
 	private static final boolean isDeterministic(Expression expression) {
 		expression = expression.toDNF();
-		return (expression instanceof Literal) || (expression instanceof Conjunction);
+		if(!(expression instanceof Disjunction))
+			return false;
+		Disjunction dnf = (Disjunction) expression;
+		if(dnf.arguments.length != 1)
+			return false;
+		if(!(dnf.arguments.get(0) instanceof Conjunction))
+			return false;
+		Conjunction clause = (Conjunction) dnf.arguments.get(0);
+		for(Expression literal : clause.arguments)
+			if(!(literal instanceof Literal))
+				return false;
+		return true;
 	}
 	
 	/**
