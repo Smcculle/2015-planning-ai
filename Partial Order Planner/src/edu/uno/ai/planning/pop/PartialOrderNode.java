@@ -14,7 +14,7 @@ import edu.uno.ai.planning.util.ImmutableArray;
 
 public class PartialOrderNode{
 		
-	private ImmutableArray<Operator> steps; //The set of possible steps in the problem
+	private ImmutableArray<Operator> steps; //The set of steps already in the plan
 	
 	private DAG orderings; //The orderings of the steps currently in the plan
 	
@@ -37,7 +37,7 @@ public class PartialOrderNode{
 	 * @param parent the previous state
 	 * @param step the step to take in the previous state
 	 */
-	private PartialOrderNode(Step[] stepsAvailable, DAG currentOrdering, CausalLink[] currentLinks, 
+	private PartialOrderNode(Step[] stepsPlanned, DAG currentOrdering, CausalLink[] currentLinks, 
 			ListBindings binds, Threat[] threats, Expression[] agenda, PartialOrderNode parent) {
 		this.steps = stepsAvailable;
 		this.orderings = currentOrdering;
@@ -54,12 +54,18 @@ public class PartialOrderNode{
 	 * @param initial the problem's initial state
 	 */
 	PartialOrderNode(Problem baseProblem) {
-		this.steps = baseProblem.domain.operators;
+		//The dummy start step which has no preconditions but effects which are the initial state of the world
+		Step start = new Step("Start", null, baseProblem.initial.toExpression());
+		
+		//Dummy end step which has no effects but preconditions which are the goal of the problem
+		Step end = new Step("End", baseProblem.goal, null);
+		
+		this.steps = new ImmutableArray(new Step[]{start, end});
 		this.orderings = new DAG(); //This will be the null plan aka initial state and goal
-		this.causalLinks = new ImmutableArray<CausalLink>(); //make a new set of links which is empty for now
+		this.causalLinks = new ImmutableArray(CausalLink[0]); //make a new set of links which is empty for now
 		this.binds = new ListBindings();
-		this.threats = new ImmutableArray<Threats>();
-		this.agenda = new ImmutableArray(new Expression[0]);
+		this.threats = new ImmutableArray(Threats[0]);
+		this.agenda = new ImmutableArray(new Expression[]{});
 		
 	}
 	
