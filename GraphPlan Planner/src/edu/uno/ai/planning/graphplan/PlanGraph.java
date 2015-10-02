@@ -10,7 +10,8 @@ import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.NegatedLiteral;
+import edu.uno.ai.planning.ss.StateSpaceProblem;
+import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
  * A PlanGraph Structure is
@@ -21,14 +22,17 @@ import edu.uno.ai.planning.logic.NegatedLiteral;
  */
 public class PlanGraph 
 {
-	/** List of all steps in current PlanGraph Level */
-	ArrayList<Step> _currentSteps = new ArrayList<Step>();
+	/** List of all steps in PlanGraph */
+	ArrayList<PlanGraphStep> _steps;
+	
+	/** List of all steps in PlanGraph */
+	ArrayList<PlanGraphLiteral> _effects;
 	
 	/** List of all mutually exclusive steps in current PlanGraph Level */
-	Map<Step, ArrayList<Step>> _mutexSteps = new Hashtable<Step, ArrayList<Step>>();
+	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
 	
 	/** List of all mutually exclusive literals in current PlanGraph Level */
-	Map<Literal, ArrayList<Literal>> _mutexLiterals = new Hashtable<Literal, ArrayList<Literal>>();
+	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 	
 	/** PlanGraph's Parent */
 	PlanGraph _parent;
@@ -38,11 +42,15 @@ public class PlanGraph
 	 * 
 	 * @param initialState The initial state of the problem
 	 */
-	public PlanGraph (State initialState)
+	public PlanGraph (State initialState, StateSpaceProblem problem)
 	{
+		_steps = new ArrayList<PlanGraphStep>();
+		_effects = new ArrayList<PlanGraphLiteral>();
 		_parent = null;
-		Step step = new Step("Initial State", initialState.toExpression(), initialState.toExpression());
-		_currentSteps.add(step);
+		
+		addAllSteps(problem.steps);
+		addAllEffects(problem.steps);
+		setInitialEffects(initialState);
 	}
 	
 	/**
@@ -52,10 +60,9 @@ public class PlanGraph
 	 */
 	public PlanGraph (PlanGraph parent)
 	{
+		_steps = parent._steps;
+		_effects = parent._effects;
 		_parent = parent;
-		ArrayList<Literal> parentEffectLiterals = parent.GetEffectLiterals();
-		for (Literal literal : parentEffectLiterals)
-			_currentSteps.add(new Step("Persistence Step", literal, literal));
 	}
 	
 	/**
@@ -64,12 +71,12 @@ public class PlanGraph
 	 * 
 	 * @return integer Level number
 	 */
-	public int GetLevelNumber()
+	public int getLevelNumber()
 	{
 		if (_parent == null)
 			return 0;
 		
-		return _parent.GetLevelNumber() + 1;
+		return _parent.getLevelNumber() + 1;
 	}
 	
 	/**
@@ -77,7 +84,7 @@ public class PlanGraph
 	 * 	
 	 * @return PlanGraph The Parent of PlanGraph
 	 */
-	public PlanGraph GetParent()
+	public PlanGraph getParent()
 	{
 		return _parent;
 	}
@@ -87,13 +94,12 @@ public class PlanGraph
 	 *  	
 	 * @return effectLiterals The list of all effect literals in PlanGraph 
 	 */
-	public ArrayList<Literal> GetEffectLiterals()
+	public ArrayList<PlanGraphLiteral> getCurrentLiterals()
 	{
-		ArrayList<Literal> effectLiterals = new ArrayList<Literal>();		
-		for (Step step : _currentSteps)
-			for (Literal effectLiteral : GetLiterals(step.effect))
-				if (!effectLiterals.contains(effectLiteral))
-					effectLiterals.add(effectLiteral);
+		ArrayList<PlanGraphLiteral> effectLiterals = new ArrayList<PlanGraphLiteral>();		
+		for (PlanGraphLiteral effect : _effects)
+			if (0 <= effect.GetInitialLevel() && effect.GetInitialLevel() <= getLevelNumber())
+				effectLiterals.add(effect);
 		return effectLiterals;
 	}
 	
@@ -102,9 +108,13 @@ public class PlanGraph
 	 * 	
 	 * @return ArrayList<Literal> All steps used in current PlanGraph
 	 */
-	public ArrayList<Step> GetCurrentSteps()
+	public ArrayList<PlanGraphStep> getCurrentSteps()
 	{
-		return _currentSteps;
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();		
+		for (PlanGraphStep step : _steps)
+			if (0 <= step.GetInitialLevel() && step.GetInitialLevel() <= getLevelNumber())
+				steps.add(step);
+		return steps;	
 	}
 	
 	/**
@@ -114,15 +124,9 @@ public class PlanGraph
 	 * 	
 	 * @return ArrayList<Literal> All steps used in all PlanGraph
 	 */
-	public ArrayList<Step> GetAllSteps()
+	public ArrayList<PlanGraphStep> getAllSteps()
 	{
-		ArrayList<Step> allSteps = new ArrayList<Step>();
-		allSteps.addAll(_currentSteps);
-		
-		if (_parent != null)
-			allSteps.addAll(_parent.GetAllSteps());
-		
-		return allSteps;
+		return _steps;
 	}
 	
 	/**
@@ -132,43 +136,61 @@ public class PlanGraph
 	 * 
 	 * @param step
 	 */
-	public void AddStep(Step step)
-	{		
-		int previousCurrentStepsSize = _currentSteps.size();
-		if (_parent != null)
-		{			
-			ArrayList<Literal> existingLiterals = _parent.GetEffectLiterals();
-			ArrayList<Literal> preconditionLiterals = GetLiterals(step.precondition);
-			
-			// Add implied NOT fact if not explicitly stated as Literal
-			for (Expression precondition : preconditionLiterals)
-				if (precondition instanceof NegatedLiteral)
-					if(!existingLiterals.contains(precondition))
-						if(!existingLiterals.contains(precondition.negate()))
-							existingLiterals.add((NegatedLiteral)precondition);
-			
-			if (existingLiterals.containsAll(preconditionLiterals))
-				_currentSteps.add(step);
-		}
-		else
-			_currentSteps.add(step);
+	public boolean addStep(PlanGraphStep step)
+	{
+		if (step == null)
+			return false;
 		
-		if (_currentSteps.size() != previousCurrentStepsSize)
+		if (_parent == null)
+			return false;
+		
+		if (!isPreconditionSatisfied(step))
+			return false;
+		
+		if (step.GetInitialLevel() == -1)
 		{
-			CheckForInconsistentEffects();
-			CheckForInterference();
-			CheckForCompetingNeeds();
-			CheckForOpposites();
-			CheckForInconsistentSupport();
+			step.SetInitialLevel(getLevelNumber());
+			checkForInconsistentEffects();
+			checkForInterference();
+			checkForCompetingNeeds();
+			checkForOpposites();
+			checkForInconsistentSupport();
 		}
+		return true;
 	}
 	
+	public boolean addStep(Step step)
+	{
+		return addStep(getPlanGraphStep(step));
+	}
+	
+	private boolean isPreconditionSatisfied(PlanGraphStep planGraphStep) {
+		if (_parent == null)
+			return false;
+			
+		Step step = planGraphStep.GetStep();
+		for (Literal literal : expressionToLiterals(step.precondition))
+		{
+			boolean didFindValue = false;
+			for (PlanGraphLiteral planGraphLiteral : _parent._effects)
+				if (literal == planGraphLiteral.getEffectLiteral())
+				{
+					didFindValue = true;
+					break;
+				}
+			
+			if (!didFindValue)
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Returns a Map of Mutually Exclusive Steps.
 	 * 
-	 * @return Map<Step, ArrayList<Step>> Mutually Exclusive Steps.
+	 * @return Map<PlanGraphStep, ArrayList<PlanGraphStep>> Mutually Exclusive Steps.
 	 */
-	public Map<Step, ArrayList<Step>> GetMutuallyExclusiveSteps()
+	public Map<PlanGraphStep, ArrayList<PlanGraphStep>> getMutuallyExclusiveSteps()
 	{
 		return _mutexSteps;
 	}
@@ -176,27 +198,67 @@ public class PlanGraph
 	/**
 	 * Returns a Map of Mutually Exclusive Literals.
 	 * 
-	 * @return Map<Literal, ArrayList<Literal>> Mutually Exclusive Literals.
+	 * @return Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> Mutually Exclusive Literals.
 	 */
-	public Map<Literal, ArrayList<Literal>> GetMutuallyExclusiveLiterals()
+	public Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> getMutuallyExclusiveLiterals()
 	{
 		return _mutexLiterals;
+	}
+	
+	private void setInitialEffects(State initialState) 
+	{
+		ArrayList<Literal> literals = expressionToLiterals(initialState.toExpression());
+		for (Literal literal : literals)
+			for (PlanGraphLiteral planGraphLiteral : _effects)
+				if (literal.equals(planGraphLiteral.getEffectLiteral()))
+					planGraphLiteral.SetInitialLevel(getLevelNumber());
+	}
+	
+	private void addAllEffects(ImmutableArray<Step> steps) 
+	{
+		ArrayList<Literal> literals = new ArrayList<Literal>();
+		for (Step step : steps)
+		{
+			for (Literal literal : expressionToLiterals(step.precondition))
+			{
+				if (!literals.contains(literal))
+					literals.add(literal);
+				if (!literals.contains(literal.negate()))
+					literals.add(literal.negate());
+			}
+			for (Literal literal : expressionToLiterals(step.effect))
+			{
+				if (!literals.contains(literal))
+					literals.add(literal);
+				if (!literals.contains(literal.negate()))
+					literals.add(literal.negate());
+			}
+		}
+		
+		for (Literal literal : literals)
+			_effects.add(new PlanGraphLiteral(literal));
+	}
+	
+	private void addAllSteps(ImmutableArray<Step> steps) 
+	{
+		for (Step step : steps)
+			_steps.add(new PlanGraphStep(step));
 	}
 	
 	/**
 	 * Checks to see if there are inconsistent effects with newly added step.
 	 * Inconsistent effect: One action negates an effect of the other.
 	 */
-	private void CheckForInconsistentEffects() 
+	private void checkForInconsistentEffects() 
 	{
-		for (Step step : _currentSteps)
+		for (PlanGraphStep step : _steps)
 		{
-			for (Step otherStep : _currentSteps)
+			for (PlanGraphStep otherStep : _steps)
 			{
 				if (step != otherStep)
 				{
-					ArrayList<Literal> stepEffectLiterals = GetLiterals(step.effect);
-					ArrayList<Literal> otherStepEffectLiterals = GetLiterals(otherStep.effect);
+					ArrayList<Literal> stepEffectLiterals = expressionToLiterals(step.GetStep().effect);
+					ArrayList<Literal> otherStepEffectLiterals = expressionToLiterals(otherStep.GetStep().effect);
 					for (Expression literal : stepEffectLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
@@ -204,13 +266,13 @@ public class PlanGraph
 						{
 							if (_mutexSteps.containsKey(step))
 							{
-								ArrayList<Step> steps = _mutexSteps.get(step);
+								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
 								if (!steps.contains(otherStep))
 									steps.add(otherStep);
 							}
 							else
 							{
-								ArrayList<Step> steps = new ArrayList<Step>();
+								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 								steps.add(otherStep);
 								_mutexSteps.put(step, steps);
 							}
@@ -226,16 +288,16 @@ public class PlanGraph
 	 * Checks to see if there is interference with newly added step.
 	 * Interference: One action negates the precondition of the other.
 	 */
-	private void CheckForInterference() 
+	private void checkForInterference() 
 	{
-		for (Step step : _currentSteps)
+		for (PlanGraphStep step : _steps)
 		{
-			for (Step otherStep : _currentSteps)
+			for (PlanGraphStep otherStep : _steps)
 			{
 				if (step != otherStep)
 				{
-					ArrayList<Literal> stepEffectLiterals = GetLiterals(step.effect);
-					ArrayList<Literal> otherStepPreconditionLiterals = GetLiterals(otherStep.precondition);
+					ArrayList<Literal> stepEffectLiterals = expressionToLiterals(step.GetStep().effect);
+					ArrayList<Literal> otherStepPreconditionLiterals = expressionToLiterals(otherStep.GetStep().precondition);
 					for (Expression literal : stepEffectLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
@@ -243,13 +305,13 @@ public class PlanGraph
 						{
 							if (_mutexSteps.containsKey(step))
 							{
-								ArrayList<Step> steps = _mutexSteps.get(step);
+								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
 								if (!steps.contains(otherStep))
 									steps.add(otherStep);
 							}
 							else
 							{
-								ArrayList<Step> steps = new ArrayList<Step>();
+								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 								steps.add(otherStep);
 								_mutexSteps.put(step, steps);
 							}
@@ -265,16 +327,16 @@ public class PlanGraph
 	 * Checks to see if there are competing need with newly added step.
 	 * Competing Needs: Actions have mutually exclusive preconditions.
 	 */
-	private void CheckForCompetingNeeds() 
+	private void checkForCompetingNeeds() 
 	{
-		for (Step step : _currentSteps)
+		for (PlanGraphStep step : _steps)
 		{
-			for (Step otherStep : _currentSteps)
+			for (PlanGraphStep otherStep : _steps)
 			{
 				if (step != otherStep)
 				{
-					ArrayList<Literal> stepPreconditionLiterals = GetLiterals(step.precondition);
-					ArrayList<Literal> otherStepPreconditionLiterals = GetLiterals(otherStep.precondition);
+					ArrayList<Literal> stepPreconditionLiterals = expressionToLiterals(step.GetStep().precondition);
+					ArrayList<Literal> otherStepPreconditionLiterals = expressionToLiterals(otherStep.GetStep().precondition);
 					for (Expression literal : stepPreconditionLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
@@ -282,13 +344,13 @@ public class PlanGraph
 						{
 							if (_mutexSteps.containsKey(step))
 							{
-								ArrayList<Step> steps = _mutexSteps.get(step);
+								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
 								if (!steps.contains(otherStep))
 									steps.add(otherStep);
 							}
 							else
 							{
-								ArrayList<Step> steps = new ArrayList<Step>();
+								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 								steps.add(otherStep);
 								_mutexSteps.put(step, steps);
 							}
@@ -304,27 +366,27 @@ public class PlanGraph
 	 * Checks to see if newly added effects contain opposites.
 	 * Opposites: One literal is a negation of another.
 	 */
-	private void CheckForOpposites() 
+	private void checkForOpposites() 
 	{
-		ArrayList<Literal> effects = GetEffectLiterals();
-		for (Literal effect : effects)
+		ArrayList<PlanGraphLiteral> effects = getCurrentLiterals();
+		for (PlanGraphLiteral effect : effects)
 		{
-			for (Literal otherEffect : effects)
+			for (PlanGraphLiteral otherEffect : effects)
 			{
 				if (effect != otherEffect)
 				{
-					Literal negatedEffect = effect.negate();
+					PlanGraphLiteral negatedEffect = getPlanGraphLiteral(effect.getEffectLiteral().negate());
 					if (negatedEffect == otherEffect)
 					{
 						if (_mutexLiterals.containsKey(effect))
 						{
-							ArrayList<Literal> literals = _mutexLiterals.get(effect);
+							ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
 							if (!literals.contains(otherEffect))
 								literals.add(otherEffect);
 						}
 						else
 						{
-							ArrayList<Literal> literals = new ArrayList<Literal>();
+							ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
 							literals.add(otherEffect);
 							_mutexLiterals.put(effect, literals);
 						}
@@ -339,7 +401,7 @@ public class PlanGraph
 	 * Inconsistent Support: Every possible pair of actions that could achieve the literals
 	 * are mutually exclusive.
 	 */
-	private void CheckForInconsistentSupport() 
+	private void checkForInconsistentSupport() 
 	{
 		// TODO Auto-generated method stub
 	}
@@ -350,7 +412,7 @@ public class PlanGraph
 	 * @param expression The Expression to convert to list
 	 * @return ArrayList<Literal> List of literals in expression
 	 */
-	private ArrayList<Literal> GetLiterals(Expression expression)
+	private ArrayList<Literal> expressionToLiterals(Expression expression)
 	{
 		ArrayList<Literal> literals = new ArrayList<Literal>();
 		if (expression instanceof Literal)
@@ -366,6 +428,22 @@ public class PlanGraph
 		return literals;
 	}
 	
+	private PlanGraphStep getPlanGraphStep(Step step)
+	{
+		for (PlanGraphStep planGraphStep : _steps)
+			if (planGraphStep.GetStep() == step)
+				return planGraphStep;
+		return null;
+	}
+	
+	private PlanGraphLiteral getPlanGraphLiteral(Literal literal)
+	{
+		for (PlanGraphLiteral planGraphLiteral : _effects)
+			if (planGraphLiteral.getEffectLiteral() == literal)
+				return planGraphLiteral;
+		return null;
+	}
+	
 	/**
 	 * The String representation of the current PlanGraph
 	 * 
@@ -379,13 +457,13 @@ public class PlanGraph
 			str += _parent.toString();
 		
 		str += "---------------\n";
-		str += "Level " + GetLevelNumber() + "\n";
-		str += "Steps [" + _currentSteps.size() + "]:\n";
-		for (Step step : _currentSteps)
-			str += step.toString() + "\n";
-		str += "Effects [" + GetEffectLiterals().size() + "]:\n";
-		for (Expression literal : GetEffectLiterals())
-			str += literal.toString() + "\n";
+		str += "Level " + getLevelNumber() + "\n";
+		str += "Steps [" + _steps.size() + "]:\n";
+		for (PlanGraphStep step : _steps)
+			str += step.GetStep().toString() + "\n";
+		str += "Effects [" + getCurrentLiterals().size() + "]:\n";
+		for (PlanGraphLiteral literal : getCurrentLiterals())
+			str += literal.getEffectLiteral().toString() + "\n";
 		
 		return str;
 	}
