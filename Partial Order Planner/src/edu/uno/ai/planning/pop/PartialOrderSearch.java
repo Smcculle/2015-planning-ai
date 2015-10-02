@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.pop;
 
+import java.util.PriorityQueue;
+
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.pop.PartialOrderNode; 
 import edu.uno.ai.planning.pop.PartialOrderProblem;
@@ -20,6 +22,8 @@ public class PartialOrderSearch extends Search {
 	
 	/** The root node of the search space (null plan?) */
 	public final PartialOrderNode root;
+	
+	private PriorityQueue<PartialOrderNode> queue;
 	
 	/** The search limit on visited nodes (-1 if no limit) */
 	int limit = -1;
@@ -48,7 +52,23 @@ public class PartialOrderSearch extends Search {
 	 * @param T Set of threats to casual links in the plan
 	 * @return 
 	 */
-	private Plan pop(Step[] A, DAG O, CasalLinks[] L, Bindings B, Threats T, Expression[] Agenda ){
+	private Plan pop(){
+		while(!this.queue.isEmpty()){
+			PartialOrderNode workingNode = this.queue.poll(); // get the node to work on next
+			
+			if(workingNode.agenda.length == 0 && workingNode.threats.length == 0)
+				return workingNode.orderings.topologicalSort();//this may need to be bound with the bindings found in the node
+			//check for definite threats now and handle one of those first
+			Literal openCondition = workingNode.agenda.get(0);
+			for(Step step : workingNode.steps){
+				if(step.effect instanceof Literal){
+					if(step.effect.equals(openCondition, workingNode.binds))
+						//add to the queue a new node where the steps are the same, but the step we just used has a new ordering 
+						//the agenda has the openCondition removed, but maybe new threats added, the binds are bigger cause we unified I think
+				}		//and there is a new casual link between the openCondition and the step
+			}
+			
+		}
 		return null;
 	}
 
