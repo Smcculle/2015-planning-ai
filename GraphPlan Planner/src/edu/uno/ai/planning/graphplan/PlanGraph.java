@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
+import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.logic.Conjunction;
@@ -57,6 +58,26 @@ public class PlanGraph
 		addAllEffects(problem.steps);
 		addAllPerstitenceSteps();
 		setInitialEffects(initialState);
+	}
+	
+	/**
+	 * Constructs a new root of PlanGraph
+	 * 
+	 * @param initialState The initial state of the problem
+	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
+	 */
+	public PlanGraph (Problem problem)
+	{
+		_parent = null;
+		_effects = new ArrayList<PlanGraphLiteral>();
+		_steps = new ArrayList<PlanGraphStep>();
+		_persistenceSteps = new ArrayList<PlanGraphStep>();
+		
+		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
+		addAllSteps(ssProblem.steps);
+		addAllEffects(ssProblem.steps);
+		addAllPerstitenceSteps();
+		setInitialEffects(ssProblem.initial);
 	}
 	
 	/**
