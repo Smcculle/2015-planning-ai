@@ -24,9 +24,7 @@ public class PartialOrderNode{
 	
 	public ListBindings binds; //The binds for the variables in this problem
 	
-	public ImmutableArray<Threats> threats; //The threats to the causal links at this time. 
-	
-	public ImmutableArray<Literal> agenda; //The open preconditions left to satisfy
+	public ImmutableArray<Flaw> flaws;
 	
 	
 	/** This node's parent node (i.e. the state before the last step) */
@@ -42,15 +40,14 @@ public class PartialOrderNode{
 	 * @param stepsPlanned this is the steps that are planned for this node, already has the new step added before creation
 	 * @param binds The set of bindings which apply to the node, ?already filled with the new bindings needed?
 	 */
-	private PartialOrderNode(ImmutableList<Step> stepsPlanned, DAG currentOrdering, ImmutableList<CausalLink> currentLinks, 
-			ListBindings binds, Threat[] threats, Literal[] agenda, PartialOrderNode parent) {
+	public PartialOrderNode(ImmutableList<Step> stepsPlanned, DAG currentOrdering, ImmutableList<CausalLink> currentLinks, 
+			ListBindings binds, Flaw[] flaws, PartialOrderNode parent) {
 		this.steps = stepsPlanned;
 		this.binds = binds;
-		this.agenda = new ImmutableArray<Literal>(agenda);
 		this.parent = parent;
 		this.orderings = currentOrdering;
 		this.causalLinks = currentLinks;
-		this.threats = new ImmutableArray<Threats>(threats);
+		this.flaws = new ImmutableArray<Flaw>(flaws);
 		
 	}
 	
@@ -75,7 +72,7 @@ public class PartialOrderNode{
 		
 		//If the goal only has 1 literal to satisfy put it into the agenda
 		if(baseProblem.goal instanceof Literal){
-			this.agenda = new ImmutableArray(new Literal[]{(Literal) baseProblem.goal});
+			this.flaws = new ImmutableArray<Flaw>(new Literal[]{(Literal) baseProblem.goal});
 		}
 		//otherwise we need to go through each conjunct in the goal and add each of those literals to the agenda
 		else{
@@ -85,7 +82,7 @@ public class PartialOrderNode{
 				temp[i] = (Literal) goal.arguments.get(i);
 				
 			}
-			this.agenda = new ImmutableArray<Literal>(temp);
+			this.flaws = new ImmutableArray<Flaw>(temp);
 		}
 		
 		this.parent = null;//this is the first node so it has no parent...
@@ -94,7 +91,6 @@ public class PartialOrderNode{
 		
 		this.causalLinks = new ImmutableList<CausalLink>(); //make a new set of links which is empty for now
 		
-		this.threats = new ImmutableArray(Threats[0]);// this is the set of threats which is empty to start
 		
 	}
 	

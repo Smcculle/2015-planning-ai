@@ -1,11 +1,11 @@
 package edu.uno.ai.planning.pop;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import edu.uno.ai.planning.logic.*;
-import edu.uno.ai.planning.pop.PartialOrderNode; 
-import edu.uno.ai.planning.pop.PartialOrderProblem;
-import edu.uno.ai.planning.pop.PartialOrderRoot;
+
+import edu.uno.ai.planning.pop.*;
 import edu.uno.ai.planning.*;
 
 /**
@@ -23,7 +23,7 @@ public class PartialOrderSearch extends Search {
 	/** The root node of the search space (null plan?) */
 	public final PartialOrderNode root;
 	
-	private PriorityQueue<PartialOrderNode> queue;
+	private PriorityQueue<PartialOrderNode> pQueue;
 	
 	/** The search limit on visited nodes (-1 if no limit) */
 	int limit = -1;
@@ -38,6 +38,7 @@ public class PartialOrderSearch extends Search {
 		super(problem);
 		this.problem = problem;
 		this.root = new PartialOrderRoot(this);
+		this.pQueue = new PriorityQueue<PartialOrderNode>(20,new NodeComparator());
 	}
 	
 	/**
@@ -53,20 +54,40 @@ public class PartialOrderSearch extends Search {
 	 * @return 
 	 */
 	private Plan pop(){
-		while(!this.queue.isEmpty()){
+		while(!this.pQueue.isEmpty()){
 			PartialOrderNode workingNode = this.queue.poll(); // get the node to work on next
 			
-			if(workingNode.agenda.length == 0 && workingNode.threats.length == 0)
+			if(workingNode.flaws.length == 0)
 				return workingNode.orderings.topologicalSort();//this may need to be bound with the bindings found in the node
-			//check for definite threats now and handle one of those first
-			Literal openCondition = workingNode.agenda.get(0);
-			for(Step step : workingNode.steps){
-				if(step.effect instanceof Literal){
-					if(step.effect.equals(openCondition, workingNode.binds))
-						//add to the queue a new node where the steps are the same, but the step we just used has a new ordering 
-						//the agenda has the openCondition removed, but maybe new threats added, the binds are bigger cause we unified I think
-				}		//and there is a new casual link between the openCondition and the step
+			//Get a flaw and check it out
+			boolean workableFlaw = false;
+			Flaw currentFlaw;
+			int i = 0;
+			//this will grab the flaws and check them out we're looking for either an openCondition which we handle right away
+			//or a threat which we check and see if it is a definite threat
+			while(!workableFlaw && i < workingNode.flaws.length){
+				//get the flaw to look at
+				currentFlaw = workingNode.flaws.get(i);
+				//if it's an open condition good we can continue and work on that
+				if(currentFlaw instanceof OpenCondition){
+					workableFlaw = true;
+				}
+				else{
+					//otherwise the flaw is a threat
+					//we need to check and see if the threat is definite
+					Threat currentThreat = (Threat) currentFlaw;
+					Expression effects = currentThreat.threateningOperator.effect;
+					if(effects instanceof Literal){
+						
+					}
+					else{
+						
+					}
+					
+				}
+				
 			}
+			
 			
 		}
 		return null;
@@ -92,6 +113,16 @@ public class PartialOrderSearch extends Search {
 	public Plan findNextSolution() {
 		// this.pop(problem.steps(), new(DAG), new(set of Casual Links), new Bindings, new Threats))
 		return null;
+	}
+	
+	
+	private class NodeComparator implements Comparator<PartialOrderNode>{
+
+		@Override
+		public int compare(PartialOrderNode o1, PartialOrderNode o2) {
+			return Integer.compare(o1.flaws.count() + o1.steps.length, o2.flaws.count() + o1.steps.length);
+		}
+		
 	}
 	
 }

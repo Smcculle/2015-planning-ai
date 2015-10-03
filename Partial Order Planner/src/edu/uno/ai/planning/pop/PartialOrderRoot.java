@@ -23,7 +23,7 @@ class PartialOrderRoot extends PartialOrderNode {
 	 * @param search the state space search for which this node is the root
 	 */
 	PartialOrderRoot(PartialOrderSearch search) {
-		super(search.problem.initial);
+		super(search.problem);
 		this.search = search;
 	}
 	
