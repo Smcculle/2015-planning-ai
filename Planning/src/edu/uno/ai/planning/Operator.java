@@ -1,6 +1,9 @@
 package edu.uno.ai.planning;
 
+import java.util.Iterator;
+
 import edu.uno.ai.planning.logic.Conjunction;
+import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
@@ -66,7 +69,46 @@ public class Operator {
 	 */
 	private static final boolean isDeterministic(Expression expression) {
 		expression = expression.toDNF();
-		return (expression instanceof Literal) || (expression instanceof Conjunction);
+//		return (expression instanceof Literal) || (expression instanceof Conjunction);
+		boolean isLiteral = expression instanceof Literal;
+		boolean isConjunction = expression instanceof Conjunction;
+		boolean isDisjunctionOfOnlyOneLiterals = isDisjunctionOfSingleLiteral(expression);
+		boolean isDisjunctionOfOnlyConjunctions = isDisjunctionOfOnlyConjunctions(expression);
+		return isLiteral || isConjunction || isDisjunctionOfOnlyOneLiterals || isDisjunctionOfOnlyConjunctions;
+	}
+	
+	private static final boolean isDisjunctionOfSingleLiteral(Expression expression){
+		if(!(expression instanceof Disjunction))
+			return false;
+		else{
+			Disjunction disjunction = (Disjunction) expression;
+			ImmutableArray<Expression> args = disjunction.arguments;
+			if(args.length != 1)
+				return false;
+			else{
+				for(Iterator<Expression> i = args.iterator(); i.hasNext();){
+					Expression e = i.next();
+					if(!(e instanceof Literal))
+						return false;
+				}
+				return true;
+			}
+		}
+	}
+	
+	private static final boolean isDisjunctionOfOnlyConjunctions(Expression expression){
+		if(!(expression instanceof Disjunction))
+			return false;
+		else{
+			Disjunction disjunction = (Disjunction) expression;
+			ImmutableArray<Expression> args = disjunction.arguments;
+			for(Iterator<Expression> i = args.iterator(); i.hasNext();){
+				Expression e = i.next();
+				if(!(e instanceof Conjunction))
+					return false;
+			}
+			return true;
+		}
 	}
 	
 	/**
