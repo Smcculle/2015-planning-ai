@@ -2,8 +2,8 @@
  * imports
  */
 package edu.uno.ai.planning.pop;
-import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.Operator;
+import edu.uno.ai.planning.logic.Predication;
 
 /**
  * @author Matthew Farmer
@@ -14,11 +14,11 @@ import edu.uno.ai.planning.Step;
  */
 public class CausalLink {
 	
-	public Step previousStep;
-	public Step nextStep;
-	public Literal label;
+	public Operator previousStep;
+	public Operator nextStep;
+	public Predication label;
 	
-	public CausalLink(Step previousStep, Step nextStep, Literal label){
+	public CausalLink(Operator previousStep, Operator nextStep, Predication label){
 		this.previousStep = previousStep;
 		this.nextStep = nextStep;
 		this.label = label;
