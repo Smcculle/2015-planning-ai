@@ -22,11 +22,17 @@ import edu.uno.ai.planning.util.ImmutableArray;
  */
 public class PlanGraph 
 {
-	/** List of all steps in PlanGraph */
+	/** PlanGraph's Parent */
+	PlanGraph _parent;
+	
+	/** List of all unique effects in PlanGraph */
+	ArrayList<PlanGraphLiteral> _effects;
+	
+	/** List of all unique steps in PlanGraph */
 	ArrayList<PlanGraphStep> _steps;
 	
-	/** List of all steps in PlanGraph */
-	ArrayList<PlanGraphLiteral> _effects;
+	/** List of all Persistence Steps (easier record keeping) */
+	ArrayList<PlanGraphStep> _persistenceSteps;
 	
 	/** List of all mutually exclusive steps in current PlanGraph Level */
 	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
@@ -34,22 +40,22 @@ public class PlanGraph
 	/** List of all mutually exclusive literals in current PlanGraph Level */
 	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 	
-	/** PlanGraph's Parent */
-	PlanGraph _parent;
-	
 	/**
-	 * Constructs a new root PlanGraph
+	 * Constructs a new root of PlanGraph
 	 * 
 	 * @param initialState The initial state of the problem
+	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
 	 */
 	public PlanGraph (State initialState, StateSpaceProblem problem)
 	{
-		_steps = new ArrayList<PlanGraphStep>();
-		_effects = new ArrayList<PlanGraphLiteral>();
 		_parent = null;
+		_effects = new ArrayList<PlanGraphLiteral>();
+		_steps = new ArrayList<PlanGraphStep>();
+		_persistenceSteps = new ArrayList<PlanGraphStep>();
 		
 		addAllSteps(problem.steps);
 		addAllEffects(problem.steps);
+		addAllPerstitenceSteps();
 		setInitialEffects(initialState);
 	}
 	
@@ -60,9 +66,11 @@ public class PlanGraph
 	 */
 	public PlanGraph (PlanGraph parent)
 	{
-		_steps = parent._steps;
-		_effects = parent._effects;
 		_parent = parent;
+		_effects = parent._effects;
+		_steps = parent._steps;
+		_persistenceSteps = parent._persistenceSteps;
+		setPerstitenceStepLevels();
 	}
 	
 	/**
@@ -71,12 +79,12 @@ public class PlanGraph
 	 * 
 	 * @return integer Level number
 	 */
-	public int getLevelNumber()
+	public int getLevel()
 	{
 		if (_parent == null)
 			return 0;
 		
-		return _parent.getLevelNumber() + 1;
+		return _parent.getLevel() + 1;
 	}
 	
 	/**
@@ -90,39 +98,47 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Returns an ArrayList<Literal> of all effect Literals
+	 * Returns an ArrayList<PlanGraphLiteral> of all effect Literals up to this level
 	 *  	
-	 * @return effectLiterals The list of all effect literals in PlanGraph 
+	 * @return effectLiterals The list of PlanGraphLiterals in PlanGraph up to this level 
 	 */
 	public ArrayList<PlanGraphLiteral> getCurrentLiterals()
 	{
 		ArrayList<PlanGraphLiteral> effectLiterals = new ArrayList<PlanGraphLiteral>();		
 		for (PlanGraphLiteral effect : _effects)
-			if (0 <= effect.GetInitialLevel() && effect.GetInitialLevel() <= getLevelNumber())
+			if (0 <= effect.GetInitialLevel() && effect.GetInitialLevel() <= getLevel())
 				effectLiterals.add(effect);
 		return effectLiterals;
 	}
 	
 	/**
-	 * Returns all Steps in the current PlanGraph
+	 * Returns an ArrayList<PlanGraphStep> of all Steps up to this level
 	 * 	
-	 * @return ArrayList<Literal> All steps used in current PlanGraph
+	 * @return steps The list of PlanGraphSteps in PlanGraph up to this level
 	 */
 	public ArrayList<PlanGraphStep> getCurrentSteps()
 	{
 		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();		
 		for (PlanGraphStep step : _steps)
-			if (0 <= step.GetInitialLevel() && step.GetInitialLevel() <= getLevelNumber())
+			if (0 <= step.GetInitialLevel() && step.GetInitialLevel() <= getLevel())
 				steps.add(step);
 		return steps;	
 	}
 	
 	/**
-	 * Returns all Steps in all PlanGraphs.
-	 * In other words, get all steps from the root PlanGraph to current
-	 * PlanGraph.
+	 * Returns all possible effect Literals in all PlanGraphs.
 	 * 	
-	 * @return ArrayList<Literal> All steps used in all PlanGraph
+	 * @return ArrayList<PlanGraphLiteral> All steps used in all PlanGraph
+	 */
+	public ArrayList<PlanGraphLiteral> getAllLiterals()
+	{
+		return _effects;
+	}
+	
+	/**
+	 * Returns all possible Steps in all PlanGraphs.
+	 * 	
+	 * @return ArrayList<PlanGraphStep> All steps used in all PlanGraph
 	 */
 	public ArrayList<PlanGraphStep> getAllSteps()
 	{
@@ -130,11 +146,13 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Adds a step to PlanGraph.
+	 * Adds a PlanGraphStep to PlanGraph.
 	 * Does not add a step if already exist in PlanGraph.
 	 * Only adds a step if current all preconditions of step exist in parent's effects.
+	 * Also computes all new mutual exclusions introduced
 	 * 
-	 * @param step
+	 * @param PlanGraphStep Step to be added
+	 * @return True if step can be added (whether is already exists or not) False otherwise.
 	 */
 	public boolean addStep(PlanGraphStep step)
 	{
@@ -149,7 +167,7 @@ public class PlanGraph
 		
 		if (step.GetInitialLevel() == -1)
 		{
-			step.SetInitialLevel(getLevelNumber());
+			step.SetInitialLevel(getLevel());
 			checkForInconsistentEffects();
 			checkForInterference();
 			checkForCompetingNeeds();
@@ -159,11 +177,24 @@ public class PlanGraph
 		return true;
 	}
 	
+	/**
+	 * Helper method so that Step can be used instead of PlanGraphStep
+	 * for addStep.
+	 * 
+	 * @param step Step to be added
+	 * @return True if step can be added (whether is already exists or not) False otherwise.
+	 */
 	public boolean addStep(Step step)
 	{
 		return addStep(getPlanGraphStep(step));
 	}
 	
+	/**
+	 * Checks effects of parent to see if preconditions are met.
+	 * 
+	 * @param planGraphStep Step to test precondition
+	 * @return True if preconditions exist in parent.
+	 */
 	private boolean isPreconditionSatisfied(PlanGraphStep planGraphStep) {
 		if (_parent == null)
 			return false;
@@ -205,15 +236,25 @@ public class PlanGraph
 		return _mutexLiterals;
 	}
 	
+	/**
+	 * Adds effect of initial state to PlanGraph root
+	 * 
+	 * @param initialState State from which to add effects
+	 */
 	private void setInitialEffects(State initialState) 
 	{
 		ArrayList<Literal> literals = expressionToLiterals(initialState.toExpression());
 		for (Literal literal : literals)
 			for (PlanGraphLiteral planGraphLiteral : _effects)
 				if (literal.equals(planGraphLiteral.getEffectLiteral()))
-					planGraphLiteral.SetInitialLevel(getLevelNumber());
+					planGraphLiteral.SetInitialLevel(getLevel());
 	}
 	
+	/**
+	 * Adds all possible effects from all possible steps.
+	 * 
+	 * @param steps All possible steps
+	 */
 	private void addAllEffects(ImmutableArray<Step> steps) 
 	{
 		ArrayList<Literal> literals = new ArrayList<Literal>();
@@ -239,10 +280,44 @@ public class PlanGraph
 			_effects.add(new PlanGraphLiteral(literal));
 	}
 	
+	/**
+	 * Adds all possible steps from problem.
+	 * 
+	 * @param steps All possible Steps.
+	 */
 	private void addAllSteps(ImmutableArray<Step> steps) 
 	{
 		for (Step step : steps)
 			_steps.add(new PlanGraphStep(step));
+	}
+	
+	/**
+	 * Adds all possible persistence steps from _effects.
+	 */
+	private void addAllPerstitenceSteps()
+	{
+		for (PlanGraphLiteral planGraphLiteral : _effects)
+		{
+			Literal literal = planGraphLiteral.getEffectLiteral();
+			Step step = new Step("Persistence Step", literal, literal);
+			PlanGraphStep planGraphStep = new PlanGraphStep(step);
+			_steps.add(planGraphStep);
+			_persistenceSteps.add(planGraphStep);
+		}
+	}
+	
+	/**
+	 * Checks to see if any new persistence steps can be created at PlanGraph level.
+	 */
+	private void setPerstitenceStepLevels()
+	{
+		for (PlanGraphStep persistenceStep : _persistenceSteps)
+		{
+			Literal literal = (Literal)persistenceStep.GetStep().effect;
+			if (persistenceStep.GetInitialLevel() == -1)
+				if (getCurrentLiterals().contains(literal))
+					persistenceStep.SetInitialLevel(getLevel());
+		}
 	}
 	
 	/**
@@ -403,7 +478,57 @@ public class PlanGraph
 	 */
 	private void checkForInconsistentSupport() 
 	{
-		// TODO Auto-generated method stub
+		ArrayList<PlanGraphStep> steps = getCurrentSteps();
+		ArrayList<PlanGraphLiteral> effects = getCurrentLiterals();
+		for (PlanGraphLiteral effect : effects)
+		{
+			for (PlanGraphLiteral otherEffect : effects)
+			{
+				if (effect != otherEffect)
+				{
+					ArrayList<PlanGraphStep> stepsWithEffect = new ArrayList<PlanGraphStep>();
+					ArrayList<PlanGraphStep> stepsWithOtherEffect = new ArrayList<PlanGraphStep>();
+					
+					for (PlanGraphStep step : steps)
+						if (expressionToLiterals(step.GetStep().effect).contains(effect))
+							stepsWithEffect.add(step);
+					
+					for (PlanGraphStep step : steps)
+						if (expressionToLiterals(step.GetStep().effect).contains(otherEffect))
+							stepsWithOtherEffect.add(step);
+					
+					boolean allSupportingStepsAreMutex = true;
+					for (PlanGraphStep step : stepsWithEffect)
+					{
+						for (PlanGraphStep otherStep : stepsWithOtherEffect)
+							if (step != otherStep)
+								if (!_mutexSteps.get(step).contains(otherStep))
+								{
+									allSupportingStepsAreMutex = false;
+									break;
+								}
+						
+						if (!allSupportingStepsAreMutex) break;
+					}
+					
+					if (allSupportingStepsAreMutex)
+					{
+						if (_mutexLiterals.containsKey(effect))
+						{
+							ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
+							if (!literals.contains(otherEffect))
+								literals.add(otherEffect);
+						}
+						else
+						{
+							ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+							literals.add(otherEffect);
+							_mutexLiterals.put(effect, literals);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -428,6 +553,12 @@ public class PlanGraph
 		return literals;
 	}
 	
+	/**
+	 * Helper function to get PlanGraphStep from step
+	 * 
+	 * @param step Step to get PlanGraphStep
+	 * @return planGraphStep Corresponding PlanGraphStep
+	 */
 	private PlanGraphStep getPlanGraphStep(Step step)
 	{
 		for (PlanGraphStep planGraphStep : _steps)
@@ -436,6 +567,12 @@ public class PlanGraph
 		return null;
 	}
 	
+	/**
+	 * Helper function to get PlanGraphLiteral from literal
+	 * 
+	 * @param literal Literal to get PlanGraphLiteral
+	 * @return planGraphLiteral Corresponding PlanGraphLiteral
+	 */
 	private PlanGraphLiteral getPlanGraphLiteral(Literal literal)
 	{
 		for (PlanGraphLiteral planGraphLiteral : _effects)
@@ -457,7 +594,7 @@ public class PlanGraph
 			str += _parent.toString();
 		
 		str += "---------------\n";
-		str += "Level " + getLevelNumber() + "\n";
+		str += "Level " + getLevel() + "\n";
 		str += "Steps [" + _steps.size() + "]:\n";
 		for (PlanGraphStep step : _steps)
 			str += step.GetStep().toString() + "\n";
