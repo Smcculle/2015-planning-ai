@@ -8,7 +8,7 @@ import edu.uno.ai.planning.logic.*;
 import org.junit.Test;
 
 public class OpenConditionTest {
-	public Class<OpenCondition> describedClass() {
+	private Class<OpenCondition> describedClass() {
 		return OpenCondition.class;
 	}
 
