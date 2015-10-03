@@ -12,7 +12,22 @@ public class OpenConditionTest {
 		return OpenCondition.class;
 	}
 
+	private Literal literal() {
+		return new Predication(
+			"Open Condition Predicate",
+			new Constant(Settings.DEFAULT_TYPE, "A")
+		);
+	}
+
+	private OpenCondition openCondition() {
+		return new OpenCondition(literal());
+	}
+
 	@Test public void is_a_flaw() {
 		assertThat(describedClass(), typeCompatibleWith(Flaw.class));
+	}
+
+	@Test public void has_a_literal() {
+		assertThat(openCondition().literal(), instanceOf(Literal.class));
 	}
 }
