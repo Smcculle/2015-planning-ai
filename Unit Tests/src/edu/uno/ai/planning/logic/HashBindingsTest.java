@@ -60,11 +60,16 @@ public class HashBindingsTest extends BindingsTest {
 
 	@Test
 	public void setEqualTwoInstancesOfTheSameTerm() {
-		super.setEqualTwoInstancesOfTheSameTerm(new ListBindings());
+		super.setEqualTwoInstancesOfTheSameTerm(new HashBindings());
 	}
 
 	@Test
 	public void setNotEqualTwoInstancesOfTheSameTerm() {
-		super.setNotEqualTwoInstancesOfTheSameTerm(new ListBindings());
+		super.setNotEqualTwoInstancesOfTheSameTerm(new HashBindings());
+	}
+	
+	@Test
+	public void cannotOnlySetEqualSameTypes(){
+		super.cannotOnlySetEqualSameTypes(new HashBindings());
 	}
 }

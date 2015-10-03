@@ -10,11 +10,13 @@ public class BindingsTest {
 	private static final Constant c1 = new Constant(Settings.DEFAULT_TYPE, "c1");
 	private static final Constant c1_ = new Constant(Settings.DEFAULT_TYPE, "c1");
 	private static final Constant c2 = new Constant(Settings.DEFAULT_TYPE, "c2");
+	private static final Constant differentTypeConst = new Constant("different", "c3");
 	private static final Variable v1 = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v1_ = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v2 = new Variable(Settings.DEFAULT_TYPE, "v2");
 	private static final Variable v3 = new Variable(Settings.DEFAULT_TYPE, "v3");
 	private static final Variable v4 = new Variable(Settings.DEFAULT_TYPE, "v4");
+	private static final Variable differentTypeVar = new Variable("different", "v5");
 
 	protected void immutability(Bindings empty) {
 		Bindings bindings = empty.setEqual(v1, c1);
@@ -112,5 +114,10 @@ public class BindingsTest {
 	protected void setNotEqualTwoInstancesOfTheSameTerm(Bindings empty) {
 		assertThat(empty.setNotEqual(c1, c1_), is(nullValue()));
 		assertThat(empty.setNotEqual(v1, v1_), is(nullValue()));
+	}
+	
+	protected void cannotOnlySetEqualSameTypes(Bindings empty){
+		assertThat(empty.setEqual(differentTypeVar, c1), is(nullValue()));
+		assertThat(empty.setEqual(differentTypeConst, v1), is(nullValue()));
 	}
 }
