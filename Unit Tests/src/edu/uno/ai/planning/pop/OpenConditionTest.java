@@ -23,11 +23,11 @@ public class OpenConditionTest {
 		return new OpenCondition(literal());
 	}
 
-	@Test public void is_a_flaw() {
-		assertThat(describedClass(), typeCompatibleWith(Flaw.class));
-	}
-
 	@Test public void has_a_literal() {
 		assertThat(openCondition().literal(), instanceOf(Literal.class));
+	}
+
+	@Test public void is_a_flaw() {
+		assertThat(describedClass(), typeCompatibleWith(Flaw.class));
 	}
 }
