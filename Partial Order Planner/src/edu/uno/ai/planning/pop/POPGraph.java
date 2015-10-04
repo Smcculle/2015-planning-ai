@@ -38,6 +38,11 @@ public class POPGraph {
 		return this.graph.vertexSet();
 	}
 
+	@Override
+	public String toString() {
+		return this.graph.toString();
+	}
+
 	@SuppressWarnings("unchecked")
 	public DirectedAcyclicGraph<Step, DefaultEdge> graph()
 			throws CloneTypeMismatchException {

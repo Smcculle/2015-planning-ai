@@ -63,6 +63,11 @@ public class POPGraphTest {
 		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
 	}
 
+	@Test public void can_return_string_representation_of_self() throws CloneTypeMismatchException {
+		POPGraph emptyGraph = popGraph();
+		assertThat(emptyGraph.toString(), equalTo(emptyGraph.graph().toString()));
+	}
+
 	@Test public void has_a_directed_acyclic_graph()
 			throws CloneTypeMismatchException {
 		Class<DirectedAcyclicGraph> graphClass = DirectedAcyclicGraph.class;
