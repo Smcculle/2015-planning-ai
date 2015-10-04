@@ -13,6 +13,10 @@ public class POPGraph {
 		this.graph = new DirectedAcyclicGraph<Step, DefaultEdge>(edgeClass);
 	}
 
+	public POPGraph(DirectedAcyclicGraph<Step, DefaultEdge> graph) {
+		this.graph = graph;
+	}
+
 	@SuppressWarnings("unchecked")
 	public DirectedAcyclicGraph<Step, DefaultEdge> graph()
 			throws CloneTypeMismatchException {
