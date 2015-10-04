@@ -38,6 +38,10 @@ public class POPGraph {
 		return this.graph.vertexSet();
 	}
 
+	public DirectedAcyclicGraph<Step, DefaultEdge> toDirectedAcyclicGraph() {
+		return this.graph;
+	}
+
 	@Override
 	public String toString() {
 		return this.graph.toString();

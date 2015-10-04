@@ -41,6 +41,29 @@ public class POPGraphTest {
 		);
 	}
 
+	@Test public void can_return_directed_acyclic_graph_representation_of_self() {
+		DirectedAcyclicGraph<Step, DefaultEdge> emptyDirectedAcyclicGraph =
+			new DirectedAcyclicGraph<>(DefaultEdge.class);
+		POPGraph emptyGraph = new POPGraph(emptyDirectedAcyclicGraph);
+		assertThat(
+			emptyGraph.toDirectedAcyclicGraph(),
+			equalTo(emptyDirectedAcyclicGraph)
+		);
+
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		DirectedAcyclicGraph<Step, DefaultEdge> directedAcyclicGraph =
+			new DirectedAcyclicGraph<>(DefaultEdge.class);
+		directedAcyclicGraph.addVertex(firstStep);
+		directedAcyclicGraph.addVertex(secondStep);
+		directedAcyclicGraph.addEdge(firstStep, secondStep);
+		POPGraph graph = new POPGraph(directedAcyclicGraph);
+		assertThat(
+			graph.toDirectedAcyclicGraph(),
+			equalTo(directedAcyclicGraph)
+		);
+	}
+
 	@Test public void can_return_set_of_steps() throws Exception {
 		POPGraph emptyGraph = popGraph();
 		assertThat(emptyGraph.stepSet().isEmpty(), is(true));
