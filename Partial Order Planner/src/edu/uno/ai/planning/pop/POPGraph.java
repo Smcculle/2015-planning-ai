@@ -3,6 +3,7 @@ package edu.uno.ai.planning.pop;
 import java.util.*;
 
 import org.jgrapht.experimental.dag.*;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 
 import edu.uno.ai.planning.*;
@@ -17,6 +18,20 @@ public class POPGraph {
 
 	public POPGraph(DirectedAcyclicGraph<Step, DefaultEdge> graph) {
 		this.graph = graph;
+	}
+
+	public POPGraph copy() throws CycleFoundException {
+		POPGraph copy = new POPGraph();
+		for(Step step : this.graph.vertexSet()) {
+			copy.graph.addVertex(step);
+		}
+		for(DefaultEdge edge : this.graph.edgeSet()) {
+			copy.graph.addDagEdge(
+				this.graph.getEdgeSource(edge),
+				this.graph.getEdgeTarget(edge)
+			);
+		}
+		return copy;
 	}
 
 	@Override
@@ -67,5 +82,9 @@ public class POPGraph {
 		DirectedAcyclicGraph<Step, DefaultEdge> newGraph = graph();
 		newGraph.addVertex(newStep);
 		return new POPGraph(newGraph);
+ }
+
+	public Iterator<Step> iterator() {
+		return this.graph.iterator();
 	}
 }

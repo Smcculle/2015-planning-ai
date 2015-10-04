@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import org.jgrapht.experimental.dag.*;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 import org.junit.*;
 
@@ -39,6 +40,39 @@ public class POPGraphTest {
 			new Conjunction(literal()),
 			new Conjunction(literal())
 		);
+	}
+
+	@Test public void can_copy_self() throws CycleFoundException {
+		POPGraph graph = popGraph();
+		POPGraph copyOfGraph = graph.copy();
+		assertThat(graph, is(equalTo(copyOfGraph)));
+	}
+
+	@Test public void affecting_copies_will_not_affect_original() throws CycleFoundException {
+		Step onlyStep = mock(Step.class);
+		POPGraph graph = popGraph();
+		POPGraph modifiedCopyOfGraph = graph.copy().addStep(onlyStep);
+		assertThat(graph, is(not(equalTo(modifiedCopyOfGraph))));
+		assertThat(
+			graph.toDirectedAcyclicGraph().containsVertex(onlyStep),
+			is(false)
+		);
+		assertThat(
+			modifiedCopyOfGraph.toDirectedAcyclicGraph().containsVertex(onlyStep),
+			is(true)
+		);
+	}
+
+	@Test public void copying_does_not_damage_iterator() {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph graph = popGraph().addStep(firstStep).addStep(secondStep);
+		Iterator<Step> iterator = graph.iterator();
+		assertThat(iterator.hasNext(), is(true));
+		assertThat(iterator.next(), equalTo(firstStep));
+		assertThat(iterator.hasNext(), is(true));
+		assertThat(iterator.next(), equalTo(secondStep));
+		assertThat(iterator.hasNext(), is(false));
 	}
 
 	@Test public void can_return_directed_acyclic_graph_representation_of_self() {
