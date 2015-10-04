@@ -12,7 +12,8 @@ public class POPGraphTest {
 		return new POPGraph();
 	}
 
-	@Test public void has_a_directed_acyclic_graph() {
+	@Test public void has_a_directed_acyclic_graph()
+			throws CloneTypeMismatchException {
 		Class<DirectedAcyclicGraph> graphClass = DirectedAcyclicGraph.class;
 		assertThat(popGraph().graph(), is(instanceOf(graphClass)));
 	}
