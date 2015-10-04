@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import edu.uno.ai.planning.logic.*;
 
 import edu.uno.ai.planning.pop.*;
+import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.*;
 
 /**
@@ -55,7 +56,7 @@ public class PartialOrderSearch extends Search {
 	 */
 	private Plan pop(){
 		while(!this.pQueue.isEmpty()){
-			PartialOrderNode workingNode = this.queue.poll(); // get the node to work on next
+			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
 			
 			if(workingNode.flaws.length == 0)
 				return workingNode.orderings.topologicalSort();//this may need to be bound with the bindings found in the node
@@ -78,17 +79,27 @@ public class PartialOrderSearch extends Search {
 					Threat currentThreat = (Threat) currentFlaw;
 					Expression effects = currentThreat.threateningOperator.effect;
 					if(effects instanceof Literal){
-						
+						boolean dealWithThreat = effects.isGround();
+						if(dealWithThreat){
+							//do promotion/demotion here
+						}
 					}
 					else{
-						
-					}
-					
-				}
-				
+						ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
+						Literal[] temp = new Literal[arguments.length];
+						for(int j=0; j< arguments.length; j++){
+							boolean dealWithThreat = arguments.get(j).isGround();
+							if(dealWithThreat){
+								//if this threats predication matches the negation  of the causal link's predecation
+								if(currentThreat.threatenedLink.label.equals(arguments.get(j).negate())){
+									//deal with promotion//demotion
+									//break from for loop
+								}
+							}
+						}
+					}	
+				}	
 			}
-			
-			
 		}
 		return null;
 	}
