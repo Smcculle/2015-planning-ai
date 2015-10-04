@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -99,6 +100,20 @@ public class ImmutableArray<E> implements Iterable<E> {
 			if(array[i].equals(element))
 				return i;
 		return -1;
+	}
+	
+	/**
+	 * Added for convenience by 
+	 * Dustin Peabody
+	 * This just makes a copy of the array as an array list so we can do stuff to it the original array is left intact
+	 * This is not a deep clone but it should be fine for our needs
+	 */
+	public ArrayList<E> clone(){
+		ArrayList<E> temp = new ArrayList<E>();
+		for(E item : this.array){
+			temp.add(item);
+		}
+		return temp;
 	}
 	
 	@Override
