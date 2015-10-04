@@ -56,4 +56,22 @@ public class POPGraphTest {
 		POPGraph newGraph = popGraph().addStep(step);
 		assertThat(newGraph.graph().containsVertex(step), is(true));
 	}
+
+	@Test public void can_add_an_edge_between_steps() throws Exception {
+		Step stepOne = stepOne();
+		Step stepTwo = stepTwo();
+		POPGraph newGraph = popGraph()
+			.addStep(stepOne)
+			.addStep(stepTwo)
+			.addEdge(stepOne, stepTwo);
+		DefaultEdge stepOneToStepTwoEdge = newGraph.graph().getEdge(
+			stepOne,
+			stepTwo
+		);
+		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
+		assertThat(
+			newGraph.graph().containsEdge(stepOneToStepTwoEdge),
+			is(true)
+		);
+	}
 }
