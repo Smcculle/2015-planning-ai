@@ -5,8 +5,6 @@ import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.ListBindings;
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.Term;
-import edu.uno.ai.planning.logic.Variable;
 import edu.uno.ai.planning.util.*;
 
 
@@ -54,18 +52,13 @@ public class PartialOrderNode{
 	 */
 	PartialOrderNode(Problem baseProblem) {
 		this.steps = new ImmutableList<PartialStep>();
-		Term[] temp;
-		if(baseProblem.initial.toExpression() instanceof Literal){
-			((Predication) baseProblem.initial.toExpression()).
-			
-		}
 		
 		//The dummy start step which has no preconditions but effects which are the initial state of the world
-		PartialStep start = new PartialStep("Start", null, baseProblem.initial.toExpression());
+		PartialStep start = new PartialStep("Start", null, null, baseProblem.initial.toExpression());
 		this.steps = this.steps.add(start);
 		
 		//Dummy end step which has no effects but preconditions which are the goal of the problem
-		PartialStep end = new PartialStep("End", baseProblem.goal, null);
+		PartialStep end = new PartialStep("End", null, baseProblem.goal, null);
 		this.steps = this.steps.add(end);
 
 		
