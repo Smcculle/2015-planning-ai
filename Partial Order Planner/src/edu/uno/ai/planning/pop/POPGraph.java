@@ -26,4 +26,10 @@ public class POPGraph {
 		}
 		throw new CloneTypeMismatchException("Graph clone is not a DirectedAcyclicGraph");
 	}
+
+	public POPGraph addStep(Step newStep) throws Exception {
+		DirectedAcyclicGraph<Step, DefaultEdge> newGraph = graph();
+		newGraph.addVertex(newStep);
+		return new POPGraph(newGraph);
+	}
 }
