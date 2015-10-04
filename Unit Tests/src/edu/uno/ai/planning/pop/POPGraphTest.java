@@ -47,6 +47,21 @@ public class POPGraphTest {
 		assertThat(popGraph().graph(), is(instanceOf(graphClass)));
 	}
 
+	@Test public void is_equal_to_an_identical_popgraph() {
+		POPGraph graph = popGraph();
+		assertThat(graph.equals(graph), is(true));
+	}
+
+	@Test public void is_not_equal_to_non_identical_popgraphs() throws Exception {
+		POPGraph graph = popGraph();
+		POPGraph differentGraph = popGraph().addStep(mock(Step.class));
+		assertThat(graph, is(not(equalTo(differentGraph))));
+	}
+
+	@Test public void is_not_equal_to_non_popgraphs() {
+		assertThat(popGraph(), is(not(equalTo(mock(Object.class)))));
+	}
+
 	@Test public void can_add_steps() throws Exception {
 		Step step = stepOne();
 		POPGraph newGraph = popGraph().addStep(step);

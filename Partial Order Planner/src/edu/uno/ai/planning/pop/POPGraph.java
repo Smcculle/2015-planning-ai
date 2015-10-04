@@ -19,6 +19,17 @@ public class POPGraph {
 		this.graph = graph;
 	}
 
+	@Override
+	public boolean equals(Object object) {
+		boolean result = false;
+
+		if (object instanceof POPGraph) {
+			result = this.graph.equals(((POPGraph) object).graph);
+		}
+
+		return result;
+	}
+
 	@SuppressWarnings("unchecked")
 	public DirectedAcyclicGraph<Step, DefaultEdge> graph()
 			throws CloneTypeMismatchException {
