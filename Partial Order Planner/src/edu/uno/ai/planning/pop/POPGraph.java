@@ -20,16 +20,38 @@ public class POPGraph {
 		this.graph = graph;
 	}
 
-	public POPGraph copy() throws CycleFoundException {
+	public POPGraph addStep(Step newStep) {
+		POPGraph copy = this.copy();
+		copy.graph.addVertex(newStep);
+		return copy;
+	}
+
+	public POPGraph addSteps(Step... steps) {
+		POPGraph graph = this;
+		for(Step step : steps) {
+			graph = graph.addStep(step);
+		}
+		return graph;
+	}
+
+	public POPGraph copy() {
 		POPGraph copy = new POPGraph();
 		for(Step step : this.graph.vertexSet()) {
 			copy.graph.addVertex(step);
 		}
 		for(DefaultEdge edge : this.graph.edgeSet()) {
-			copy.graph.addDagEdge(
-				this.graph.getEdgeSource(edge),
-				this.graph.getEdgeTarget(edge)
-			);
+			try {
+				copy.graph.addDagEdge(
+					this.graph.getEdgeSource(edge),
+					this.graph.getEdgeTarget(edge)
+				);
+			} catch (CycleFoundException e) {
+				System.out.println(
+					"You should not have been allowed to clone a POPGraph " +
+					"with a cycle (according to JGraphT docs)."
+				);
+				e.printStackTrace();
+			}
 		}
 		return copy;
 	}
@@ -77,12 +99,6 @@ public class POPGraph {
 		newGraph.addDagEdge(fromStep, toStep);
 		return new POPGraph(newGraph);
 	}
-
-	public POPGraph addStep(Step newStep) throws Exception {
-		DirectedAcyclicGraph<Step, DefaultEdge> newGraph = graph();
-		newGraph.addVertex(newStep);
-		return new POPGraph(newGraph);
- }
 
 	public Iterator<Step> iterator() {
 		return this.graph.iterator();
