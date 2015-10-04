@@ -86,14 +86,14 @@ public class PartialOrderSearch extends Search {
 					}
 					else{
 						ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
-						Literal[] temp = new Literal[arguments.length];
 						for(int j=0; j< arguments.length; j++){
 							boolean dealWithThreat = arguments.get(j).isGround();
 							if(dealWithThreat){
 								//if this threats predication matches the negation  of the causal link's predecation
-								if(currentThreat.threatenedLink.label.equals(arguments.get(j).negate())){
+								Expression threatenedPredicate = currentThreat.threatenedLink.label;
+								if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
 									//deal with promotion//demotion
-									//break from for loop
+									break; //break from for loop because we found the threatened link and fixed it
 								}
 							}
 						}
