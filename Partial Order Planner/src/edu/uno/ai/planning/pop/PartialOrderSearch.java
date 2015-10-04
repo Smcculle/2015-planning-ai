@@ -60,63 +60,66 @@ public class PartialOrderSearch extends Search {
 		while(!this.pQueue.isEmpty()){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
 			
-			if(workingNode.flaws.length == 0)
+			if(workingNode.flaws.length == 0){
 				return workingNode.orderings.topologicalSort();//this may need to be bound with the bindings found in the node
-			//Get a flaw and check it out
-			boolean workableFlaw = false;
-			Flaw currentFlaw;
-			int i = 0;
-			
-			//this will grab the flaws and check them out we're looking for either an openCondition which we handle right away
-			//or a threat which we check and see if it is a definite threat
-			while(!workableFlaw && i < workingNode.flaws.length){
-				//get the flaw to look at
-				currentFlaw = workingNode.flaws.get(i);
-				//if it's an open condition good we can continue and work on that
-				if(currentFlaw instanceof OpenCondition){
-					workableFlaw = true;
-				}
-				else{
-					//otherwise the flaw is a threat
-					//we need to check and see if the threat is definite
-					Threat currentThreat = (Threat) currentFlaw;
-					Expression effects = currentThreat.threateningOperator.effect;
-					if(effects instanceof Literal){
-						boolean dealWithThreat = effects.isGround();
-						if(dealWithThreat){
-							workableFlaw = true; //stop looking for a flaw to work on
-							
-							handleOpenCondition((OpenCondition) currentFlaw); //do the work on this flaw
-
-						}
-					}
-					else{
-						ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
-						
-						for(int j=0; j< arguments.length; j++){
-							boolean dealWithThreat = arguments.get(j).isGround();
-							if(dealWithThreat){
-								//if this threats predication matches the negation  of the causal link's predecation
-								Expression threatenedPredicate = currentThreat.threatenedLink.label;
-								if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
-									
-									workableFlaw = true;// we found one to work on
-									
-									handleThreat((Threat) currentFlaw); //work on it
-									break; //break from for loop because we found the threatened link
-								}
-							}
-						}
-					}	
-				}	
-			}			
-			
-			
+			}
+			else{
+				handleFlaw(workingNode);
+			}
 		}
-		return null;
+		return null; //wat
 	}
 	
+	//assume that there is at least one flaw to work on
+	private void handleFlaw(PartialOrderNode workingNode){
+		//flaw we are currently checking out
+		Flaw currentFlaw;
+		//this will grab the flaws and check them out we're looking for either an openCondition which we handle right away
+		//or a threat which we check and see if it is a definite threat
+		for(int i=0; i < workingNode.flaws.length; i++){
+			//get the flaw to look at
+			currentFlaw = workingNode.flaws.get(i);
+			//if it's an open condition good we can continue and work on that
+			if(currentFlaw instanceof OpenCondition){
+				handleOpenCondition((OpenCondition) currentFlaw);
+				break;
+			}
+			else{
+				//otherwise the flaw is a threat
+				boolean found = findAndHandleThreat(currentFlaw);
+				if(found){break;}
+			}	
+		}
+	}
 	
+	private boolean findAndHandleThreat(Flaw currentFlaw){
+		//we need to check and see if the threat is grounded and links to the causal link's label
+		Threat currentThreat = (Threat) currentFlaw;
+		Expression effects = currentThreat.threateningOperator.effect;
+		if(effects instanceof Literal){ //if there is only one effect
+			boolean dealWithThreat = effects.isGround();
+			if(dealWithThreat){
+				handleThreat((Threat) currentFlaw); //work on it
+				return true;
+			}
+		}
+		else{ //else there's a bunch of threats, check which one threatens the label
+			ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
+			
+			for(int j=0; j< arguments.length; j++){
+				boolean dealWithThreat = arguments.get(j).isGround();
+				if(dealWithThreat){
+					//if this threats predication matches the negation  of the causal link's predecation
+					Expression threatenedPredicate = currentThreat.threatenedLink.label;
+					if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
+						handleThreat((Threat) currentFlaw);
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 	
 	private void handleOpenCondition(OpenCondition o){
 		
