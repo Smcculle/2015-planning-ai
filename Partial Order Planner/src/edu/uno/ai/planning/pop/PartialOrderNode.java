@@ -72,14 +72,15 @@ public class PartialOrderNode{
 		
 		//If the goal only has 1 literal to satisfy put it into the agenda
 		if(baseProblem.goal instanceof Literal){
-			this.flaws = new ImmutableArray<Flaw>(new Literal[]{(Literal) baseProblem.goal});
+			Flaw flaw = new OpenCondition((Literal)baseProblem.goal,end);
+			this.flaws = new ImmutableArray<Flaw>(new Flaw[]{flaw});
 		}
 		//otherwise we need to go through each conjunct in the goal and add each of those literals to the agenda
 		else{
-			Literal[] temp;
+			Flaw[] temp;
 			Conjunction goal = (Conjunction) baseProblem.goal;
 			for(int i=0; i<goal.arguments.length; i++){
-				temp[i] = (Literal) goal.arguments.get(i);
+				temp[i] = (Flaw) new OpenCondition((Literal) goal.arguments.get(i), end) ;
 				
 			}
 			this.flaws = new ImmutableArray<Flaw>(temp);
