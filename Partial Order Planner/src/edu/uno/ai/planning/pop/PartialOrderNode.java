@@ -5,12 +5,14 @@ import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.ListBindings;
 import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.logic.Term;
+import edu.uno.ai.planning.logic.Variable;
 import edu.uno.ai.planning.util.*;
 
 
 public class PartialOrderNode{
 		
-	public ImmutableList<Step> steps; //The set of steps already in the plan
+	public ImmutableList<PartialStep> steps; //The set of steps already in the plan
 	
 	public POPGraph orderings; //The orderings of the steps currently in the plan
 	
@@ -34,7 +36,7 @@ public class PartialOrderNode{
 	 * @param stepsPlanned this is the steps that are planned for this node, already has the new step added before creation
 	 * @param binds The set of bindings which apply to the node, ?already filled with the new bindings needed?
 	 */
-	public PartialOrderNode(ImmutableList<Step> stepsPlanned, POPGraph currentOrdering, ImmutableList<CausalLink> currentLinks, 
+	public PartialOrderNode(ImmutableList<PartialStep> stepsPlanned, POPGraph currentOrdering, ImmutableList<CausalLink> currentLinks, 
 			ListBindings binds, Flaw[] flaws, PartialOrderNode parent) {
 		this.steps = stepsPlanned;
 		this.binds = binds;
@@ -51,14 +53,19 @@ public class PartialOrderNode{
 	 * @param initial the problem's initial state
 	 */
 	PartialOrderNode(Problem baseProblem) {
-		this.steps = new ImmutableList<Step>();
+		this.steps = new ImmutableList<PartialStep>();
+		Term[] temp;
+		if(baseProblem.initial.toExpression() instanceof Literal){
+			((Predication) baseProblem.initial.toExpression()).
+			
+		}
 		
 		//The dummy start step which has no preconditions but effects which are the initial state of the world
-		Step start = new Step("Start", null, baseProblem.initial.toExpression());
+		PartialStep start = new PartialStep("Start", null, baseProblem.initial.toExpression());
 		this.steps = this.steps.add(start);
 		
 		//Dummy end step which has no effects but preconditions which are the goal of the problem
-		Step end = new Step("End", baseProblem.goal, null);
+		PartialStep end = new PartialStep("End", baseProblem.goal, null);
 		this.steps = this.steps.add(end);
 
 		
