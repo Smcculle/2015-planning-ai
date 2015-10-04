@@ -51,6 +51,18 @@ public class POPGraphTest {
 		assertThat(singleStepGraph.stepSet(), contains(onlyStep));
 	}
 
+	@Test public void can_return_set_of_edges() throws Exception {
+		POPGraph emptyGraph = popGraph();
+		assertThat(emptyGraph.edgeSet().isEmpty(), is(true));
+
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph singleEdgeGraph = popGraph().addStep(firstStep)
+			.addStep(secondStep)
+			.addEdge(firstStep, secondStep);
+		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
+	}
+
 	@Test public void has_a_directed_acyclic_graph()
 			throws CloneTypeMismatchException {
 		Class<DirectedAcyclicGraph> graphClass = DirectedAcyclicGraph.class;

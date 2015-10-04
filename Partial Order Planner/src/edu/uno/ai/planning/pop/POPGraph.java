@@ -30,6 +30,10 @@ public class POPGraph {
 		return result;
 	}
 
+	public Set<DefaultEdge> edgeSet() {
+		return this.graph.edgeSet();
+	}
+
 	public Set<Step> stepSet() {
 		return this.graph.vertexSet();
 	}
