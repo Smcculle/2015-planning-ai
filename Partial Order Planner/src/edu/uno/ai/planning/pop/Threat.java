@@ -2,7 +2,6 @@
  * 
  */
 package edu.uno.ai.planning.pop;
-import edu.uno.ai.planning.Operator;
 
 /**
  * @author Matthew Farmer
@@ -14,10 +13,10 @@ import edu.uno.ai.planning.Operator;
  */
 public class Threat implements Flaw {
 	CausalLink threatenedLink;
-	Operator threateningOperator;
+	PartialStep threateningStep;
 	
-	public Threat(CausalLink threatenedLink, Operator threateningOperator){
+	public Threat(CausalLink threatenedLink, PartialStep threateningStep){
 		this.threatenedLink = threatenedLink;
-		this.threateningOperator = threateningOperator;
+		this.threateningStep = threateningStep;
 	}
 }

@@ -2,7 +2,6 @@
  * imports
  */
 package edu.uno.ai.planning.pop;
-import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.logic.Predication;
 
 /**
@@ -15,11 +14,11 @@ import edu.uno.ai.planning.logic.Predication;
  */
 public class CausalLink {
 	
-	public Operator previousStep;
-	public Operator nextStep;
+	public PartialStep previousStep;
+	public PartialStep nextStep;
 	public Predication label;
 	
-	public CausalLink(Operator previousStep, Operator nextStep, Predication label){
+	public CausalLink(PartialStep previousStep, PartialStep nextStep, Predication label){
 		this.previousStep = previousStep;
 		this.nextStep = nextStep;
 		this.label = label;
