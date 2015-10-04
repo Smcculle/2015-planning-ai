@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -54,7 +55,7 @@ public class POPGraphTest {
 	@Test public void can_add_steps() throws Exception {
 		Step step = stepOne();
 		POPGraph newGraph = popGraph().addStep(step);
-		assertThat(newGraph.graph().containsVertex(step), is(true));
+		assertTrue(newGraph.graph().containsVertex(step));
 	}
 
 	@Test public void can_add_an_edge_between_steps() throws Exception {
@@ -69,9 +70,6 @@ public class POPGraphTest {
 			stepTwo
 		);
 		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
-		assertThat(
-			newGraph.graph().containsEdge(stepOneToStepTwoEdge),
-			is(true)
-		);
+		assertTrue(newGraph.graph().containsEdge(stepOneToStepTwoEdge));
 	}
 }

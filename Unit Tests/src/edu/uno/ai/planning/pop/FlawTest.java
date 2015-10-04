@@ -2,6 +2,7 @@ package edu.uno.ai.planning.pop;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -11,6 +12,6 @@ public class FlawTest {
 	}
 
 	@Test public void is_an_interface() {
-		assertThat(describedClass().isInterface(), is(true));
+		assertTrue(describedClass().isInterface());
 	}
 }
