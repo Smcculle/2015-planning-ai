@@ -5,7 +5,6 @@ import java.util.PriorityQueue;
 
 import edu.uno.ai.planning.logic.*;
 
-import edu.uno.ai.planning.pop.*;
 import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.*;
 
@@ -21,10 +20,12 @@ public class PartialOrderSearch extends Search {
 	/** The Partial Order problem being solved */
 	public final PartialOrderProblem problem;
 	
-	/** The root node of the search space (null plan?) */
-	public final PartialOrderNode root;
 	
 	private PriorityQueue<PartialOrderNode> pQueue;
+	
+	private int nodesExpanded;
+	
+	private int nodesVisited;
 	
 	/** The search limit on visited nodes (-1 if no limit) */
 	int limit = -1;
@@ -38,8 +39,9 @@ public class PartialOrderSearch extends Search {
 	public PartialOrderSearch(PartialOrderProblem problem) {
 		super(problem);
 		this.problem = problem;
-		this.root = new PartialOrderRoot(this);
 		this.pQueue = new PriorityQueue<PartialOrderNode>(20,new NodeComparator());
+		this.nodesExpanded = 0;
+		this.nodesVisited = 0;
 	}
 	
 	/**
@@ -106,12 +108,12 @@ public class PartialOrderSearch extends Search {
 
 	@Override
 	public int countVisited() {
-		return root.countVisited();
+		return this.nodesVisited;
 	}
 
 	@Override
 	public int countExpanded() {
-		return root.countExpanded();
+		return this.nodesExpanded;
 	}
 
 	@Override
@@ -122,8 +124,7 @@ public class PartialOrderSearch extends Search {
 	@Override
 	//This is the bread and butter it is the method that is called to actually solve the problem
 	public Plan findNextSolution() {
-		// this.pop(problem.steps(), new(DAG), new(set of Casual Links), new Bindings, new Threats))
-		return null;
+		return pop();
 	}
 	
 	
@@ -131,7 +132,7 @@ public class PartialOrderSearch extends Search {
 
 		@Override
 		public int compare(PartialOrderNode o1, PartialOrderNode o2) {
-			return Integer.compare(o1.flaws.count() + o1.steps.length, o2.flaws.count() + o1.steps.length);
+			return Integer.compare(o1.flaws.length + o1.steps.length, o2.flaws.length + o1.steps.length);
 		}
 		
 	}
