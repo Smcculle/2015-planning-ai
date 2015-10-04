@@ -81,7 +81,7 @@ public class PartialOrderSearch extends Search {
 					if(effects instanceof Literal){
 						boolean dealWithThreat = effects.isGround();
 						if(dealWithThreat){
-							//do promotion/demotion here
+							workableFlaw = true;
 						}
 					}
 					else{
@@ -92,8 +92,8 @@ public class PartialOrderSearch extends Search {
 								//if this threats predication matches the negation  of the causal link's predecation
 								Expression threatenedPredicate = currentThreat.threatenedLink.label;
 								if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
-									//deal with promotion//demotion
-									break; //break from for loop because we found the threatened link and fixed it
+									workableFlaw = true;
+									break; //break from for loop because we found the threatened link
 								}
 							}
 						}
