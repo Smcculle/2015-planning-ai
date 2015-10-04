@@ -1,16 +1,10 @@
 package edu.uno.ai.planning.pop;
 
-import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.SearchLimitReachedException;
-import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.ListBindings;
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.ss.TotalOrderPlan;
 import edu.uno.ai.planning.util.*;
 
 
@@ -18,7 +12,7 @@ public class PartialOrderNode{
 		
 	public ImmutableList<Step> steps; //The set of steps already in the plan
 	
-	public DAG orderings; //The orderings of the steps currently in the plan
+	public POPGraph orderings; //The orderings of the steps currently in the plan
 	
 	public ImmutableList<CausalLink> causalLinks; //Links between steps that need to be preserved
 	
@@ -40,7 +34,7 @@ public class PartialOrderNode{
 	 * @param stepsPlanned this is the steps that are planned for this node, already has the new step added before creation
 	 * @param binds The set of bindings which apply to the node, ?already filled with the new bindings needed?
 	 */
-	public PartialOrderNode(ImmutableList<Step> stepsPlanned, DAG currentOrdering, ImmutableList<CausalLink> currentLinks, 
+	public PartialOrderNode(ImmutableList<Step> stepsPlanned, POPGraph currentOrdering, ImmutableList<CausalLink> currentLinks, 
 			ListBindings binds, Flaw[] flaws, PartialOrderNode parent) {
 		this.steps = stepsPlanned;
 		this.binds = binds;
@@ -77,8 +71,8 @@ public class PartialOrderNode{
 		}
 		//otherwise we need to go through each conjunct in the goal and add each of those literals to the agenda
 		else{
-			Flaw[] temp;
 			Conjunction goal = (Conjunction) baseProblem.goal;
+			Flaw[] temp = new Flaw[goal.arguments.length];
 			for(int i=0; i<goal.arguments.length; i++){
 				temp[i] = (Flaw) new OpenCondition((Literal) goal.arguments.get(i), end) ;
 				
@@ -88,7 +82,7 @@ public class PartialOrderNode{
 		
 		this.parent = null;//this is the first node so it has no parent...
 		
-		this.orderings = new DAG(); //This will be the null plan aka initial state and goal
+		this.orderings = new POPGraph(); //This will be the null plan aka initial state and goal
 		
 		this.causalLinks = new ImmutableList<CausalLink>(); //make a new set of links which is empty for now
 		
