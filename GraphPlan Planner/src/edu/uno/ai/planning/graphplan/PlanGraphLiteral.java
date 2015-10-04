@@ -63,8 +63,16 @@ public class PlanGraphLiteral
 	/**
 	 * @return literal Wrapped Literal
 	 */
-	public Literal getEffectLiteral()
+	public Literal getLiteral()
 	{
 		return _literal;
+	}
+	
+	@Override
+	public String toString()
+	{
+		String output = _literal.toString();
+		output += "[" + _initialLevel + "]";
+		return output;
 	}
 }

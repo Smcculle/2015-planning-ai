@@ -67,4 +67,12 @@ public class PlanGraphStep
 	{
 		return _step;
 	}
+	
+	@Override
+	public String toString()
+	{
+		String output = _step.toString();
+		output += "[" + _initialLevel + "]";
+		return output;
+	}
 }
