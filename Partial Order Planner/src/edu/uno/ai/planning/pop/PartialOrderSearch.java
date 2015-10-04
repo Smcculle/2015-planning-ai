@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import edu.uno.ai.planning.logic.*;
-
 import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.*;
 
@@ -29,6 +28,7 @@ public class PartialOrderSearch extends Search {
 	
 	/** The search limit on visited nodes (-1 if no limit) */
 	int limit = -1;
+	
 	
 	
 	/**
@@ -66,6 +66,7 @@ public class PartialOrderSearch extends Search {
 			boolean workableFlaw = false;
 			Flaw currentFlaw;
 			int i = 0;
+			
 			//this will grab the flaws and check them out we're looking for either an openCondition which we handle right away
 			//or a threat which we check and see if it is a definite threat
 			while(!workableFlaw && i < workingNode.flaws.length){
@@ -83,28 +84,49 @@ public class PartialOrderSearch extends Search {
 					if(effects instanceof Literal){
 						boolean dealWithThreat = effects.isGround();
 						if(dealWithThreat){
-							workableFlaw = true;
+							workableFlaw = true; //stop looking for a flaw to work on
+							
+							handleOpenCondition((OpenCondition) currentFlaw); //do the work on this flaw
+
 						}
 					}
 					else{
 						ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
+						
 						for(int j=0; j< arguments.length; j++){
 							boolean dealWithThreat = arguments.get(j).isGround();
 							if(dealWithThreat){
 								//if this threats predication matches the negation  of the causal link's predecation
 								Expression threatenedPredicate = currentThreat.threatenedLink.label;
 								if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
-									workableFlaw = true;
+									
+									workableFlaw = true;// we found one to work on
+									
+									handleThreat((Threat) currentFlaw); //work on it
 									break; //break from for loop because we found the threatened link
 								}
 							}
 						}
 					}	
 				}	
-			}
+			}			
+			
+			
 		}
 		return null;
 	}
+	
+	
+	
+	private void handleOpenCondition(OpenCondition o){
+		
+	}
+	
+	private void handleThreat(Threat t){
+		
+	}
+	
+	
 
 	@Override
 	public int countVisited() {
@@ -118,7 +140,7 @@ public class PartialOrderSearch extends Search {
 
 	@Override
 	public void setNodeLimit(int limit) {
-		((StateSpaceRoot) root).setNodeLimit(limit);
+		this.limit = limit;
 	}
 
 	@Override
