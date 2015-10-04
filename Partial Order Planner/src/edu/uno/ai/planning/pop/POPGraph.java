@@ -30,6 +30,10 @@ public class POPGraph {
 		return result;
 	}
 
+	public Set<Step> stepSet() {
+		return this.graph.vertexSet();
+	}
+
 	@SuppressWarnings("unchecked")
 	public DirectedAcyclicGraph<Step, DefaultEdge> graph()
 			throws CloneTypeMismatchException {
