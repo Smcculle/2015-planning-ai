@@ -181,7 +181,8 @@ public class PlanGraph
 		{
 			step.SetInitialLevel(getLevel());
 			for (Literal literal : expressionToLiterals(step.GetStep().effect))
-				getPlanGraphLiteral(literal).SetInitialLevel(getLevel());
+				if (getPlanGraphLiteral(literal).GetInitialLevel() == -1)
+					getPlanGraphLiteral(literal).SetInitialLevel(getLevel());
 		}
 		
 		checkForInconsistentEffects();
@@ -218,7 +219,7 @@ public class PlanGraph
 		{
 			boolean didFindValue = false;
 			for (PlanGraphLiteral planGraphLiteral : _parent.getCurrentLiterals())
-				if (literal == planGraphLiteral.getLiteral())
+				if (literal.equals(planGraphLiteral.getLiteral()))
 				{
 					didFindValue = true;
 					break;
@@ -482,10 +483,10 @@ public class PlanGraph
 		{
 			for (PlanGraphLiteral otherEffect : effects)
 			{
-				if (effect != otherEffect)
+				if (!effect.equals(otherEffect))
 				{
 					PlanGraphLiteral negatedEffect = getPlanGraphLiteral(effect.getLiteral().negate());
-					if (negatedEffect == otherEffect)
+					if (negatedEffect.equals(otherEffect))
 					{
 						if (_mutexLiterals.containsKey(effect))
 						{
@@ -610,7 +611,7 @@ public class PlanGraph
 	private PlanGraphLiteral getPlanGraphLiteral(Literal literal)
 	{
 		for (PlanGraphLiteral planGraphLiteral : _effects)
-			if (planGraphLiteral.getLiteral() == literal)
+			if (planGraphLiteral.getLiteral().equals(literal))
 				return planGraphLiteral;
 		return null;
 	}
