@@ -1,22 +1,17 @@
 package edu.uno.ai.planning.pop;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.junit.Test;
+import java.util.*;
 
-import edu.uno.ai.planning.Settings;
-import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.Constant;
-import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.Predication;
+import org.jgrapht.experimental.dag.*;
+import org.jgrapht.graph.*;
+import org.junit.*;
+
+import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.logic.*;
 
 public class POPGraphTest {
 	private POPGraph popGraph() {
