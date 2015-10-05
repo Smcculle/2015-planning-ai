@@ -21,11 +21,11 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void adding_more_than_one_step_does_not_add_edges() {
-		PartialStep firstMockedStep = mock(PartialStep.class);
-		PartialStep secondMockedStep = mock(PartialStep.class);
-		POPGraph graph = newEmptyPopGraph().addStep(firstMockedStep)
-			.addStep(secondMockedStep);
+	public void adding_steps_does_not_create_edges() {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph graph = newEmptyPopGraph().addStep(firstStep)
+			.addStep(secondStep);
 		Set<DefaultEdge> edgesOfGraph = graph.edgeSet();
 
 		assertTrue(edgesOfGraph.isEmpty());
