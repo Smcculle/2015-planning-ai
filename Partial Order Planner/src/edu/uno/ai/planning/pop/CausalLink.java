@@ -23,5 +23,14 @@ public class CausalLink {
 		this.nextStep = nextStep;
 		this.label = label;
 	}
+	
+	
+	@Override
+	public boolean equals(Object other){
+		if(!(other instanceof CausalLink))
+			return false;
+		return (this.previousStep == ((CausalLink)other).previousStep && this.nextStep == ((CausalLink)other).nextStep 
+				&& this.label == ((CausalLink)other).label);
+	}
 
 }

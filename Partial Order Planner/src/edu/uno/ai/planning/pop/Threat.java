@@ -19,4 +19,13 @@ public class Threat implements Flaw {
 		this.threatenedLink = threatenedLink;
 		this.threateningStep = threateningStep;
 	}
+	
+	
+	@Override
+	public boolean equals(Object other){
+		if(!(other instanceof Threat))
+			return false;
+		return (this.threatenedLink == ((Threat)other).threatenedLink && this.threateningStep == ((Threat)other).threateningStep);
+		
+	}
 }
