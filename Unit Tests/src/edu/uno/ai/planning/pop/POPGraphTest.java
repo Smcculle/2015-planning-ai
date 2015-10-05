@@ -32,10 +32,11 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void affecting_copies_will_not_affect_original() {
+	public void affecting_copies_does_not_affect_original() {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph modifiedCopyOfGraph = graph.copy().addStep(onlyStep);
+
 		assertThat(graph,is(not(equalTo(modifiedCopyOfGraph))));
 		assertThat(graph.containsStep(onlyStep), is(false));
 		assertThat(modifiedCopyOfGraph.containsStep(onlyStep), is(true));
