@@ -165,8 +165,7 @@ public class PartialOrderSearch extends Search {
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
-					System.out.println(arguments.get(j));
-					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){//TODO this needs to check unification
+					if(predicatetToMatch.equals(arguments.get(j), workingNode.binds)){//TODO this needs to check unification
 						foundMatch = true;
 					}
 				}
@@ -182,7 +181,7 @@ public class PartialOrderSearch extends Search {
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
 		if(newNodeBindings != null){
 			//shit unified correctly, now lets make the causal links
-			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,satisfyingPredication);
+			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
 		}
 		
 	}
