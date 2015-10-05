@@ -37,10 +37,10 @@ public class PlanGraph
 	ArrayList<PlanGraphStep> _persistenceSteps;
 	
 	/** List of all mutually exclusive steps in current PlanGraph Level */
-	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
+	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps;
 	
 	/** List of all mutually exclusive literals in current PlanGraph Level */
-	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
+	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals;
 	
 	/**
 	 * Constructs a new root of PlanGraph
@@ -52,6 +52,8 @@ public class PlanGraph
 		_parent = null;
 		_effects = new ArrayList<PlanGraphLiteral>();
 		_steps = new ArrayList<PlanGraphStep>();
+		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
+		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = new ArrayList<PlanGraphStep>();
 		
 		addAllSteps(problem.steps);
@@ -81,6 +83,8 @@ public class PlanGraph
 		_parent = parent;
 		_effects = parent._effects;
 		_steps = parent._steps;
+		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
+		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = parent._persistenceSteps;
 		setPerstitenceStepLevels();
 		addAllPossibleNewSteps();
@@ -636,17 +640,33 @@ public class PlanGraph
 		if (_parent != null)
 			str += _parent.toString();
 		
-		str += "---------------\n";
-		str += "Level " + getLevel() + "\n";
+		str += "--------------------------------\n";
+		str += "PlanGraph Level " + getLevel() + "\n";
+		str += "--------------------------------\n";
 		
 		str += "Steps [" + getCurrentSteps().size() + "]:\n";
 		for (PlanGraphStep step : getCurrentSteps())
-			str += step.toString() + "\n";
+			str += "-" + step.toString() + "\n";
 		
 		str += "Effects [" + getCurrentLiterals().size() + "]:\n";
 		for (PlanGraphLiteral literal : getCurrentLiterals())
-			str += literal.toString() + "\n";
+			str += "-" + literal.toString() + "\n";
 		
+		str += "Mutex Steps [" + _mutexSteps.size() + "]:\n";
+		for (PlanGraphStep step : _mutexSteps.keySet())
+		{
+			str += "-" + step.toString() + "\n";
+			for (PlanGraphStep mutexLiteral : _mutexSteps.get(step))
+				str += "--" + mutexLiteral.toString() + "\n";
+		}
+		
+		str += "Mutex Literals [" + _mutexLiterals.size() + "]:\n";
+		for (PlanGraphLiteral literal : _mutexLiterals.keySet())
+		{
+			str += "-" + literal.toString() + "\n";
+			for (PlanGraphLiteral mutexLiteral : _mutexLiterals.get(literal))
+				str += "--" + mutexLiteral.toString() + "\n";
+		}
 		return str;
 	}
 }

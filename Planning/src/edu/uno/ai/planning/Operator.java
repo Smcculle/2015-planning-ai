@@ -1,6 +1,5 @@
 package edu.uno.ai.planning;
 
-import java.util.Iterator;
 
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
