@@ -26,8 +26,16 @@ public class POPGraph {
 		return copy;
 	}
 
+	public POPGraph addSteps(Iterable<Step> steps) {
+		POPGraph copy = this.copy();
+		for(Step step : steps) {
+			copy = copy.addStep(step);
+		}
+		return copy;
+	}
+
 	public POPGraph addSteps(Step... steps) {
-		POPGraph graph = this;
+		POPGraph graph = this.copy();
 		for(Step step : steps) {
 			graph = graph.addStep(step);
 		}

@@ -96,7 +96,31 @@ public class POPGraphTest {
 		assertTrue(edgesOfGraph.isEmpty());
 	}
 
-	@Test public void can_add_multiple_steps_to_self_via_varargs() {
+	@Test public void can_return_a_popgraph_equal_to_self_plus_multiple_steps_via_an_iterable() {
+		ArrayList<Step> steps = new ArrayList<Step>();
+		steps.add(mock(Step.class));
+		steps.add(mock(Step.class));
+		POPGraph emptyGraph = newEmptyPopGraph();
+		POPGraph twoStepGraph = emptyGraph.addSteps(steps);
+
+		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(false));
+		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(false));
+		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
+		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
+
+		steps.add(mock(Step.class));
+		steps.add(mock(Step.class));
+		POPGraph fourStepGraph = emptyGraph.addSteps(steps);
+
+		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(false));
+		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(false));
+		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
+		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
+		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(true));
+		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(true));
+	}
+
+	@Test public void can_return_a_popgraph_equal_to_self_plus_multiple_steps_via_varargs() {
 		Step firstStep = mock(Step.class);
 		Step secondStep = mock(Step.class);
 		POPGraph emptyGraph = newEmptyPopGraph();
