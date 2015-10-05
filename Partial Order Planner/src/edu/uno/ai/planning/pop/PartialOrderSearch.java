@@ -164,7 +164,6 @@ public class PartialOrderSearch extends Search {
 				//create partial step and nodes and shit
 			}
 		}
-		//checking existing partialSteps
 	}
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
