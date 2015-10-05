@@ -95,7 +95,6 @@ public class POPGraphTest {
 		assertTrue(edgesOfNewStep.isEmpty());
 	}
 
-
 	@Test public void steps_are_only_added_once() {
 		Step onlyStep = mock(Step.class);
 		POPGraph graph = newEmptyPopGraph().addStep(onlyStep);
@@ -215,7 +214,7 @@ public class POPGraphTest {
 		);
 	}
 
-	@Test public void can_return_set_of_steps() throws Exception {
+	@Test public void can_return_set_of_steps() {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		assertThat(emptyGraph.stepSet().isEmpty(), is(true));
 
@@ -238,18 +237,17 @@ public class POPGraphTest {
 		DefaultEdge edge = singleEdgeGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
 	}
 
-	@Test public void can_return_string_representation_of_self() throws CloneTypeMismatchException {
+	@Test public void can_return_string_representation_of_self() {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		assertThat(emptyGraph.toString(), equalTo(emptyGraph.toDirectedAcyclicGraph().toString()));
 	}
-
 
 	@Test public void is_equal_to_an_identical_popgraph() {
 		POPGraph graph = newEmptyPopGraph();
 		assertThat(graph.equals(graph), is(true));
 	}
 
-	@Test public void is_not_equal_to_non_identical_popgraphs() throws Exception {
+	@Test public void is_not_equal_to_non_identical_popgraphs() {
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph differentGraph = newEmptyPopGraph().addStep(mock(Step.class));
 		assertThat(graph, is(not(equalTo(differentGraph))));
