@@ -95,9 +95,9 @@ public class PartialOrderSearch extends Search {
 	private boolean findAndHandleThreat(Flaw currentFlaw){
 		//we need to check and see if the threat is grounded and links to the causal link's label
 		Threat currentThreat = (Threat) currentFlaw;
-		Expression effects = currentThreat.threateningOperator.effect;
+		Expression effects = currentThreat.threateningStep.effect;
 		if(effects instanceof Literal){ //if there is only one effect
-			boolean dealWithThreat = effects.isGround();
+			boolean dealWithThreat = effects.isGround();//
 			if(dealWithThreat){
 				handleThreat((Threat) currentFlaw); //work on it
 				return true;
@@ -122,7 +122,26 @@ public class PartialOrderSearch extends Search {
 	}
 	
 	private void handleOpenCondition(OpenCondition o){
-		
+		Predication predicatetToMatch = (Predication) o.literal();
+		//loop through and find all operators that satisfies the open precondtion
+		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
+		for(int i=0;i < operatorsToCheck.length; i++){
+			boolean foundMatch = false;
+			if (operatorsToCheck.get(i).effect instanceof Literal){
+				foundMatch = predicatetToMatch.equals((Predication) operatorsToCheck.get(i).effect, workingNode.binds);
+			}
+			else{
+				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
+				for(int j=0; j< arguments.length; j++){
+					if(predicatetToMatch.equals((Predication) arguments.get(j))){
+						foundMatch = true;
+					}
+				}
+			}
+			if(foundMatch){
+				//create partial step and nodes and shit
+			}
+		}
 	}
 	
 	private void handleThreat(Threat t){
