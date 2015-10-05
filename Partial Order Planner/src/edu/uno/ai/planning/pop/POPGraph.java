@@ -96,20 +96,10 @@ public class POPGraph {
 		return this.graph.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	public DirectedAcyclicGraph<Step, DefaultEdge> graph()
-			throws CloneTypeMismatchException {
-		Object clone = this.graph.clone();
-		if (clone instanceof DirectedAcyclicGraph) {
-			return (DirectedAcyclicGraph<Step, DefaultEdge>)clone;
-		}
-		throw new CloneTypeMismatchException("Graph clone is not a DirectedAcyclicGraph");
-	}
-
 	public POPGraph addEdge(Step fromStep, Step toStep) throws Exception {
-		DirectedAcyclicGraph<Step, DefaultEdge> newGraph = graph();
-		newGraph.addDagEdge(fromStep, toStep);
-		return new POPGraph(newGraph);
+		POPGraph copy = this.copy();
+		copy.graph.addDagEdge(fromStep, toStep);
+		return copy;
 	}
 
 	public Iterator<Step> iterator() {

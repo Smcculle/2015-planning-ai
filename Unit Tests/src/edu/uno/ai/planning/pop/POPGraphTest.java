@@ -248,19 +248,14 @@ public class POPGraphTest {
 			.addStep(secondStep)
 			.addEdge(firstStep, secondStep);
 		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
-		DefaultEdge edge = singleEdgeGraph.graph().getEdge(firstStep, secondStep);
+		DefaultEdge edge = singleEdgeGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
 	}
 
 	@Test public void can_return_string_representation_of_self() throws CloneTypeMismatchException {
 		POPGraph emptyGraph = newEmptyPopGraph();
-		assertThat(emptyGraph.toString(), equalTo(emptyGraph.graph().toString()));
+		assertThat(emptyGraph.toString(), equalTo(emptyGraph.toDirectedAcyclicGraph().toString()));
 	}
 
-	@Test public void has_a_directed_acyclic_graph()
-			throws CloneTypeMismatchException {
-		Class<DirectedAcyclicGraph> graphClass = DirectedAcyclicGraph.class;
-		assertThat(newEmptyPopGraph().graph(), is(instanceOf(graphClass)));
-	}
 
 	@Test public void is_equal_to_an_identical_popgraph() {
 		POPGraph graph = newEmptyPopGraph();
@@ -284,11 +279,11 @@ public class POPGraphTest {
 			.addStep(stepOne)
 			.addStep(stepTwo)
 			.addEdge(stepOne, stepTwo);
-		DefaultEdge stepOneToStepTwoEdge = newGraph.graph().getEdge(
+		DefaultEdge stepOneToStepTwoEdge = newGraph.toDirectedAcyclicGraph().getEdge(
 			stepOne,
 			stepTwo
 		);
 		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
-		assertTrue(newGraph.graph().containsEdge(stepOneToStepTwoEdge));
+		assertTrue(newGraph.toDirectedAcyclicGraph().containsEdge(stepOneToStepTwoEdge));
 	}
 }
