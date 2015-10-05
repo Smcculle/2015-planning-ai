@@ -55,11 +55,9 @@ public class POPGraphTest {
 	public void adding_steps_does_not_create_edges() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
-		POPGraph graph = newEmptyPopGraph().addStep(firstStep)
-			.addStep(secondStep);
-		Set<DefaultEdge> edgesOfGraph = graph.edgeSet();
+		POPGraph graph = newEmptyPopGraph().addStep(firstStep).addStep(secondStep);
 
-		assertTrue(edgesOfGraph.isEmpty());
+		assertThat(graph.edgeSet(), is(empty()));
 	}
 
 	@Test
@@ -369,13 +367,8 @@ public class POPGraphTest {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph().addStep(firstStep).addStep(secondStep);
-		Iterator<PartialStep> iterator = graph.iterator();
 
-		assertThat(iterator.hasNext(), is(true));
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.hasNext(), is(true));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.hasNext(), is(false));
+		assertThat(graph, contains(firstStep, secondStep));
 	}
 
 	@Test
@@ -409,7 +402,7 @@ public class POPGraphTest {
 		POPGraph newGraph = newEmptyPopGraph().addStep(mockedStep);
 		Set<DefaultEdge> edgesOfNewStep = newGraph.toDirectedAcyclicGraph().edgesOf(mockedStep);
 
-		assertTrue(edgesOfNewStep.isEmpty());
+		assertThat(edgesOfNewStep, is(empty()));
 	}
 
 	@Test
