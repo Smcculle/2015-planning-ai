@@ -11,6 +11,8 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 import org.junit.*;
 
+import edu.uno.ai.planning.ss.*;
+
 public class POPGraphTest {
 	private Class<POPGraph> describedClass() {
 		return POPGraph.class;
@@ -234,6 +236,13 @@ public class POPGraphTest {
 		assertThat(singleStepGraph.containsStep(extraStep), is(false));
 		assertThat(twoStepGraph.containsStep(onlyStep), is(true));
 		assertThat(twoStepGraph.containsStep(extraStep), is(true));
+	}
+
+	@Test
+	public void can_return_a_total_order_plan_representation_of_self() {
+		POPGraph graph = newEmptyPopGraph();
+
+		assertThat(graph.toTotalOrderPlan(), instanceOf(TotalOrderPlan.class));
 	}
 
 	@Test

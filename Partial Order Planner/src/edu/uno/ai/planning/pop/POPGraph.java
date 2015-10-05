@@ -6,6 +6,8 @@ import org.jgrapht.experimental.dag.*;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 
+import edu.uno.ai.planning.ss.*;
+
 public class POPGraph implements Iterable<PartialStep> {
 	private DirectedAcyclicGraph<PartialStep, DefaultEdge> graph;
 
@@ -119,5 +121,9 @@ public class POPGraph implements Iterable<PartialStep> {
 	@Override
 	public String toString() {
 		return this.graph.toString();
+	}
+
+	public TotalOrderPlan toTotalOrderPlan() {
+		return new TotalOrderPlan();
 	}
 }
