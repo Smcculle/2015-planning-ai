@@ -41,6 +41,18 @@ public class POPGraphTest {
 		);
 	}
 
+	@Test public void can_report_if_it_contains_a_step() {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph oneStepGraph = newEmptyPopGraph().addStep(firstStep);
+		POPGraph twoStepGraph = oneStepGraph.addStep(secondStep);
+
+		assertThat(oneStepGraph.containsStep(firstStep), is(true));
+		assertThat(oneStepGraph.containsStep(secondStep), is(false));
+		assertThat(twoStepGraph.containsStep(firstStep), is(true));
+		assertThat(twoStepGraph.containsStep(secondStep), is(true));
+	}
+
 	@Test public void can_return_a_popgraph_equal_to_self_plus_new_step() {
 		Step onlyStep = mock(Step.class);
 		POPGraph emptyGraph = newEmptyPopGraph();

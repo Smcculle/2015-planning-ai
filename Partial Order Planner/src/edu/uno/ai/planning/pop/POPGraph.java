@@ -42,6 +42,10 @@ public class POPGraph {
 		return graph;
 	}
 
+	public boolean containsStep(Step step) {
+		return this.graph.containsVertex(step);
+	}
+
 	public POPGraph copy() {
 		POPGraph copy = new POPGraph();
 		for(Step step : this.graph.vertexSet()) {
