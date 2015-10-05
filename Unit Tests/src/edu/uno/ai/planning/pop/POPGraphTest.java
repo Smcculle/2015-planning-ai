@@ -146,6 +146,15 @@ public class POPGraphTest {
 		assertThat(twoStepGraph.containsStep(extraStep), is(true));
 	}
 
+	@Test public void can_return_an_existing_edge_between_two_steps() throws Exception {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedTwoStepGraph = twoStepGraph.addEdge(firstStep, secondStep);
+
+		assertThat(connectedTwoStepGraph.edgeBetween(firstStep, secondStep), notNullValue());
+	}
+
 	@Test public void can_return_directed_acyclic_graph_representation_of_self() {
 		DirectedAcyclicGraph<Step, DefaultEdge> emptyDirectedAcyclicGraph =
 			new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -293,5 +302,13 @@ public class POPGraphTest {
 		assertThat(iterator.next(), equalTo(thirdStep));
 		assertThat(iterator.next(), equalTo(secondStep));
 		assertThat(iterator.next(), equalTo(fourthStep));
+	}
+
+	@Test public void will_return_null_if_edge_between_two_steps_does_not_exist() {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+
+		assertThat(twoStepGraph.edgeBetween(firstStep, secondStep), nullValue());
 	}
 }

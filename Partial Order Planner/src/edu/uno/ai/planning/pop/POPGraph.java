@@ -82,6 +82,10 @@ public class POPGraph {
 		return this.graph.iterator();
 	}
 
+	public DefaultEdge edgeBetween(Step source, Step target) {
+		return this.graph.getEdge(source, target);
+	}
+
 	public Set<DefaultEdge> edgeSet() {
 		return this.graph.edgeSet();
 	}
