@@ -81,25 +81,25 @@ public class PartialOrderSearch extends Search {
 			currentFlaw = workingNode.flaws.get(i);
 			//if it's an open condition good we can continue and work on that
 			if(currentFlaw instanceof OpenCondition){
-				handleOpenCondition((OpenCondition) currentFlaw);
+				handleOpenCondition((OpenCondition) currentFlaw, workingNode);
 				break;
 			}
 			else{
 				//otherwise the flaw is a threat
-				boolean found = findAndHandleThreat(currentFlaw);
+				boolean found = findAndHandleThreat(currentFlaw, workingNode);
 				if(found){break;}
 			}	
 		}
 	}
 	
-	private boolean findAndHandleThreat(Flaw currentFlaw){
+	private boolean findAndHandleThreat(Flaw currentFlaw, PartialOrderNode workingNode){
 		//we need to check and see if the threat is grounded and links to the causal link's label
 		Threat currentThreat = (Threat) currentFlaw;
-		Expression effects = currentThreat.threateningOperator.effect;
+		Expression effects = currentThreat.threateningStep.effect;
 		if(effects instanceof Literal){ //if there is only one effect
 			boolean dealWithThreat = effects.isGround();
 			if(dealWithThreat){
-				handleThreat((Threat) currentFlaw); //work on it
+				handleThreat((Threat) currentFlaw, workingNode); //work on it
 				return true;
 			}
 		}
@@ -112,7 +112,7 @@ public class PartialOrderSearch extends Search {
 					//if this threats predication matches the negation  of the causal link's predecation
 					Expression threatenedPredicate = currentThreat.threatenedLink.label;
 					if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
-						handleThreat((Threat) currentFlaw);
+						handleThreat((Threat) currentFlaw, workingNode);
 						return true;
 					}
 				}
@@ -121,11 +121,11 @@ public class PartialOrderSearch extends Search {
 		return false;
 	}
 	
-	private void handleOpenCondition(OpenCondition o){
+	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
 		
 	}
 	
-	private void handleThreat(Threat t){
+	private void handleThreat(Threat t, PartialOrderNode workingNode){
 		
 	}
 	

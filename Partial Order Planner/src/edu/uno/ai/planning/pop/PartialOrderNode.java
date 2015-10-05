@@ -1,7 +1,6 @@
 package edu.uno.ai.planning.pop;
 
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.ListBindings;
 import edu.uno.ai.planning.logic.Literal;
