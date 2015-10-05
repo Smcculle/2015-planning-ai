@@ -52,6 +52,18 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void adding_steps_via_iterable_does_not_affect_self() {
+		ArrayList<PartialStep> steps = new ArrayList<PartialStep>();
+		steps.add(mock(PartialStep.class));
+		steps.add(mock(PartialStep.class));
+		POPGraph emptyGraph = newEmptyPopGraph();
+		emptyGraph.addSteps(steps);
+
+		assertThat(emptyGraph, not(contains(steps.get(0))));
+		assertThat(emptyGraph, not(contains(steps.get(1))));
+	}
+
+	@Test
 	public void affecting_copies_does_not_affect_original() {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph();
