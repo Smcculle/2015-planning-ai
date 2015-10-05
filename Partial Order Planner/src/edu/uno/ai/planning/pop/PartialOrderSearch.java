@@ -123,7 +123,27 @@ public class PartialOrderSearch extends Search {
 	
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
 		Predication predicatetToMatch = (Predication) o.literal();
-		//loop through and find all operators that satisfies the open precondtion
+		//loop through all of the existing partial steps to see if one satisfies this open precondition
+		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
+		for(PartialStep step: stepsToLoopThrough){
+			boolean foundMatch = false;
+			if(step.effect instanceof Literal){
+				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
+			}
+			else{
+				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
+				for(int j=0; j< arguments.length; j++){
+					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
+						foundMatch = true;
+					}
+				}
+			}
+			if(foundMatch){
+				//create new casual link, update bindings, remove flaw
+			}
+		}
+		
+		//loop through and find all operators that satisfies the open precondition
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
 			boolean foundMatch = false;
@@ -142,28 +162,9 @@ public class PartialOrderSearch extends Search {
 				//create partial step and nodes and shit
 			}
 		}
-		
-		//loop thorugh all of the existing partial steps to see if one  
-		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
-		for(PartialStep step: stepsToLoopThrough){
-			boolean foundMatch = false;
-			if(step.effect instanceof Literal){
-				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
-			}
-			else{
-				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
-				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
-						foundMatch = true;
-					}
-				}
-			}
-			if(foundMatch){
-				//create partial step and nodes and shit
-			}
-		}
-		//checking existing partialSteps
 	}
+	
+	
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
 		
