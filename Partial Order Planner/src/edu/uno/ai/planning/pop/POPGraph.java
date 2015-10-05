@@ -6,7 +6,7 @@ import org.jgrapht.experimental.dag.*;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 
-public class POPGraph {
+public class POPGraph implements Iterable<PartialStep> {
 	private DirectedAcyclicGraph<PartialStep, DefaultEdge> graph;
 
 	public POPGraph() {
@@ -76,10 +76,6 @@ public class POPGraph {
 		return copy;
 	}
 
-	public Iterator<PartialStep> iterator() {
-		return this.graph.iterator();
-	}
-
 	public POPGraph demote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {
 		return this.addEdge(target, source);
 	}
@@ -101,6 +97,11 @@ public class POPGraph {
 		}
 
 		return result;
+	}
+
+	@Override
+	public Iterator<PartialStep> iterator() {
+		return this.graph.iterator();
 	}
 
 	public POPGraph promote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {

@@ -12,6 +12,10 @@ import org.jgrapht.graph.*;
 import org.junit.*;
 
 public class POPGraphTest {
+	private Class<POPGraph> describedClass() {
+		return POPGraph.class;
+	}
+
 	private POPGraph newEmptyPopGraph() {
 		return new POPGraph();
 	}
@@ -331,6 +335,11 @@ public class POPGraphTest {
 		assertThat(iterator.hasNext(), is(true));
 		assertThat(iterator.next(), equalTo(secondStep));
 		assertThat(iterator.hasNext(), is(false));
+	}
+
+	@Test
+	public void implements_iterable() {
+		assertThat(describedClass(), typeCompatibleWith(Iterable.class));
 	}
 
 	@Test
