@@ -41,6 +41,17 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void adding_an_edge_creates_a_copy_of_self_with_the_edge() throws CycleFoundException {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedStepGraph = twoStepGraph.addEdge(firstStep, secondStep);
+		DefaultEdge onlyEdge = connectedStepGraph.edgeBetween(firstStep, secondStep);
+
+		assertThat(connectedStepGraph.edgeSet(), contains(onlyEdge));
+	}
+
+	@Test
 	public void adding_steps_does_not_create_edges() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
@@ -83,19 +94,6 @@ public class POPGraphTest {
 		assertThat(graph,is(not(equalTo(modifiedCopyOfGraph))));
 		assertThat(graph.containsStep(onlyStep), is(false));
 		assertThat(modifiedCopyOfGraph.containsStep(onlyStep), is(true));
-	}
-
-	@Test
-	public void can_add_an_edge_between_steps() throws Exception {
-		PartialStep stepOne = mock(PartialStep.class);
-		PartialStep stepTwo = mock(PartialStep.class);
-		POPGraph newGraph = newEmptyPopGraph()
-			.addStep(stepOne)
-			.addStep(stepTwo)
-			.addEdge(stepOne, stepTwo);
-		DefaultEdge stepOneToStepTwoEdge = newGraph.edgeBetween(stepOne, stepTwo);
-		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
-		assertTrue(newGraph.containsEdge(stepOneToStepTwoEdge));
 	}
 
 	@Test
