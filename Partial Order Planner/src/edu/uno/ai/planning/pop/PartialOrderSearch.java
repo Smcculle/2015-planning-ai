@@ -130,18 +130,17 @@ public class PartialOrderSearch extends Search {
 		for(PartialStep step: stepsToLoopThrough){
 			boolean foundMatch = false;
 			if(step.effect instanceof Literal){
-				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
+				if(predicatetToMatch.equals((Predication) step.effect, workingNode.binds)){
+					stepSatisfiesOpenPrecondition(predicatetToMatch,(Predication) step.effect, step, workingNode, o);
+				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
 				for(int j=0; j< arguments.length; j++){
 					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
-						foundMatch = true;
+						stepSatisfiesOpenPrecondition(predicatetToMatch,(Predication) arguments.get(j), step, workingNode, o);
 					}
 				}
-			}
-			if(foundMatch){
-				//create new casual link, update bindings, remove flaw
 			}
 		}
 		
@@ -166,7 +165,14 @@ public class PartialOrderSearch extends Search {
 		}
 	}
 	
-	
+	private void stepSatisfiesOpenPrecondition(Predication satisfiedPredication, Predication satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
+		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
+		if(newNodeBindings != null){
+			//shit unified correctly, now lets make the causal links
+			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,satisfyingPredication);
+		}
+		
+	}
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
 		
