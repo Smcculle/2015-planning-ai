@@ -6,43 +6,41 @@ import org.jgrapht.experimental.dag.*;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 
-import edu.uno.ai.planning.*;
-
-public class POPGraph {
-	private DirectedAcyclicGraph<Step, DefaultEdge> graph;
+public class POPGraph implements Iterable<PartialStep> {
+	private DirectedAcyclicGraph<PartialStep, DefaultEdge> graph;
 
 	public POPGraph() {
 		Class<DefaultEdge> edgeClass = DefaultEdge.class;
-		this.graph = new DirectedAcyclicGraph<Step, DefaultEdge>(edgeClass);
+		this.graph = new DirectedAcyclicGraph<PartialStep, DefaultEdge>(edgeClass);
 	}
 
-	public POPGraph(DirectedAcyclicGraph<Step, DefaultEdge> graph) {
+	public POPGraph(DirectedAcyclicGraph<PartialStep, DefaultEdge> graph) {
 		this.graph = graph;
 	}
 
-	public POPGraph addEdge(Step fromStep, Step toStep) throws DirectedAcyclicGraph.CycleFoundException {
+	public POPGraph addEdge(PartialStep fromStep, PartialStep toStep) throws DirectedAcyclicGraph.CycleFoundException {
 		POPGraph copy = this.copy();
 		copy.graph.addDagEdge(fromStep, toStep);
 		return copy;
 	}
 
-	public POPGraph addStep(Step newStep) {
+	public POPGraph addStep(PartialStep newStep) {
 		POPGraph copy = this.copy();
 		copy.graph.addVertex(newStep);
 		return copy;
 	}
 
-	public POPGraph addSteps(Iterable<Step> steps) {
+	public POPGraph addSteps(Iterable<PartialStep> steps) {
 		POPGraph copy = this.copy();
-		for(Step step : steps) {
+		for(PartialStep step : steps) {
 			copy = copy.addStep(step);
 		}
 		return copy;
 	}
 
-	public POPGraph addSteps(Step... steps) {
+	public POPGraph addSteps(PartialStep... steps) {
 		POPGraph graph = this.copy();
-		for(Step step : steps) {
+		for(PartialStep step : steps) {
 			graph = graph.addStep(step);
 		}
 		return graph;
@@ -52,13 +50,13 @@ public class POPGraph {
 		return this.graph.containsEdge(edge);
 	}
 
-	public boolean containsStep(Step step) {
+	public boolean containsStep(PartialStep step) {
 		return this.graph.containsVertex(step);
 	}
 
 	public POPGraph copy() {
 		POPGraph copy = new POPGraph();
-		for(Step step : this.graph.vertexSet()) {
+		for(PartialStep step : this.graph.vertexSet()) {
 			copy.graph.addVertex(step);
 		}
 		for(DefaultEdge edge : this.graph.edgeSet()) {
@@ -78,11 +76,11 @@ public class POPGraph {
 		return copy;
 	}
 
-	public Iterator<Step> iterator() {
-		return this.graph.iterator();
+	public POPGraph demote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {
+		return this.addEdge(target, source);
 	}
 
-	public DefaultEdge edgeBetween(Step source, Step target) {
+	public DefaultEdge edgeBetween(PartialStep source, PartialStep target) {
 		return this.graph.getEdge(source, target);
 	}
 
@@ -101,15 +99,20 @@ public class POPGraph {
 		return result;
 	}
 
-	public POPGraph promote(Step source, Step target) throws DirectedAcyclicGraph.CycleFoundException {
+	@Override
+	public Iterator<PartialStep> iterator() {
+		return this.graph.iterator();
+	}
+
+	public POPGraph promote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {
 		return this.addEdge(source, target);
 	}
 
-	public Set<Step> stepSet() {
+	public Set<PartialStep> stepSet() {
 		return this.graph.vertexSet();
 	}
 
-	public DirectedAcyclicGraph<Step, DefaultEdge> toDirectedAcyclicGraph() {
+	public DirectedAcyclicGraph<PartialStep, DefaultEdge> toDirectedAcyclicGraph() {
 		return this.graph;
 	}
 
