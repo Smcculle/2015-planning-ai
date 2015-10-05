@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry kind="lib" path="/Planning/lib/jgrapht-core-0.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.9.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
