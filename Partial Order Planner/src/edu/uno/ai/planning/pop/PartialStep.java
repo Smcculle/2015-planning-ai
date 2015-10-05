@@ -14,7 +14,7 @@ import edu.uno.ai.planning.util.ImmutableArray;
  *
  */
 public class PartialStep extends Operator{
-	
+
 	public ImmutableArray<Term> partialBinds;
 
 	public PartialStep(String name, Variable[] parameters,
@@ -26,11 +26,25 @@ public class PartialStep extends Operator{
 		}
 		this.partialBinds = new ImmutableArray<Term>(temp);
 	}
-	
+
+	public boolean isEnd() {
+		boolean hasEndName = this.name.equalsIgnoreCase("End");
+		boolean preconditionEqualsEffect = this.precondition.equals(this.effect);
+
+		return hasEndName && preconditionEqualsEffect;
+	}
+
+	public boolean isStart() {
+		boolean hasStartName = this.name.equalsIgnoreCase("Start");
+		boolean hasNoPrecondition = this.precondition == null;
+
+		return hasStartName && hasNoPrecondition;
+	}
+
 	/**
 	 * Creates a ground step (i.e. a specific action) from this action
 	 * template.
-	 * 
+	 *
 	 * @param substitution provides bindings for each of the operator's parameters
 	 * @return a step
 	 */
@@ -42,7 +56,7 @@ public class PartialStep extends Operator{
 		name += ")";
 		return new Step(name, precondition.substitute(substitution), effect.substitute(substitution));
 	}
-	
+
 	@Override
 	public String toString() {
 		String str = "(" + name;
@@ -50,6 +64,4 @@ public class PartialStep extends Operator{
 			str += " "  + parameter;
 		return str + ")";
 	}
-	
-	
 }
