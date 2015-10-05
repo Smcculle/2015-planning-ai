@@ -100,6 +100,7 @@ public class POPGraphTest {
 	public void can_copy_self() {
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph copyOfGraph = graph.copy();
+
 		assertThat(graph, is(equalTo(copyOfGraph)));
 	}
 
@@ -276,10 +277,8 @@ public class POPGraphTest {
 		DirectedAcyclicGraph<PartialStep, DefaultEdge> emptyDirectedAcyclicGraph =
 			new DirectedAcyclicGraph<>(DefaultEdge.class);
 		POPGraph emptyGraph = new POPGraph(emptyDirectedAcyclicGraph);
-		assertThat(
-			emptyGraph.toDirectedAcyclicGraph(),
-			equalTo(emptyDirectedAcyclicGraph)
-		);
+
+		assertThat(emptyGraph.toDirectedAcyclicGraph(), equalTo(emptyDirectedAcyclicGraph));
 
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
@@ -289,10 +288,8 @@ public class POPGraphTest {
 		directedAcyclicGraph.addVertex(secondStep);
 		directedAcyclicGraph.addEdge(firstStep, secondStep);
 		POPGraph graph = new POPGraph(directedAcyclicGraph);
-		assertThat(
-			graph.toDirectedAcyclicGraph(),
-			equalTo(directedAcyclicGraph)
-		);
+
+		assertThat(graph.toDirectedAcyclicGraph(), equalTo(directedAcyclicGraph));
 	}
 
 	@Test
@@ -302,6 +299,7 @@ public class POPGraphTest {
 
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph singleStepGraph = newEmptyPopGraph().addStep(onlyStep);
+
 		assertThat(singleStepGraph.stepSet().size(), is(1));
 		assertThat(singleStepGraph.stepSet(), contains(onlyStep));
 	}
@@ -323,6 +321,7 @@ public class POPGraphTest {
 	@Test
 	public void can_return_string_representation_of_self() {
 		POPGraph emptyGraph = newEmptyPopGraph();
+
 		assertThat(emptyGraph.toString(), equalTo(emptyGraph.toDirectedAcyclicGraph().toString()));
 	}
 
@@ -363,6 +362,7 @@ public class POPGraphTest {
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph().addStep(firstStep).addStep(secondStep);
 		Iterator<PartialStep> iterator = graph.iterator();
+
 		assertThat(iterator.hasNext(), is(true));
 		assertThat(iterator.next(), equalTo(firstStep));
 		assertThat(iterator.hasNext(), is(true));
@@ -378,6 +378,7 @@ public class POPGraphTest {
 	@Test
 	public void is_equal_to_an_identical_popgraph() {
 		POPGraph graph = newEmptyPopGraph();
+
 		assertThat(graph.equals(graph), is(true));
 	}
 
@@ -385,6 +386,7 @@ public class POPGraphTest {
 	public void is_not_equal_to_non_identical_popgraphs() {
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph differentGraph = newEmptyPopGraph().addStep(mock(PartialStep.class));
+
 		assertThat(graph, is(not(equalTo(differentGraph))));
 	}
 
