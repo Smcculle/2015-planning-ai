@@ -68,6 +68,10 @@ public class PlanGraphLiteral
 		return _literal;
 	}
 	
+	public boolean equals(PlanGraphLiteral pgLiteral){
+		return getLiteral().compareTo(pgLiteral.getLiteral()) == 0;  
+	}
+	
 	@Override
 	public String toString()
 	{

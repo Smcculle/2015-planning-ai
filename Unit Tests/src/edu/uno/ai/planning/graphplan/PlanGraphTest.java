@@ -3,11 +3,18 @@ package edu.uno.ai.planning.graphplan;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.*;
 
 import edu.uno.ai.planning.Benchmark;
 import edu.uno.ai.planning.Problem;
+import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.logic.Conjunction;
+import edu.uno.ai.planning.logic.Constant;
+import edu.uno.ai.planning.logic.NegatedLiteral;
+import edu.uno.ai.planning.logic.Predication;
 
 public class PlanGraphTest {
 	
@@ -125,6 +132,22 @@ public class PlanGraphTest {
 		// Test steps
 		assertEquals(18,firstRocketStep.getAllSteps().size());
 		assertEquals(8, firstRocketStep.getCurrentSteps().size());
+		// Test mutex Literals does not contain any entries for (not (at cargo london))
+		Constant cargo = new Constant("cargo", "Cargo");
+		Constant rocket = new Constant("rocket", "Rocket"); 
+		Constant nola = new Constant("location", "NOLA"); 
+		Constant london = new Constant("location", "London");
+		Predication cargoAtLondon = new Predication("at", cargo, london);
+		NegatedLiteral notCargoAtLondon = cargoAtLondon.negate();
+		PlanGraphLiteral cargoIsNotAtLondon0 = new PlanGraphLiteral(notCargoAtLondon, 0);
+		PlanGraphLiteral cargoIsNotAtLondon1 = new PlanGraphLiteral(notCargoAtLondon, 1);
+		List<PlanGraphLiteral> cinalMutexLiterals = null;
+		for(PlanGraphLiteral key : firstRocketStep.getMutuallyExclusiveLiterals().keySet()){
+			if(key.equals(cargoIsNotAtLondon0) || key.equals(cargoIsNotAtLondon1)){
+				cinalMutexLiterals = firstRocketStep.getMutuallyExclusiveLiterals().get(key);
+			}
+		}
+		assertNull(cinalMutexLiterals);
 		// Test mutually exclusive Steps and Literals  during this step
 		assertEquals(7, firstRocketStep.getMutuallyExclusiveSteps().size());
  		assertEquals(8, firstRocketStep.getMutuallyExclusiveLiterals().size());
@@ -132,6 +155,25 @@ public class PlanGraphTest {
 		assertEquals(10,firstRocketStep.getAllLiterals().size());
 		assertEquals(9, firstRocketStep.getCurrentLiterals().size());
 		// Test mutuallyExclusiveStep specifics (fly Rocket NOLA NOLA)
-		
+//		(fly Rocket NOLA NOLA)[1]=[(Persistence Step (at Rocket NOLA))[1], 	XXXXX
+//		          				 (load Cargo Rocket NOLA)[1], 				XXXXX
+//		          				 (fly Rocket NOLA London)[1] 				<----
+//		          				]
+		Predication rocketAtNola = new Predication("at", rocket, nola);
+		NegatedLiteral notRocketAtNola = rocketAtNola.negate();
+		Conjunction flyNola2Precondition = new Conjunction(rocketAtNola);
+		Conjunction flyNola2Effect= new Conjunction(notRocketAtNola, rocketAtNola);
+		Step flyRocketNolaNola = new Step("(fly Rocket NOLA NOLA)", flyNola2Precondition, flyNola2Effect);
+		PlanGraphStep pgFlyRocketNolaNola0 = new PlanGraphStep(flyRocketNolaNola, 0);
+		PlanGraphStep pgFlyRocketNolaNola1 = new PlanGraphStep(flyRocketNolaNola, 1);
+		List<PlanGraphStep> mutexStepsForFlyNolaNola = new ArrayList<PlanGraphStep>();
+		for(PlanGraphStep key : firstRocketStep.getMutuallyExclusiveSteps().keySet()){
+			if((key.GetStep().compareTo(pgFlyRocketNolaNola0.GetStep()) == 0) || 
+			   (key.GetStep().compareTo(pgFlyRocketNolaNola1.GetStep()) == 0)){
+				mutexStepsForFlyNolaNola = firstRocketStep.getMutuallyExclusiveSteps().get(key);
+				break;
+			}
+		}
+		assertEquals(1,mutexStepsForFlyNolaNola.size());
 	}
 }

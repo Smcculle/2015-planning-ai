@@ -370,7 +370,7 @@ public class PlanGraph
 					for (Expression literal : stepEffectLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
-						if (otherStepEffectLiterals.contains(negatedLiteral))
+						if (otherStepEffectLiterals.contains(negatedLiteral) && !stepEffectLiterals.contains(negatedLiteral))
 						{
 							if (_mutexSteps.containsKey(step))
 							{
@@ -525,24 +525,32 @@ public class PlanGraph
 					ArrayList<PlanGraphStep> stepsWithOtherEffect = new ArrayList<PlanGraphStep>();
 					
 					for (PlanGraphStep step : steps)
-						if (expressionToLiterals(step.GetStep().effect).contains(effect))
+						// Get steps containing effect
+						if (expressionToLiterals(step.GetStep().effect).contains(effect.getLiteral()))
 							stepsWithEffect.add(step);
 					
 					for (PlanGraphStep step : steps)
-						if (expressionToLiterals(step.GetStep().effect).contains(otherEffect))
+						// Get steps containing otherEffect
+						if (expressionToLiterals(step.GetStep().effect).contains(otherEffect.getLiteral()))
 							stepsWithOtherEffect.add(step);
 					
 					boolean allSupportingStepsAreMutex = true;
 					for (PlanGraphStep step : stepsWithEffect)
 					{
-						for (PlanGraphStep otherStep : stepsWithOtherEffect)
-							if (step != otherStep)
-								if (!_mutexSteps.get(step).contains(otherStep))
-								{
-									allSupportingStepsAreMutex = false;
-									break;
-								}
+						// If Step with Effects is not in list of Mutex Steps, this pair of Steps cannot be mutually exclusive
+						if(!_mutexSteps.containsKey(step)){
+							allSupportingStepsAreMutex = false;
+							break;
+						}else{
+							for (PlanGraphStep otherStep : stepsWithOtherEffect)
+								if (step != otherStep)
+									if (!_mutexSteps.get(step).contains(otherStep))
+									{
+										allSupportingStepsAreMutex = false;
+										break;
+									}
 						
+						}
 						if (!allSupportingStepsAreMutex) break;
 					}
 					
