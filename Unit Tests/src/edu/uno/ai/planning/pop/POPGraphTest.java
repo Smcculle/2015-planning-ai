@@ -371,6 +371,36 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void iteration_follows_topological_ordering() throws Exception {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		PartialStep thirdStep = mock(PartialStep.class);
+		PartialStep fourthStep = mock(PartialStep.class);
+		POPGraph fourStepGraph = newEmptyPopGraph().addSteps(
+			firstStep,
+			secondStep,
+			thirdStep,
+			fourthStep
+		);
+		POPGraph graph = fourStepGraph
+			.addEdge(firstStep, secondStep)
+			.addEdge(thirdStep, fourthStep)
+			.addEdge(firstStep, thirdStep)
+			.addEdge(thirdStep, secondStep);
+
+		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
+
+		graph = fourStepGraph
+			.addEdge(firstStep, secondStep)
+			.addEdge(firstStep, thirdStep)
+			.addEdge(secondStep, fourthStep)
+			.addEdge(thirdStep, fourthStep)
+			.addEdge(thirdStep, secondStep);
+
+		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
+	}
+
+	@Test
 	public void newly_added_steps_have_no_edges() {
 		PartialStep mockedStep = mock(PartialStep.class);
 		POPGraph newGraph = newEmptyPopGraph().addStep(mockedStep);
@@ -385,22 +415,6 @@ public class POPGraphTest {
 		POPGraph graph = newEmptyPopGraph().addStep(onlyStep);
 
 		assertThat(graph, contains(onlyStep));
-	}
-
-	@Test
-	public void iteration_follows_topological_ordering() throws Exception {
-		PartialStep firstStep = mock(PartialStep.class);
-		PartialStep secondStep = mock(PartialStep.class);
-		PartialStep thirdStep = mock(PartialStep.class);
-		PartialStep fourthStep = mock(PartialStep.class);
-		POPGraph fourStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep, thirdStep, fourthStep);
-		POPGraph graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(thirdStep, fourthStep).addEdge(firstStep, thirdStep).addEdge(thirdStep, secondStep);
-
-		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
-
-		graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(firstStep, thirdStep).addEdge(secondStep, fourthStep).addEdge(thirdStep, fourthStep).addEdge(thirdStep, secondStep);
-
-		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
 	}
 
 	@Test
