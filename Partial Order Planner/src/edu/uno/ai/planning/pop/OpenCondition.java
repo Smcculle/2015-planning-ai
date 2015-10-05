@@ -6,9 +6,9 @@ import edu.uno.ai.planning.Step;
 public class OpenCondition implements Flaw {
 
 	private Literal literal;
-	private Step step;
+	private PartialStep step;
 
-	public OpenCondition(Literal literal, Step step) {
+	public OpenCondition(Literal literal, PartialStep step) {
 		this.literal = literal;
 		this.step = step;
 	}
@@ -17,7 +17,7 @@ public class OpenCondition implements Flaw {
 		return this.literal;
 	}
 	
-	public Step step() {
+	public PartialStep step() {
 		return this.step;
 	}
 }
