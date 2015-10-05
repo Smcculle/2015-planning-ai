@@ -21,6 +21,16 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void adding_edges_does_not_affect_self() throws CycleFoundException {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		twoStepGraph.addEdge(firstStep, secondStep);
+
+		assertThat(twoStepGraph.edgeSet(), is(empty()));
+	}
+
+	@Test
 	public void adding_steps_does_not_create_edges() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
