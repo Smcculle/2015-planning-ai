@@ -111,22 +111,14 @@ public class POPGraphTest {
 			.addEdge(secondStep, fourthStep)
 			.addEdge(firstStep, thirdStep)
 			.addEdge(thirdStep, fourthStep);
-		Iterator<PartialStep> iterator = connectedGraph.iterator();
 
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(connectedGraph, contains(firstStep, secondStep, thirdStep, fourthStep));
 
 		POPGraph demotedGraph = connectedGraph.demote(secondStep, thirdStep);
 		DefaultEdge edge = demotedGraph.edgeBetween(thirdStep, secondStep);
-		iterator = demotedGraph.iterator();
 
 		assertThat(edge, notNullValue());
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(demotedGraph, contains(firstStep, thirdStep, secondStep, fourthStep));
 	}
 
 	@Test
@@ -146,22 +138,14 @@ public class POPGraphTest {
 			.addEdge(secondStep, fourthStep)
 			.addEdge(firstStep, thirdStep)
 			.addEdge(thirdStep, fourthStep);
-		Iterator<PartialStep> iterator = connectedGraph.iterator();
 
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(connectedGraph, contains(firstStep, secondStep, thirdStep, fourthStep));
 
 		POPGraph promotedGraph = connectedGraph.promote(thirdStep, secondStep);
 		DefaultEdge edge = promotedGraph.edgeBetween(thirdStep, secondStep);
-		iterator = promotedGraph.iterator();
 
 		assertThat(edge, notNullValue());
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(promotedGraph, contains(firstStep, thirdStep, secondStep, fourthStep));
 	}
 
 	@Test
@@ -320,30 +304,20 @@ public class POPGraphTest {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph oneStepGraph = newEmptyPopGraph().addStep(onlyStep);
 		POPGraph duplicateStepGraph = oneStepGraph.addStep(onlyStep);
-		Iterator<PartialStep> oneStepIterator = oneStepGraph.iterator();
-		Iterator<PartialStep> dupStepIterator = duplicateStepGraph.iterator();
 
-		assertThat(oneStepIterator.next(), equalTo(onlyStep));
-		assertThat(oneStepIterator.hasNext(), is(false));
-		assertThat(dupStepIterator.next(), equalTo(onlyStep));
-		assertThat(dupStepIterator.hasNext(), is(false));
+		assertThat(oneStepGraph, contains(onlyStep));
+		assertThat(duplicateStepGraph, contains(onlyStep));
 
 		ArrayList<PartialStep> steps = new ArrayList<PartialStep>();
 		steps.add(mock(PartialStep.class));
 		steps.add(mock(PartialStep.class));
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(steps).addSteps(steps);
-		Iterator<PartialStep> twoStepIterator = twoStepGraph.iterator();
 
-		assertThat(twoStepIterator.next(), equalTo(steps.get(0)));
-		assertThat(twoStepIterator.next(), equalTo(steps.get(1)));
-		assertThat(twoStepIterator.hasNext(), is(false));
+		assertThat(twoStepGraph, contains(steps.get(0), steps.get(1)));
 
 		twoStepGraph = twoStepGraph.addSteps(steps.get(0), steps.get(1));
-		twoStepIterator = twoStepGraph.iterator();
 
-		assertThat(twoStepIterator.next(), equalTo(steps.get(0)));
-		assertThat(twoStepIterator.next(), equalTo(steps.get(1)));
-		assertThat(twoStepIterator.hasNext(), is(false));
+		assertThat(twoStepGraph, contains(steps.get(0), steps.get(1)));
 	}
 
 	@Test
@@ -409,11 +383,8 @@ public class POPGraphTest {
 	public void steps_are_only_added_once() {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph().addStep(onlyStep);
-		Iterator<PartialStep> iterator = graph.iterator();
 
-		assertTrue(iterator.hasNext());
-		assertThat(iterator.next(), equalTo(onlyStep));
-		assertFalse(iterator.hasNext());
+		assertThat(graph, contains(onlyStep));
 	}
 
 	@Test
@@ -424,20 +395,12 @@ public class POPGraphTest {
 		PartialStep fourthStep = mock(PartialStep.class);
 		POPGraph fourStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep, thirdStep, fourthStep);
 		POPGraph graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(thirdStep, fourthStep).addEdge(firstStep, thirdStep).addEdge(thirdStep, secondStep);
-		Iterator<PartialStep> iterator = graph.iterator();
 
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
 
 		graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(firstStep, thirdStep).addEdge(secondStep, fourthStep).addEdge(thirdStep, fourthStep).addEdge(thirdStep, secondStep);
-		iterator = graph.iterator();
 
-		assertThat(iterator.next(), equalTo(firstStep));
-		assertThat(iterator.next(), equalTo(thirdStep));
-		assertThat(iterator.next(), equalTo(secondStep));
-		assertThat(iterator.next(), equalTo(fourthStep));
+		assertThat(graph, contains(firstStep, thirdStep, secondStep, fourthStep));
 	}
 
 	@Test
