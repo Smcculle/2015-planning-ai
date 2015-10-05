@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.util.ImmutableList;
@@ -169,13 +171,19 @@ public class PartialOrderSearch extends Search {
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
 		
 		//promotion
-		POPGraph newGraph = workingNode.orderings.promote(t.threateningStep,t.threatenedLink.previousStep);
-		ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
-		newFlaws.remove(t);
-		Flaw[] flaws;
-		ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
-		PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
-		this.pQueue.add(newNode);
+		try{
+			POPGraph newGraph = workingNode.orderings.promote(t.threateningStep,t.threatenedLink.previousStep);
+			ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
+			newFlaws.remove(t);
+			Flaw[] flaws;
+			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
+			this.pQueue.add(newNode);
+		}
+		catch(DirectedAcyclicGraph.CycleFoundException e){
+			
+		}
+	
 		
 		
 		//demotion
