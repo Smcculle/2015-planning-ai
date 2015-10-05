@@ -97,14 +97,6 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void copies_are_equal_to_self() {
-		POPGraph original = newEmptyPopGraph();
-		POPGraph copy = original.copy();
-
-		assertThat(original, equalTo(copy));
-	}
-
-	@Test
 	public void can_demote_a_step_after_anoter() throws CycleFoundException {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
@@ -354,6 +346,14 @@ public class POPGraphTest {
 		assertThat(twoStepIterator.next(), equalTo(steps.get(0)));
 		assertThat(twoStepIterator.next(), equalTo(steps.get(1)));
 		assertThat(twoStepIterator.hasNext(), is(false));
+	}
+
+	@Test
+	public void copies_are_equal_to_self() {
+		POPGraph original = newEmptyPopGraph();
+		POPGraph copy = original.copy();
+
+		assertThat(original, equalTo(copy));
 	}
 
 	@Test
