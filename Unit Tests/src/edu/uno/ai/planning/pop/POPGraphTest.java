@@ -59,15 +59,15 @@ public class POPGraphTest {
 		POPGraph singleStepGraph = emptyGraph.addStep(onlyStep);
 
 		assertThat(emptyGraph, not(equalTo(singleStepGraph)));
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(false));
-		assertThat(singleStepGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(true));
+		assertThat(emptyGraph.containsStep(onlyStep), is(false));
+		assertThat(singleStepGraph.containsStep(onlyStep), is(true));
 
 		Step extraStep = mock(Step.class);
 		POPGraph twoStepGraph = singleStepGraph.addStep(extraStep);
 
-		assertThat(singleStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(true));
+		assertThat(singleStepGraph.containsStep(extraStep), is(false));
+		assertThat(twoStepGraph.containsStep(onlyStep), is(true));
+		assertThat(twoStepGraph.containsStep(extraStep), is(true));
 	}
 
 	@Test public void cannot_add_a_duplicate_step() {
@@ -136,21 +136,21 @@ public class POPGraphTest {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		POPGraph twoStepGraph = emptyGraph.addSteps(steps);
 
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(false));
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
+		assertThat(emptyGraph.containsStep(steps.get(0)), is(false));
+		assertThat(emptyGraph.containsStep(steps.get(1)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(0)), is(true));
+		assertThat(twoStepGraph.containsStep(steps.get(1)), is(true));
 
 		steps.add(mock(Step.class));
 		steps.add(mock(Step.class));
 		POPGraph fourStepGraph = emptyGraph.addSteps(steps);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(true));
+		assertThat(twoStepGraph.containsStep(steps.get(2)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(3)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(0)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(1)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(2)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(3)), is(true));
 	}
 
 	@Test public void can_return_a_popgraph_equal_to_self_plus_multiple_steps_via_varargs() {
@@ -159,17 +159,17 @@ public class POPGraphTest {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		POPGraph twoStepGraph = emptyGraph.addSteps(firstStep, secondStep);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(firstStep), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(secondStep), is(true));
+		assertThat(twoStepGraph.containsStep(firstStep), is(true));
+		assertThat(twoStepGraph.containsStep(secondStep), is(true));
 
 		Step thirdStep = mock(Step.class);
 		Step fourthStep = mock(Step.class);
 		POPGraph fourStepGraph = twoStepGraph.addSteps(thirdStep, fourthStep);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(thirdStep), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(fourthStep), is(false));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(thirdStep), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(fourthStep), is(true));
+		assertThat(twoStepGraph.containsStep(thirdStep), is(false));
+		assertThat(twoStepGraph.containsStep(fourthStep), is(false));
+		assertThat(fourStepGraph.containsStep(thirdStep), is(true));
+		assertThat(fourStepGraph.containsStep(fourthStep), is(true));
 	}
 
 	@Test public void can_copy_self() {
