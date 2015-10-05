@@ -5,6 +5,7 @@ import java.util.PriorityQueue;
 
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.util.ImmutableArray;
+import edu.uno.ai.planning.util.ImmutableList;
 import edu.uno.ai.planning.*;
 
 /**
@@ -142,6 +143,27 @@ public class PartialOrderSearch extends Search {
 				//create partial step and nodes and shit
 			}
 		}
+		
+		//loop thorugh all of the existing partial steps to see if one  
+		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
+		for(PartialStep step: stepsToLoopThrough){
+			boolean foundMatch = false;
+			if(step.effect instanceof Literal){
+				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
+			}
+			else{
+				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
+				for(int j=0; j< arguments.length; j++){
+					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
+						foundMatch = true;
+					}
+				}
+			}
+			if(foundMatch){
+				//create partial step and nodes and shit
+			}
+		}
+		
 	}
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
