@@ -97,7 +97,8 @@ public class PartialOrderSearch extends Search {
 		Threat currentThreat = (Threat) currentFlaw;
 		Expression effects = currentThreat.threateningStep.effect;
 		if(effects instanceof Literal){ //if there is only one effect
-			boolean dealWithThreat = effects.isGround();//
+			Predication threatendCondition = currentThreat.threatenedLink.label;
+			boolean dealWithThreat = ((Predication)effects).equals(threatendCondition.negate(), workingNode.binds);
 			if(dealWithThreat){
 				handleThreat((Threat) currentFlaw, workingNode); //work on it
 				return true;
@@ -107,14 +108,11 @@ public class PartialOrderSearch extends Search {
 			ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
 			
 			for(int j=0; j< arguments.length; j++){
-				boolean dealWithThreat = arguments.get(j).isGround();
+				Predication threatenedPredicate = (Predication)currentThreat.threatenedLink.label;
+				boolean dealWithThreat = ((Predication)arguments.get(j)).equals(threatenedPredicate.negate(), workingNode.binds);
 				if(dealWithThreat){
-					//if this threats predication matches the negation  of the causal link's predecation
-					Expression threatenedPredicate = currentThreat.threatenedLink.label;
-					if(threatenedPredicate.isGround() && threatenedPredicate.equals(arguments.get(j).negate())){
-						handleThreat((Threat) currentFlaw, workingNode);
-						return true;
-					}
+					handleThreat((Threat) currentFlaw, workingNode);
+					return true;
 				}
 			}
 		}
@@ -142,6 +140,8 @@ public class PartialOrderSearch extends Search {
 				//create partial step and nodes and shit
 			}
 		}
+		
+		//checking existing partialSteps
 	}
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
