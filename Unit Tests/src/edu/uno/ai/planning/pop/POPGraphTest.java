@@ -357,6 +357,14 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void copies_are_not_the_same_instance_as_self() {
+		POPGraph original = newEmptyPopGraph();
+		POPGraph copy = original.copy();
+
+		assertThat(copy, is(not(sameInstance(original))));
+	}
+
+	@Test
 	public void copying_does_not_damage_iterator() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
