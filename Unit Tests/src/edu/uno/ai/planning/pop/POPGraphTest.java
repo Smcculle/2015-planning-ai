@@ -31,7 +31,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void adding_steps_does_not_affect_self() {
+	public void adding_a_step_does_not_affect_self() {
 		PartialStep firstStep = mock(PartialStep.class);
 		POPGraph oneStepGraph = newEmptyPopGraph().addStep(firstStep);
 		PartialStep secondStep = mock(PartialStep.class);
