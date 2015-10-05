@@ -101,6 +101,10 @@ public class POPGraph {
 		return result;
 	}
 
+	public POPGraph promote(Step source, Step target) throws DirectedAcyclicGraph.CycleFoundException {
+		return this.addEdge(source, target);
+	}
+
 	public Set<Step> stepSet() {
 		return this.graph.vertexSet();
 	}

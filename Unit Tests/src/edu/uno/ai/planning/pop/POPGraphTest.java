@@ -69,6 +69,41 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void can_promote_a_step_before_another() throws CycleFoundException {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		Step thirdStep = mock(Step.class);
+		Step fourthStep = mock(Step.class);
+		POPGraph fourStepGraph = newEmptyPopGraph().addSteps(
+			firstStep,
+			secondStep,
+			thirdStep,
+			fourthStep
+		);
+		POPGraph connectedGraph = fourStepGraph
+			.addEdge(firstStep, secondStep)
+			.addEdge(secondStep, fourthStep)
+			.addEdge(firstStep, thirdStep)
+			.addEdge(thirdStep, fourthStep);
+		Iterator<Step> iterator = connectedGraph.iterator();
+
+		assertThat(iterator.next(), equalTo(firstStep));
+		assertThat(iterator.next(), equalTo(secondStep));
+		assertThat(iterator.next(), equalTo(thirdStep));
+		assertThat(iterator.next(), equalTo(fourthStep));
+
+		POPGraph promotedGraph = connectedGraph.promote(thirdStep, secondStep);
+		DefaultEdge edge = promotedGraph.edgeBetween(thirdStep, secondStep);
+		iterator = promotedGraph.iterator();
+
+		assertThat(edge, notNullValue());
+		assertThat(iterator.next(), equalTo(firstStep));
+		assertThat(iterator.next(), equalTo(thirdStep));
+		assertThat(iterator.next(), equalTo(secondStep));
+		assertThat(iterator.next(), equalTo(fourthStep));
+	}
+
+	@Test
 	public void can_report_if_it_contains_an_edge() throws Exception {
 		Step firstStep = mock(Step.class);
 		Step secondStep = mock(Step.class);
@@ -344,5 +379,15 @@ public class POPGraphTest {
 		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
 
 		connectedGraph.addEdge(secondStep, firstStep);
+	}
+
+	@Test(expected = DirectedAcyclicGraph.CycleFoundException.class)
+	public void will_throw_cycle_found_exception_if_promotion_causes_cycle() throws CycleFoundException {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
+
+		connectedGraph.promote(secondStep, firstStep);
 	}
 }
