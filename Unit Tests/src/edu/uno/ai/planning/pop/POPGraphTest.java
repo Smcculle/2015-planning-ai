@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import org.jgrapht.experimental.dag.*;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 import org.junit.*;
 
@@ -310,5 +311,15 @@ public class POPGraphTest {
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
 
 		assertThat(twoStepGraph.edgeBetween(firstStep, secondStep), nullValue());
+	}
+
+	@Test(expected = DirectedAcyclicGraph.CycleFoundException.class)
+	public void will_throw_cycle_found_exception_if_new_edge_causes_cycle() throws CycleFoundException {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
+
+		connectedGraph.addEdge(secondStep, firstStep);
 	}
 }

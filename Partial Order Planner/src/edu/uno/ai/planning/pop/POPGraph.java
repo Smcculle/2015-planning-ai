@@ -20,7 +20,7 @@ public class POPGraph {
 		this.graph = graph;
 	}
 
-	public POPGraph addEdge(Step fromStep, Step toStep) throws Exception {
+	public POPGraph addEdge(Step fromStep, Step toStep) throws DirectedAcyclicGraph.CycleFoundException {
 		POPGraph copy = this.copy();
 		copy.graph.addDagEdge(fromStep, toStep);
 		return copy;
