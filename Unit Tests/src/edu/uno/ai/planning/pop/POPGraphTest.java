@@ -316,8 +316,8 @@ public class POPGraphTest {
 		POPGraph singleEdgeGraph = newEmptyPopGraph().addStep(firstStep)
 			.addStep(secondStep)
 			.addEdge(firstStep, secondStep);
+
 		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
-		DefaultEdge edge = singleEdgeGraph.edgeBetween(firstStep, secondStep);
 	}
 
 	@Test
