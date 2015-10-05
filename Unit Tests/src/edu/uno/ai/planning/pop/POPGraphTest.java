@@ -41,15 +41,6 @@ public class POPGraphTest {
 		);
 	}
 
-	@Test public void can_add_a_step_to_self() {
-		Step step = stepOne();
-		POPGraph newGraph = newEmptyPopGraph().addStep(step);
-		assertThat(
-			newGraph.toDirectedAcyclicGraph().containsVertex(step),
-			is(true)
-		);
-	}
-
 	@Test public void can_return_a_popgraph_equal_to_self_plus_new_step() {
 		Step onlyStep = mock(Step.class);
 		POPGraph emptyGraph = newEmptyPopGraph();
@@ -65,6 +56,36 @@ public class POPGraphTest {
 		assertThat(singleStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(false));
 		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(true));
 		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(true));
+	}
+
+	@Test public void cannot_add_a_duplicate_step() {
+		Step onlyStep = mock(Step.class);
+		POPGraph oneStepGraph = newEmptyPopGraph().addStep(onlyStep);
+		POPGraph duplicateStepGraph = oneStepGraph.addStep(onlyStep);
+		Iterator<Step> oneStepIterator = oneStepGraph.iterator();
+		Iterator<Step> dupStepIterator = duplicateStepGraph.iterator();
+
+		assertThat(oneStepIterator.next(), equalTo(onlyStep));
+		assertThat(oneStepIterator.hasNext(), is(false));
+		assertThat(dupStepIterator.next(), equalTo(onlyStep));
+		assertThat(dupStepIterator.hasNext(), is(false));
+
+		ArrayList<Step> steps = new ArrayList<Step>();
+		steps.add(mock(Step.class));
+		steps.add(mock(Step.class));
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(steps).addSteps(steps);
+		Iterator<Step> twoStepIterator = twoStepGraph.iterator();
+
+		assertThat(twoStepIterator.next(), equalTo(steps.get(0)));
+		assertThat(twoStepIterator.next(), equalTo(steps.get(1)));
+		assertThat(twoStepIterator.hasNext(), is(false));
+
+		twoStepGraph = twoStepGraph.addSteps(steps.get(0), steps.get(1));
+		twoStepIterator = twoStepGraph.iterator();
+
+		assertThat(twoStepIterator.next(), equalTo(steps.get(0)));
+		assertThat(twoStepIterator.next(), equalTo(steps.get(1)));
+		assertThat(twoStepIterator.hasNext(), is(false));
 	}
 
 	@Test public void newly_added_steps_have_no_edges() {
