@@ -41,6 +41,17 @@ public class POPGraphTest {
 		);
 	}
 
+	@Test public void can_report_if_it_contains_an_edge() throws Exception {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedTwoStepGraph = twoStepGraph.addEdge(firstStep, secondStep);
+		DefaultEdge edge = connectedTwoStepGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
+
+		assertThat(twoStepGraph.containsEdge(edge), is(false));
+		assertThat(connectedTwoStepGraph.containsEdge(edge), is(true));
+	}
+
 	@Test public void can_report_if_it_contains_a_step() {
 		Step firstStep = mock(Step.class);
 		Step secondStep = mock(Step.class);

@@ -48,6 +48,10 @@ public class POPGraph {
 		return graph;
 	}
 
+	public boolean containsEdge(DefaultEdge edge) {
+		return this.graph.containsEdge(edge);
+	}
+
 	public boolean containsStep(Step step) {
 		return this.graph.containsVertex(step);
 	}
