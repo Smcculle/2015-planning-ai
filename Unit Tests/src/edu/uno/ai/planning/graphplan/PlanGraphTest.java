@@ -124,12 +124,14 @@ public class PlanGraphTest {
 		assertEquals(1, firstRocketStep.getLevel());
 		// Test steps
 		assertEquals(18,firstRocketStep.getAllSteps().size());
-		assertEquals(5, firstRocketStep.getCurrentSteps().size());
-		// Test nothing should be mutually exclusive in initial state
-		assertEquals(6, firstRocketStep.getMutuallyExclusiveSteps().size());
-		assertEquals(8, firstRocketStep.getMutuallyExclusiveLiterals().size());
+		assertEquals(8, firstRocketStep.getCurrentSteps().size());
+		// Test mutually exclusive Steps and Literals  during this step
+		assertEquals(7, firstRocketStep.getMutuallyExclusiveSteps().size());
+ 		assertEquals(8, firstRocketStep.getMutuallyExclusiveLiterals().size());
 		// Test literals
 		assertEquals(10,firstRocketStep.getAllLiterals().size());
 		assertEquals(9, firstRocketStep.getCurrentLiterals().size());
+		// Test mutuallyExclusiveStep specifics (fly Rocket NOLA NOLA)
+		
 	}
 }

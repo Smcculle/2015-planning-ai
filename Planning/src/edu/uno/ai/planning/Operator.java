@@ -69,46 +69,21 @@ public class Operator {
 	 */
 	private static final boolean isDeterministic(Expression expression) {
 		expression = expression.toDNF();
-//		return (expression instanceof Literal) || (expression instanceof Conjunction);
-		boolean isLiteral = expression instanceof Literal;
-		boolean isConjunction = expression instanceof Conjunction;
-		boolean isDisjunctionOfOnlyOneLiterals = isDisjunctionOfSingleLiteral(expression);
-		boolean isDisjunctionOfOnlyConjunctions = isDisjunctionOfOnlyConjunctions(expression);
-		return isLiteral || isConjunction || isDisjunctionOfOnlyOneLiterals || isDisjunctionOfOnlyConjunctions;
+		return (expression instanceof Literal) || (expression instanceof Conjunction) || isDisjunctionOfSingleLiteralOrConjunction(expression);
 	}
 	
-	private static final boolean isDisjunctionOfSingleLiteral(Expression expression){
-		if(!(expression instanceof Disjunction))
-			return false;
-		else{
+	private static final boolean isDisjunctionOfSingleLiteralOrConjunction(Expression expression){
+		if(expression instanceof Disjunction){
 			Disjunction disjunction = (Disjunction) expression;
 			ImmutableArray<Expression> args = disjunction.arguments;
 			if(args.length != 1)
 				return false;
 			else{
-				for(Iterator<Expression> i = args.iterator(); i.hasNext();){
-					Expression e = i.next();
-					if(!(e instanceof Literal))
-						return false;
-				}
-				return true;
+				Expression disExpression = args.get(0);
+				return (disExpression instanceof Literal) || (disExpression instanceof Conjunction);
 			}
-		}
-	}
-	
-	private static final boolean isDisjunctionOfOnlyConjunctions(Expression expression){
-		if(!(expression instanceof Disjunction))
+		}else
 			return false;
-		else{
-			Disjunction disjunction = (Disjunction) expression;
-			ImmutableArray<Expression> args = disjunction.arguments;
-			for(Iterator<Expression> i = args.iterator(); i.hasNext();){
-				Expression e = i.next();
-				if(!(e instanceof Conjunction))
-					return false;
-			}
-			return true;
-		}
 	}
 	
 	/**
