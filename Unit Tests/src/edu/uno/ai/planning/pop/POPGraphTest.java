@@ -97,11 +97,11 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_copy_self() {
-		POPGraph graph = newEmptyPopGraph();
-		POPGraph copyOfGraph = graph.copy();
+	public void copies_are_equal_to_self() {
+		POPGraph original = newEmptyPopGraph();
+		POPGraph copy = original.copy();
 
-		assertThat(graph, is(equalTo(copyOfGraph)));
+		assertThat(original, equalTo(copy));
 	}
 
 	@Test
