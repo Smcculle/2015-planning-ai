@@ -1,7 +1,6 @@
 package edu.uno.ai.planning.pop;
 
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.Step;
 
 public class OpenCondition implements Flaw {
 

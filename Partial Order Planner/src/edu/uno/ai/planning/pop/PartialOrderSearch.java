@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
 import edu.uno.ai.planning.logic.*;
+import edu.uno.ai.planning.ss.TotalOrderPlan;
 import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.util.ImmutableList;
 import edu.uno.ai.planning.*;
@@ -46,6 +47,8 @@ public class PartialOrderSearch extends Search {
 		this.pQueue = new PriorityQueue<PartialOrderNode>(20,new NodeComparator());
 		this.nodesExpanded = 0;
 		this.nodesVisited = 0;
+		this.pQueue.add(new PartialOrderNode(problem));
+		this.nodesExpanded = 1;
 	}
 	
 	/**
@@ -61,17 +64,19 @@ public class PartialOrderSearch extends Search {
 	 * @return 
 	 */
 	private Plan pop(){
+		TotalOrderPlan plan = null;
+
 		while(!this.pQueue.isEmpty()){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
-			
 			if(workingNode.flaws.length == 0){
-				return workingNode.orderings.topologicalSort();//this may need to be bound with the bindings found in the node
+				plan = new TotalOrderPlan();
+				break;
 			}
 			else{
 				handleFlaw(workingNode);
 			}
 		}
-		return null; //wat
+		return plan;
 	}
 	
 	//assume that there is at least one flaw to work on
@@ -130,6 +135,7 @@ public class PartialOrderSearch extends Search {
 		for(PartialStep step: stepsToLoopThrough){
 			boolean foundMatch = false;
 			if(step.effect instanceof Literal){
+				System.out.println(step.effect);
 				if(predicatetToMatch.equals((Predication) step.effect, workingNode.binds)){
 					stepSatisfiesOpenPrecondition(predicatetToMatch,(Predication) step.effect, step, workingNode, o);
 				}
@@ -154,6 +160,7 @@ public class PartialOrderSearch extends Search {
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
+					System.out.println(arguments.get(j));
 					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
 						foundMatch = true;
 					}
@@ -165,7 +172,6 @@ public class PartialOrderSearch extends Search {
 		}
 		
 		//loop thorugh all of the existing partial steps to see if one  
-		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		for(PartialStep step: stepsToLoopThrough){
 			boolean foundMatch = false;
 			if(step.effect instanceof Literal){
