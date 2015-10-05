@@ -31,6 +31,16 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void adding_steps_does_not_affect_self() {
+		PartialStep firstStep = mock(PartialStep.class);
+		POPGraph oneStepGraph = newEmptyPopGraph().addStep(firstStep);
+		PartialStep secondStep = mock(PartialStep.class);
+		oneStepGraph.addStep(secondStep);
+
+		assertThat(oneStepGraph, not(contains(secondStep)));
+	}
+
+	@Test
 	public void adding_steps_does_not_create_edges() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
