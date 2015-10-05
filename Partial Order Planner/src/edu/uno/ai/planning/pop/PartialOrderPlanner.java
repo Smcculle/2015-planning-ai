@@ -14,8 +14,8 @@ public class PartialOrderPlanner extends Planner<PartialOrderSearch> {
 	 * 
 	 * @param name the name of the planner
 	 */
-	public PartialOrderPlanner(String name) {
-		super(name);
+	public PartialOrderPlanner() {
+		super("POPlanner");
 	}
 
 	@Override

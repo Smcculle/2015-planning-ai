@@ -125,7 +125,6 @@ public class PartialOrderSearch extends Search {
 	
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
 		Predication predicatetToMatch = (Predication) o.literal();
-<<<<<<< Upstream, based on branch 'pop' of ssh://git@gitlab.com/sgware/2015-planning-uno.git
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		for(PartialStep step: stepsToLoopThrough){
@@ -146,9 +145,6 @@ public class PartialOrderSearch extends Search {
 		}
 		
 		//loop through and find all operators that satisfies the open precondition
-=======
-		//loop through and find all operators that satisfies the open precondtion
->>>>>>> 0fcc63a I don't remember what I did
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
 			boolean foundMatch = false;
