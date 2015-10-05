@@ -26,7 +26,7 @@ public class POPGraphTest {
 		PartialStep secondMockedStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph().addStep(firstMockedStep)
 			.addStep(secondMockedStep);
-		Set<DefaultEdge> edgesOfGraph = graph.toDirectedAcyclicGraph().edgeSet();
+		Set<DefaultEdge> edgesOfGraph = graph.edgeSet();
 
 		assertTrue(edgesOfGraph.isEmpty());
 	}
@@ -49,12 +49,9 @@ public class POPGraphTest {
 			.addStep(stepOne)
 			.addStep(stepTwo)
 			.addEdge(stepOne, stepTwo);
-		DefaultEdge stepOneToStepTwoEdge = newGraph.toDirectedAcyclicGraph().getEdge(
-			stepOne,
-			stepTwo
-		);
+		DefaultEdge stepOneToStepTwoEdge = newGraph.edgeBetween(stepOne, stepTwo);
 		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
-		assertTrue(newGraph.toDirectedAcyclicGraph().containsEdge(stepOneToStepTwoEdge));
+		assertTrue(newGraph.containsEdge(stepOneToStepTwoEdge));
 	}
 
 	@Test
@@ -140,7 +137,7 @@ public class POPGraphTest {
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
 		POPGraph connectedTwoStepGraph = twoStepGraph.addEdge(firstStep, secondStep);
-		DefaultEdge edge = connectedTwoStepGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
+		DefaultEdge edge = connectedTwoStepGraph.edgeBetween(firstStep, secondStep);
 
 		assertThat(twoStepGraph.containsEdge(edge), is(false));
 		assertThat(connectedTwoStepGraph.containsEdge(edge), is(true));
@@ -278,7 +275,7 @@ public class POPGraphTest {
 			.addStep(secondStep)
 			.addEdge(firstStep, secondStep);
 		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
-		DefaultEdge edge = singleEdgeGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
+		DefaultEdge edge = singleEdgeGraph.edgeBetween(firstStep, secondStep);
 	}
 
 	@Test
