@@ -11,34 +11,10 @@ import org.jgrapht.graph.*;
 import org.junit.*;
 
 import edu.uno.ai.planning.*;
-import edu.uno.ai.planning.logic.*;
 
 public class POPGraphTest {
 	private POPGraph newEmptyPopGraph() {
 		return new POPGraph();
-	}
-
-	private Literal literal() {
-		return new Predication(
-			"POP Graph Test Predicate",
-			new Constant(Settings.DEFAULT_TYPE, "A")
-		);
-	}
-
-	private Step stepOne() {
-		return new Step(
-			"POP Graph Test Step One",
-			new Conjunction(literal()),
-			new Conjunction(literal())
-		);
-	}
-
-	private Step stepTwo() {
-		return new Step(
-			"POP Graph Test Step Two",
-			new Conjunction(literal()),
-			new Conjunction(literal())
-		);
 	}
 
 	@Test public void can_report_if_it_contains_an_edge() throws Exception {
@@ -284,8 +260,8 @@ public class POPGraphTest {
 	}
 
 	@Test public void can_add_an_edge_between_steps() throws Exception {
-		Step stepOne = stepOne();
-		Step stepTwo = stepTwo();
+		Step stepOne = mock(Step.class);
+		Step stepTwo = mock(Step.class);
 		POPGraph newGraph = newEmptyPopGraph()
 			.addStep(stepOne)
 			.addStep(stepTwo)
