@@ -20,10 +20,6 @@ public class PartialOrderNode{
 	public ImmutableArray<Flaw> flaws;
 	
 	
-	/** This node's parent node (i.e. the state before the last step) */
-	public final PartialOrderNode parent;
-	
-	
 	/**
 	 * Constructs a new node with a given all the relevant info.
 	 * This assumes that all the changes that needed to be made to the structures that this node depends on have already been
@@ -34,13 +30,12 @@ public class PartialOrderNode{
 	 * @param binds The set of bindings which apply to the node, ?already filled with the new bindings needed?
 	 */
 	public PartialOrderNode(ImmutableList<PartialStep> stepsPlanned, POPGraph currentOrdering, ImmutableList<CausalLink> currentLinks, 
-			ListBindings binds, Flaw[] flaws, PartialOrderNode parent) {
+			ListBindings binds, ImmutableArray<Flaw> flaws) {
 		this.steps = stepsPlanned;
 		this.binds = binds;
-		this.parent = parent;
 		this.orderings = currentOrdering;
 		this.causalLinks = currentLinks;
-		this.flaws = new ImmutableArray<Flaw>(flaws);
+		this.flaws = flaws;
 		
 	}
 	
@@ -78,9 +73,7 @@ public class PartialOrderNode{
 			}
 			this.flaws = new ImmutableArray<Flaw>(temp);
 		}
-		
-		this.parent = null;//this is the first node so it has no parent...
-		
+				
 		this.orderings = new POPGraph(); //This will be the null plan aka initial state and goal
 		
 		this.causalLinks = new ImmutableList<CausalLink>(); //make a new set of links which is empty for now
