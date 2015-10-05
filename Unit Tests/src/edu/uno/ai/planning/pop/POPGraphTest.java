@@ -11,34 +11,33 @@ import org.jgrapht.graph.*;
 import org.junit.*;
 
 import edu.uno.ai.planning.*;
-import edu.uno.ai.planning.logic.*;
 
 public class POPGraphTest {
 	private POPGraph newEmptyPopGraph() {
 		return new POPGraph();
 	}
 
-	private Literal literal() {
-		return new Predication(
-			"POP Graph Test Predicate",
-			new Constant(Settings.DEFAULT_TYPE, "A")
-		);
+	@Test public void can_report_if_it_contains_an_edge() throws Exception {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
+		POPGraph connectedTwoStepGraph = twoStepGraph.addEdge(firstStep, secondStep);
+		DefaultEdge edge = connectedTwoStepGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
+
+		assertThat(twoStepGraph.containsEdge(edge), is(false));
+		assertThat(connectedTwoStepGraph.containsEdge(edge), is(true));
 	}
 
-	private Step stepOne() {
-		return new Step(
-			"POP Graph Test Step One",
-			new Conjunction(literal()),
-			new Conjunction(literal())
-		);
-	}
+	@Test public void can_report_if_it_contains_a_step() {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		POPGraph oneStepGraph = newEmptyPopGraph().addStep(firstStep);
+		POPGraph twoStepGraph = oneStepGraph.addStep(secondStep);
 
-	private Step stepTwo() {
-		return new Step(
-			"POP Graph Test Step Two",
-			new Conjunction(literal()),
-			new Conjunction(literal())
-		);
+		assertThat(oneStepGraph.containsStep(firstStep), is(true));
+		assertThat(oneStepGraph.containsStep(secondStep), is(false));
+		assertThat(twoStepGraph.containsStep(firstStep), is(true));
+		assertThat(twoStepGraph.containsStep(secondStep), is(true));
 	}
 
 	@Test public void can_return_a_popgraph_equal_to_self_plus_new_step() {
@@ -47,15 +46,15 @@ public class POPGraphTest {
 		POPGraph singleStepGraph = emptyGraph.addStep(onlyStep);
 
 		assertThat(emptyGraph, not(equalTo(singleStepGraph)));
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(false));
-		assertThat(singleStepGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(true));
+		assertThat(emptyGraph.containsStep(onlyStep), is(false));
+		assertThat(singleStepGraph.containsStep(onlyStep), is(true));
 
 		Step extraStep = mock(Step.class);
 		POPGraph twoStepGraph = singleStepGraph.addStep(extraStep);
 
-		assertThat(singleStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(onlyStep), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(extraStep), is(true));
+		assertThat(singleStepGraph.containsStep(extraStep), is(false));
+		assertThat(twoStepGraph.containsStep(onlyStep), is(true));
+		assertThat(twoStepGraph.containsStep(extraStep), is(true));
 	}
 
 	@Test public void cannot_add_a_duplicate_step() {
@@ -96,7 +95,6 @@ public class POPGraphTest {
 		assertTrue(edgesOfNewStep.isEmpty());
 	}
 
-
 	@Test public void steps_are_only_added_once() {
 		Step onlyStep = mock(Step.class);
 		POPGraph graph = newEmptyPopGraph().addStep(onlyStep);
@@ -124,21 +122,21 @@ public class POPGraphTest {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		POPGraph twoStepGraph = emptyGraph.addSteps(steps);
 
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(false));
-		assertThat(emptyGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
+		assertThat(emptyGraph.containsStep(steps.get(0)), is(false));
+		assertThat(emptyGraph.containsStep(steps.get(1)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(0)), is(true));
+		assertThat(twoStepGraph.containsStep(steps.get(1)), is(true));
 
 		steps.add(mock(Step.class));
 		steps.add(mock(Step.class));
 		POPGraph fourStepGraph = emptyGraph.addSteps(steps);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(0)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(1)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(2)), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(steps.get(3)), is(true));
+		assertThat(twoStepGraph.containsStep(steps.get(2)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(3)), is(false));
+		assertThat(twoStepGraph.containsStep(steps.get(0)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(1)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(2)), is(true));
+		assertThat(fourStepGraph.containsStep(steps.get(3)), is(true));
 	}
 
 	@Test public void can_return_a_popgraph_equal_to_self_plus_multiple_steps_via_varargs() {
@@ -147,17 +145,17 @@ public class POPGraphTest {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		POPGraph twoStepGraph = emptyGraph.addSteps(firstStep, secondStep);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(firstStep), is(true));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(secondStep), is(true));
+		assertThat(twoStepGraph.containsStep(firstStep), is(true));
+		assertThat(twoStepGraph.containsStep(secondStep), is(true));
 
 		Step thirdStep = mock(Step.class);
 		Step fourthStep = mock(Step.class);
 		POPGraph fourStepGraph = twoStepGraph.addSteps(thirdStep, fourthStep);
 
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(thirdStep), is(false));
-		assertThat(twoStepGraph.toDirectedAcyclicGraph().containsVertex(fourthStep), is(false));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(thirdStep), is(true));
-		assertThat(fourStepGraph.toDirectedAcyclicGraph().containsVertex(fourthStep), is(true));
+		assertThat(twoStepGraph.containsStep(thirdStep), is(false));
+		assertThat(twoStepGraph.containsStep(fourthStep), is(false));
+		assertThat(fourStepGraph.containsStep(thirdStep), is(true));
+		assertThat(fourStepGraph.containsStep(fourthStep), is(true));
 	}
 
 	@Test public void can_copy_self() {
@@ -216,7 +214,7 @@ public class POPGraphTest {
 		);
 	}
 
-	@Test public void can_return_set_of_steps() throws Exception {
+	@Test public void can_return_set_of_steps() {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		assertThat(emptyGraph.stepSet().isEmpty(), is(true));
 
@@ -236,18 +234,12 @@ public class POPGraphTest {
 			.addStep(secondStep)
 			.addEdge(firstStep, secondStep);
 		assertThat(singleEdgeGraph.edgeSet().size(), is(1));
-		DefaultEdge edge = singleEdgeGraph.graph().getEdge(firstStep, secondStep);
+		DefaultEdge edge = singleEdgeGraph.toDirectedAcyclicGraph().getEdge(firstStep, secondStep);
 	}
 
-	@Test public void can_return_string_representation_of_self() throws CloneTypeMismatchException {
+	@Test public void can_return_string_representation_of_self() {
 		POPGraph emptyGraph = newEmptyPopGraph();
-		assertThat(emptyGraph.toString(), equalTo(emptyGraph.graph().toString()));
-	}
-
-	@Test public void has_a_directed_acyclic_graph()
-			throws CloneTypeMismatchException {
-		Class<DirectedAcyclicGraph> graphClass = DirectedAcyclicGraph.class;
-		assertThat(newEmptyPopGraph().graph(), is(instanceOf(graphClass)));
+		assertThat(emptyGraph.toString(), equalTo(emptyGraph.toDirectedAcyclicGraph().toString()));
 	}
 
 	@Test public void is_equal_to_an_identical_popgraph() {
@@ -255,7 +247,7 @@ public class POPGraphTest {
 		assertThat(graph.equals(graph), is(true));
 	}
 
-	@Test public void is_not_equal_to_non_identical_popgraphs() throws Exception {
+	@Test public void is_not_equal_to_non_identical_popgraphs() {
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph differentGraph = newEmptyPopGraph().addStep(mock(Step.class));
 		assertThat(graph, is(not(equalTo(differentGraph))));
@@ -266,17 +258,17 @@ public class POPGraphTest {
 	}
 
 	@Test public void can_add_an_edge_between_steps() throws Exception {
-		Step stepOne = stepOne();
-		Step stepTwo = stepTwo();
+		Step stepOne = mock(Step.class);
+		Step stepTwo = mock(Step.class);
 		POPGraph newGraph = newEmptyPopGraph()
 			.addStep(stepOne)
 			.addStep(stepTwo)
 			.addEdge(stepOne, stepTwo);
-		DefaultEdge stepOneToStepTwoEdge = newGraph.graph().getEdge(
+		DefaultEdge stepOneToStepTwoEdge = newGraph.toDirectedAcyclicGraph().getEdge(
 			stepOne,
 			stepTwo
 		);
 		assertThat(stepOneToStepTwoEdge, is(not(nullValue())));
-		assertTrue(newGraph.graph().containsEdge(stepOneToStepTwoEdge));
+		assertTrue(newGraph.toDirectedAcyclicGraph().containsEdge(stepOneToStepTwoEdge));
 	}
 }
