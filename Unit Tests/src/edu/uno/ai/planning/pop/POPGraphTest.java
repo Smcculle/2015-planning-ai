@@ -388,7 +388,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void iteration_follow_topological_ordering() throws Exception {
+	public void iteration_follows_topological_ordering() throws Exception {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		PartialStep thirdStep = mock(PartialStep.class);
