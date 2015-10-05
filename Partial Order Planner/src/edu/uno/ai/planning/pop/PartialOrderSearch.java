@@ -104,10 +104,11 @@ public class PartialOrderSearch extends Search {
 	private boolean findAndHandleThreat(Flaw currentFlaw, PartialOrderNode workingNode){
 		//we need to check and see if the threat is grounded and links to the causal link's label
 		Threat currentThreat = (Threat) currentFlaw;
+		//list of the effects of the threatening step
 		Expression effects = currentThreat.threateningStep.effect;
 		if(effects instanceof Literal){ //if there is only one effect
-			Predication threatendCondition = currentThreat.threatenedLink.label;
-			boolean dealWithThreat = ((Predication)effects).equals(threatendCondition.negate(), workingNode.binds);
+			Predication threatendCondition = currentThreat.threatenedLink.label;//get the threatened predication
+			boolean dealWithThreat = (effects).equals(threatendCondition.negate(), workingNode.binds);
 			if(dealWithThreat){
 				handleThreat((Threat) currentFlaw, workingNode); //work on it
 				return true;
@@ -117,8 +118,8 @@ public class PartialOrderSearch extends Search {
 			ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
 			
 			for(int j=0; j< arguments.length; j++){
-				Predication threatenedPredicate = (Predication)currentThreat.threatenedLink.label;
-				boolean dealWithThreat = ((Predication)arguments.get(j)).equals(threatenedPredicate.negate(), workingNode.binds);
+				Predication threatenedPredicate = currentThreat.threatenedLink.label;
+				boolean dealWithThreat = arguments.get(j).equals(threatenedPredicate.negate(), workingNode.binds);
 				if(dealWithThreat){
 					handleThreat((Threat) currentFlaw, workingNode);//may want to pass an index so we don't have to look again
 					return true;
@@ -129,22 +130,24 @@ public class PartialOrderSearch extends Search {
 	}
 	
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
-		Predication predicatetToMatch = (Predication) o.literal();
+		Literal predicatetToMatch = o.literal();
+		
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
+		
 		for(PartialStep step: stepsToLoopThrough){
-			boolean foundMatch = false;
-			if(step.effect instanceof Literal){
-				System.out.println(step.effect);
-				if(predicatetToMatch.equals((Predication) step.effect, workingNode.binds)){
-					stepSatisfiesOpenPrecondition(predicatetToMatch,(Predication) step.effect, step, workingNode, o);
+			if(step != workingNode.endStep){
+				if(step.effect instanceof Literal){
+					if(predicatetToMatch.equals(step.effect, workingNode.binds)){//TODO this needs to check unification
+						stepSatisfiesOpenPrecondition(predicatetToMatch, (Literal)step.effect, step, workingNode, o);
+					}
 				}
-			}
-			else{
-				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
-				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
-						stepSatisfiesOpenPrecondition(predicatetToMatch,(Predication) arguments.get(j), step, workingNode, o);
+				else{
+					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
+					for(int j=0; j< arguments.length; j++){
+						if(predicatetToMatch.equals(arguments.get(j), workingNode.binds)){//TODO this needs to check unification
+							stepSatisfiesOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
+						}
 					}
 				}
 			}
@@ -155,13 +158,15 @@ public class PartialOrderSearch extends Search {
 		for(int i=0;i < operatorsToCheck.length; i++){
 			boolean foundMatch = false;
 			if (operatorsToCheck.get(i).effect instanceof Literal){
-				foundMatch = predicatetToMatch.equals((Predication) operatorsToCheck.get(i).effect, workingNode.binds);
+				if(predicatetToMatch.equals(operatorsToCheck.get(i).effect, workingNode.binds)){//TODO this needs to check unification
+					
+				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
 					System.out.println(arguments.get(j));
-					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
+					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){//TODO this needs to check unification
 						foundMatch = true;
 					}
 				}
@@ -171,27 +176,9 @@ public class PartialOrderSearch extends Search {
 			}
 		}
 		
-		//loop thorugh all of the existing partial steps to see if one  
-		for(PartialStep step: stepsToLoopThrough){
-			boolean foundMatch = false;
-			if(step.effect instanceof Literal){
-				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
-			}
-			else{
-				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
-				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
-						foundMatch = true;
-					}
-				}
-			}
-			if(foundMatch){
-				//create partial step and nodes and shit
-			}
-		}
 	}
 	
-	private void stepSatisfiesOpenPrecondition(Predication satisfiedPredication, Predication satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
+	private void stepSatisfiesOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
 		if(newNodeBindings != null){
 			//shit unified correctly, now lets make the causal links
@@ -213,7 +200,7 @@ public class PartialOrderSearch extends Search {
 			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
 			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
 			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.endStep);
 			this.pQueue.add(newNode);
 			this.nodesExpanded++;
 		}
@@ -232,7 +219,7 @@ public class PartialOrderSearch extends Search {
 			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
 			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
 			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.endStep);
 			this.pQueue.add(newNode);
 			this.nodesExpanded++;
 
