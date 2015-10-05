@@ -37,14 +37,8 @@ public class POPGraphTest {
 		POPGraph graph = newEmptyPopGraph();
 		POPGraph modifiedCopyOfGraph = graph.copy().addStep(onlyStep);
 		assertThat(graph,is(not(equalTo(modifiedCopyOfGraph))));
-		assertThat(
-			graph.toDirectedAcyclicGraph().containsVertex(onlyStep),
-			is(false)
-		);
-		assertThat(
-			modifiedCopyOfGraph.toDirectedAcyclicGraph().containsVertex(onlyStep),
-			is(true)
-		);
+		assertThat(graph.containsStep(onlyStep), is(false));
+		assertThat(modifiedCopyOfGraph.containsStep(onlyStep), is(true));
 	}
 
 	@Test
