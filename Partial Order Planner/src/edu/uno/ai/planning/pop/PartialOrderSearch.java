@@ -125,6 +125,7 @@ public class PartialOrderSearch extends Search {
 	
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
 		Predication predicatetToMatch = (Predication) o.literal();
+<<<<<<< Upstream, based on branch 'pop' of ssh://git@gitlab.com/sgware/2015-planning-uno.git
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		for(PartialStep step: stepsToLoopThrough){
@@ -145,6 +146,9 @@ public class PartialOrderSearch extends Search {
 		}
 		
 		//loop through and find all operators that satisfies the open precondition
+=======
+		//loop through and find all operators that satisfies the open precondtion
+>>>>>>> 0fcc63a I don't remember what I did
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
 			boolean foundMatch = false;
@@ -153,6 +157,26 @@ public class PartialOrderSearch extends Search {
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
+				for(int j=0; j< arguments.length; j++){
+					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
+						foundMatch = true;
+					}
+				}
+			}
+			if(foundMatch){
+				//create partial step and nodes and shit
+			}
+		}
+		
+		//loop thorugh all of the existing partial steps to see if one  
+		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
+		for(PartialStep step: stepsToLoopThrough){
+			boolean foundMatch = false;
+			if(step.effect instanceof Literal){
+				foundMatch = predicatetToMatch.equals((Predication) step.effect, workingNode.binds); 
+			}
+			else{
+				ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
 				for(int j=0; j< arguments.length; j++){
 					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
 						foundMatch = true;
@@ -173,26 +197,49 @@ public class PartialOrderSearch extends Search {
 		}
 		
 	}
+
 	
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
 		
 		//promotion
 		try{
+			//add the new ordering to the DAG, gets a new instance
 			POPGraph newGraph = workingNode.orderings.promote(t.threateningStep,t.threatenedLink.previousStep);
+			//this is a copy of the flaws list we will be removing this flaw as we handled it
 			ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
 			newFlaws.remove(t);
-			Flaw[] flaws;
+			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
 			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
+			//make a new node to put into the queue
 			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
 			this.pQueue.add(newNode);
+			this.nodesExpanded++;
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
+			//don't add the node promotion failed
 			
 		}
 	
-		
-		
 		//demotion
+		try{
+			//add the new ordering to the DAG, gets a new instance
+			POPGraph newGraph = workingNode.orderings.demote(t.threateningStep,t.threatenedLink.nextStep);
+			//this is a copy of the flaws list we will be removing this flaw as we handled it
+			ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
+			newFlaws.remove(t);
+			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
+			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
+			//make a new node to put into the queue
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws);
+			this.pQueue.add(newNode);
+			this.nodesExpanded++;
+
+		}
+		catch(DirectedAcyclicGraph.CycleFoundException e){
+			//don't add the node demotion failed
+			
+		}
+		
 		
 	}
 	
