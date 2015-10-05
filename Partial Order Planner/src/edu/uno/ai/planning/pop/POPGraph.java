@@ -20,6 +20,12 @@ public class POPGraph {
 		this.graph = graph;
 	}
 
+	public POPGraph addEdge(Step fromStep, Step toStep) throws Exception {
+		POPGraph copy = this.copy();
+		copy.graph.addDagEdge(fromStep, toStep);
+		return copy;
+	}
+
 	public POPGraph addStep(Step newStep) {
 		POPGraph copy = this.copy();
 		copy.graph.addVertex(newStep);
@@ -68,6 +74,14 @@ public class POPGraph {
 		return copy;
 	}
 
+	public Iterator<Step> iterator() {
+		return this.graph.iterator();
+	}
+
+	public Set<DefaultEdge> edgeSet() {
+		return this.graph.edgeSet();
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		boolean result = false;
@@ -77,10 +91,6 @@ public class POPGraph {
 		}
 
 		return result;
-	}
-
-	public Set<DefaultEdge> edgeSet() {
-		return this.graph.edgeSet();
 	}
 
 	public Set<Step> stepSet() {
@@ -94,15 +104,5 @@ public class POPGraph {
 	@Override
 	public String toString() {
 		return this.graph.toString();
-	}
-
-	public POPGraph addEdge(Step fromStep, Step toStep) throws Exception {
-		POPGraph copy = this.copy();
-		copy.graph.addDagEdge(fromStep, toStep);
-		return copy;
-	}
-
-	public Iterator<Step> iterator() {
-		return this.graph.iterator();
 	}
 }
