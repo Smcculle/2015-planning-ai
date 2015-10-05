@@ -133,7 +133,7 @@ public class PartialOrderSearch extends Search {
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.equals((Predication) arguments.get(j))){
+					if(predicatetToMatch.equals((Predication) arguments.get(j), workingNode.binds)){
 						foundMatch = true;
 					}
 				}
