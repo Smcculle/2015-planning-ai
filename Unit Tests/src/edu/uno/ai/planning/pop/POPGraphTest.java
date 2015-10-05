@@ -271,4 +271,27 @@ public class POPGraphTest {
 		assertThat(iterator.next(), equalTo(onlyStep));
 		assertFalse(iterator.hasNext());
 	}
+
+	@Test public void iteration_follow_topological_ordering() throws Exception {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		Step thirdStep = mock(Step.class);
+		Step fourthStep = mock(Step.class);
+		POPGraph fourStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep, thirdStep, fourthStep);
+		POPGraph graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(thirdStep, fourthStep).addEdge(firstStep, thirdStep).addEdge(thirdStep, secondStep);
+		Iterator<Step> iterator = graph.iterator();
+
+		assertThat(iterator.next(), equalTo(firstStep));
+		assertThat(iterator.next(), equalTo(thirdStep));
+		assertThat(iterator.next(), equalTo(secondStep));
+		assertThat(iterator.next(), equalTo(fourthStep));
+
+		graph = fourStepGraph.addEdge(firstStep, secondStep).addEdge(firstStep, thirdStep).addEdge(secondStep, fourthStep).addEdge(thirdStep, fourthStep).addEdge(thirdStep, secondStep);
+		iterator = graph.iterator();
+
+		assertThat(iterator.next(), equalTo(firstStep));
+		assertThat(iterator.next(), equalTo(thirdStep));
+		assertThat(iterator.next(), equalTo(secondStep));
+		assertThat(iterator.next(), equalTo(fourthStep));
+	}
 }
