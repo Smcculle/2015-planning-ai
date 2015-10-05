@@ -64,6 +64,17 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void adding_steps_via_varargs_does_not_affect_self() {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph emptyGraph = newEmptyPopGraph();
+		emptyGraph.addSteps(firstStep, secondStep);
+
+		assertThat(emptyGraph, not(contains(firstStep)));
+		assertThat(emptyGraph, not(contains(secondStep)));
+	}
+
+	@Test
 	public void affecting_copies_does_not_affect_original() {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph();
