@@ -207,7 +207,6 @@ public class POPGraphTest {
 
 	@Test public void can_return_set_of_edges() throws Exception {
 		POPGraph emptyGraph = newEmptyPopGraph();
-		System.out.println(emptyGraph.toString());
 		assertThat(emptyGraph.edgeSet().isEmpty(), is(true));
 
 		Step firstStep = mock(Step.class);
