@@ -82,6 +82,10 @@ public class POPGraph {
 		return this.graph.iterator();
 	}
 
+	public POPGraph demote(Step source, Step target) throws DirectedAcyclicGraph.CycleFoundException {
+		return this.addEdge(target, source);
+	}
+
 	public DefaultEdge edgeBetween(Step source, Step target) {
 		return this.graph.getEdge(source, target);
 	}
