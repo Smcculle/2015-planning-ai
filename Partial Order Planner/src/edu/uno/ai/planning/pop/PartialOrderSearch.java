@@ -115,28 +115,17 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
-		Literal predicatetToMatch = o.literal();
+		Literal predicateToMatch = o.literal();
 
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 
-		for(PartialStep step: stepsToLoopThrough){
+		for(PartialStep step: stepsToLoopThrough) {
 			//if the step is not the end step from the null plan
-			if(step != workingNode.endStep){
-				//if the step's effect is a single literal
-				if(step.effect instanceof Literal){
-					//if the literal we're trying to satisfy can be unified with this step's effect
-					if(predicatetToMatch.unify(step.effect, workingNode.binds) != null){
-						useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)step.effect, step, workingNode, o);
-					}
-				}
-				//if the effects are a conjunction of literals
-				else{
-					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
-					for(int j=0; j< arguments.length; j++){
-						if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
-							useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
-						}
+			if(step != workingNode.endStep) {
+				for (Expression effect : step.effects()) {
+					if (predicateToMatch.unify(effect, workingNode.binds) != null) {
+						useStepToSatisfyOpenPrecondition(predicateToMatch, (Literal)effect, step, workingNode, o);
 					}
 				}
 			}
@@ -144,22 +133,20 @@ public class PartialOrderSearch extends Search {
 
 		//loop through and find all operators that satisfies the open precondition
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
-		for(int i=0;i < operatorsToCheck.length; i++){
-			if (operatorsToCheck.get(i).effect instanceof Literal){
-				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){
-					addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch);
+		for (Operator operator : operatorsToCheck) {
+			if (operator.effect instanceof Literal) {
+				if (predicateToMatch.unify(operator.effect, workingNode.binds) != null) {
+					addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
 				}
 			}
-			else{
-				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
-				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
-						addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch);
+			else {
+				for (Expression argument : ((Conjunction)operator.effect).arguments) {
+					if (predicateToMatch.unify(argument, workingNode.binds) != null) {
+						addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
 					}
 				}
 			}
 		}
-
 	}
 
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
