@@ -266,9 +266,17 @@ public class PartialOrderSearch extends Search {
 				// else, not a threat
 			}
 		}
-		
-		newestStep.precondition
-		new OpenCondition(partialStep)
+
+		if (newestStep.precondition instanceof Literal) {
+			newFlaws.add(new OpenCondition((Literal)newestStep.precondition, newestStep));
+		}
+		else {
+			ImmutableArray<Expression> arguments = ((Conjunction)newestStep.precondition).arguments;
+			for (Expression expression : arguments) {
+				newFlaws.add(new OpenCondition((Literal)expression, newestStep));
+			}
+		}
+
 		return new ImmutableArray<Flaw>(newFlaws, Flaw.class);
 	}
 
