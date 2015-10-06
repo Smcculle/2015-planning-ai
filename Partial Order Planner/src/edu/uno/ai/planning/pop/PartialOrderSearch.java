@@ -192,6 +192,9 @@ public class PartialOrderSearch extends Search {
 			Boolean removedFlaw = newFlawSet.remove((Flaw)o);
 			ImmutableArray<Flaw> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode, newNodeBindings);
 			ImmutableList<PartialStep> allSteps = workingNode.steps.add(newStep);
+			PartialOrderNode newNode = new PartialOrderNode(allSteps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,allFlaws, workingNode.startStep, workingNode.endStep);
+			this.pQueue.add(newNode);
+			this.nodesExpanded++;
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
 			//don't add the node promotion failed
