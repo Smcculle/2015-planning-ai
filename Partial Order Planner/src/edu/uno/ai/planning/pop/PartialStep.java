@@ -15,6 +15,18 @@ public class PartialStep extends Operator{
 
 	public ImmutableArray<Term> partialBinds;
 
+	public PartialStep(Operator operator) {
+		super(operator.name, operator.parameters, operator.precondition, operator.effect);
+
+		Variable[] temp = new Variable[this.parameters.length];
+
+		for (int i=0; i < this.parameters.length; i++) {
+			temp[i] = this.parameters.get(i).makeUnique();
+		}
+
+		this.partialBinds = new ImmutableArray<Term>(temp);
+	}
+
 	public PartialStep(String name, Variable[] parameters,
 			Expression precondition, Expression effect) {
 		super(name, parameters, precondition, effect);
