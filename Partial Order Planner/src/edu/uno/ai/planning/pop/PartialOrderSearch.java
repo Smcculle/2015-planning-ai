@@ -232,8 +232,24 @@ public class PartialOrderSearch extends Search {
 		return(newImmutArrayOfFlaws);
 	}
 
-	private void addStepToSatisfyOpenPrecondition(){
+	private ImmutableArray<Flaw> newFlawsFromAddingStep(ArrayList<Flaw> oldFlaws, PartialStep newestStep, PartialOrderNode workingNode) {
+		ArrayList<Flaw> newFlaws = new ArrayList<Flaw>(oldFlaws);
 
+		for(CausalLink causalLink : workingNode.causalLinks) {
+			for(Expression effect : newestStep.effects()) {
+				Bindings unification = effect.unify(
+					causalLink.label.negate(),
+					workingNode.binds
+				);
+
+				if (unification != null) {
+					// was unified and is a threat
+					newFlaws.add(new Threat(causalLink, newestStep));
+				}
+				// else, not a threat
+			}
+		}
+		return new ImmutableArray<Flaw>(newFlaws, Flaw.class);
 	}
 
 
