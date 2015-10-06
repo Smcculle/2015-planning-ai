@@ -175,12 +175,48 @@ public class PartialOrderSearch extends Search {
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
-		if(newNodeBindings != null){
-			System.out.println("AWWW YEAAAA");
-			//shit unified correctly, now lets make the causal links
-			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
+		try{
+			if(newNodeBindings != null){
+				System.out.println("AWWW YEAAAA");
+				POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
+				//shit unified correctly, now lets make the causal links
+				CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
+				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
+				Boolean removedFlaw = newFlawSet.remove((Flaw)o);
+			}
+		}
+		catch(DirectedAcyclicGraph.CycleFoundException e){
+			//don't add the node promotion failed
+
 		}
 
+	}
+	
+	private void newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings){
+		
+		//loop through all of the existing partial steps to see if one satisfies this open precondition
+		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
+		for(PartialStep step: stepsToLoopThrough){
+			//if the step is not the end step from the null plan
+			if(step != workingNode.endStep){
+				//if the step's effect is a single literal
+				if(step.effect instanceof Literal){
+					//if the literal we're trying to satisfy can be unified with this step's effect
+					if(predicatetToMatch.unify(step.effect.negate(), newNodeBindings) != null){
+						//add threat to list
+					}
+				}
+				//if the effects are a conjunction of literals
+				else{
+					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
+					for(int j=0; j< arguments.length; j++){
+						if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
+							useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void addStepToSatisfyOpenPrecondition(){
