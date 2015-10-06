@@ -174,20 +174,19 @@ public class PartialOrderSearch extends Search {
 
 	}
 	
-	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication, Literal satisfyingPredication){
-		ArrayList<Flaw> newThreatsToAdd = new ArrayList<Flaw>();
-		PartialStep newStep = new PartialStep();
-		
-		for(int i=0;i < (newStep.effects().size() - 1); i++){
-			Expression effectToUnify = newStep.effects().get(i).negate();
-			for( CausalLink link: workingNode.causalLinks){
-				//if the negation of the effect 
-				if(link.label.unify(effectToUnify, bindings) != null){
-					Threat newThreat = new Threat(link,newStep);
-					newThreatsToAdd.add(newThreat);
-				}
+	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
+		PartialStep newStep = new PartialStep(satisfyingOperator);
+		Bindings newNodeBindings;
+		for(Expression effect: newStep.effects()){
+			newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
+			if(newNodeBindings != null){
+				break; //only one effect of new partial step will satisfy it
 			}
 		}
+		CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
+		ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
+		
+		
 	}
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
@@ -198,7 +197,7 @@ public class PartialOrderSearch extends Search {
 				System.out.println(o.step().name);
 				POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
 				//shit unified correctly, now lets make the causal links
-				CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
+				CausalLink newLink = new CausalLink(satisfyingStep,o.step(),(Predication)satisfiedPredication);
 				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
 				Boolean removedFlaw = newFlawSet.remove((Flaw)o);
 				//add any new flaws created from making the new causal link
@@ -266,6 +265,9 @@ public class PartialOrderSearch extends Search {
 				// else, not a threat
 			}
 		}
+		
+		newestStep.precondition
+		new OpenCondition(partialStep)
 		return new ImmutableArray<Flaw>(newFlaws, Flaw.class);
 	}
 
