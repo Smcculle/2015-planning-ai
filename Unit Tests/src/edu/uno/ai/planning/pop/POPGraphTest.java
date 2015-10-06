@@ -9,7 +9,6 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import org.jgrapht.experimental.dag.*;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 import org.junit.*;
 
@@ -37,7 +36,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void adding_an_edge_does_not_affect_self() throws CycleFoundException {
+	public void adding_an_edge_does_not_affect_self() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
@@ -47,7 +46,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void adding_an_edge_creates_a_copy_of_self_with_the_edge() throws CycleFoundException {
+	public void adding_an_edge_creates_a_copy_of_self_with_the_edge() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
@@ -101,7 +100,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_demote_a_step_after_anoter() throws CycleFoundException {
+	public void can_demote_a_step_after_anoter() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		PartialStep thirdStep = mock(PartialStep.class);
@@ -128,7 +127,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_promote_a_step_before_another() throws CycleFoundException {
+	public void can_promote_a_step_before_another() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		PartialStep thirdStep = mock(PartialStep.class);
@@ -155,7 +154,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_report_if_it_contains_an_edge() throws Exception {
+	public void can_report_if_it_contains_an_edge() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
@@ -253,7 +252,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_return_an_existing_edge_between_two_steps() throws Exception {
+	public void can_return_an_existing_edge_between_two_steps() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
@@ -295,7 +294,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void can_return_set_of_edges() throws Exception {
+	public void can_return_set_of_edges() {
 		POPGraph emptyGraph = newEmptyPopGraph();
 		assertThat(emptyGraph.edgeSet().isEmpty(), is(true));
 
@@ -387,7 +386,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void iteration_follows_topological_ordering() throws Exception {
+	public void iteration_follows_topological_ordering() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
 		PartialStep thirdStep = mock(PartialStep.class);
@@ -426,6 +425,42 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void returns_null_if_demotion_causes_cycle() {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph cyclicGraph = newEmptyPopGraph()
+			.addSteps(firstStep, secondStep)
+			.addEdge(firstStep, secondStep)
+			.demote(firstStep, secondStep);
+
+		assertThat(cyclicGraph, nullValue());
+	}
+
+	@Test
+	public void returns_null_if_new_edge_causes_cycle() {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph cyclicGraph = newEmptyPopGraph()
+			.addSteps(firstStep, secondStep)
+			.addEdge(firstStep, secondStep)
+			.addEdge(secondStep, firstStep);
+
+		assertThat(cyclicGraph, nullValue());
+	}
+
+	@Test
+	public void returns_null_if_promotion_causes_cycle() {
+		PartialStep firstStep = mock(PartialStep.class);
+		PartialStep secondStep = mock(PartialStep.class);
+		POPGraph cyclicGraph = newEmptyPopGraph()
+			.addSteps(firstStep, secondStep)
+			.addEdge(firstStep, secondStep)
+			.promote(secondStep, firstStep);
+
+		assertThat(cyclicGraph, nullValue());
+	}
+
+	@Test
 	public void steps_are_only_added_once() {
 		PartialStep onlyStep = mock(PartialStep.class);
 		POPGraph graph = newEmptyPopGraph().addStep(onlyStep);
@@ -434,7 +469,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void total_order_plan_of_self_has_no_end_step() throws CycleFoundException {
+	public void total_order_plan_of_self_has_no_end_step() {
 		Step notStartStep = mock(Step.class);
 		Step endStep = mock(Step.class);
 
@@ -457,7 +492,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void total_order_plan_of_self_has_no_start_step() throws CycleFoundException {
+	public void total_order_plan_of_self_has_no_start_step() {
 		Step startStep = mock(Step.class);
 		Step secondStep = mock(Step.class);
 
@@ -480,7 +515,7 @@ public class POPGraphTest {
 	}
 
 	@Test
-	public void total_order_plan_of_self_respects_self_iterator_order() throws CycleFoundException {
+	public void total_order_plan_of_self_respects_self_iterator_order() {
 		Step firstStep = mock(Step.class);
 		Step secondStep = mock(Step.class);
 		Step thirdStep = mock(Step.class);
@@ -526,35 +561,5 @@ public class POPGraphTest {
 		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
 
 		assertThat(twoStepGraph.edgeBetween(firstStep, secondStep), nullValue());
-	}
-
-	@Test(expected = DirectedAcyclicGraph.CycleFoundException.class)
-	public void will_throw_cycle_found_exception_if_new_edge_causes_cycle() throws CycleFoundException {
-		PartialStep firstStep = mock(PartialStep.class);
-		PartialStep secondStep = mock(PartialStep.class);
-		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
-		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
-
-		connectedGraph.addEdge(secondStep, firstStep);
-	}
-
-	@Test(expected = DirectedAcyclicGraph.CycleFoundException.class)
-	public void will_throw_cycle_found_exception_if_promotion_causes_cycle() throws CycleFoundException {
-		PartialStep firstStep = mock(PartialStep.class);
-		PartialStep secondStep = mock(PartialStep.class);
-		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
-		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
-
-		connectedGraph.promote(secondStep, firstStep);
-	}
-
-	@Test(expected = DirectedAcyclicGraph.CycleFoundException.class)
-	public void will_throw_cycle_found_exception_if_demotion_causes_cycle() throws CycleFoundException {
-		PartialStep firstStep = mock(PartialStep.class);
-		PartialStep secondStep = mock(PartialStep.class);
-		POPGraph twoStepGraph = newEmptyPopGraph().addSteps(firstStep, secondStep);
-		POPGraph connectedGraph = twoStepGraph.addEdge(firstStep, secondStep);
-
-		connectedGraph.demote(firstStep, secondStep);
 	}
 }

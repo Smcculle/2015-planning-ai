@@ -21,9 +21,16 @@ public class POPGraph implements Iterable<PartialStep> {
 		this.graph = graph;
 	}
 
-	public POPGraph addEdge(PartialStep fromStep, PartialStep toStep) throws DirectedAcyclicGraph.CycleFoundException {
+	public POPGraph addEdge(PartialStep fromStep, PartialStep toStep) {
 		POPGraph copy = this.copy();
-		copy.graph.addDagEdge(fromStep, toStep);
+
+		try {
+			copy.graph.addDagEdge(fromStep, toStep);
+		}
+		catch (Exception e) {
+			copy = null;
+		}
+
 		return copy;
 	}
 
@@ -79,7 +86,7 @@ public class POPGraph implements Iterable<PartialStep> {
 		return copy;
 	}
 
-	public POPGraph demote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {
+	public POPGraph demote(PartialStep source, PartialStep target) {
 		return this.addEdge(target, source);
 	}
 
@@ -107,7 +114,7 @@ public class POPGraph implements Iterable<PartialStep> {
 		return this.graph.iterator();
 	}
 
-	public POPGraph promote(PartialStep source, PartialStep target) throws DirectedAcyclicGraph.CycleFoundException {
+	public POPGraph promote(PartialStep source, PartialStep target) {
 		return this.addEdge(source, target);
 	}
 
