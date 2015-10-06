@@ -66,7 +66,7 @@ public class PartialOrderSearch extends Search {
 		while(!this.pQueue.isEmpty()){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
 			if(workingNode.flaws.length == 0){
-				plan = new TotalOrderPlan();
+				plan = workingNode.toTotalOrderPlan();
 				break;
 			}
 			else{
