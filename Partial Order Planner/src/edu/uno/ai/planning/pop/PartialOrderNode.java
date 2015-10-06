@@ -1,10 +1,8 @@
 package edu.uno.ai.planning.pop;
 
-import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.ListBindings;
-import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.Variable;
+import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.logic.*;
+import edu.uno.ai.planning.ss.*;
 import edu.uno.ai.planning.util.*;
 
 
@@ -88,4 +86,7 @@ public class PartialOrderNode{
 
 	}
 
+	public TotalOrderPlan toTotalOrderPlan() {
+		return this.orderings.toTotalOrderPlanWithBindings(this.binds);
+	}
 }
