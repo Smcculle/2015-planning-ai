@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.pop;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+
 import edu.uno.ai.planning.*;
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.ss.*;
@@ -77,7 +79,12 @@ public class PartialOrderNode{
 			this.flaws = new ImmutableArray<Flaw>(temp);
 		}
 
-		this.orderings = new POPGraph(); //This will be the null plan aka initial state and goal
+		try{
+			this.orderings = new POPGraph().addStep(start).addStep(end).addEdge(start, end); //This will be the null plan aka initial state and goal
+		}
+		catch(DirectedAcyclicGraph.CycleFoundException e){
+			System.out.println("There is somethingwrong with this problem!");
+		}
 
 		this.causalLinks = new ImmutableList<CausalLink>(); //make a new set of links which is empty for now
 

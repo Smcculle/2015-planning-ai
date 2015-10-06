@@ -177,7 +177,8 @@ public class PartialOrderSearch extends Search {
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
 		try{
 			if(newNodeBindings != null){
-				System.out.println("AWWW YEAAAA");
+				System.out.println(satisfyingStep.name);
+				System.out.println(o.step().name);
 				POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
 				//shit unified correctly, now lets make the causal links
 				CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
