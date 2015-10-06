@@ -19,4 +19,12 @@ public class OpenCondition implements Flaw {
 	public PartialStep step() {
 		return this.step;
 	}
+	
+	@Override
+	public boolean equals(Object other){
+		if(!(other instanceof OpenCondition))
+			return false;
+		return (this.literal == ((OpenCondition)other).literal && this.step == ((OpenCondition)other).step);
+		
+	}
 }
