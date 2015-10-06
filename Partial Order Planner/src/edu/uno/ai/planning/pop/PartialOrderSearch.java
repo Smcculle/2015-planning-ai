@@ -206,7 +206,7 @@ public class PartialOrderSearch extends Search {
 				//add any new flaws created from making the new causal link
 				ImmutableArray<Flaw> newFlawsIncluded = newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
 				ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
-				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,newFlawsIncluded,workingNode.endStep);
+				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,newFlawsIncluded, workingNode.startStep, workingNode.endStep);
 				this.pQueue.add(newNode);
 				this.nodesExpanded++;
 			}
@@ -292,7 +292,7 @@ public class PartialOrderSearch extends Search {
 			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
 			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
 			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.endStep);
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
 			this.pQueue.add(newNode);
 			this.nodesExpanded++;
 		}
@@ -311,7 +311,7 @@ public class PartialOrderSearch extends Search {
 			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
 			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
 			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.endStep);
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
 			this.pQueue.add(newNode);
 			this.nodesExpanded++;
 
