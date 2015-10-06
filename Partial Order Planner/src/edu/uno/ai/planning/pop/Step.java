@@ -22,7 +22,7 @@ public class Step {
 		this.operator = null;
 		this.parameters = NO_PARAMETERS;
 		this.preconditions = precondition == Expression.TRUE ? NO_LITERALS : getLiterals(precondition);
-		this.effects = getLiterals(effect);
+		this.effects = effect == Expression.TRUE ? NO_LITERALS : getLiterals(effect);
 	}
 	
 	Step(Operator operator) {
