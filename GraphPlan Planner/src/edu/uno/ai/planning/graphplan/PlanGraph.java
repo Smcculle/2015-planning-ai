@@ -37,10 +37,10 @@ public class PlanGraph
 	ArrayList<PlanGraphStep> _persistenceSteps;
 	
 	/** List of all mutually exclusive steps in current PlanGraph Level */
-	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps;
+	Map<PlanGraphStep, ArrayList<PlanGraphStep>> _mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
 	
 	/** List of all mutually exclusive literals in current PlanGraph Level */
-	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals;
+	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 	
 	/**
 	 * Constructs a new root of PlanGraph
@@ -52,8 +52,6 @@ public class PlanGraph
 		_parent = null;
 		_effects = new ArrayList<PlanGraphLiteral>();
 		_steps = new ArrayList<PlanGraphStep>();
-		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
-		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = new ArrayList<PlanGraphStep>();
 		
 		addAllSteps(problem.steps);
@@ -83,8 +81,6 @@ public class PlanGraph
 		_parent = parent;
 		_effects = parent._effects;
 		_steps = parent._steps;
-		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
-		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = parent._persistenceSteps;
 		setPerstitenceStepLevels();
 		addAllPossibleNewSteps();
@@ -163,14 +159,14 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Updates a PlanGraphStep on PlanGraph.
+	 * Adds a PlanGraphStep to PlanGraph.
 	 * Does not add a step if already exist in PlanGraph.
-	 * Only updates a step if current all preconditions of step exist in parent's effects.
+	 * Only adds a step if current all preconditions of step exist in parent's effects.
 	 * Also computes all new mutual exclusions introduced
 	 * 
 	 * @param PlanGraphStep Step to be added
 	 */
-	private void updateStep(PlanGraphStep step)
+	public void addStep(PlanGraphStep step)
 	{
 		if (step == null)
 			return;
@@ -194,6 +190,18 @@ public class PlanGraph
 		checkForCompetingNeeds();
 		checkForOpposites();
 		checkForInconsistentSupport();
+	}
+	
+	/**
+	 * Helper method so that Step can be used instead of PlanGraphStep
+	 * for addStep.
+	 * 
+	 * @param step Step to be added
+	 * @return True if step can be added (whether is already exists or not) False otherwise.
+	 */
+	public void addStep(Step step)
+	{
+		addStep(getPlanGraphStep(step));
 	}
 	
 	/**
@@ -341,7 +349,7 @@ public class PlanGraph
 	{
 		for (PlanGraphStep step : _steps)
 			if (!_persistenceSteps.contains(step))
-				updateStep(step);
+				addStep(step);
 	}
 	
 	/**
@@ -362,21 +370,40 @@ public class PlanGraph
 					for (Expression literal : stepEffectLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
-						if (otherStepEffectLiterals.contains(negatedLiteral) && !stepEffectLiterals.contains(negatedLiteral))
+						if (otherStepEffectLiterals.contains(negatedLiteral))
 						{
-							if (_mutexSteps.containsKey(step))
+							if(!stepEffectLiterals.contains(negatedLiteral))
 							{
-								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
-								if (!steps.contains(otherStep))
+//							if(stepEffectLiterals.contains(negatedLiteral) && 
+//									expressionToLiterals(step.GetStep().precondition).contains(literal)){
+//								if(_mutexSteps.containsKey(step)){
+//									ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
+//									if(!steps.contains(otherStep))
+//										steps.add(otherStep);
+//								}
+//								else
+//								{
+//									ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+//									steps.add(otherStep);
+//									_mutexSteps.put(step, steps);
+//								}
+//								break;
+//							} 
+//							else if (_mutexSteps.containsKey(step))
+								if (_mutexSteps.containsKey(step))
+								{
+									ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
+									if (!steps.contains(otherStep))
+										steps.add(otherStep);
+								}
+								else
+								{
+									ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 									steps.add(otherStep);
+									_mutexSteps.put(step, steps);
+								}
+								break;
 							}
-							else
-							{
-								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-								steps.add(otherStep);
-								_mutexSteps.put(step, steps);
-							}
-							break;
 						}
 					}
 				}
@@ -398,11 +425,32 @@ public class PlanGraph
 				if (step != otherStep)
 				{
 					ArrayList<Literal> stepEffectLiterals = expressionToLiterals(step.GetStep().effect);
+					ArrayList<Literal> stepPreconditionLiterals = expressionToLiterals(step.GetStep().precondition);
 					ArrayList<Literal> otherStepPreconditionLiterals = expressionToLiterals(otherStep.GetStep().precondition);
+					ArrayList<Literal> otherStepEffectLiterals = expressionToLiterals(otherStep.GetStep().effect);
 					for (Expression literal : stepEffectLiterals)
 					{
 						Expression negatedLiteral = literal.negate();
-						if (otherStepPreconditionLiterals.contains(negatedLiteral))
+						// If Step contains effects canceling effect
+						if(stepEffectLiterals.contains(negatedLiteral))
+						{
+							if(stepPreconditionLiterals.contains(literal) && otherStepEffectLiterals.contains(negatedLiteral)){
+								if (_mutexSteps.containsKey(step))
+								{
+									ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
+									if (!steps.contains(otherStep))
+										steps.add(otherStep);
+								}
+								else
+								{
+									ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+									steps.add(otherStep);
+									_mutexSteps.put(step, steps);
+								}
+								break;
+							}
+						}
+						else if (otherStepPreconditionLiterals.contains(negatedLiteral))
 						{
 							if (_mutexSteps.containsKey(step))
 							{
@@ -530,29 +578,19 @@ public class PlanGraph
 					for (PlanGraphStep step : stepsWithEffect)
 					{
 						// If Step with Effects is not in list of Mutex Steps, this pair of Steps cannot be mutually exclusive
-						if(!_mutexSteps.containsKey(step))
-						{
+						if(!_mutexSteps.containsKey(step)){
 							allSupportingStepsAreMutex = false;
 							break;
-						} 
-						else
-						{
+							
+						}else{
 							for (PlanGraphStep otherStep : stepsWithOtherEffect)
-							{
 								if (step != otherStep)
-								{
 									if (!_mutexSteps.get(step).contains(otherStep))
 									{
 										allSupportingStepsAreMutex = false;
 										break;
 									}
-								}
-								else
-								{
-									allSupportingStepsAreMutex = false;
-									break;
-								}
-							}
+						
 						}
 						if (!allSupportingStepsAreMutex) break;
 					}
@@ -600,6 +638,20 @@ public class PlanGraph
 	}
 	
 	/**
+	 * Helper function to get PlanGraphStep from step
+	 * 
+	 * @param step Step to get PlanGraphStep
+	 * @return planGraphStep Corresponding PlanGraphStep
+	 */
+	private PlanGraphStep getPlanGraphStep(Step step)
+	{
+		for (PlanGraphStep planGraphStep : _steps)
+			if (planGraphStep.GetStep() == step)
+				return planGraphStep;
+		return null;
+	}
+	
+	/**
 	 * Helper function to get PlanGraphLiteral from literal
 	 * 
 	 * @param literal Literal to get PlanGraphLiteral
@@ -625,33 +677,17 @@ public class PlanGraph
 		if (_parent != null)
 			str += _parent.toString();
 		
-		str += "--------------------------------\n";
-		str += "PlanGraph Level " + getLevel() + "\n";
-		str += "--------------------------------\n";
+		str += "---------------\n";
+		str += "Level " + getLevel() + "\n";
 		
 		str += "Steps [" + getCurrentSteps().size() + "]:\n";
 		for (PlanGraphStep step : getCurrentSteps())
-			str += "-" + step.toString() + "\n";
+			str += step.toString() + "\n";
 		
 		str += "Effects [" + getCurrentLiterals().size() + "]:\n";
 		for (PlanGraphLiteral literal : getCurrentLiterals())
-			str += "-" + literal.toString() + "\n";
+			str += literal.toString() + "\n";
 		
-		str += "Mutex Steps [" + _mutexSteps.size() + "]:\n";
-		for (PlanGraphStep step : _mutexSteps.keySet())
-		{
-			str += "-" + step.toString() + "\n";
-			for (PlanGraphStep mutexLiteral : _mutexSteps.get(step))
-				str += "    -" + mutexLiteral.toString() + "\n";
-		}
-		
-		str += "Mutex Literals [" + _mutexLiterals.size() + "]:\n";
-		for (PlanGraphLiteral literal : _mutexLiterals.keySet())
-		{
-			str += "-" + literal.toString() + "\n";
-			for (PlanGraphLiteral mutexLiteral : _mutexLiterals.get(literal))
-				str += "    -" + mutexLiteral.toString() + "\n";
-		}
 		return str;
 	}
 }
