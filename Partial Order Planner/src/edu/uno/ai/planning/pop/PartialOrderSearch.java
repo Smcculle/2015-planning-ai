@@ -159,18 +159,24 @@ public class PartialOrderSearch extends Search {
 		for(int i=0;i < operatorsToCheck.length; i++){
 			if (operatorsToCheck.get(i).effect instanceof Literal){
 				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){
-
+					addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch,(Literal)operatorsToCheck.get(i).effect);
 				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
 					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
+						//addStepToSatisfyOpenPrecondition();
 					}
 				}
 			}
 		}
 
+	}
+	
+	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication, Literal satisfyingPredication){
+		
+		PartialStep newStep = new PartialStep();
 	}
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
