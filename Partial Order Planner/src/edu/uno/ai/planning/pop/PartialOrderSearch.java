@@ -136,17 +136,21 @@ public class PartialOrderSearch extends Search {
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		
 		for(PartialStep step: stepsToLoopThrough){
+			//if the step is not the end step from the null plan
 			if(step != workingNode.endStep){
+				//if the step's effect is a single literal
 				if(step.effect instanceof Literal){
-					if(predicatetToMatch.equals(step.effect, workingNode.binds)){//TODO this needs to check unification
-						stepSatisfiesOpenPrecondition(predicatetToMatch, (Literal)step.effect, step, workingNode, o);
+					//if the literal we're trying to satisfy can be unified with this step's effect
+					if(predicatetToMatch.unify(step.effect, workingNode.binds) != null){
+						useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)step.effect, step, workingNode, o);
 					}
 				}
+				//if the effects are a conjunction of literals
 				else{
 					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
 					for(int j=0; j< arguments.length; j++){
-						if(predicatetToMatch.equals(arguments.get(j), workingNode.binds)){//TODO this needs to check unification
-							stepSatisfiesOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
+						if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
+							useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
 						}
 					}
 				}
@@ -156,33 +160,33 @@ public class PartialOrderSearch extends Search {
 		//loop through and find all operators that satisfies the open precondition
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
-			boolean foundMatch = false;
 			if (operatorsToCheck.get(i).effect instanceof Literal){
-				if(predicatetToMatch.equals(operatorsToCheck.get(i).effect, workingNode.binds)){//TODO this needs to check unification
+				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){//TODO this needs to check unification
 					
 				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.equals(arguments.get(j), workingNode.binds)){//TODO this needs to check unification
-						foundMatch = true;
+					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){//TODO this needs to check unification
 					}
 				}
-			}
-			if(foundMatch){
-				//create partial step and nodes and shit
 			}
 		}
 		
 	}
 	
-	private void stepSatisfiesOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
+	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
 		if(newNodeBindings != null){
+			System.out.println("AWWW YEAAAA");
 			//shit unified correctly, now lets make the causal links
 			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
 		}
+		
+	}
+	
+	private void addStepToSatisfyOpenPrecondition(){
 		
 	}
 
