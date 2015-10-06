@@ -183,7 +183,12 @@ public class PartialOrderSearch extends Search {
 				CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
 				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
 				Boolean removedFlaw = newFlawSet.remove((Flaw)o);
-				newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
+				//add any new flaws created from making the new causal link
+				ImmutableArray<Flaw> newFlawsIncluded = newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
+				ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
+				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,newFlawsIncluded,workingNode.endStep);
+				this.pQueue.add(newNode);
+				this.nodesExpanded++;
 			}
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
@@ -193,7 +198,7 @@ public class PartialOrderSearch extends Search {
 
 	}
 	
-	private void newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings, CausalLink newLink){
+	private ImmutableArray<Flaw> newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings, CausalLink newLink){
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		for(PartialStep step: stepsToLoopThrough){
@@ -221,6 +226,9 @@ public class PartialOrderSearch extends Search {
 				}
 			}
 		}
+		Flaw[] arrayFlawSet = newFlawSet.toArray(new Flaw[newFlawSet.size()]);
+		ImmutableArray<Flaw> newImmutArrayOfFlaws = new ImmutableArray<Flaw>(arrayFlawSet);
+		return(newImmutArrayOfFlaws);
 	}
 
 	private void addStepToSatisfyOpenPrecondition(){
