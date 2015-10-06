@@ -101,27 +101,14 @@ public class PartialOrderSearch extends Search {
 
 	private boolean findAndHandleThreat(Flaw currentFlaw, PartialOrderNode workingNode){
 		//we need to check and see if the threat is grounded and links to the causal link's label
-		Threat currentThreat = (Threat) currentFlaw;
-		//list of the effects of the threatening step
-		Expression effects = currentThreat.threateningStep.effect;
-		if(effects instanceof Literal){ //if there is only one effect
-			Predication threatendCondition = currentThreat.threatenedLink.label;//get the threatened predication
-			boolean dealWithThreat = (effects).equals(threatendCondition.negate(), workingNode.binds);
-			if(dealWithThreat){
-				handleThreat((Threat) currentFlaw, workingNode); //work on it
-				return true;
-			}
-		}
-		else{ //else there's a bunch of threats, check which one threatens the label
-			ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
+		Threat threat = (Threat)currentFlaw;
 
-			for(int j=0; j< arguments.length; j++){
-				Predication threatenedPredicate = currentThreat.threatenedLink.label;
-				boolean dealWithThreat = arguments.get(j).equals(threatenedPredicate.negate(), workingNode.binds);
-				if(dealWithThreat){
-					handleThreat((Threat) currentFlaw, workingNode);//may want to pass an index so we don't have to look again
-					return true;
-				}
+		for (Expression effect : threat.threateningStep.effects()) {
+			NegatedLiteral negatedPredicate = threat.threatenedLink.label.negate();
+
+			if (effect.equals(negatedPredicate, workingNode.binds)) {
+				handleThreat(threat, workingNode);
+				return true;
 			}
 		}
 		return false;
@@ -174,7 +161,7 @@ public class PartialOrderSearch extends Search {
 		}
 
 	}
-	
+
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
 		try{
 			PartialStep newStep = new PartialStep(satisfyingOperator);
