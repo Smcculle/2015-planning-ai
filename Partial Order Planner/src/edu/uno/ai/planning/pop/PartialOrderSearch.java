@@ -175,8 +175,19 @@ public class PartialOrderSearch extends Search {
 	}
 	
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication, Literal satisfyingPredication){
-		
+		ArrayList<Flaw> newThreatsToAdd = new ArrayList<Flaw>();
 		PartialStep newStep = new PartialStep();
+		
+		for(int i=0;i < (newStep.effects().size() - 1); i++){
+			Expression effectToUnify = newStep.effects().get(i).negate();
+			for( CausalLink link: workingNode.causalLinks){
+				//if the negation of the effect 
+				if(link.label.unify(effectToUnify, bindings) != null){
+					Threat newThreat = new Threat(link,newStep);
+					newThreatsToAdd.add(newThreat);
+				}
+			}
+		}
 	}
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
