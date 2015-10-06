@@ -21,6 +21,8 @@ public class PartialOrderNode{
 	public ImmutableArray<Flaw> flaws;
 
 	public PartialStep endStep;
+	
+	public PartialStep startStep;
 
 
 	/**
@@ -33,13 +35,14 @@ public class PartialOrderNode{
 	 * @param binds The set of bindings which apply to the node, ?already filled with the new bindings needed?
 	 */
 	public PartialOrderNode(ImmutableList<PartialStep> stepsPlanned, POPGraph currentOrdering, ImmutableList<CausalLink> currentLinks,
-			ListBindings binds, ImmutableArray<Flaw> flaws, PartialStep endStep) {
+			ListBindings binds, ImmutableArray<Flaw> flaws, PartialStep startStep, PartialStep endStep) {
 		this.steps = stepsPlanned;
 		this.binds = binds;
 		this.orderings = currentOrdering;
 		this.causalLinks = currentLinks;
 		this.flaws = flaws;
 		this.endStep = endStep;
+		this.startStep = startStep;
 
 	}
 
@@ -87,6 +90,8 @@ public class PartialOrderNode{
 		}
 
 		this.causalLinks = new ImmutableList<CausalLink>(); //make a new set of links which is empty for now
+		
+		this.startStep = start;
 
 		this.endStep = end;
 
