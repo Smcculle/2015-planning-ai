@@ -160,14 +160,14 @@ public class PartialOrderSearch extends Search {
 		for(int i=0;i < operatorsToCheck.length; i++){
 			if (operatorsToCheck.get(i).effect instanceof Literal){
 				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){
-					addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch,(Literal)operatorsToCheck.get(i).effect);
+					addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch);
 				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
 					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
-						//addStepToSatisfyOpenPrecondition();
+						addStepToSatisfyOpenPrecondition(operatorsToCheck.get(i),workingNode,o,predicatetToMatch);
 					}
 				}
 			}
