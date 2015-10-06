@@ -434,6 +434,29 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void total_order_plan_of_self_has_no_start_step() throws CycleFoundException {
+		Step startStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+
+		PartialStep partialStartStep = mock(PartialStep.class);
+		when(partialStartStep.isStart()).thenReturn(true);
+		when(partialStartStep.makeStep(any())).thenReturn(startStep);
+
+		PartialStep partialSecondStep = mock(PartialStep.class);
+		when(partialSecondStep.isStart()).thenReturn(false);
+		when(partialSecondStep.makeStep(any())).thenReturn(secondStep);
+
+		POPGraph twoStepGraph = newEmptyPopGraph()
+			.addSteps(partialStartStep, partialSecondStep)
+			.addEdge(partialStartStep, partialSecondStep);
+
+		TotalOrderPlan twoStepGraphPlan = twoStepGraph
+			.toTotalOrderPlanWithBindings(mock(Substitution.class));
+
+		assertThat(twoStepGraphPlan, contains(secondStep));
+	}
+
+	@Test
 	public void will_return_null_if_edge_between_two_steps_does_not_exist() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
