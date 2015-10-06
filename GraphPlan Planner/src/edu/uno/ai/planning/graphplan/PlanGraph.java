@@ -163,14 +163,14 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Adds a PlanGraphStep to PlanGraph.
+	 * Updates a PlanGraphStep on PlanGraph.
 	 * Does not add a step if already exist in PlanGraph.
-	 * Only adds a step if current all preconditions of step exist in parent's effects.
+	 * Only updates a step if current all preconditions of step exist in parent's effects.
 	 * Also computes all new mutual exclusions introduced
 	 * 
 	 * @param PlanGraphStep Step to be added
 	 */
-	public void addStep(PlanGraphStep step)
+	private void updateStep(PlanGraphStep step)
 	{
 		if (step == null)
 			return;
@@ -194,18 +194,6 @@ public class PlanGraph
 		checkForCompetingNeeds();
 		checkForOpposites();
 		checkForInconsistentSupport();
-	}
-	
-	/**
-	 * Helper method so that Step can be used instead of PlanGraphStep
-	 * for addStep.
-	 * 
-	 * @param step Step to be added
-	 * @return True if step can be added (whether is already exists or not) False otherwise.
-	 */
-	public void addStep(Step step)
-	{
-		addStep(getPlanGraphStep(step));
 	}
 	
 	/**
@@ -353,7 +341,7 @@ public class PlanGraph
 	{
 		for (PlanGraphStep step : _steps)
 			if (!_persistenceSteps.contains(step))
-				addStep(step);
+				updateStep(step);
 	}
 	
 	/**
@@ -609,20 +597,6 @@ public class PlanGraph
 				// else -- Do Nothing!
 		}
 		return literals;
-	}
-	
-	/**
-	 * Helper function to get PlanGraphStep from step
-	 * 
-	 * @param step Step to get PlanGraphStep
-	 * @return planGraphStep Corresponding PlanGraphStep
-	 */
-	private PlanGraphStep getPlanGraphStep(Step step)
-	{
-		for (PlanGraphStep planGraphStep : _steps)
-			if (planGraphStep.GetStep() == step)
-				return planGraphStep;
-		return null;
 	}
 	
 	/**
