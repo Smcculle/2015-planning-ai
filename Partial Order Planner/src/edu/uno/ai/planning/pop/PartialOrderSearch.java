@@ -183,6 +183,7 @@ public class PartialOrderSearch extends Search {
 				CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
 				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
 				Boolean removedFlaw = newFlawSet.remove((Flaw)o);
+				newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
 			}
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
@@ -192,8 +193,7 @@ public class PartialOrderSearch extends Search {
 
 	}
 	
-	private void newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings){
-		
+	private void newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings, CausalLink newLink){
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
 		for(PartialStep step: stepsToLoopThrough){
@@ -204,14 +204,18 @@ public class PartialOrderSearch extends Search {
 					//if the literal we're trying to satisfy can be unified with this step's effect
 					if(predicatetToMatch.unify(step.effect.negate(), newNodeBindings) != null){
 						//add threat to list
+						Threat newThreat = new Threat(newLink,step);
+						newFlawSet.add(newThreat);
 					}
 				}
 				//if the effects are a conjunction of literals
 				else{
 					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
 					for(int j=0; j< arguments.length; j++){
-						if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
-							useStepToSatisfyOpenPrecondition(predicatetToMatch, (Literal)arguments.get(j), step, workingNode, o);
+						if(predicatetToMatch.unify(arguments.get(j).negate(), newNodeBindings) != null){
+							Threat newThreat = new Threat(newLink,step);
+							newFlawSet.add(newThreat);
+							break;//we found this step threatens
 						}
 					}
 				}
