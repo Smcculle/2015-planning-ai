@@ -72,4 +72,92 @@ public interface Expression extends Formula {
 	 * @return a new, simpler expression equivalent to this one
 	 */
 	public Expression simplify();
+	
+	/**
+	 * An expression that is trivially true.
+	 */
+	public static final Literal TRUE = new Literal() {
+
+		@Override
+		public boolean equals(Formula other, Substitution substitution) {
+			return this == other;
+		}
+
+		@Override
+		public boolean isGround() {
+			return true;
+		}
+
+		@Override
+		public Bindings unify(Formula other, Bindings bindings) {
+			if(equals(other, bindings))
+				return bindings;
+			else
+				return null;
+		}
+
+		@Override
+		public Literal substitute(Substitution substitution) {
+			return this;
+		}
+		
+		@Override
+		public boolean isTestable() {
+			return true;
+		}
+
+		@Override
+		public boolean isTrue(State state) {
+			return true;
+		}
+
+		@Override
+		public Literal negate() {
+			return FALSE;
+		}
+	};
+	
+	/**
+	 * An expression which is trivially false.
+	 */
+	public static final Literal FALSE = new Literal() {
+
+		@Override
+		public boolean equals(Formula other, Substitution substitution) {
+			return this == other;
+		}
+
+		@Override
+		public boolean isGround() {
+			return true;
+		}
+
+		@Override
+		public Bindings unify(Formula other, Bindings bindings) {
+			if(equals(other, bindings))
+				return bindings;
+			else
+				return null;
+		}
+
+		@Override
+		public Literal substitute(Substitution substitution) {
+			return this;
+		}
+		
+		@Override
+		public boolean isTestable() {
+			return true;
+		}
+
+		@Override
+		public boolean isTrue(State state) {
+			return false;
+		}
+
+		@Override
+		public Literal negate() {
+			return TRUE;
+		}
+	};
 }
