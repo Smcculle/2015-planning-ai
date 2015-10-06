@@ -176,19 +176,27 @@ public class PartialOrderSearch extends Search {
 	}
 	
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
-		PartialStep newStep = new PartialStep(satisfyingOperator);
-		Bindings newNodeBindings;
-		for(Expression effect: newStep.effects()){
-			newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
-			if(newNodeBindings != null){
-				break; //only one effect of new partial step will satisfy it
+		try{
+			PartialStep newStep = new PartialStep(satisfyingOperator);
+			Bindings newNodeBindings = workingNode.binds;
+			POPGraph newOrderings = workingNode.orderings.addStep(newStep).addEdge(workingNode.startStep, newStep).addEdge(newStep, workingNode.endStep).addEdge(newStep,o.step());
+			for(Expression effect: newStep.effects()){
+				newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
+				if(newNodeBindings != null){
+					break; //only one effect of new partial step will satisfy it
+				}
 			}
+			CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
+			ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
+			ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
+			Boolean removedFlaw = newFlawSet.remove((Flaw)o);
+			ImmutableArray<Flaw> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode, newNodeBindings);
+			ImmutableList<PartialStep> allSteps = workingNode.steps.add(newStep);
 		}
-		CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
-		ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
-		ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
-		Boolean removedFlaw = newFlawSet.remove((Flaw)o);
-		ImmutableArray<Flaws> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode,newNodeBindings);
+		catch(DirectedAcyclicGraph.CycleFoundException e){
+			//don't add the node promotion failed
+
+		}
 		
 	}
 
