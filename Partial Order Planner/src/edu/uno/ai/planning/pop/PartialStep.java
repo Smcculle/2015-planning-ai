@@ -1,12 +1,10 @@
 package edu.uno.ai.planning.pop;
 
-import edu.uno.ai.planning.Operator;
-import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Expression;
-import edu.uno.ai.planning.logic.Substitution;
-import edu.uno.ai.planning.logic.Term;
-import edu.uno.ai.planning.logic.Variable;
-import edu.uno.ai.planning.util.ImmutableArray;
+import java.util.*;
+
+import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.logic.*;
+import edu.uno.ai.planning.util.*;
 
 /**
  * This class represents a step which has its parameters replaced with unique variables which are used to bind in he bindings object
@@ -25,6 +23,23 @@ public class PartialStep extends Operator{
 			temp[i] = parameters[i].makeUnique();
 		}
 		this.partialBinds = new ImmutableArray<Term>(temp);
+	}
+
+	public ArrayList<Expression> effects() {
+		ArrayList<Expression> result = new ArrayList<Expression>();
+
+		if (this.effect instanceof Literal) {
+			result.add(this.effect);
+		}
+		else if (this.effect instanceof Conjunction) {
+			Conjunction effects = (Conjunction)this.effect;
+
+			for(Expression expression : effects.arguments) {
+				result.add(expression);
+			}
+		}
+
+		return result;
 	}
 
 	public boolean isEnd() {
