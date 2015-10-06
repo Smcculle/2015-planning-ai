@@ -161,14 +161,14 @@ public class PartialOrderSearch extends Search {
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
 			if (operatorsToCheck.get(i).effect instanceof Literal){
-				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){//TODO this needs to check unification
+				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){
 					
 				}
 			}
 			else{
 				ImmutableArray<Expression> arguments = ((Conjunction) operatorsToCheck.get(i).effect).arguments;
 				for(int j=0; j< arguments.length; j++){
-					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){//TODO this needs to check unification
+					if(predicatetToMatch.unify(arguments.get(j), workingNode.binds) != null){
 					}
 				}
 			}
