@@ -542,18 +542,29 @@ public class PlanGraph
 					for (PlanGraphStep step : stepsWithEffect)
 					{
 						// If Step with Effects is not in list of Mutex Steps, this pair of Steps cannot be mutually exclusive
-						if(!_mutexSteps.containsKey(step)){
+						if(!_mutexSteps.containsKey(step))
+						{
 							allSupportingStepsAreMutex = false;
 							break;
-						}else{
+						} 
+						else
+						{
 							for (PlanGraphStep otherStep : stepsWithOtherEffect)
+							{
 								if (step != otherStep)
+								{
 									if (!_mutexSteps.get(step).contains(otherStep))
 									{
 										allSupportingStepsAreMutex = false;
 										break;
 									}
-						
+								}
+								else
+								{
+									allSupportingStepsAreMutex = false;
+									break;
+								}
+							}
 						}
 						if (!allSupportingStepsAreMutex) break;
 					}
@@ -657,7 +668,7 @@ public class PlanGraph
 		{
 			str += "-" + step.toString() + "\n";
 			for (PlanGraphStep mutexLiteral : _mutexSteps.get(step))
-				str += "--" + mutexLiteral.toString() + "\n";
+				str += "    -" + mutexLiteral.toString() + "\n";
 		}
 		
 		str += "Mutex Literals [" + _mutexLiterals.size() + "]:\n";
@@ -665,7 +676,7 @@ public class PlanGraph
 		{
 			str += "-" + literal.toString() + "\n";
 			for (PlanGraphLiteral mutexLiteral : _mutexLiterals.get(literal))
-				str += "--" + mutexLiteral.toString() + "\n";
+				str += "    -" + mutexLiteral.toString() + "\n";
 		}
 		return str;
 	}
