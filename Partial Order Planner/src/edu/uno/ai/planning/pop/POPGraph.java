@@ -6,6 +6,7 @@ import org.jgrapht.experimental.dag.*;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 
+import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.ss.*;
 
 public class POPGraph implements Iterable<PartialStep> {
@@ -123,7 +124,15 @@ public class POPGraph implements Iterable<PartialStep> {
 		return this.graph.toString();
 	}
 
-	public TotalOrderPlan toTotalOrderPlan() {
-		return new TotalOrderPlan();
+	public TotalOrderPlan toTotalOrderPlanWithBindings(Substitution substitution) {
+		TotalOrderPlan plan = new TotalOrderPlan();
+
+		for(PartialStep partialStep : this) {
+			if (!partialStep.isStart() && !partialStep.isEnd()) {
+				plan = plan.addStep(partialStep.makeStep(substitution));
+			}
+		}
+
+		return plan;
 	}
 }

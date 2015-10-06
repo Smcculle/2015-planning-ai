@@ -1,7 +1,9 @@
 package edu.uno.ai.planning.pop;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -11,6 +13,8 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph.*;
 import org.jgrapht.graph.*;
 import org.junit.*;
 
+import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.ss.*;
 
 public class POPGraphTest {
@@ -242,7 +246,10 @@ public class POPGraphTest {
 	public void can_return_a_total_order_plan_representation_of_self() {
 		POPGraph graph = newEmptyPopGraph();
 
-		assertThat(graph.toTotalOrderPlan(), instanceOf(TotalOrderPlan.class));
+		assertThat(
+			graph.toTotalOrderPlanWithBindings(mock(Substitution.class)),
+			instanceOf(TotalOrderPlan.class)
+		);
 	}
 
 	@Test
