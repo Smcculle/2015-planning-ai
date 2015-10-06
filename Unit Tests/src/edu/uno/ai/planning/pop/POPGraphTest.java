@@ -480,6 +480,46 @@ public class POPGraphTest {
 	}
 
 	@Test
+	public void total_order_plan_of_self_respects_self_iterator_order() throws CycleFoundException {
+		Step firstStep = mock(Step.class);
+		Step secondStep = mock(Step.class);
+		Step thirdStep = mock(Step.class);
+		Step fourthStep = mock(Step.class);
+
+		PartialStep partialFirstStep = mock(PartialStep.class);
+		when(partialFirstStep.makeStep(any())).thenReturn(firstStep);
+		PartialStep partialSecondStep = mock(PartialStep.class);
+		when(partialSecondStep.makeStep(any())).thenReturn(secondStep);
+		PartialStep partialThirdStep = mock(PartialStep.class);
+		when(partialThirdStep.makeStep(any())).thenReturn(thirdStep);
+		PartialStep partialFourthStep = mock(PartialStep.class);
+		when(partialFourthStep.makeStep(any())).thenReturn(fourthStep);
+
+		POPGraph connectedGraph = newEmptyPopGraph()
+			.addSteps(partialFirstStep, partialSecondStep, partialThirdStep, partialFourthStep)
+			.addEdge(partialFirstStep, partialSecondStep)
+			.addEdge(partialFirstStep, partialThirdStep)
+			.addEdge(partialThirdStep, partialSecondStep)
+			.addEdge(partialThirdStep, partialFourthStep);
+
+		TotalOrderPlan connectedGraphPlan = connectedGraph
+			.toTotalOrderPlanWithBindings(mock(Substitution.class));
+
+		assertThat(connectedGraph, contains(
+			partialFirstStep,
+			partialThirdStep,
+			partialSecondStep,
+			partialFourthStep
+		));
+		assertThat(connectedGraphPlan, contains(
+			firstStep,
+			thirdStep,
+			secondStep,
+			fourthStep
+		));
+	}
+
+	@Test
 	public void will_return_null_if_edge_between_two_steps_does_not_exist() {
 		PartialStep firstStep = mock(PartialStep.class);
 		PartialStep secondStep = mock(PartialStep.class);
