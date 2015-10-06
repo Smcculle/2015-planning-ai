@@ -202,38 +202,24 @@ public class PartialOrderSearch extends Search {
 		}
 
 	}
-	
-	private ImmutableArray<Flaw> newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet,PartialOrderNode workingNode, Literal predicatetToMatch,Bindings newNodeBindings, CausalLink newLink){
+
+	private ImmutableArray<Flaw> newFlawsFromCausalLink(ArrayList<Flaw> newFlawSet, PartialOrderNode workingNode, Literal predicateToMatch, Bindings newNodeBindings, CausalLink newLink) {
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
-		for(PartialStep step: stepsToLoopThrough){
+
+		for (PartialStep step : stepsToLoopThrough) {
 			//if the step is not the end step from the null plan
-			if(step != workingNode.endStep){
-				//if the step's effect is a single literal
-				if(step.effect instanceof Literal){
-					//if the literal we're trying to satisfy can be unified with this step's effect
-					if(predicatetToMatch.unify(step.effect.negate(), newNodeBindings) != null){
-						//add threat to list
-						Threat newThreat = new Threat(newLink,step);
-						newFlawSet.add(newThreat);
-					}
-				}
-				//if the effects are a conjunction of literals
-				else{
-					ImmutableArray<Expression> arguments = ((Conjunction) step.effect).arguments;
-					for(int j=0; j< arguments.length; j++){
-						if(predicatetToMatch.unify(arguments.get(j).negate(), newNodeBindings) != null){
-							Threat newThreat = new Threat(newLink,step);
-							newFlawSet.add(newThreat);
-							break;//we found this step threatens
-						}
+			if (step != workingNode.endStep) {
+				for (Expression effect : step.effects()) {
+					if (predicateToMatch.unify(effect.negate(), newNodeBindings) != null) {
+						newFlawSet.add(new Threat(newLink, step));
+						break;
 					}
 				}
 			}
 		}
-		Flaw[] arrayFlawSet = newFlawSet.toArray(new Flaw[newFlawSet.size()]);
-		ImmutableArray<Flaw> newImmutArrayOfFlaws = new ImmutableArray<Flaw>(arrayFlawSet);
-		return(newImmutArrayOfFlaws);
+
+		return new ImmutableArray<Flaw>(newFlawSet, Flaw.class);
 	}
 
 	private ImmutableArray<Flaw> newFlawsFromAddingStep(ArrayList<Flaw> oldFlaws, PartialStep newestStep, PartialOrderNode workingNode, Bindings bindings) {
