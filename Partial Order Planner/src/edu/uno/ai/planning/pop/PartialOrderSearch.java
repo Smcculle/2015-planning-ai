@@ -1,44 +1,41 @@
 package edu.uno.ai.planning.pop;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.experimental.dag.*;
 
-import edu.uno.ai.planning.logic.*;
-import edu.uno.ai.planning.ss.TotalOrderPlan;
-import edu.uno.ai.planning.util.ImmutableArray;
-import edu.uno.ai.planning.util.ImmutableList;
 import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.logic.*;
+import edu.uno.ai.planning.ss.*;
+import edu.uno.ai.planning.util.*;
 
 /**
  * Represents a search space whose
  * {@link edu.uno.ai.planning.pop.PartialOrderNodes nodes} are plans
  * and whose edges are orderings?
- * 
+ *
  * @author
  */
 public class PartialOrderSearch extends Search {
-	
+
 	/** The Partial Order problem being solved */
 	public final PartialOrderProblem problem;
-	
-	
+
+
 	private PriorityQueue<PartialOrderNode> pQueue;
-	
+
 	private int nodesExpanded;
-	
+
 	private int nodesVisited;
-	
+
 	/** The search limit on visited nodes (-1 if no limit) */
 	int limit = -1;
-	
-	
-	
+
+
+
 	/**
 	 * Creates a partial order search for a given problem.
-	 * 
+	 *
 	 * @param problem the problem whose  space will be searched
 	 */
 	public PartialOrderSearch(PartialOrderProblem problem) {
@@ -50,18 +47,18 @@ public class PartialOrderSearch extends Search {
 		this.pQueue.add(new PartialOrderNode(problem));
 		this.nodesExpanded = 1;
 	}
-	
+
 	/**
-	 * This the the actual implementation of the POP algorithm. This method will recursively call itself till 
+	 * This the the actual implementation of the POP algorithm. This method will recursively call itself till
 	 * either a correct, problem solving plan is found, it fails to find a plan, or it runs out of search space.
 	 * We will not be implementing separation and thus we need to track the threats so we can resolve them later.
-	 * 
+	 *
 	 * @param A A list or set or something of the steps involved in this plan so far
-	 * @param O A directed acyclic graph whose nodes are the steps in the plan and whose edges are the orderings 
+	 * @param O A directed acyclic graph whose nodes are the steps in the plan and whose edges are the orderings
 	 * @param L Some collection of the casual links between the steps in the plan
 	 * @param B Set of bindings used to ground the variables in the plan
 	 * @param T Set of threats to casual links in the plan
-	 * @return 
+	 * @return
 	 */
 	private Plan pop(){
 		TotalOrderPlan plan = null;
@@ -78,7 +75,7 @@ public class PartialOrderSearch extends Search {
 		}
 		return plan;
 	}
-	
+
 	//assume that there is at least one flaw to work on
 	private void handleFlaw(PartialOrderNode workingNode){
 		//flaw we are currently checking out
@@ -97,10 +94,10 @@ public class PartialOrderSearch extends Search {
 				//otherwise the flaw is a threat
 				boolean found = findAndHandleThreat(currentFlaw, workingNode);
 				if(found){break;}
-			}	
+			}
 		}
 	}
-	
+
 	private boolean findAndHandleThreat(Flaw currentFlaw, PartialOrderNode workingNode){
 		//we need to check and see if the threat is grounded and links to the causal link's label
 		Threat currentThreat = (Threat) currentFlaw;
@@ -116,7 +113,7 @@ public class PartialOrderSearch extends Search {
 		}
 		else{ //else there's a bunch of threats, check which one threatens the label
 			ImmutableArray<Expression> arguments = ((Conjunction) effects).arguments;
-			
+
 			for(int j=0; j< arguments.length; j++){
 				Predication threatenedPredicate = currentThreat.threatenedLink.label;
 				boolean dealWithThreat = arguments.get(j).equals(threatenedPredicate.negate(), workingNode.binds);
@@ -128,13 +125,13 @@ public class PartialOrderSearch extends Search {
 		}
 		return false;
 	}
-	
+
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
 		Literal predicatetToMatch = o.literal();
-		
+
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
 		ImmutableList<PartialStep> stepsToLoopThrough = workingNode.steps;
-		
+
 		for(PartialStep step: stepsToLoopThrough){
 			//if the step is not the end step from the null plan
 			if(step != workingNode.endStep){
@@ -156,13 +153,13 @@ public class PartialOrderSearch extends Search {
 				}
 			}
 		}
-		
+
 		//loop through and find all operators that satisfies the open precondition
 		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
 		for(int i=0;i < operatorsToCheck.length; i++){
 			if (operatorsToCheck.get(i).effect instanceof Literal){
 				if(predicatetToMatch.unify(operatorsToCheck.get(i).effect, workingNode.binds) != null){
-					
+
 				}
 			}
 			else{
@@ -173,9 +170,9 @@ public class PartialOrderSearch extends Search {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
 		if(newNodeBindings != null){
@@ -183,16 +180,16 @@ public class PartialOrderSearch extends Search {
 			//shit unified correctly, now lets make the causal links
 			CausalLink newLink = new CausalLink(o.step(),satisfyingStep,(Predication)satisfyingPredication);
 		}
-		
-	}
-	
-	private void addStepToSatisfyOpenPrecondition(){
-		
+
 	}
 
-	
+	private void addStepToSatisfyOpenPrecondition(){
+
+	}
+
+
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
-		
+
 		//promotion
 		try{
 			//add the new ordering to the DAG, gets a new instance
@@ -209,9 +206,9 @@ public class PartialOrderSearch extends Search {
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
 			//don't add the node promotion failed
-			
+
 		}
-	
+
 		//demotion
 		try{
 			//add the new ordering to the DAG, gets a new instance
@@ -229,13 +226,13 @@ public class PartialOrderSearch extends Search {
 		}
 		catch(DirectedAcyclicGraph.CycleFoundException e){
 			//don't add the node demotion failed
-			
+
 		}
-		
-		
+
+
 	}
-	
-	
+
+
 
 	@Override
 	public int countVisited() {
@@ -257,15 +254,15 @@ public class PartialOrderSearch extends Search {
 	public Plan findNextSolution() {
 		return pop();
 	}
-	
-	
+
+
 	private class NodeComparator implements Comparator<PartialOrderNode>{
 
 		@Override
 		public int compare(PartialOrderNode o1, PartialOrderNode o2) {
 			return Integer.compare(o1.flaws.length + o1.steps.length, o2.flaws.length + o1.steps.length);
 		}
-		
+
 	}
-	
+
 }
