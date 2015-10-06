@@ -132,8 +132,7 @@ public class PartialOrderSearch extends Search {
 		}
 
 		//loop through and find all operators that satisfies the open precondition
-		ImmutableArray<Operator> operatorsToCheck = problem.domain.operators;
-		for (Operator operator : operatorsToCheck) {
+		for (Operator operator : problem.domain.operators) {
 			if (operator.effect instanceof Literal) {
 				if (predicateToMatch.unify(operator.effect, workingNode.binds) != null) {
 					addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
