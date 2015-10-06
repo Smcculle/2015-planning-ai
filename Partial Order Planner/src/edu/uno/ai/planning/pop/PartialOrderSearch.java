@@ -251,15 +251,12 @@ public class PartialOrderSearch extends Search {
 		return(newImmutArrayOfFlaws);
 	}
 
-	private ImmutableArray<Flaw> newFlawsFromAddingStep(ArrayList<Flaw> oldFlaws, PartialStep newestStep, PartialOrderNode workingNode) {
+	private ImmutableArray<Flaw> newFlawsFromAddingStep(ArrayList<Flaw> oldFlaws, PartialStep newestStep, PartialOrderNode workingNode, Bindings bindings) {
 		ArrayList<Flaw> newFlaws = new ArrayList<Flaw>(oldFlaws);
 
 		for(CausalLink causalLink : workingNode.causalLinks) {
 			for(Expression effect : newestStep.effects()) {
-				Bindings unification = effect.unify(
-					causalLink.label.negate(),
-					workingNode.binds
-				);
+				Bindings unification = effect.unify(causalLink.label.negate(), bindings);
 
 				if (unification != null) {
 					// was unified and is a threat
