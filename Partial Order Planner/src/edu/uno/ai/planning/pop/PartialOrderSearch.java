@@ -186,7 +186,9 @@ public class PartialOrderSearch extends Search {
 		}
 		CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
 		ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
-		
+		ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
+		Boolean removedFlaw = newFlawSet.remove((Flaw)o);
+		ImmutableArray<Flaws> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode,newNodeBindings);
 		
 	}
 
