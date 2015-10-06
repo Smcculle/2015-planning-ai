@@ -72,6 +72,7 @@ public class PartialOrderSearch extends Search {
 			else{
 				handleFlaw(workingNode);
 			}
+			this.nodesVisited++;
 		}
 		return plan;
 	}
