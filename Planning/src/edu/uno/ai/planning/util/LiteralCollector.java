@@ -12,10 +12,27 @@ public class LiteralCollector implements Iterable<Expression> {
 	}
 
 	public LiteralCollector(Conjunction conjunction) {
-		this.literals = conjunction.arguments;
+		collectConjunctionLiterals(conjunction);
+	}
+
+	public LiteralCollector(Expression expression) {
+		if (expression instanceof Literal) {
+			collectLiteral((Literal)expression);
+		}
+		else if (expression instanceof Conjunction) {
+			collectConjunctionLiterals((Conjunction)expression);
+		}
 	}
 
 	public LiteralCollector(Literal literal) {
+		collectLiteral(literal);
+	}
+
+	private void collectConjunctionLiterals(Conjunction conjunction) {
+		this.literals = conjunction.arguments;
+	}
+
+	private void collectLiteral(Literal literal) {
 		this.literals = new ImmutableArray<Expression>(
 			new Expression[]{literal}
 		);
