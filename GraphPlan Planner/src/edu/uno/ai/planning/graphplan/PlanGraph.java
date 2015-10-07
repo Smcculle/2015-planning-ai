@@ -2,6 +2,7 @@ package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import edu.uno.ai.planning.Problem;
@@ -257,6 +258,35 @@ public class PlanGraph
 		return true;
 	}
 	
+	/**
+	 * Attempts to return all PlanGraphSteps of the current level of PlanGraph that fulfill a given goal
+	 * If the current PlanGraph cannot solve the goal
+	 * 		return null
+	 * else
+	 * 		List<PlanGraphStep> goalActions will be returned of the actions that have effects that match the goal literals
+	 * @param goal
+	 * @return
+	 */
+	public List<PlanGraphStep> getSolvingActions(Expression goal){
+		if(!containsGoal(goal))
+			return null;
+		else{
+			ArrayList<Literal> goalLiterals = expressionToLiterals(goal);
+			ArrayList<PlanGraphStep> currentSteps = getCurrentSteps();
+			ArrayList<PlanGraphStep> solvingActions = new ArrayList<PlanGraphStep>();
+			for(PlanGraphStep step : currentSteps){
+				List<Literal> stepEffects = expressionToLiterals(step.GetStep().effect);
+				for(Literal goalLiteral : goalLiterals){
+					if(stepEffects.contains(getPlanGraphLiteral(goalLiteral))){
+						solvingActions.add(step);
+						break;
+					}
+				}
+			}
+			return solvingActions;
+		}
+	}
+	
 	public boolean isLeveledOff()
 	{
 		if (_parent == null)
@@ -266,7 +296,9 @@ public class PlanGraph
 		{
 			if (_parent.getCurrentLiterals().size() == getCurrentLiterals().size())
 				if (_parent.getCurrentSteps().size() == getCurrentSteps().size())
+					//if(_parent._mutexLiterals.keySet().equals(_mutexLiterals.keySet()))
 					if (_parent._mutexLiterals.size() == _mutexLiterals.size())
+						//if(_parent._mutexSteps.keySet().equals(_mutexSteps.keySet()))
 						if (_parent._mutexSteps.size() == _mutexSteps.size())
 							return true;
 		}
