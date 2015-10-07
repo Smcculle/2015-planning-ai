@@ -11,7 +11,7 @@ package edu.uno.ai.planning.logic;
 public interface Bindings extends Substitution {
 	
 	/** An empty set of bindings */
-	public static final Bindings EMPTY = new HashBindings();
+	public static final Bindings EMPTY = new ListBindings();
 	
 	/**
 	 * Constrains two terms to be the same, if possible.

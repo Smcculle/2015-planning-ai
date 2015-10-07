@@ -17,6 +17,8 @@ public class AStarSearch extends Search {
 			int comparison = (n1.steps.length - 2 + n1.flaws.size()) - (n2.steps.length - 2 + n2.flaws.size());
 			if(comparison == 0)
 				comparison = n1.flaws.size() - n2.flaws.size();
+			if(comparison == 0)
+				comparison = n1.id - n2.id;
 			return comparison;
 		}
 	};
@@ -59,7 +61,7 @@ public class AStarSearch extends Search {
 	
 	private static final Plan makeSolution(PlanSpaceNode node) {
 		TotalOrderPlan plan = new TotalOrderPlan();
-		for(Step step : node.steps)
+		for(Step step : node.orderings)
 			if(!step.isStart() && !step.isEnd())
 				plan = plan.addStep(step.makeStep(node.bindings));
 		return plan;

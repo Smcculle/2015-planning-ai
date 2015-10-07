@@ -2,6 +2,7 @@ package edu.uno.ai.planning;
 
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.bfs.BFSPlanner;
+import edu.uno.ai.planning.pop.PartialOrderPlanner;
 
 public class TestSuite {
 
@@ -10,6 +11,7 @@ public class TestSuite {
 	
 	public static final Planner<?>[] PLANNERS = new Planner[]{
 		new BFSPlanner(),
+		new PartialOrderPlanner(),
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{

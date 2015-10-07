@@ -12,9 +12,9 @@ public class Orderings implements Iterable<Step>, Partial {
 	private final class Node implements Partial {
 		
 		public final Step step;
-		public final ImmutableList<Node> children;
+		public final ImmutableList<Step> children;
 		
-		private Node(Step step, ImmutableList<Node> children) {
+		private Node(Step step, ImmutableList<Step> children) {
 			this.step = step;
 			this.children = children;
 		}
@@ -33,7 +33,7 @@ public class Orderings implements Iterable<Step>, Partial {
 			return step.toString(substitution);
 		}
 		
-		public Node addEdgeTo(Node child) {
+		public Node addEdgeTo(Step child) {
 			return new Node(step, children.add(child));
 		}
 	}
@@ -50,19 +50,15 @@ public class Orderings implements Iterable<Step>, Partial {
 	
 	@Override
 	public String toString() {
-		String str = "ORDERINGS:";
-		for(Node before : nodes)
-			for(Node after : before.children)
-				str += "\n  " + before + " < " + after + " ";
-		return str;
+		return toString(Bindings.EMPTY);
 	}
 	
 	@Override
 	public String toString(Substitution substitution) {
 		String str = "ORDERINGS:";
 		for(Node before : nodes)
-			for(Node after : before.children)
-				str += "\n  " + before.toString(substitution) + " < " + after.toString(substitution) + " ";
+			for(Step after : before.children)
+				str += "\n  " + before.toString(substitution) + " < " + after.toString(substitution);
 		return str;
 	}
 	
@@ -89,12 +85,12 @@ public class Orderings implements Iterable<Step>, Partial {
 			result = new Orderings(result.nodes.add(afterNode));
 		}
 		// Would this ordering create a cycle?
-		if(path(afterNode, beforeNode))
+		if(path(afterNode, before))
 			return null;
 		// Does this ordering already exist?
-		if(path(beforeNode, afterNode))
+		if(path(beforeNode, after))
 			return this;		
-		beforeNode = beforeNode.addEdgeTo(afterNode);
+		beforeNode = beforeNode.addEdgeTo(after);
 		result = new Orderings(replace(beforeNode, result.nodes));
 		return result;
 	}
@@ -109,12 +105,12 @@ public class Orderings implements Iterable<Step>, Partial {
 		return newOrderings != null;
 	}
 	
-	private static final boolean path(Node from, Node to) {
-		if(from.step == to.step)
+	private final boolean path(Node from, Step to) {
+		if(from.step == to)
 			return true;
-		ImmutableList<Node> children = from.children;
+		ImmutableList<Step> children = from.children;
 		while(children.length != 0) {
-			if(path(children.first, to))
+			if(path(getNode(children.first), to))
 				return true;
 			children = children.rest;
 		}
@@ -142,19 +138,19 @@ public class Orderings implements Iterable<Step>, Partial {
 		return steps;
 	}
 	
-	private static final Node findStartNode(ImmutableList<Node> nodes) {
+	private final Node findStartNode(ImmutableList<Node> nodes) {
 		if(nodes.first.step.isStart())
 			return nodes.first;
 		else
 			return findStartNode(nodes.rest);
 	}
 	
-	private static final void dfs(Node node, LinkedList<Node> nodes) {
+	private final void dfs(Node node, LinkedList<Node> nodes) {
 		if(nodes.contains(node))
 			return;
-		ImmutableList<Node> children = node.children;
+		ImmutableList<Step> children = node.children;
 		while(children.length != 0) {
-			dfs(children.first, nodes);
+			dfs(getNode(children.first), nodes);
 			children = children.rest;
 		}
 		nodes.add(0, node);

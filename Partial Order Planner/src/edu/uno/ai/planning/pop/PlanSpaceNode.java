@@ -13,6 +13,9 @@ import edu.uno.ai.planning.util.ImmutableList;
 
 public class PlanSpaceNode {
 
+	private static int nextID = 0;
+	
+	public final int id = nextID++;
 	public final PlanSpaceNode parent;
 	public final ImmutableList<Step> steps;
 	public final Bindings bindings;
@@ -49,7 +52,7 @@ public class PlanSpaceNode {
 	
 	@Override
 	public String toString() {
-		String str = "=== PARTIAL ORDER PLAN ===\nSTEPS:" + toString(steps, bindings);
+		String str = "=== PARTIAL ORDER PLAN " + id + " ===\nSTEPS:" + toString(orderings, bindings);
 		str += "\nBINDINGS: " + bindings;
 		str += "\n" + orderings.toString(bindings);
 		str += "\nCAUSAL LINKS:" + toString(causalLinks, bindings);
@@ -57,13 +60,13 @@ public class PlanSpaceNode {
 		return str;
 	}
 	
-	private static final String toString(ImmutableList<? extends Partial> list, Substitution substitution) {
+	private static final String toString(Iterable<? extends Partial> list, Substitution substitution) {
 		String str = "";
 		for(Partial element : list)
 			str += "\n  " + element.toString(substitution);
 		return str;
 	}
-	
+		
 	public PlanSpaceRoot getRoot() {
 		PlanSpaceNode current = this;
 		while(!(current instanceof PlanSpaceRoot))
@@ -163,13 +166,13 @@ public class PlanSpaceNode {
 	private final void fix(ThreatenedCausalLinkFlaw flaw, PriorityQueue<PlanSpaceNode> queue) {
 		FlawList newFlaws = flaws.remove(flaw);
 		// Promote
-		Orderings promote = orderings.add(flaw.link.tail, flaw.threat);
+		Orderings promote = orderings.add(flaw.link.head, flaw.threat);
 		if(promote != null) {
 			PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, promote, causalLinks, newFlaws);
 			queue.add(newNode);
 		}
 		// Demote
-		Orderings demote = orderings.add(flaw.threat, flaw.link.head);
+		Orderings demote = orderings.add(flaw.threat, flaw.link.tail);
 		if(demote != null) {
 			PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, demote, causalLinks, newFlaws);
 			queue.add(newNode);
