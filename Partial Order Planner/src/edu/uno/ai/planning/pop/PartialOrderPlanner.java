@@ -15,7 +15,7 @@ public class PartialOrderPlanner extends Planner<PartialOrderSearch> {
 	 * @param name the name of the planner
 	 */
 	public PartialOrderPlanner() {
-		super("POPlanner");
+		super("POP");
 	}
 
 	@Override
