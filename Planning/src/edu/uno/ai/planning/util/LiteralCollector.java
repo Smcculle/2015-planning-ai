@@ -4,19 +4,33 @@ import java.util.*;
 
 import edu.uno.ai.planning.logic.*;
 
-public class LiteralCollector implements Iterable<Literal> {
-	private ImmutableArray<Literal> literals;
+public class LiteralCollector implements Iterable<Expression> {
+	private ImmutableArray<Expression> literals;
 
 	public LiteralCollector() {
-		this.literals = new ImmutableArray<Literal>(new Literal[]{});
+		this.literals = new ImmutableArray<Expression>(new Expression[]{});
+	}
+
+	public LiteralCollector(Conjunction conjunction) {
+		this.literals = conjunction.arguments;
+	}
+
+	public LiteralCollector(Literal literal) {
+		this.literals = new ImmutableArray<Expression>(
+			new Expression[]{literal}
+		);
 	}
 
 	@Override
-	public Iterator<Literal> iterator() {
+	public Iterator<Expression> iterator() {
 		return literals().iterator();
 	}
 
-	public ImmutableArray<Literal> literals() {
+	public ImmutableArray<Expression> literals() {
 		return this.literals;
+	}
+
+	public int size() {
+		return this.literals.length;
 	}
 }
