@@ -68,21 +68,7 @@ public class Step implements Partial {
 		for(Variable parameter : parameters)
 			str += " " + parameter.substitute(substitution);
 		str += ")";
-		//str += " pre " + toString(preconditions, substitution) + " eff " + toString(effects, substitution);
 		return str;
-	}
-	
-	private static final String toString(ImmutableArray<Literal> literals, Substitution substitution) {
-		if(literals.length == 0)
-			return "TRUE";
-		else if(literals.length == 1)
-			return literals.get(0).substitute(substitution).toString();
-		else {
-			String str = "(and";
-			for(Literal literal : literals)
-				str += " " + literal.substitute(substitution);
-			return str + ")";
-		}
 	}
 	
 	public boolean isStart() {
