@@ -176,4 +176,20 @@ public class PlanGraphTest {
 		}
 		assertEquals(1,mutexStepsForFlyNolaNola.size());
 	}
+	
+	@Test
+	public void entireCakePlanGraph()
+	{
+		Problem cakeProblem = createCakeProblem();
+		PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
+		assertNotNull(cakePlanGraph);
+	}
+	
+	@Test
+	public void entireRocketPlanGraph()
+	{
+		Problem rocketProblem = createEasyCargoProblem();
+		PlanGraph rocketPlanGraph = PlanGraph.create(rocketProblem);
+		assertNotNull(rocketPlanGraph);
+	}
 }

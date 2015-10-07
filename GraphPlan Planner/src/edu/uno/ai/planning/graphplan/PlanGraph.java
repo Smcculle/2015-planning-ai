@@ -27,6 +27,9 @@ public class PlanGraph
 	/** PlanGraph's Parent */
 	PlanGraph _parent;
 	
+	/** Will this PlanGraph calculate mutual exclusions? */
+	boolean _calculateMutex;
+	
 	/** List of all unique effects in PlanGraph */
 	ArrayList<PlanGraphLiteral> _effects;
 	
@@ -42,22 +45,43 @@ public class PlanGraph
 	/** List of all mutually exclusive literals in current PlanGraph Level */
 	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals;
 	
+	static public PlanGraph Create(Problem problem, boolean calculateMutex)
+	{
+		PlanGraph current = new PlanGraph(problem, calculateMutex);
+		Expression goal = problem.goal;
+		
+		while (!current.containsGoal(goal) && !current.isLeveledOff())
+			current = new PlanGraph(current);
+		
+		return current;
+	}
+	
+	static public PlanGraph create(Problem problem)
+	{
+		return PlanGraph.Create(problem, true);
+	}
+	
 	/**
 	 * Constructs a new root of PlanGraph
 	 * 
 	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
 	 */
-	public PlanGraph (StateSpaceProblem problem)
+	public PlanGraph (Problem problem, boolean calculateMutex)
 	{
+		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		_parent = null;
 		_effects = new ArrayList<PlanGraphLiteral>();
 		_steps = new ArrayList<PlanGraphStep>();
-		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
-		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = new ArrayList<PlanGraphStep>();
+		_calculateMutex = calculateMutex;
 		
-		addAllSteps(problem.steps);
-		addAllEffects(problem.steps);
+		if (_calculateMutex)
+		{
+			_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
+			_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
+		}
+		addAllSteps(ssProblem.steps);
+		addAllEffects(ssProblem.steps);
 		addAllPerstitenceSteps();
 		setInitialEffects(problem.initial);
 		setNonSpecifiedInitialEffects(problem.initial);
@@ -70,7 +94,7 @@ public class PlanGraph
 	 */
 	public PlanGraph (Problem problem)
 	{
-		this(new StateSpaceProblem(problem));
+		this(new StateSpaceProblem(problem), true);
 	}
 	
 	/**
@@ -83,9 +107,14 @@ public class PlanGraph
 		_parent = parent;
 		_effects = parent._effects;
 		_steps = parent._steps;
-		_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
-		_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		_persistenceSteps = parent._persistenceSteps;
+		_calculateMutex = parent._calculateMutex;
+		
+		if (_calculateMutex)
+		{
+			_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
+			_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
+		}
 		setPerstitenceStepLevels();
 		addAllPossibleNewSteps();
 	}
@@ -112,6 +141,16 @@ public class PlanGraph
 	public PlanGraph getParent()
 	{
 		return _parent;
+	}
+	
+	/**
+	 * Returns the PlanGraph's parent
+	 * 	
+	 * @return PlanGraph The Parent of PlanGraph
+	 */
+	public PlanGraph getRoot()
+	{
+		return _parent == null ? this : _parent;
 	}
 	
 	/**
@@ -161,6 +200,71 @@ public class PlanGraph
 	{
 		return _steps;
 	}
+
+	/**
+	 * Returns a Map of Mutually Exclusive Steps.
+	 * 
+	 * @return Map<PlanGraphStep, ArrayList<PlanGraphStep>> Mutually Exclusive Steps.
+	 */
+	public Map<PlanGraphStep, ArrayList<PlanGraphStep>> getMutuallyExclusiveSteps()
+	{
+		return _mutexSteps;
+	}
+	
+	/**
+	 * Returns a Map of Mutually Exclusive Literals.
+	 * 
+	 * @return Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> Mutually Exclusive Literals.
+	 */
+	public Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> getMutuallyExclusiveLiterals()
+	{
+		return _mutexLiterals;
+	}
+	
+	public boolean containsGoal(Expression goal)
+	{
+		ArrayList<Literal> literals = expressionToLiterals(goal);
+		ArrayList<PlanGraphLiteral> currentPlanGraphLiterals = getCurrentLiterals();
+		if (_calculateMutex)
+		{
+			// TODO: Figure out how to see if goal exists using mutex.
+			for (Literal literal : literals)
+				if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
+					return false;
+			
+			return true;	
+		}
+		else
+		{
+			for (Literal literal : literals)
+				if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
+					return false;
+			
+			return true;	
+		}
+	}
+	
+	public boolean isLeveledOff()
+	{
+		if (_parent == null)
+			return false;
+		
+		if (_calculateMutex)
+		{
+			if (_parent.getCurrentLiterals().size() == getCurrentLiterals().size())
+				if (_parent.getCurrentSteps().size() == getCurrentSteps().size())
+					if (_parent._mutexLiterals.size() == _mutexLiterals.size())
+						if (_parent._mutexSteps.size() == _mutexSteps.size())
+							return true;
+		}
+		else
+		{
+			if (_parent.getCurrentLiterals().size() == getCurrentLiterals().size())
+				if (_parent.getCurrentSteps().size() == getCurrentSteps().size())
+					return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Updates a PlanGraphStep on PlanGraph.
@@ -188,12 +292,14 @@ public class PlanGraph
 				if (getPlanGraphLiteral(literal).GetInitialLevel() == -1)
 					getPlanGraphLiteral(literal).SetInitialLevel(getLevel());
 		}
-		
-		checkForInconsistentEffects();
-		checkForInterference();
-		checkForCompetingNeeds();
-		checkForOpposites();
-		checkForInconsistentSupport();
+		if (_calculateMutex)
+		{
+			checkForInconsistentEffects();
+			checkForInterference();
+			checkForCompetingNeeds();
+			checkForOpposites();
+			checkForInconsistentSupport();
+		}
 	}
 	
 	/**
@@ -205,7 +311,7 @@ public class PlanGraph
 	private boolean isPreconditionSatisfied(PlanGraphStep planGraphStep) {
 		if (_parent == null)
 			return false;
-			
+		
 		Step step = planGraphStep.GetStep();
 		for (Literal literal : expressionToLiterals(step.precondition))
 		{
@@ -221,26 +327,6 @@ public class PlanGraph
 				return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Returns a Map of Mutually Exclusive Steps.
-	 * 
-	 * @return Map<PlanGraphStep, ArrayList<PlanGraphStep>> Mutually Exclusive Steps.
-	 */
-	public Map<PlanGraphStep, ArrayList<PlanGraphStep>> getMutuallyExclusiveSteps()
-	{
-		return _mutexSteps;
-	}
-	
-	/**
-	 * Returns a Map of Mutually Exclusive Literals.
-	 * 
-	 * @return Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> Mutually Exclusive Literals.
-	 */
-	public Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> getMutuallyExclusiveLiterals()
-	{
-		return _mutexLiterals;
 	}
 	
 	/**
@@ -637,20 +723,23 @@ public class PlanGraph
 		for (PlanGraphLiteral literal : getCurrentLiterals())
 			str += "-" + literal.toString() + "\n";
 		
-		str += "Mutex Steps [" + _mutexSteps.size() + "]:\n";
-		for (PlanGraphStep step : _mutexSteps.keySet())
+		if (_calculateMutex)
 		{
-			str += "-" + step.toString() + "\n";
-			for (PlanGraphStep mutexLiteral : _mutexSteps.get(step))
-				str += "    -" + mutexLiteral.toString() + "\n";
-		}
-		
-		str += "Mutex Literals [" + _mutexLiterals.size() + "]:\n";
-		for (PlanGraphLiteral literal : _mutexLiterals.keySet())
-		{
-			str += "-" + literal.toString() + "\n";
-			for (PlanGraphLiteral mutexLiteral : _mutexLiterals.get(literal))
-				str += "    -" + mutexLiteral.toString() + "\n";
+			str += "Mutex Steps [" + _mutexSteps.size() + "]:\n";
+			for (PlanGraphStep step : _mutexSteps.keySet())
+			{
+				str += "-" + step.toString() + "\n";
+				for (PlanGraphStep mutexLiteral : _mutexSteps.get(step))
+					str += "    -" + mutexLiteral.toString() + "\n";
+			}
+			
+			str += "Mutex Literals [" + _mutexLiterals.size() + "]:\n";
+			for (PlanGraphLiteral literal : _mutexLiterals.keySet())
+			{
+				str += "-" + literal.toString() + "\n";
+				for (PlanGraphLiteral mutexLiteral : _mutexLiterals.get(literal))
+					str += "    -" + mutexLiteral.toString() + "\n";
+			}
 		}
 		return str;
 	}
