@@ -8,6 +8,7 @@ import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.util.ImmutableList;
 
 public class PlanSpaceNode {
@@ -44,6 +45,23 @@ public class PlanSpaceNode {
 		this.orderings = new Orderings().add(start, end);
 		this.causalLinks = new ImmutableList<>();
 		this.flaws = new FlawList(end);
+	}
+	
+	@Override
+	public String toString() {
+		String str = "=== PARTIAL ORDER PLAN ===\nSTEPS:" + toString(steps, bindings);
+		str += "\nBINDINGS: " + bindings;
+		str += "\n" + orderings.toString(bindings);
+		str += "\nCAUSAL LINKS:" + toString(causalLinks, bindings);
+		str += "\n" + flaws.toString(bindings);
+		return str;
+	}
+	
+	private static final String toString(ImmutableList<? extends Partial> list, Substitution substitution) {
+		String str = "";
+		for(Partial element : list)
+			str += "\n  " + element.toString(substitution);
+		return str;
 	}
 	
 	public PlanSpaceRoot getRoot() {
@@ -91,9 +109,18 @@ public class PlanSpaceNode {
 				if(newOrderings != null) {
 					ImmutableList<Step> newSteps = steps;
 					FlawList newFlaws = flaws.remove(flaw);
-					// If the step is new, add it and its flaws.
+					// If the step is new, add the step, its orderings, and its flaws.
 					if(!steps.contains(step)) {
 						newSteps = newSteps.add(step);
+						Step start = null;
+						Step end = null;
+						for(Step s : steps) {
+							if(s.isStart())
+								start = s;
+							if(s.isEnd())
+								end = s;
+						}
+						newOrderings = newOrderings.add(start, step).add(step, end);
 						for(Literal precondition : step.preconditions)
 							newFlaws = newFlaws.add(new OpenPreconditionFlaw(step, precondition));
 					}

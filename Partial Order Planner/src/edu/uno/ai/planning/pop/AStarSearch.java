@@ -49,9 +49,10 @@ public class AStarSearch extends Search {
 	public Plan findNextSolution() {
 		while(!queue.isEmpty()) {
 			PlanSpaceNode node = queue.poll();
-			node.expand(queue);
 			if(node.flaws.size() == 0)
 				return makeSolution(node);
+			else
+				node.expand(queue);
 		}
 		return null;
 	}

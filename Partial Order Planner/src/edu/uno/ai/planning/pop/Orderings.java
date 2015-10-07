@@ -3,11 +3,13 @@ package edu.uno.ai.planning.pop;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import edu.uno.ai.planning.logic.Bindings;
+import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.util.ImmutableList;
 
-public class Orderings implements Iterable<Step> {
+public class Orderings implements Iterable<Step>, Partial {
 
-	private final class Node {
+	private final class Node implements Partial {
 		
 		public final Step step;
 		public final ImmutableList<Node> children;
@@ -19,6 +21,16 @@ public class Orderings implements Iterable<Step> {
 		
 		public Node(Step step) {
 			this(step, new ImmutableList<>());
+		}
+		
+		@Override
+		public String toString() {
+			return toString(Bindings.EMPTY);
+		}
+		
+		@Override
+		public String toString(Substitution substitution) {
+			return step.toString(substitution);
 		}
 		
 		public Node addEdgeTo(Node child) {
@@ -36,6 +48,24 @@ public class Orderings implements Iterable<Step> {
 		this(new ImmutableList<Node>());
 	}
 	
+	@Override
+	public String toString() {
+		String str = "ORDERINGS:";
+		for(Node before : nodes)
+			for(Node after : before.children)
+				str += "\n  " + before + " < " + after + " ";
+		return str;
+	}
+	
+	@Override
+	public String toString(Substitution substitution) {
+		String str = "ORDERINGS:";
+		for(Node before : nodes)
+			for(Node after : before.children)
+				str += "\n  " + before.toString(substitution) + " < " + after.toString(substitution) + " ";
+		return str;
+	}
+	
 	private final Node getNode(Step step) {
 		ImmutableList<Node> current = nodes;
 		while(current != null && current.length != 0) {
@@ -51,22 +81,28 @@ public class Orderings implements Iterable<Step> {
 		Node beforeNode = getNode(before);
 		if(beforeNode == null) {
 			beforeNode = new Node(before);
-			result = new Orderings(nodes.add(beforeNode));
+			result = new Orderings(result.nodes.add(beforeNode));
 		}
 		Node afterNode = getNode(after);
 		if(afterNode == null) {
 			afterNode = new Node(after);
-			result = new Orderings(nodes.add(afterNode));
+			result = new Orderings(result.nodes.add(afterNode));
 		}
+		// Would this ordering create a cycle?
 		if(path(afterNode, beforeNode))
 			return null;
+		// Does this ordering already exist?
+		if(path(beforeNode, afterNode))
+			return this;		
 		beforeNode = beforeNode.addEdgeTo(afterNode);
 		result = new Orderings(replace(beforeNode, result.nodes));
 		return result;
 	}
 	
 	public boolean allows(Step before, Step middle, Step after) {
-		Orderings newOrderings = this.add(before, middle);
+		Orderings newOrderings = this;
+		if(before != middle)
+			newOrderings = newOrderings.add(before, middle);
 		if(newOrderings == null)
 			return false;
 		newOrderings = newOrderings.add(middle, after);

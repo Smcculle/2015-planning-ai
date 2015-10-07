@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.pop;
 
 import edu.uno.ai.planning.Operator;
+import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.HashSubstitution;
@@ -9,7 +10,7 @@ import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.logic.Variable;
 import edu.uno.ai.planning.util.ImmutableArray;
 
-public class Step {
+public class Step implements Partial {
 
 	private static final ImmutableArray<Variable> NO_PARAMETERS = new ImmutableArray<>(new Variable[0]);
 	private static final ImmutableArray<Literal> NO_LITERALS = new ImmutableArray<>(new Literal[0]);
@@ -54,10 +55,34 @@ public class Step {
 	
 	@Override
 	public String toString() {
+		return toString(Bindings.EMPTY);
+	}
+	
+	@Override
+	public String toString(Substitution substitution) {
+		if(isStart())
+			return "start";
+		else if(isEnd())
+			return "end";
 		String str = "(" + operator.name;
 		for(Variable parameter : parameters)
-			str += " " + parameter;
-		return str + ")";
+			str += " " + parameter.substitute(substitution);
+		str += ")";
+		//str += " pre " + toString(preconditions, substitution) + " eff " + toString(effects, substitution);
+		return str;
+	}
+	
+	private static final String toString(ImmutableArray<Literal> literals, Substitution substitution) {
+		if(literals.length == 0)
+			return "TRUE";
+		else if(literals.length == 1)
+			return literals.get(0).substitute(substitution).toString();
+		else {
+			String str = "(and";
+			for(Literal literal : literals)
+				str += " " + literal.substitute(substitution);
+			return str + ")";
+		}
 	}
 	
 	public boolean isStart() {
@@ -69,9 +94,9 @@ public class Step {
 	}
 	
 	public edu.uno.ai.planning.Step makeStep(Substitution substitution) {
-		HashSubstitution sub = new HashSubstitution();
+		HashSubstitution mapping = new HashSubstitution();
 		for(int i=0; i<parameters.length; i++)
-			sub.set(operator.parameters.get(i), substitution.get(parameters.get(i)));
-		return operator.makeStep(substitution);
+			mapping.set(operator.parameters.get(i), substitution.get(parameters.get(i)));
+		return operator.makeStep(mapping);
 	}
 }
