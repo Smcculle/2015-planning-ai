@@ -103,7 +103,7 @@ public class PartialOrderSearch extends Search {
 		//we need to check and see if the threat is grounded and links to the causal link's label
 		Threat threat = (Threat)currentFlaw;
 
-		for (Expression effect : threat.threateningStep.effects()) {
+		for (Expression effect : new LiteralCollector(threat.threateningStep.effect)) {
 			NegatedLiteral negatedPredicate = threat.threatenedLink.label.negate();
 
 			if (effect.equals(negatedPredicate, workingNode.binds)) {
@@ -123,7 +123,7 @@ public class PartialOrderSearch extends Search {
 		for(PartialStep step: stepsToLoopThrough) {
 			//if the step is not the end step from the null plan
 			if(step != workingNode.endStep) {
-				for (Expression effect : step.effects()) {
+				for (Expression effect : new LiteralCollector(step.effect)) {
 					if (predicateToMatch.unify(effect, workingNode.binds) != null) {
 						useStepToSatisfyOpenPrecondition(predicateToMatch, (Literal)effect, step, workingNode, o);
 					}
@@ -133,16 +133,9 @@ public class PartialOrderSearch extends Search {
 
 		//loop through and find all operators that satisfies the open precondition
 		for (Operator operator : problem.domain.operators) {
-			if (operator.effect instanceof Literal) {
+			for (Expression effect : new LiteralCollector(operator.effect)) {
 				if (predicateToMatch.unify(operator.effect, workingNode.binds) != null) {
 					addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
-				}
-			}
-			else {
-				for (Expression argument : ((Conjunction)operator.effect).arguments) {
-					if (predicateToMatch.unify(argument, workingNode.binds) != null) {
-						addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
-					}
 				}
 			}
 		}
@@ -209,7 +202,7 @@ public class PartialOrderSearch extends Search {
 		for (PartialStep step : stepsToLoopThrough) {
 			//if the step is not the end step from the null plan
 			if (step != workingNode.endStep) {
-				for (Expression effect : step.effects()) {
+				for (Expression effect : new LiteralCollector(step.effect)) {
 					if (predicateToMatch.unify(effect.negate(), newNodeBindings) != null) {
 						newFlawSet.add(new Threat(newLink, step));
 						break;
@@ -225,7 +218,7 @@ public class PartialOrderSearch extends Search {
 		ArrayList<Flaw> newFlaws = new ArrayList<Flaw>(oldFlaws);
 
 		for(CausalLink causalLink : workingNode.causalLinks) {
-			for(Expression effect : newestStep.effects()) {
+			for(Expression effect : new LiteralCollector(newestStep.effect)) {
 				Bindings unification = effect.unify(causalLink.label.negate(), bindings);
 
 				if (unification != null) {
@@ -236,14 +229,8 @@ public class PartialOrderSearch extends Search {
 			}
 		}
 
-		if (newestStep.precondition instanceof Literal) {
-			newFlaws.add(new OpenCondition((Literal)newestStep.precondition, newestStep));
-		}
-		else {
-			ImmutableArray<Expression> arguments = ((Conjunction)newestStep.precondition).arguments;
-			for (Expression expression : arguments) {
-				newFlaws.add(new OpenCondition((Literal)expression, newestStep));
-			}
+		for (Expression precondition : new LiteralCollector(newestStep.precondition)) {
+			newFlaws.add(new OpenCondition((Literal)precondition, newestStep));
 		}
 
 		return new ImmutableArray<Flaw>(newFlaws, Flaw.class);
