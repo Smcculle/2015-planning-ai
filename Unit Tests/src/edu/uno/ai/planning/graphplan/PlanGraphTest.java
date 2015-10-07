@@ -155,8 +155,8 @@ public class PlanGraphTest {
 		assertEquals(10,firstRocketStep.getAllLiterals().size());
 		assertEquals(9, firstRocketStep.getCurrentLiterals().size());
 		// Test mutuallyExclusiveStep specifics (fly Rocket NOLA NOLA)
-//		(fly Rocket NOLA NOLA)[1]=[(Persistence Step (at Rocket NOLA))[1], 	XXXXX
-//		          				 (load Cargo Rocket NOLA)[1], 				XXXXX
+//		(fly Rocket NOLA NOLA)[1]=[(Persistence Step (at Rocket NOLA))[1], 	<----
+//		          				 (load Cargo Rocket NOLA)[1], 				<----
 //		          				 (fly Rocket NOLA London)[1] 				<----
 //		          				]
 		Predication rocketAtNola = new Predication("at", rocket, nola);
@@ -174,7 +174,7 @@ public class PlanGraphTest {
 				break;
 			}
 		}
-		assertEquals(1,mutexStepsForFlyNolaNola.size());
+		assertEquals(3,mutexStepsForFlyNolaNola.size());
 	}
 	
 	@Test

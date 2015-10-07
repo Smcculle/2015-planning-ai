@@ -463,18 +463,7 @@ public class PlanGraph
 						Expression negatedLiteral = literal.negate();
 						if (otherStepEffectLiterals.contains(negatedLiteral) && !stepEffectLiterals.contains(negatedLiteral))
 						{
-							if (_mutexSteps.containsKey(step))
-							{
-								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
-								if (!steps.contains(otherStep))
-									steps.add(otherStep);
-							}
-							else
-							{
-								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-								steps.add(otherStep);
-								_mutexSteps.put(step, steps);
-							}
+							addMutexStep(step,otherStep);
 							break;
 						}
 					}
@@ -503,18 +492,7 @@ public class PlanGraph
 						Expression negatedLiteral = literal.negate();
 						if (otherStepPreconditionLiterals.contains(negatedLiteral))
 						{
-							if (_mutexSteps.containsKey(step))
-							{
-								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
-								if (!steps.contains(otherStep))
-									steps.add(otherStep);
-							}
-							else
-							{
-								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-								steps.add(otherStep);
-								_mutexSteps.put(step, steps);
-							}
+							addMutexStep(step, otherStep);
 							break;
 						}
 					}
@@ -543,23 +521,37 @@ public class PlanGraph
 						Expression negatedLiteral = literal.negate();
 						if (otherStepPreconditionLiterals.contains(negatedLiteral))
 						{
-							if (_mutexSteps.containsKey(step))
-							{
-								ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
-								if (!steps.contains(otherStep))
-									steps.add(otherStep);
-							}
-							else
-							{
-								ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-								steps.add(otherStep);
-								_mutexSteps.put(step, steps);
-							}
+							addMutexStep(step, otherStep);
 							break;
 						}
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Helper method to add Mutex Steps to PlanGraph Level
+	 * If step was already in Mutex Steps and otherStep was not in list of steps
+	 * 		Add otherStep to list of Mutex Steps for step
+	 * Else
+	 * 		Add step to Mutex Step list with otherStep as its only Mutex Step 
+	 * 
+	 * @param step
+	 * @param otherStep
+	 */
+	private void addMutexStep(PlanGraphStep step, PlanGraphStep otherStep){
+		if (_mutexSteps.containsKey(step))
+		{
+			ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
+			if (!steps.contains(otherStep))
+				steps.add(otherStep);
+		}
+		else
+		{
+			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+			steps.add(otherStep);
+			_mutexSteps.put(step, steps);
 		}
 	}
 
@@ -579,18 +571,7 @@ public class PlanGraph
 					PlanGraphLiteral negatedEffect = getPlanGraphLiteral(effect.getLiteral().negate());
 					if (negatedEffect.equals(otherEffect))
 					{
-						if (_mutexLiterals.containsKey(effect))
-						{
-							ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
-							if (!literals.contains(otherEffect))
-								literals.add(otherEffect);
-						}
-						else
-						{
-							ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-							literals.add(otherEffect);
-							_mutexLiterals.put(effect, literals);
-						}
+						addMutexLiteral(effect, otherEffect);
 					}
 				}
 			}
@@ -658,21 +639,26 @@ public class PlanGraph
 					
 					if (allSupportingStepsAreMutex)
 					{
-						if (_mutexLiterals.containsKey(effect))
-						{
-							ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
-							if (!literals.contains(otherEffect))
-								literals.add(otherEffect);
-						}
-						else
-						{
-							ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-							literals.add(otherEffect);
-							_mutexLiterals.put(effect, literals);
-						}
+						addMutexLiteral(effect, otherEffect);
 					}
 				}
 			}
+		}
+	}
+
+	
+	private void addMutexLiteral(PlanGraphLiteral effect, PlanGraphLiteral otherEffect){
+		if (_mutexLiterals.containsKey(effect))
+		{
+			ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
+			if (!literals.contains(otherEffect))
+				literals.add(otherEffect);
+		}
+		else
+		{
+			ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+			literals.add(otherEffect);
+			_mutexLiterals.put(effect, literals);
 		}
 	}
 
