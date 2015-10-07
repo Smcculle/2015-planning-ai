@@ -296,11 +296,27 @@ public class PlanGraph
 		{
 			if (_parent.getCurrentLiterals().size() == getCurrentLiterals().size())
 				if (_parent.getCurrentSteps().size() == getCurrentSteps().size())
-					//if(_parent._mutexLiterals.keySet().equals(_mutexLiterals.keySet()))
-					if (_parent._mutexLiterals.size() == _mutexLiterals.size())
-						//if(_parent._mutexSteps.keySet().equals(_mutexSteps.keySet()))
-						if (_parent._mutexSteps.size() == _mutexSteps.size())
+					if (_parent._mutexLiterals.keySet().size() == _mutexLiterals.keySet().size())
+						if (_parent._mutexSteps.keySet().size() == _mutexSteps.keySet().size())
+						{
+							int parentSize = 0; int size = 0;
+							for (PlanGraphStep key : _parent._mutexSteps.keySet())
+								parentSize += _parent._mutexSteps.get(key).size();
+							for (PlanGraphStep key : _mutexSteps.keySet())
+								size += _mutexSteps.get(key).size();
+							if (parentSize != size)
+								return false;
+							
+							parentSize = 0; size = 0;
+							for (PlanGraphLiteral key : _parent._mutexLiterals.keySet())
+								parentSize += _parent._mutexLiterals.get(key).size();
+							for (PlanGraphLiteral key : _mutexLiterals.keySet())
+								size += _mutexLiterals.get(key).size();
+							if (parentSize != size)
+								return false;
+							
 							return true;
+						}
 		}
 		else
 		{
