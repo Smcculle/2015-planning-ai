@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
+import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class AStarSearch extends Search {
 
@@ -46,6 +47,20 @@ public class AStarSearch extends Search {
 
 	@Override
 	public Plan findNextSolution() {
+		while(!queue.isEmpty()) {
+			PlanSpaceNode node = queue.poll();
+			node.expand(queue);
+			if(node.flaws.size() == 0)
+				return makeSolution(node);
+		}
 		return null;
+	}
+	
+	private static final Plan makeSolution(PlanSpaceNode node) {
+		TotalOrderPlan plan = new TotalOrderPlan();
+		for(Step step : node.steps)
+			if(!step.isStart() && !step.isEnd())
+				plan = plan.addStep(step.makeStep(node.bindings));
+		return plan;
 	}
 }

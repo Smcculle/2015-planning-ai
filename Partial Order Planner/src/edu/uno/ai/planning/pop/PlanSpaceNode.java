@@ -1,9 +1,13 @@
 package edu.uno.ai.planning.pop;
 
+import java.util.PriorityQueue;
+
+import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Expression;
+import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.util.ImmutableList;
 
 public class PlanSpaceNode {
@@ -49,17 +53,99 @@ public class PlanSpaceNode {
 		return (PlanSpaceRoot) current;
 	}
 	
-	void expand() {
+	void expand(PriorityQueue<PlanSpaceNode> queue) {
 		// Check search limit.
 		PlanSpaceRoot root = getRoot();
 		if(root.limit == root.visited)
 			throw new SearchLimitReachedException();
-		
+		// Repair flaw.
+		Flaw flaw = flaws.chooseFlaw();
+		if(flaw instanceof OpenPreconditionFlaw)
+			fix((OpenPreconditionFlaw) flaw, queue);
+		else
+			fix((ThreatenedCausalLinkFlaw) flaw, queue);
 		// Notify all ancestors that this node has been visited.
 		PlanSpaceNode ancestor = parent;
 		while(ancestor != null) {
 			ancestor.visited++;
 			ancestor = ancestor.parent;
+		}
+	}
+	
+	private final void fix(OpenPreconditionFlaw flaw, PriorityQueue<PlanSpaceNode> queue) {
+		// Consider all existing steps.
+		for(Step step : steps)
+			fix(flaw, step, queue);
+		// Consider adding a new step of each operator type.
+		for(Operator operator : getRoot().problem.domain.operators)
+			fix(flaw, new Step(operator), queue);
+	}
+	
+	private final void fix(OpenPreconditionFlaw flaw, Step step, PriorityQueue<PlanSpaceNode> queue) {
+		// Check each effect of the step.
+		for(Literal effect : step.effects) {
+			Bindings newBindings = flaw.precondition.unify(effect, bindings);
+			if(newBindings != null) {
+				// The tail of the causal link must come before the head.
+				Orderings newOrderings = orderings.add(step, flaw.step);
+				if(newOrderings != null) {
+					ImmutableList<Step> newSteps = steps;
+					FlawList newFlaws = flaws.remove(flaw);
+					// If the step is new, add it and its flaws.
+					if(!steps.contains(step)) {
+						newSteps = newSteps.add(step);
+						for(Literal precondition : step.preconditions)
+							newFlaws = newFlaws.add(new OpenPreconditionFlaw(step, precondition));
+					}
+					// Create a new causal link.
+					ImmutableList<CausalLink> newCausalLinks = causalLinks.add(new CausalLink(step, flaw.precondition, flaw.step));
+					// Check for threats.
+					newFlaws = checkForThreats(newSteps, newBindings, newOrderings, newCausalLinks, newFlaws);
+					// Create the new child node.
+					PlanSpaceNode newNode = new PlanSpaceNode(this, newSteps, newBindings, newOrderings, newCausalLinks, newFlaws);
+					queue.add(newNode);
+				}
+			}
+		}
+	}
+	
+	private final FlawList checkForThreats(ImmutableList<Step> steps, Bindings bindings, Orderings orderings, ImmutableList<CausalLink> causalLinks, FlawList flaws) {
+		// For each causal link...
+		for(CausalLink link : causalLinks) {
+			Literal label = link.label.negate().substitute(bindings);
+			// Label must be ground to be a definite threat.
+			if(label.isGround()) {
+				// For each step...
+				for(Step step : steps) {
+					// It must be possible to order the step between the tail and head of the causal link.
+					if(orderings.allows(link.tail, step, link.head)) {
+						// For each effect of the step...
+						for(Literal effect : step.effects) {
+							effect = effect.substitute(bindings);
+							// If the effect is identical to the negated label, this is a definite threat.
+							if(effect.equals(label))
+								flaws = flaws.add(new ThreatenedCausalLinkFlaw(link, step));
+						}
+					}
+				}
+			}
+		}
+		return flaws;
+	}
+	
+	private final void fix(ThreatenedCausalLinkFlaw flaw, PriorityQueue<PlanSpaceNode> queue) {
+		FlawList newFlaws = flaws.remove(flaw);
+		// Promote
+		Orderings promote = orderings.add(flaw.link.tail, flaw.threat);
+		if(promote != null) {
+			PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, promote, causalLinks, newFlaws);
+			queue.add(newNode);
+		}
+		// Demote
+		Orderings demote = orderings.add(flaw.threat, flaw.link.head);
+		if(demote != null) {
+			PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, demote, causalLinks, newFlaws);
+			queue.add(newNode);
 		}
 	}
 }

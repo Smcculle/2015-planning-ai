@@ -65,6 +65,14 @@ public class Orderings implements Iterable<Step> {
 		return result;
 	}
 	
+	public boolean allows(Step before, Step middle, Step after) {
+		Orderings newOrderings = this.add(before, middle);
+		if(newOrderings == null)
+			return false;
+		newOrderings = newOrderings.add(middle, after);
+		return newOrderings != null;
+	}
+	
 	private static final boolean path(Node from, Node to) {
 		if(from.step == to.step)
 			return true;

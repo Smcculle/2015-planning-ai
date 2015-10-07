@@ -5,6 +5,7 @@ import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.HashSubstitution;
 import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.logic.Variable;
 import edu.uno.ai.planning.util.ImmutableArray;
 
@@ -67,10 +68,10 @@ public class Step {
 		return operator == null && effects == NO_LITERALS;
 	}
 	
-	public edu.uno.ai.planning.Step makeStep() {
-		HashSubstitution substitution = new HashSubstitution();
+	public edu.uno.ai.planning.Step makeStep(Substitution substitution) {
+		HashSubstitution sub = new HashSubstitution();
 		for(int i=0; i<parameters.length; i++)
-			substitution.set(operator.parameters.get(i), parameters.get(i));
+			sub.set(operator.parameters.get(i), substitution.get(parameters.get(i)));
 		return operator.makeStep(substitution);
 	}
 }

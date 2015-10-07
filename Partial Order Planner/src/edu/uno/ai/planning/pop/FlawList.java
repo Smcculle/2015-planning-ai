@@ -26,6 +26,10 @@ public class FlawList {
 		return flaws.first;
 	}
 	
+	public FlawList add(Flaw flaw) {
+		return new FlawList(flaws.add(flaw));
+	}
+	
 	public FlawList remove(Flaw flaw) {
 		return new FlawList(remove(flaw, flaws));
 	}
