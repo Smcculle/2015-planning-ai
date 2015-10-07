@@ -45,12 +45,12 @@ public class PlanGraph
 	/** List of all mutually exclusive literals in current PlanGraph Level */
 	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals;
 	
-	static public PlanGraph Create(Problem problem, boolean calculateMutex)
+	static public PlanGraph create(Problem problem, boolean calculateMutex)
 	{
 		PlanGraph current = new PlanGraph(problem, calculateMutex);
 		Expression goal = problem.goal;
 		
-		while (!current.containsGoal(goal) && !current.isLeveledOff())
+		while (!(current.isGoalNonMutex(goal) && current.containsGoal(goal)) && !current.isLeveledOff())
 			current = new PlanGraph(current);
 		
 		return current;
@@ -58,7 +58,7 @@ public class PlanGraph
 	
 	static public PlanGraph create(Problem problem)
 	{
-		return PlanGraph.Create(problem, true);
+		return PlanGraph.create(problem, true);
 	}
 	
 	/**
@@ -221,27 +221,40 @@ public class PlanGraph
 		return _mutexLiterals;
 	}
 	
+	public boolean isMutex(PlanGraphStep step, PlanGraphStep otherStep)
+	{
+		return _mutexSteps.get(step).contains(otherStep);
+	}
+	
+	public boolean isMutex(Step step, Step otherStep)
+	{
+		PlanGraphStep pgStep = getPlanGraphStep(step);
+		PlanGraphStep phOtherStep = getPlanGraphStep(otherStep);
+		return isMutex(pgStep, phOtherStep);
+	}
+	
+	public boolean isGoalNonMutex(Expression goal)
+	{
+		if (_calculateMutex)
+		{
+			ArrayList<Literal> literals = expressionToLiterals(goal);
+			for (Literal literal : literals)
+				if (_mutexLiterals.containsKey(literal))
+					return false;
+		}
+		return true;
+	}
+	
 	public boolean containsGoal(Expression goal)
 	{
 		ArrayList<Literal> literals = expressionToLiterals(goal);
 		ArrayList<PlanGraphLiteral> currentPlanGraphLiterals = getCurrentLiterals();
-		if (_calculateMutex)
-		{
-			// TODO: Figure out how to see if goal exists using mutex.
-			for (Literal literal : literals)
-				if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
-					return false;
-			
-			return true;	
-		}
-		else
-		{
-			for (Literal literal : literals)
-				if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
-					return false;
-			
-			return true;	
-		}
+		
+		for (Literal literal : literals)
+			if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
+				return false;
+		
+		return true;
 	}
 	
 	public boolean isLeveledOff()
@@ -684,6 +697,20 @@ public class PlanGraph
 		}
 		return literals;
 	}
+	
+    /**
+     * Helper function to get PlanGraphStep from step
+     * 
+     * @param step Step to get PlanGraphStep
+     * @return planGraphStep Corresponding PlanGraphStep
+     */
+    private PlanGraphStep getPlanGraphStep(Step step)
+    {
+        for (PlanGraphStep planGraphStep : _steps)
+            if (planGraphStep.GetStep() == step)
+                return planGraphStep;
+        return null;
+    }
 	
 	/**
 	 * Helper function to get PlanGraphLiteral from literal
