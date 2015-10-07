@@ -12,4 +12,9 @@ public class LiteralCollectorTest {
 
 		assertThat(collector.literals(), instanceOf(ImmutableArray.class));
 	}
+
+	@Test
+	public void implements_iterable() {
+		assertThat(LiteralCollector.class, typeCompatibleWith(Iterable.class));
+	}
 }
