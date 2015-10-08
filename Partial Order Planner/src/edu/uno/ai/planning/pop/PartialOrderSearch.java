@@ -63,6 +63,7 @@ public class PartialOrderSearch extends Search {
 
 		while(!this.pQueue.isEmpty()){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
+			System.out.println(pQueue.size());
 			if(workingNode.flaws.length == 0){
 				plan = workingNode.toTotalOrderPlan();
 				break;
@@ -113,6 +114,7 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
+		System.out.println("Here2");
 		Literal predicateToMatch = o.literal();
 
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
@@ -132,7 +134,8 @@ public class PartialOrderSearch extends Search {
 		//loop through and find all operators that satisfies the open precondition
 		for (Operator operator : problem.domain.operators) {
 			for (Expression effect : new LiteralCollector(operator.effect)) {
-				if (predicateToMatch.unify(operator.effect, workingNode.binds) != null) {
+				if (predicateToMatch.unify(effect, workingNode.binds) != null) {
+					System.out.println("here0");
 					addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
 				}
 			}
@@ -140,6 +143,7 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
+		System.out.println("here1");
 			PartialStep newStep = new PartialStep(satisfyingOperator);
 			Bindings newNodeBindings = workingNode.binds;
 			POPGraph newOrderings = workingNode.orderings.addStep(newStep);
@@ -176,8 +180,6 @@ public class PartialOrderSearch extends Search {
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
-		System.out.println(satisfyingStep.name);
-		System.out.println(o.step().name);
 		POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
 		if(newOrderings != null){
 			//shit unified correctly, now lets make the causal links
