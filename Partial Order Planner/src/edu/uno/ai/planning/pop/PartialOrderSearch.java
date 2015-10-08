@@ -2,8 +2,6 @@ package edu.uno.ai.planning.pop;
 
 import java.util.*;
 
-import org.jgrapht.experimental.dag.*;
-
 import edu.uno.ai.planning.*;
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.ss.*;
@@ -142,55 +140,56 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
-		try{
 			PartialStep newStep = new PartialStep(satisfyingOperator);
 			Bindings newNodeBindings = workingNode.binds;
-			POPGraph newOrderings = workingNode.orderings.addStep(newStep).addEdge(workingNode.startStep, newStep).addEdge(newStep, workingNode.endStep).addEdge(newStep,o.step());
-			for(Expression effect: newStep.effects()){
-				newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
-				if(newNodeBindings != null){
-					break; //only one effect of new partial step will satisfy it
+			POPGraph newOrderings = workingNode.orderings.addStep(newStep);
+			if(newOrderings != null){
+				newOrderings = newOrderings.addEdge(workingNode.startStep, newStep);
+				if(newOrderings != null){
+					newOrderings = newOrderings.addEdge(newStep, workingNode.endStep);
+					if(newOrderings != null){
+						newOrderings = newOrderings.addEdge(newStep,o.step());
+					}
 				}
 			}
-			CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
-			ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
-			ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
-			Boolean removedFlaw = newFlawSet.remove((Flaw)o);
-			ImmutableArray<Flaw> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode, newNodeBindings);
-			ImmutableList<PartialStep> allSteps = workingNode.steps.add(newStep);
-			PartialOrderNode newNode = new PartialOrderNode(allSteps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,allFlaws, workingNode.startStep, workingNode.endStep);
-			this.pQueue.add(newNode);
-			this.nodesExpanded++;
-		}
-		catch(DirectedAcyclicGraph.CycleFoundException e){
-			//don't add the node promotion failed
-
-		}
+			if(newOrderings != null){
+			
+				
+				for(Expression effect: newStep.effects()){
+					newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
+					if(newNodeBindings != null){
+						break; //only one effect of new partial step will satisfy it
+					}
+				}
+				CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
+				ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
+				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
+				newFlawSet.remove((Flaw)o);
+				ImmutableArray<Flaw> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode, newNodeBindings);
+				ImmutableList<PartialStep> allSteps = workingNode.steps.add(newStep);
+				PartialOrderNode newNode = new PartialOrderNode(allSteps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,allFlaws, workingNode.startStep, workingNode.endStep);
+				this.pQueue.add(newNode);
+				this.nodesExpanded++;
+			}
 		
 	}
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
 		Bindings newNodeBindings = satisfiedPredication.unify(satisfyingPredication,workingNode.binds);
-		try{
-			if(newNodeBindings != null){
-				System.out.println(satisfyingStep.name);
-				System.out.println(o.step().name);
-				POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
-				//shit unified correctly, now lets make the causal links
-				CausalLink newLink = new CausalLink(satisfyingStep,o.step(),(Predication)satisfiedPredication);
-				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
-				Boolean removedFlaw = newFlawSet.remove((Flaw)o);
-				//add any new flaws created from making the new causal link
-				ImmutableArray<Flaw> newFlawsIncluded = newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
-				ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
-				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,newFlawsIncluded, workingNode.startStep, workingNode.endStep);
-				this.pQueue.add(newNode);
-				this.nodesExpanded++;
-			}
-		}
-		catch(DirectedAcyclicGraph.CycleFoundException e){
-			//don't add the node promotion failed
-
+		System.out.println(satisfyingStep.name);
+		System.out.println(o.step().name);
+		POPGraph newOrderings = workingNode.orderings.promote(satisfyingStep, o.step());
+		if(newOrderings != null){
+			//shit unified correctly, now lets make the causal links
+			CausalLink newLink = new CausalLink(satisfyingStep,o.step(),(Predication)satisfiedPredication);
+			ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
+			newFlawSet.remove((Flaw)o);
+			//add any new flaws created from making the new causal link
+			ImmutableArray<Flaw> newFlawsIncluded = newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
+			ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
+			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,newFlawsIncluded, workingNode.startStep, workingNode.endStep);
+			this.pQueue.add(newNode);
+			this.nodesExpanded++;
 		}
 
 	}
@@ -240,43 +239,37 @@ public class PartialOrderSearch extends Search {
 	private void handleThreat(Threat t, PartialOrderNode workingNode){
 
 		//promotion
-		try{
+
 			//add the new ordering to the DAG, gets a new instance
 			POPGraph newGraph = workingNode.orderings.promote(t.threateningStep,t.threatenedLink.previousStep);
-			//this is a copy of the flaws list we will be removing this flaw as we handled it
-			ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
-			newFlaws.remove(t);
-			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
-			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
-			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
-			this.pQueue.add(newNode);
-			this.nodesExpanded++;
-		}
-		catch(DirectedAcyclicGraph.CycleFoundException e){
-			//don't add the node promotion failed
+			if(newGraph != null){
+				//this is a copy of the flaws list we will be removing this flaw as we handled it
+				ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
+				newFlaws.remove(t);
+				Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
+				ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
+				//make a new node to put into the queue
+				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
+				this.pQueue.add(newNode);
+				this.nodesExpanded++;
+			}
 
-		}
 
 		//demotion
-		try{
 			//add the new ordering to the DAG, gets a new instance
-			POPGraph newGraph = workingNode.orderings.demote(t.threateningStep,t.threatenedLink.nextStep);
-			//this is a copy of the flaws list we will be removing this flaw as we handled it
-			ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
-			newFlaws.remove(t);
-			Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
-			ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
-			//make a new node to put into the queue
-			PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
-			this.pQueue.add(newNode);
-			this.nodesExpanded++;
+			POPGraph newGraph2 = workingNode.orderings.demote(t.threateningStep,t.threatenedLink.nextStep);
+			if(newGraph2 != null){
+				//this is a copy of the flaws list we will be removing this flaw as we handled it
+				ArrayList<Flaw> newFlaws = workingNode.flaws.clone();
+				newFlaws.remove(t);
+				Flaw[] flaws = new Flaw[newFlaws.size()];//empty array to give a type the array returned from toArray()
+				ImmutableArray<Flaw> newestFlaws = new ImmutableArray<Flaw>(newFlaws.toArray(flaws));
+				//make a new node to put into the queue
+				PartialOrderNode newNode = new PartialOrderNode(workingNode.steps, newGraph2, workingNode.causalLinks, workingNode.binds, newestFlaws, workingNode.startStep, workingNode.endStep);
+				this.pQueue.add(newNode);
+				this.nodesExpanded++;
+			}
 
-		}
-		catch(DirectedAcyclicGraph.CycleFoundException e){
-			//don't add the node demotion failed
-
-		}
 
 
 	}
