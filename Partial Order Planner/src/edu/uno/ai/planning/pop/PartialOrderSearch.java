@@ -27,7 +27,7 @@ public class PartialOrderSearch extends Search {
 	private int nodesVisited;
 
 	/** The search limit on visited nodes (-1 if no limit) */
-	int limit = -1;
+	int limit = 1000;
 
 
 
@@ -61,12 +61,9 @@ public class PartialOrderSearch extends Search {
 	private Plan pop(){
 		TotalOrderPlan plan = null;
 
-		while(!this.pQueue.isEmpty()){
+		while(!this.pQueue.isEmpty() && this.nodesExpanded < this.limit){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
-			System.out.println(workingNode.poNodeInfo());
-			System.out.println("PQ size: " + pQueue.size());
 			if(workingNode.flaws.length == 0){
-				System.out.println("fuuuuu");
 				plan = workingNode.toTotalOrderPlan();
 				break;
 			}
