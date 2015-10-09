@@ -117,6 +117,14 @@ public class PlanGraph
 		}
 		setPerstitenceStepLevels();
 		addAllPossibleNewSteps();
+		if (_calculateMutex)
+		{
+			checkForInconsistentEffects();
+			checkForInterference();
+			checkForCompetingNeeds();
+			checkForOpposites();
+			checkForInconsistentSupport();
+		}
 	}
 
 	/**
@@ -351,14 +359,6 @@ public class PlanGraph
 			for (Literal literal : expressionToLiterals(step.GetStep().effect))
 				if (getPlanGraphLiteral(literal).GetInitialLevel() == -1)
 					getPlanGraphLiteral(literal).SetInitialLevel(getLevel());
-		}
-		if (_calculateMutex)
-		{
-			checkForInconsistentEffects();
-			checkForInterference();
-			checkForCompetingNeeds();
-			checkForOpposites();
-			checkForInconsistentSupport();
 		}
 	}
 	
@@ -602,13 +602,17 @@ public class PlanGraph
 		{
 			ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);
 			if (!steps.contains(otherStep))
+			{
 				steps.add(otherStep);
+				addMutexStep(otherStep, step);
+			}
 		}
 		else
 		{
 			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 			steps.add(otherStep);
 			_mutexSteps.put(step, steps);
+			addMutexStep(otherStep, step);
 		}
 	}
 
@@ -709,13 +713,17 @@ public class PlanGraph
 		{
 			ArrayList<PlanGraphLiteral> literals = _mutexLiterals.get(effect);
 			if (!literals.contains(otherEffect))
+			{
 				literals.add(otherEffect);
+				addMutexLiteral(otherEffect, effect);
+			}
 		}
 		else
 		{
 			ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
 			literals.add(otherEffect);
 			_mutexLiterals.put(effect, literals);
+			addMutexLiteral(otherEffect, effect);
 		}
 	}
 
