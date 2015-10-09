@@ -11,30 +11,49 @@ import edu.uno.ai.planning.util.*;
  * @author dpeabody
  *
  */
-public class PartialStep extends Operator{
+public class PartialStep{
 
+	
+	/** The name of the action */
+	public final String name;
+	
 	public ImmutableArray<Term> partialBinds;
 
+		
+	/** What must be true before the action can be taken */
+	public final Expression precondition;
+	
+	/** What becomes true after the action is taken */
+	public final Expression effect;
+
 	public PartialStep(Operator operator) {
-		super(operator.name, operator.parameters, operator.precondition, operator.effect);
+		
+		if(!isDeterministic(operator.effect))
+			throw new IllegalArgumentException("Effect nondeterministic");
+		
+		HashSubstitution subs = new HashSubstitution();
 
-		Variable[] temp = new Variable[this.parameters.length];
+		Variable[] temp = new Variable[operator.parameters.length];
 
-		for (int i=0; i < this.parameters.length; i++) {
-			temp[i] = this.parameters.get(i).makeUnique();
+		for (int i=0; i < operator.parameters.length; i++) {
+			temp[i] = operator.parameters.get(i).makeUnique();
+			subs.set(operator.parameters.get(i), temp[i]);			
 		}
-
+		
+		this.name = operator.name;
+		this.precondition = operator.precondition.substitute(subs);
+		this.effect = operator.effect.substitute(subs);
 		this.partialBinds = new ImmutableArray<Term>(temp);
 	}
 
 	public PartialStep(String name, Variable[] parameters,
 			Expression precondition, Expression effect) {
-		super(name, parameters, precondition, effect);
-		Variable[] temp = new Variable[parameters.length];
-		for(int i=0; i<parameters.length;i++){
-			temp[i] = parameters[i].makeUnique();
-		}
-		this.partialBinds = new ImmutableArray<Term>(temp);
+
+		this.partialBinds = new ImmutableArray<Term>(parameters);
+		this.precondition = precondition;
+		this.name = name;
+		this.effect = effect;
+		
 	}
 
 	public ArrayList<Expression> effects() {
@@ -67,6 +86,22 @@ public class PartialStep extends Operator{
 
 		return hasStartName && hasNoPrecondition;
 	}
+	
+	private static final boolean isDeterministic(Expression expression) {
+		expression = expression.toDNF();
+		if(!(expression instanceof Disjunction))
+			return false;
+		Disjunction dnf = (Disjunction) expression;
+		if(dnf.arguments.length != 1)
+			return false;
+		if(!(dnf.arguments.get(0) instanceof Conjunction))
+			return false;
+		Conjunction clause = (Conjunction) dnf.arguments.get(0);
+		for(Expression literal : clause.arguments)
+			if(!(literal instanceof Literal))
+				return false;
+		return true;
+	}
 
 	/**
 	 * Creates a ground step (i.e. a specific action) from this action
@@ -75,7 +110,6 @@ public class PartialStep extends Operator{
 	 * @param substitution provides bindings for each of the operator's parameters
 	 * @return a step
 	 */
-	@Override
 	public Step makeStep(Substitution substitution) {
 		String name = "(" + this.name;
 		for(Term parameter : partialBinds)
