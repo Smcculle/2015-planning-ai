@@ -116,7 +116,6 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void handleOpenCondition(OpenCondition o, PartialOrderNode workingNode){
-		System.out.println("Here2");
 		Literal predicateToMatch = o.literal();
 
 		//loop through all of the existing partial steps to see if one satisfies this open precondition
@@ -137,7 +136,6 @@ public class PartialOrderSearch extends Search {
 		for (Operator operator : problem.domain.operators) {
 			for (Expression effect : new LiteralCollector(operator.effect)) {
 				if (predicateToMatch.unify(effect, workingNode.binds) != null) {
-					System.out.println("here0");
 					addStepToSatisfyOpenPrecondition(operator, workingNode, o, predicateToMatch);
 				}
 			}
@@ -145,7 +143,6 @@ public class PartialOrderSearch extends Search {
 	}
 
 	private void addStepToSatisfyOpenPrecondition(Operator satisfyingOperator, PartialOrderNode workingNode, OpenCondition o, Literal satisfiedPredication){
-		System.out.println("here1");
 			PartialStep newStep = new PartialStep(satisfyingOperator);
 			Bindings newNodeBindings = workingNode.binds;
 			POPGraph newOrderings = workingNode.orderings.addStep(newStep);
