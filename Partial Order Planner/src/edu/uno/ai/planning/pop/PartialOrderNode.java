@@ -111,6 +111,22 @@ public class PartialOrderNode {
 		this.endStep = end;
 
 	}
+	
+	public String poNodeInfo(){
+		String result = "steps:";
+		result = result + steps.length + " CausalLinks: " + causalLinks.length + " Flaws: " + flaws.length + " OPCs:" + numOfOpenConditions();
+		return result;
+	}
+	
+	private int numOfOpenConditions(){
+		int numberFound = 0;
+		for(int i = 0 ; i < flaws.length; i++){
+			if(flaws.get(i) instanceof OpenCondition){
+				numberFound++;
+			}
+		}
+		return numberFound;
+	}
 
 	public TotalOrderPlan toTotalOrderPlan() {
 		return this.orderings.toTotalOrderPlanWithBindings(this.binds);
