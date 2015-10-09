@@ -51,7 +51,7 @@ public class PlanGraph
 		PlanGraph current = new PlanGraph(problem, calculateMutex);
 		Expression goal = problem.goal;
 		
-		while (!(current.isGoalNonMutex(goal) && current.containsGoal(goal)) && !current.isLeveledOff())
+		while (!(current.containsGoal(goal) && current.isGoalNonMutex(goal)) && !current.isLeveledOff())
 			current = new PlanGraph(current);
 		
 		return current;
@@ -69,18 +69,17 @@ public class PlanGraph
 	 */
 	public PlanGraph (Problem problem, boolean calculateMutex)
 	{
-		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		_parent = null;
 		_effects = new ArrayList<PlanGraphLiteral>();
 		_steps = new ArrayList<PlanGraphStep>();
 		_persistenceSteps = new ArrayList<PlanGraphStep>();
 		_calculateMutex = calculateMutex;
-		
 		if (_calculateMutex)
 		{
 			_mutexSteps = new Hashtable<PlanGraphStep, ArrayList<PlanGraphStep>>();
 			_mutexLiterals = new Hashtable<PlanGraphLiteral, ArrayList<PlanGraphLiteral>>();
 		}
+		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		addAllSteps(ssProblem.steps);
 		addAllEffects(ssProblem.steps);
 		addAllPerstitenceSteps();
@@ -566,11 +565,21 @@ public class PlanGraph
 					ArrayList<Literal> otherStepPreconditionLiterals = expressionToLiterals(otherStep.GetStep().precondition);
 					for (Expression literal : stepPreconditionLiterals)
 					{
-						Expression negatedLiteral = literal.negate();
-						if (otherStepPreconditionLiterals.contains(negatedLiteral))
+						if (_parent._mutexLiterals.containsKey(literal))
 						{
-							addMutexStep(step, otherStep);
-							break;
+							boolean isLiteralMutexWithOtherLiteral = false;
+							for(Literal otherLiteral : otherStepPreconditionLiterals)
+								if (_parent._mutexLiterals.get(literal).contains(getPlanGraphLiteral(otherLiteral)))
+								{
+									isLiteralMutexWithOtherLiteral = true;
+									break;
+								}
+									
+							if (isLiteralMutexWithOtherLiteral)
+							{
+								addMutexStep(step, otherStep);
+								break;
+							}
 						}
 					}
 				}

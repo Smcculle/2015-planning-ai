@@ -182,6 +182,7 @@ public class PlanGraphTest {
 	{
 		Problem cakeProblem = createCakeProblem();
 		PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
+		PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
 		assertNotNull(cakePlanGraph);
 	}
 	
