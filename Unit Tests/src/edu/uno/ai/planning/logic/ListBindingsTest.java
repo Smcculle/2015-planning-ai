@@ -63,9 +63,9 @@ public class ListBindingsTest extends BindingsTest {
 	public void setNotEqualTwoInstancesOfTheSameTerm() {
 		super.setNotEqualTwoInstancesOfTheSameTerm(new ListBindings());
 	}
-	
+
 	@Test
-	public void cannotOnlySetEqualSameTypes(){
+	public void cannotOnlySetEqualSameTypes() {
 		super.cannotOnlySetEqualSameTypes(new ListBindings());
 	}
 }

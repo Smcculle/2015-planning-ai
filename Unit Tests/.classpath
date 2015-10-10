@@ -6,6 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Benchmarks"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Benchmarks"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
