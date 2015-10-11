@@ -45,6 +45,7 @@ public class PlanGraphTest {
 	private PlanGraph createRocketPlanGraph() {
 		Problem cargoProblem = createEasyCargoProblem();
 		PlanGraph graph = new PlanGraph(cargoProblem);
+//		System.out.println(graph.toString());
 		return graph;
 	}
 
@@ -177,6 +178,13 @@ public class PlanGraphTest {
 	public void entireCakePlanGraph() {
 		Problem cakeProblem = createCakeProblem();
 		PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
+		
+//		System.out.println(cakePlanGraph.toString());
+//		System.out.println(cakeProblem.goal.toString());
+		System.out.println(cakePlanGraph.isGoalNonMutex(cakeProblem.goal));
+		System.out.println(cakePlanGraph.getSolvingActions(cakeProblem.goal));
+		
+		
 		PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
 		assertNotNull(cakePlanGraph);
 	}
@@ -185,6 +193,7 @@ public class PlanGraphTest {
 	public void entireRocketPlanGraph() {
 		Problem rocketProblem = createEasyCargoProblem();
 		PlanGraph rocketPlanGraph = PlanGraph.create(rocketProblem);
+	//	System.out.println(rocketPlanGraph.toString());
 		assertNotNull(rocketPlanGraph);
 	}
 }
