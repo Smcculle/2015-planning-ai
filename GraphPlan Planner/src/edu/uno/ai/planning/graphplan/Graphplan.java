@@ -2,6 +2,7 @@ package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import edu.uno.ai.planning.Problem;
@@ -55,6 +56,7 @@ public class Graphplan {
 			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
 			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 			ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
+			ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
 			goalLiterals = expressionToLiterals(problem.goal);
 			steps = currentPlanGraph.getAllSteps();
 			
@@ -67,14 +69,21 @@ public class Graphplan {
 					}
 				}
 			}
+			 
+//			for (PlanGraphStep step: achieveGoals){
+//				for (int y = 1; y < iterateList.size(); y++){
+//					for (int i = y; i < iterateList.size(); i++){
+//						if (currentPlanGraph.isMutex(step, iterateList.get(i))){
+//							achieveGoals.remove(step);
+//						}
+//					}
+//				}
+//			}
 			
 		
-		
-			
 			}
 			
 		return pg;	
-		
 	}
 	
 
