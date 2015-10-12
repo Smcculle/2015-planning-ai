@@ -1,6 +1,8 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.logic.Conjunction;
@@ -8,16 +10,18 @@ import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 
+
 public class Graphplan {
 
 	Problem problem;
 	PlanGraph pg;
 	PlanGraph currentPlanGraph;
 	PlanGraph solution;
-	int currentLevel = new Integer(0);
+	int currentLevel = new Integer(1);
 	int highestLevel = new Integer(-1);
 	ArrayList<PlanGraph> parentList;
 	ArrayList<PlanGraph> solutions;
+	Set<PlanGraphStep> achieveGoals = new HashSet<PlanGraphStep>();
 	
 	public Graphplan(Problem problem, PlanGraph plangraph) {
 		this.problem = problem;
@@ -48,27 +52,28 @@ public class Graphplan {
 			return currentPlanGraph;
 		}
 		else{
-			
 			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
 			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 			ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
 			goalLiterals = expressionToLiterals(problem.goal);
 			steps = currentPlanGraph.getAllSteps();
+			
 			for (PlanGraphStep step: steps){
-				for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
-					effectLiterals.add(effectLiteral);
-				}
-			}
-			for (Literal goalLiteral: goalLiterals){
-				for (Literal effectLiteral: effectLiterals){
-					if (effectLiteral == goalLiteral){
-						
+				for (Literal goalLiteral: goalLiterals){
+					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
+						if (effectLiteral.equals(goalLiteral)){
+							achieveGoals.add(step);
+						}
 					}
 				}
 			}
 			
+			achieveGoals
+		
+			
+			}
+			
 		return pg;	
-		}
 		
 	}
 	
