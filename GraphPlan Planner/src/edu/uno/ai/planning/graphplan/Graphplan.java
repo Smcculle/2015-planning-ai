@@ -25,6 +25,8 @@ public class Graphplan {
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
 	ArrayList<Literal> preconditions = new ArrayList<Literal>();
+	ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
+	ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 	Set<PlanGraphStep> achieveGoals = new HashSet<PlanGraphStep>();
 	Iterator<PlanGraphStep> iter;
 	
@@ -58,8 +60,7 @@ public class Graphplan {
 			return currentPlanGraph;
 		}
 		else{
-			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
-			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+			
 			goalLiterals = expressionToLiterals(problem.goal);
 			steps = currentPlanGraph.getCurrentSteps();
 			
@@ -93,7 +94,7 @@ public class Graphplan {
 					preconditions.add(preconditionToLiteral);
 				}
 			}
-			
+			System.out.println(solution);
 			System.out.println(iterateList);
 			System.out.println("preconditions " + preconditions);
 			
