@@ -27,7 +27,7 @@ public class PartialOrderSearch extends Search {
 	private int nodesVisited;
 
 	/** The search limit on visited nodes (-1 if no limit) */
-	int limit = 1000;
+	int limit = -1;
 
 
 
@@ -61,7 +61,7 @@ public class PartialOrderSearch extends Search {
 	private Plan pop(){
 		TotalOrderPlan plan = null;
 
-		while(!this.pQueue.isEmpty() && this.nodesExpanded < this.limit){
+		while(!this.pQueue.isEmpty() && this.nodesVisited < this.limit){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
 			if(workingNode.flaws.length == 0){
 				plan = workingNode.toTotalOrderPlan();
@@ -198,7 +198,7 @@ public class PartialOrderSearch extends Search {
 
 		for (PartialStep step : stepsToLoopThrough) {
 			//if the step is not the end step from the null plan
-			if (step != workingNode.endStep && step != newLink.previousStep && step != newLink.nextStep) {
+			if (step != workingNode.endStep && step != newLink.nextStep) {
 				for (Expression effect : new LiteralCollector(step.effect)) {
 					if (predicateToMatch.unify(effect.negate(), newNodeBindings) != null) {
 						newFlawSet.add(new Threat(newLink, step));
@@ -218,7 +218,7 @@ public class PartialOrderSearch extends Search {
 			for(Expression effect : new LiteralCollector(newestStep.effect)) {
 				Bindings unification = effect.unify(causalLink.label.negate(), bindings);
 
-				if (unification != null && newestStep != causalLink.previousStep && newestStep != causalLink.nextStep ) {
+				if (unification != null && newestStep != causalLink.nextStep ) {
 					// was unified and is a threat
 					newFlaws.add(new Threat(causalLink, newestStep));
 				}
