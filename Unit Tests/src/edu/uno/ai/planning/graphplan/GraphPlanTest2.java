@@ -31,9 +31,9 @@ public class GraphPlanTest2 {
 			
 			Graphplan cake = new Graphplan(cakeProblem,cakePlanGraphExt);
 			cake.extend();
-			cake.search();
 			
-			System.out.println(cake.currentPlanGraph);
+			
+//			System.out.println(cake.currentPlanGraph);
 //			System.out.println(cake.currentPlanGraph.isMutex(cake.currentPlanGraph._steps.Get(0),cake.currentPlanGraph._steps.Get(1)));
 //			System.out.println(cake.achieveGoals);
 //			System.out.println(cake.currentPlanGraph._mutexSteps);

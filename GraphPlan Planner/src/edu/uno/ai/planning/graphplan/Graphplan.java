@@ -33,9 +33,10 @@ public class Graphplan {
 	public Graphplan(Problem problem, PlanGraph plangraph) {
 		this.problem = problem;
 		pg = plangraph;
+		solution = new PlanGraph(problem);
 		parentList = new ArrayList<PlanGraph>();
 		nextPG(pg);
-		solution = new PlanGraph(problem);
+		
 	}
 	
 	public void extend(){
@@ -43,28 +44,26 @@ public class Graphplan {
 			for (PlanGraph node: parentList){
 				if (node.getLevel() == currentLevel){
 					currentPlanGraph = node;
-					currentLevel++;
 					break;
 				}
 			} 
 		}else if (highestLevel == currentLevel){
 			return;
 		}
-		if (!currentPlanGraph.isGoalNonMutex(problem.goal)){
-			extend();
-		}
+//		if (!currentPlanGraph.isGoalNonMutex(problem.goal)){
+//			extend();
+//		}
+		search(expressionToLiterals(problem.goal));
 	}
 	
-	public PlanGraph search(){
+	public PlanGraph search(ArrayList<Literal> goals){
 		if (currentPlanGraph.getLevel() == 0){
 			return currentPlanGraph;
 		}
 		else{
 			
-			goalLiterals = expressionToLiterals(problem.goal);
+			goalLiterals = goals;
 			steps = currentPlanGraph.getCurrentSteps();
-			
-			System.out.println("iamhere" + steps);
 			
 			for (PlanGraphStep step: steps){
 				for (Literal goalLiteral: goalLiterals){
@@ -94,9 +93,15 @@ public class Graphplan {
 					preconditions.add(preconditionToLiteral);
 				}
 			}
+			System.out.println(currentPlanGraph.getLevel());
 			System.out.println(solution);
-			System.out.println(iterateList);
-			System.out.println("preconditions " + preconditions);
+			currentPlanGraph = parentList.get(currentLevel -1);
+//			search(preconditions);
+//			
+			System.out.println(currentPlanGraph.getLevel());
+//			System.out.println(solution);
+//			System.out.println(iterateList);
+//			System.out.println("preconditions " + preconditions);
 			
 		}
 			
@@ -118,7 +123,7 @@ public class Graphplan {
 	 * @param expression The Expression to convert to list
 	 * @return ArrayList<Literal> List of literals in expression
 	 */
-	private ArrayList<Literal> expressionToLiterals(Expression expression)
+	public ArrayList<Literal> expressionToLiterals(Expression expression)
 	{
 		ArrayList<Literal> literals = new ArrayList<Literal>();
 		if (expression instanceof Literal)
