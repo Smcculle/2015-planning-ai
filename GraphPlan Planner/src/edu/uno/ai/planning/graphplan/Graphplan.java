@@ -13,23 +13,17 @@ public class Graphplan {
 	Problem problem;
 	PlanGraph pg;
 	PlanGraph currentPlanGraph;
+	PlanGraph solution;
 	int currentLevel = new Integer(0);
 	int highestLevel = new Integer(-1);
 	ArrayList<PlanGraph> parentList;
+	ArrayList<PlanGraph> solutions;
 	
-	
-	public Graphplan(Problem problem) {
+	public Graphplan(Problem problem, PlanGraph plangraph) {
 		this.problem = problem;
-		makePlanGraph(problem);
+		pg = plangraph;
 		parentList = new ArrayList<PlanGraph>();
-//		parentList.add(nextPG(pg));
 		nextPG(pg);
-		System.out.println(parentList.size());
-	}
-	
-	public void makePlanGraph(Problem problem){
-		pg = PlanGraph.create(problem);
-		
 	}
 	
 	public void extend(){
@@ -49,37 +43,36 @@ public class Graphplan {
 		}
 	}
 	
-	public PlanGraph satisfy(){
-		if (pg.getLevel() == 0){
-			return pg;
+	public PlanGraph search(){
+		if (currentPlanGraph.getLevel() == 0){
+			return currentPlanGraph;
 		}
 		else{
+			
+			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
+			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+			ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
+			goalLiterals = expressionToLiterals(problem.goal);
+			steps = currentPlanGraph.getAllSteps();
+			for (PlanGraphStep step: steps){
+				for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
+					effectLiterals.add(effectLiteral);
+				}
+			}
+			for (Literal goalLiteral: goalLiterals){
+				for (Literal effectLiteral: effectLiterals){
+					if (effectLiteral == goalLiteral){
+						
+					}
+				}
+			}
 			
 		return pg;	
 		}
 		
 	}
 	
-	
-	public void search(){
-		ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
-		goalLiterals = expressionToLiterals(problem.goal);
-		steps = pg.getAllSteps();
-		for (PlanGraphStep step: steps){
-			for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
-				effectLiterals.add(effectLiteral);
-			}
-		}
-		for (Literal goalLiteral: goalLiterals){
-			for (Literal effectLiteral: effectLiterals){
-				if (effectLiteral == goalLiteral){
-					
-				}
-			}
-		}
-	}
+
 	
 	public void nextPG(PlanGraph pg){
 		if (pg.getLevel() == 0){
@@ -88,11 +81,6 @@ public class Graphplan {
 		}
 		parentList.add(pg);
 		nextPG(pg.getParent());
-	}
-	
-	public void stepsAtTime(int time){
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		
 	}
 	
 	/**
@@ -116,6 +104,5 @@ public class Graphplan {
 		}
 		return literals;
 	}
-	
 	
 }
