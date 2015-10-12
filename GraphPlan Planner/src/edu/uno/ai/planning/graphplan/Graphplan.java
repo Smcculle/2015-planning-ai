@@ -13,10 +13,13 @@ public class Graphplan {
 	Problem prob;
 	PlanGraph pg;
 	int currentLevel = new Integer(0);
+	ArrayList<PlanGraph> parentList;
+	
 	
 	public Graphplan(Problem problem) {
 		prob = problem;
 		makePlanGraph(problem);
+		parentList = new ArrayList<PlanGraph>();
 
 	}
 	
@@ -36,19 +39,19 @@ public class Graphplan {
 	}
 	
 	public void extend(){
-		if (currentLevel != 0){
-		
-		}
+	 parentList.add(nextPG());
 		
 		
 	}
 	
 	public PlanGraph nextPG(){
-		if (pg.getParent().getLevel() == 0){
-			return pg;
+		if (nextPG().getParent().getLevel() == 0){
+			
+			return nextPG();
 		}
-		return nextPG().getParent();
 		
+		return nextPG().getParent();
+	
 	}
 	
 	public void search(){
