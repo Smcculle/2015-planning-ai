@@ -22,7 +22,9 @@ public class Graphplan {
 		this.problem = problem;
 		makePlanGraph(problem);
 		parentList = new ArrayList<PlanGraph>();
-		parentList.add(nextPG(pg));
+//		parentList.add(nextPG(pg));
+		nextPG(pg);
+		System.out.println(parentList.size());
 	}
 	
 	public void makePlanGraph(Problem problem){
@@ -79,12 +81,13 @@ public class Graphplan {
 		}
 	}
 	
-	public PlanGraph nextPG(PlanGraph pg){
-		if (pg.getParent().getLevel() == 0){
-			return pg;
+	public void nextPG(PlanGraph pg){
+		if (pg.getLevel() == 0){
+			parentList.add(pg);
+			return;
 		}
-		
-		return nextPG(pg.getParent());
+		parentList.add(pg);
+		nextPG(pg.getParent());
 	}
 	
 	public void stepsAtTime(int time){
