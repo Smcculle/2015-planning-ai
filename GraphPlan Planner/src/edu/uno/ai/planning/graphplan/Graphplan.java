@@ -22,7 +22,9 @@ public class Graphplan {
 	int highestLevel = new Integer(-1);
 	ArrayList<PlanGraph> parentList;
 	ArrayList<PlanGraph> solutions;
+	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
 	Set<PlanGraphStep> achieveGoals = new HashSet<PlanGraphStep>();
+	Iterator<PlanGraphStep> iter;
 	
 	public Graphplan(Problem problem, PlanGraph plangraph) {
 		this.problem = problem;
@@ -54,9 +56,10 @@ public class Graphplan {
 		}
 		else{
 			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
-			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 			ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
-			ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
+			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+			
+			
 			goalLiterals = expressionToLiterals(problem.goal);
 			steps = currentPlanGraph.getAllSteps();
 			
@@ -65,28 +68,33 @@ public class Graphplan {
 					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
 							achieveGoals.add(step);
+							iterateList.add(step);
 						}
 					}
 				}
 			}
 			 
-//			for (PlanGraphStep step: achieveGoals){
-//				for (int y = 1; y < iterateList.size(); y++){
-//					for (int i = y; i < iterateList.size(); i++){
-//						if (currentPlanGraph.isMutex(step, iterateList.get(i))){
-//							achieveGoals.remove(step);
-//						}
-//					}
-//				}
-//			}
+			System.out.println(achieveGoals);
 			
-		
+			iter = achieveGoals.iterator();
+			PlanGraphStep temp = iter.next();
+			for (int y = 1; y < iterateList.size(); y++){
+				for (int i = y; i < iterateList.size(); i++){
+					if (currentPlanGraph.isMutex(temp, iterateList.get(i))){
+						iterateList.remove(temp);
+					}
+				}
+				iter.next();
 			}
+		
+			
+			
+			System.out.println(iterateList);
+				
+		}
 			
 		return pg;	
 	}
-	
-
 	
 	public void nextPG(PlanGraph pg){
 		if (pg.getLevel() == 0){
