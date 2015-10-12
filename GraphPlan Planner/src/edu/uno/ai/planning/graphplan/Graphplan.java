@@ -27,13 +27,15 @@ public class Graphplan {
 	ArrayList<Literal> preconditions = new ArrayList<Literal>();
 	ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
 	ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-	Set<PlanGraphStep> achieveGoals = new HashSet<PlanGraphStep>();
+	Set<PlanGraphStep> goalsToAchieve = new HashSet<PlanGraphStep>();
 	Iterator<PlanGraphStep> iter;
+
 	
 	public Graphplan(Problem problem, PlanGraph plangraph) {
 		this.problem = problem;
 		pg = plangraph;
 		solution = new PlanGraph(problem);
+		solution._steps.clear();
 		parentList = new ArrayList<PlanGraph>();
 		nextPG(pg);
 		
@@ -56,9 +58,10 @@ public class Graphplan {
 		search(expressionToLiterals(problem.goal));
 	}
 	
-	public PlanGraph search(ArrayList<Literal> goals){
+	public void search(ArrayList<Literal> goals){
 		if (currentPlanGraph.getLevel() == 0){
-			return currentPlanGraph;
+			System.out.println("i got here");
+			return;
 		}
 		else{
 			
@@ -69,14 +72,17 @@ public class Graphplan {
 				for (Literal goalLiteral: goalLiterals){
 					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
-							achieveGoals.add(step);
+							goalsToAchieve.add(step);
 							iterateList.add(step);
 						}
 					}
 				}
 			}
 			
-			iter = achieveGoals.iterator();
+			
+			iter = goalsToAchieve.iterator();
+		
+		
 			PlanGraphStep temp = iter.next();
 			for (int y = 1; y < iterateList.size(); y++){
 				for (int i = y; i < iterateList.size(); i++){
@@ -86,26 +92,37 @@ public class Graphplan {
 				}
 				iter.next();
 			}
-			solution._steps.clear();
+			
 			solution._steps.addAll(iterateList);
 			for (PlanGraphStep step: iterateList){
 				for (Literal preconditionToLiteral: expressionToLiterals(step.GetStep().precondition)){
 					preconditions.add(preconditionToLiteral);
 				}
 			}
-			System.out.println(currentPlanGraph.getLevel());
-			System.out.println(solution);
-			currentPlanGraph = parentList.get(currentLevel -1);
-//			search(preconditions);
-//			
-			System.out.println(currentPlanGraph.getLevel());
+//			System.out.println(currentPlanGraph.getLevel());
 //			System.out.println(solution);
-//			System.out.println(iterateList);
-//			System.out.println("preconditions " + preconditions);
+			goalsToAchieve.clear();
+			iterateList.clear();
 			
+			
+			currentLevel = currentLevel - 1;
+			
+		
+			for (PlanGraph node: parentList){
+				if (node.getLevel() == currentLevel){
+					currentPlanGraph = node;
+					break;
+				}
+			}
+		
+			System.out.println(solution._steps);
+		
+			
+			search(preconditions);
+
 		}
 			
-		return pg;	
+		
 	}
 	
 	public void nextPG(PlanGraph pg){
