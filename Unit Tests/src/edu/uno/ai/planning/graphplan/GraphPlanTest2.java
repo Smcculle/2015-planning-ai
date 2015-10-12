@@ -29,9 +29,12 @@ public class GraphPlanTest2 {
 			PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
 			PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
 			
-			Graphplan cake = new Graphplan(cakeProblem,cakePlanGraphExt);
-			cake.extend();
+			Graphplan cake = new Graphplan(cakeProblem);
 			
+			
+			
+//			cake.extend();
+			System.out.println(cake.parentList);
 //			System.out.println(cake.parentList.get(2).getLevel());
 //			System.out.println(cake.currentPlanGraph);
 //			System.out.println(cake.currentPlanGraph.isMutex(cake.currentPlanGraph._steps.Get(0),cake.currentPlanGraph._steps.Get(1)));

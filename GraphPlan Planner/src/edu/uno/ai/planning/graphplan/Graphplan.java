@@ -19,9 +19,9 @@ public class Graphplan {
 	PlanGraph pg;
 	PlanGraph currentPlanGraph;
 	PlanGraph solution;
-	int currentLevel = new Integer(2);
+	int currentLevel = new Integer(1);
 	int highestLevel = new Integer(-1);
-	ArrayList<PlanGraph> parentList;
+	ArrayList<PlanGraph> parentList = new ArrayList<PlanGraph>();
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
 	ArrayList<Literal> preconditions = new ArrayList<Literal>();
@@ -31,17 +31,21 @@ public class Graphplan {
 	Iterator<PlanGraphStep> iter;
 
 	
-	public Graphplan(Problem problem, PlanGraph plangraph) {
+	public Graphplan(Problem problem) {
 		this.problem = problem;
-		pg = plangraph;
+		pg = PlanGraph.create(this.problem);
 		solution = new PlanGraph(problem);
 		solution._steps.clear();
-		parentList = new ArrayList<PlanGraph>();
 		nextPG(pg);
 		
 	}
 	
 	public void extend(){
+		
+		if (pg.isGoalNonMutex(problem.goal)){
+			
+		}
+		
 		if (highestLevel != currentLevel){
 			for (PlanGraph node: parentList){
 				if (node.getLevel() == currentLevel){
@@ -121,7 +125,9 @@ public class Graphplan {
 			search(preconditions);
 
 		}
-			
+		
+		solution = new PlanGraph(solution);
+		System.out.println(solution);	
 		
 	}
 	
