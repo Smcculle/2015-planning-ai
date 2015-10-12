@@ -24,19 +24,29 @@ public class Graphplan {
 	}
 	
 	
-
 	public void search(){
-		ArrayList<Literal> literals = new ArrayList<Literal>();
-		literals = expressionToLiterals(prob.goal);
-		
+		ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
+		goalLiterals = expressionToLiterals(prob.goal);
+		steps = pg.getAllSteps();
+		for (PlanGraphStep step: steps){
+			for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
+				effectLiterals.add(effectLiteral);
+			}
+		}
+		for (Literal goalLiteral: goalLiterals){
+			for (Literal effectLiteral: effectLiterals){
+				if (effectLiteral == goalLiteral){
+					
+				}
+			}
+		}
 	}
 	
 	public void stepsAtTime(int time){
 		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		steps = pg.getAllSteps();
-			for (PlanGraphStep step: steps){
-				
-			}
+		
 	}
 	
 	/**
