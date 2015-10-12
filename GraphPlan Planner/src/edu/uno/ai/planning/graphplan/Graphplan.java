@@ -109,5 +109,114 @@ public class Graphplan {
 		}
 		return literals;
 	}
+
+	////////////////////////////////
+	
+	/**
+	 * step - the step we want to test
+	 * prev - the previous plan graph from the list
+	 * return true if our step can be applied to our literal list with the effect we want next
+	 */
+	public boolean isStepApplicable(PlanGraphStep step, int prev){
+		for (PlanGraphLiteral literal1 : parentList.get(prev).getCurrentLiterals()){	// for each literal in the specified level's list
+			if (literal1.equals(step.GetStep().precondition)){	// if we find a precondition that matches our step's precondition
+				for (PlanGraphLiteral literal2 : parentList.get(prev + 1).getCurrentLiterals()){	// now look through the next level's list of literals 
+					if (literal2.equals(step.GetStep().effect)) return true; // if we find a literal that matches our step's effect, that means it is applicable
+				}
+				return false;	// if we found a valid precondition but not the effect 
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Use above method first
+	 * so if we have a PlanGraphStep that satisfies at least one of the effects we want
+	 * return that step
+	 * then can use the PlanGraphStep.getStep().effect and/or PlanGraphStep.getStep().precondition for whatever
+	 */ 
+	public PlanGraphStep getApplicableStep(PlanGraphStep step, int prev){
+		for (PlanGraphLiteral literal1 : parentList.get(prev).getCurrentLiterals()){	// for each literal in the specified level's list
+			if (literal1.equals(step.GetStep().precondition)){	// if we find a precondition that matches our step's precondition
+				for (PlanGraphLiteral literal2 : parentList.get(prev + 1).getCurrentLiterals()){	// now look through the next level's list of literals 
+					if (literal2.equals(step.GetStep().effect)) return step; // if we find a literal that matches our step's effect, that means it is applicable
+				}
+			}
+		}
+		return null;
+	}
+
+	/** see if we can use nop. may be a worthless method */
+	public boolean canNopEffect(PlanGraphLiteral effect, int position){
+		for (PlanGraphLiteral literal : parentList.get(position - 1).getCurrentLiterals()){	// for each literal in the specified location literal list
+			if (literal.equals(effect)) return true;
+		}
+		return false;	
+	}
+
+	public boolean canNopPrecondition(PlanGraphLiteral precondition, int position){
+		for (PlanGraphLiteral literal : parentList.get(position + 1).getCurrentLiterals()){	// for each literal in the specified location literal list
+			if (literal.equals(precondition)) return true;
+		}
+		return false;	
+	}
+	
+	public boolean canNopPrev(int position){
+		for (PlanGraphLiteral precon : parentList.get(position -1 ).getCurrentLiterals()){
+			for (PlanGraphLiteral effect : parentList.get(position).getCurrentLiterals()){
+				if (effect.equals(precon)) return true;
+			}
+		}
+		return false;
+	}
+
+	/** see if the step's effect matches our literal */
+	public boolean isStepApplicableEffect(PlanGraphStep step, PlanGraphLiteral literal){
+		return ( (literal.getLiteral().equals(step.GetStep().effect)) );
+	}
+	/** see if the step's percondition matches our literal */
+	public boolean isStepApplicablePrecon(PlanGraphStep step, PlanGraphLiteral literal){
+		return ((literal.getLiteral().equals(step.GetStep().effect)));
+	}
+
+	/**
+	 * effect - the literal we want to become true
+	 * precon - the literal we need to have a precondition
+	 * returns whether or not we have a step possible that can give us the effect we want
+	 */ 
+	public boolean canAddStep(PlanGraphLiteral effect, PlanGraphLiteral precon){
+		for (PlanGraphStep step : pg.getAllSteps()){
+			if (isStepApplicableEffect(step, effect) && (isStepApplicablePrecon(step, precon))) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Use the above method first to see if an applicable step exists
+	 * then use this one to get that step
+	 */ 
+	public PlanGraphStep getAddableStep(PlanGraphLiteral effect, PlanGraphLiteral precon){
+		for (PlanGraphStep step : pg.getAllSteps()){
+			if (canAddStep(effect, precon)) return step;
+		}
+		return null;
+	}
+
+	/** this is if we just have an effect and want to see if it can become true */
+	public boolean canAddStep(PlanGraphLiteral effect){
+		for (PlanGraphStep step : pg.getAllSteps()){
+			if (isStepApplicableEffect(step, effect)) return true;
+		}
+		return false;	
+	}
+
+	/** use the above one first */
+	public PlanGraphStep getAddableStep(PlanGraphLiteral effect){
+		for (PlanGraphStep step : pg.getAllSteps()){
+			if (canAddStep(effect)) return step;
+		}
+		return null;
+	}
+
 	
 }
