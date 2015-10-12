@@ -39,19 +39,17 @@ public class Graphplan {
 	}
 	
 	public void extend(){
-	 parentList.add(nextPG());
+	 parentList.add(nextPG(pg));
 		
 		
 	}
 	
-	public PlanGraph nextPG(){
-		if (nextPG().getParent().getLevel() == 0){
-			
-			return nextPG();
+	public PlanGraph nextPG(PlanGraph pg){
+		if (pg.getParent().getLevel() == 0){
+			return pg;
 		}
 		
-		return nextPG().getParent();
-	
+		return nextPG(pg.getParent());
 	}
 	
 	public void search(){
