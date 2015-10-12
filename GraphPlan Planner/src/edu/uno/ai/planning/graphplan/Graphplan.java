@@ -12,6 +12,7 @@ public class Graphplan {
 
 	Problem prob;
 	PlanGraph pg;
+	int currentLevel = new Integer(0);
 	
 	public Graphplan(Problem problem) {
 		prob = problem;
@@ -23,6 +24,32 @@ public class Graphplan {
 		pg = PlanGraph.create(problem);
 	}
 	
+	public PlanGraph satisfy(){
+		if (pg.getLevel() == 0){
+			return pg;
+		}
+		else{
+			
+		return pg;	
+		}
+		
+	}
+	
+	public void extend(){
+		if (currentLevel != 0){
+		
+		}
+		
+		
+	}
+	
+	public PlanGraph nextPG(){
+		if (pg.getParent().getLevel() == 0){
+			return pg;
+		}
+		return nextPG().getParent();
+		
+	}
 	
 	public void search(){
 		ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
