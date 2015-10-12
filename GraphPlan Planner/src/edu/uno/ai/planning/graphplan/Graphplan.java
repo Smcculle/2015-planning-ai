@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.uno.ai.planning.Problem;
+import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
@@ -31,6 +32,7 @@ public class Graphplan {
 		pg = plangraph;
 		parentList = new ArrayList<PlanGraph>();
 		nextPG(pg);
+		solution = new PlanGraph(problem);
 	}
 	
 	public void extend(){
@@ -56,10 +58,7 @@ public class Graphplan {
 		}
 		else{
 			ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
-			ArrayList<Literal> effectLiterals = new ArrayList<Literal>();
 			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-			
-			
 			goalLiterals = expressionToLiterals(problem.goal);
 			steps = currentPlanGraph.getAllSteps();
 			
@@ -73,8 +72,6 @@ public class Graphplan {
 					}
 				}
 			}
-			 
-			System.out.println(achieveGoals);
 			
 			iter = achieveGoals.iterator();
 			PlanGraphStep temp = iter.next();
@@ -86,10 +83,19 @@ public class Graphplan {
 				}
 				iter.next();
 			}
-		
-			
+			solution._steps.clear();
+			solution._steps.addAll(iterateList);
+			ArrayList<Literal> preconditions = new ArrayList<Literal>();
+			for (PlanGraphStep step: iterateList){
+				for (Literal preconditionToLiteral: expressionToLiterals(step.GetStep().precondition)){
+					preconditions.add(preconditionToLiteral);
+				}
+			}
 			
 			System.out.println(iterateList);
+			System.out.println(preconditions);
+			
+			
 				
 		}
 			
