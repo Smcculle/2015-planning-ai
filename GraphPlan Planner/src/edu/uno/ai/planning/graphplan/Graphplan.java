@@ -28,7 +28,7 @@ public class Graphplan {
 	ArrayList<Literal> preconditions = new ArrayList<Literal>();
 	ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
 	ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-	Set<PlanGraphStep> goalsToAchieve = new HashSet<PlanGraphStep>();
+	Set<PlanGraphStep> howToAchieveGoals = new HashSet<PlanGraphStep>();
 	Iterator<PlanGraphStep> iter;
 
 	
@@ -72,13 +72,13 @@ public class Graphplan {
 				for (Literal goalLiteral: goalLiterals){
 					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
-							goalsToAchieve.add(step);
+							howToAchieveGoals.add(step);
 							iterateList.add(step);
 						}
 					}
 				}
 			}
-			iter = goalsToAchieve.iterator();
+			iter = howToAchieveGoals.iterator();
 			PlanGraphStep temp = iter.next();
 			for (int y = 1; y < iterateList.size(); y++){
 				for (int i = y; i < iterateList.size(); i++){
@@ -89,18 +89,22 @@ public class Graphplan {
 				iter.next();
 			}
 			
+			
 			solution._steps.addAll(iterateList);
+			System.out.println(solution._steps);
+			System.out.println(howToAchieveGoals);
+			
 			for (PlanGraphStep step: iterateList){
 				for (Literal preconditionToLiteral: expressionToLiterals(step.GetStep().precondition)){
 					preconditions.add(preconditionToLiteral);
 				}
 			}
 			
-			
-			goalsToAchieve.clear();
+			howToAchieveGoals.clear();
 			iterateList.clear();
 			currentLevel = currentLevel - 1;
 			solution = new PlanGraph(solution);
+			
 			
 			for (PlanGraph node: parentList){
 				if (node.getLevel() == currentLevel){
@@ -109,17 +113,19 @@ public class Graphplan {
 				}
 			}
 			
+			System.out.println(solution._steps);
 			
-//			System.out.println(solution);
+			if (areStepsSolution()){
+//				search(preconditions);
+			}
 			
-//			search(preconditions);
-	
+			
 		}
 		
 //		System.out.println(solution.getLevel());	
 	}
 	
-	public void areStepsSolution(){
+	public Boolean areStepsSolution(){
 		
 //		System.out.println(solution);
 //		System.out.println(parentList);
@@ -131,18 +137,13 @@ public class Graphplan {
 		x.addAll(match);
 		Collection<PlanGraphStep> list1 = x;
 		Collection<PlanGraphStep> list2 = solution.getAllSteps();
-		
 		list2.removeAll(list1);
 
 		if (list2.isEmpty()){
-			printSolution();
+			return true;
 		} else{
-			extend();
+			return false;
 		}
-	}
-	
-	private void printSolution(){
-//		System.out.println(solution);
 	}
 	
 	public void nextPG(PlanGraph pg){
