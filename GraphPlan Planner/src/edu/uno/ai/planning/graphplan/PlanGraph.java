@@ -261,12 +261,24 @@ public class PlanGraph
 	
 	public boolean isGoalNonMutex(Expression goal)
 	{
+		if (!containsGoal(goal))
+        	return false;
+   
 		if (_calculateMutex)
 		{
-			ArrayList<Literal> literals = expressionToLiterals(goal);
-			for (Literal literal : literals)
-				if (_mutexLiterals.containsKey(literal))
-					return false;
+        	ArrayList<Literal> literals = expressionToLiterals(goal);
+            for (Literal literal : literals)
+            {
+            	PlanGraphLiteral pgLiteral = getPlanGraphLiteral(literal);
+                for (Literal otherLiteral : literals)
+                {
+                	PlanGraphLiteral pgOtherLiteral = getPlanGraphLiteral(otherLiteral);
+                    if (!pgLiteral.equals(pgOtherLiteral))
+                    	if (_mutexLiterals.containsKey(pgLiteral))
+                        	if (_mutexLiterals.get(pgLiteral).contains(pgOtherLiteral))
+                            	return false;
+                }
+            }
 		}
 		return true;
 	}
