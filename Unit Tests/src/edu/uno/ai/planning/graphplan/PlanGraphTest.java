@@ -285,14 +285,14 @@ public class PlanGraphTest {
 		assertTrue(firstCakeStep.containsGoal(goal));
 	}
 	
-	@Test
-	public void isGoalNonMutex(){
-		Expression goal = getHaveCakeAndEatIt();
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		assertFalse(initialCakeGraph.isGoalNonMutex(goal));
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		assertTrue(firstCakeStep.isGoalNonMutex(goal));
-	}
+//	@Test
+//	public void isGoalNonMutex(){
+//		Expression goal = getHaveCakeAndEatIt();
+//		PlanGraph initialCakeGraph = createCakePlanGraph();
+//		assertFalse(initialCakeGraph.isGoalNonMutex(goal));
+//		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+//		assertTrue(firstCakeStep.isGoalNonMutex(goal));
+//	}
 	
 	@Test
 	public void getSolvingActions(){
