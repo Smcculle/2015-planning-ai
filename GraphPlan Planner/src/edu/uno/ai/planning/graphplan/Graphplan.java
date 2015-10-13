@@ -55,9 +55,6 @@ public class Graphplan {
 			}
 		} 	
 			
-//		if (!currentPlanGraph.isGoalNonMutex(problem.goal)){
-//			extend();
-//		}
 		search(expressionToLiterals(problem.goal));
 	}
 	
@@ -81,11 +78,7 @@ public class Graphplan {
 					}
 				}
 			}
-			
-			
 			iter = goalsToAchieve.iterator();
-		
-		
 			PlanGraphStep temp = iter.next();
 			for (int y = 1; y < iterateList.size(); y++){
 				for (int i = y; i < iterateList.size(); i++){
@@ -102,29 +95,34 @@ public class Graphplan {
 					preconditions.add(preconditionToLiteral);
 				}
 			}
-
+			
+			
 			goalsToAchieve.clear();
 			iterateList.clear();
 			currentLevel = currentLevel - 1;
-
+			solution = new PlanGraph(solution);
+			
 			for (PlanGraph node: parentList){
 				if (node.getLevel() == currentLevel){
 					currentPlanGraph = node;
 					break;
 				}
 			}
-
-				
-			search(preconditions);
+			
+			
+//			System.out.println(solution);
+			
+//			search(preconditions);
 	
 		}
 		
-		System.out.println(solution.getLevel());	
+//		System.out.println(solution.getLevel());	
 	}
 	
 	public void areStepsSolution(){
-		solution = new PlanGraph(solution);
-		System.out.println(solution);
+		
+//		System.out.println(solution);
+//		System.out.println(parentList);
 //		System.out.println(parentList.get(0).getSolvingActions(problem.goal));
 //		System.out.println(solution.getAllSteps());
 		
@@ -133,6 +131,7 @@ public class Graphplan {
 		x.addAll(match);
 		Collection<PlanGraphStep> list1 = x;
 		Collection<PlanGraphStep> list2 = solution.getAllSteps();
+		
 		list2.removeAll(list1);
 
 		if (list2.isEmpty()){

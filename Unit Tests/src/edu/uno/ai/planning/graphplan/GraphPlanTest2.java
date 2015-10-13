@@ -33,10 +33,12 @@ public class GraphPlanTest2 {
 //			System.out.println(cakePlanGraphExt.getSolvingActions(cakeProblem.goal));
 //	
 //			System.out.println(cakeProblem.domain.operators.get(1));
-//			
+			Problem rproblem = createEasyCargoProblem();
+			Graphplan rocket = new Graphplan(rproblem);
+		
 			cake.extend();
 			cake.areStepsSolution();
-			System.out.println(cake == null);
+		
 			
 //			System.out.println(cake.parentList);
 //			System.out.println(cake.currentLevel);
@@ -66,5 +68,7 @@ public class GraphPlanTest2 {
 				return null;
 			}
 		}
+		
+	
 	
 }
