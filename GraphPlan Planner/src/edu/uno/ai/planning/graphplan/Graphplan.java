@@ -1,8 +1,10 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import edu.uno.ai.planning.Problem;
@@ -19,8 +21,7 @@ public class Graphplan {
 	PlanGraph pg;
 	PlanGraph currentPlanGraph;
 	PlanGraph solution;
-	int currentLevel = new Integer(1);
-	int highestLevel = new Integer(-1);
+	int currentLevel = new Integer(-1);
 	ArrayList<PlanGraph> parentList = new ArrayList<PlanGraph>();
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
@@ -36,26 +37,22 @@ public class Graphplan {
 		pg = PlanGraph.create(this.problem);
 		solution = new PlanGraph(problem);
 		solution._steps.clear();
-		nextPG(pg);
+		
 		
 	}
 	
 	public void extend(){
+		pg = new PlanGraph(pg);
+		nextPG(pg);
 		
-		if (pg.isGoalNonMutex(problem.goal)){
+		for (PlanGraph node: parentList){
+			if (node.getLevel() == (parentList.size() -1)){
+				currentPlanGraph = node;
+				currentLevel = parentList.size() - 1;
+				break;
+			}
+		} 	
 			
-		}
-		
-		if (highestLevel != currentLevel){
-			for (PlanGraph node: parentList){
-				if (node.getLevel() == currentLevel){
-					currentPlanGraph = node;
-					break;
-				}
-			} 
-		}else if (highestLevel == currentLevel){
-			return;
-		}
 //		if (!currentPlanGraph.isGoalNonMutex(problem.goal)){
 //			extend();
 //		}
@@ -103,33 +100,63 @@ public class Graphplan {
 					preconditions.add(preconditionToLiteral);
 				}
 			}
-//			System.out.println(currentPlanGraph.getLevel());
-//			System.out.println(solution);
+
 			goalsToAchieve.clear();
 			iterateList.clear();
-			
-			
 			currentLevel = currentLevel - 1;
-			
-		
+
 			for (PlanGraph node: parentList){
 				if (node.getLevel() == currentLevel){
 					currentPlanGraph = node;
 					break;
 				}
 			}
-		
-			System.out.println(solution._steps);
-		
-			
+
 			search(preconditions);
 
 		}
 		
-		solution = new PlanGraph(solution);
-		System.out.println(solution);	
+		
+		
+//		System.out.println(solution.getLevel());	
+//		System.out.println(solution.getAllSteps());	
 		
 	}
+	
+	public void areStepsSolution(){
+		solution = new PlanGraph(solution);
+		System.out.println(parentList.get(0).getSolvingActions(problem.goal));
+		System.out.println(solution.getAllSteps());
+		
+		List<PlanGraphStep> match = pg.getSolvingActions(problem.goal);
+		ArrayList<PlanGraphStep> x = new ArrayList<PlanGraphStep>();
+		x.addAll(match);
+		Collection<PlanGraphStep> list1 = x;
+		Collection<PlanGraphStep> list2 = solution.getAllSteps();
+		list2.removeAll(list1);
+
+		if (list2.isEmpty()){
+			return;
+		} else{
+			
+		}
+	}
+//		
+//		for (PlanGraphStep item: match){
+//			for (PlanGraphStep item2: solution.getAllSteps()){
+//				if (item == )
+//			}
+//			
+//		}
+		
+		
+//		for (PlanGraphStep step: solution._steps){
+////			if (step.GetStep() == )
+//		}
+//		
+	
+	
+	
 	
 	public void nextPG(PlanGraph pg){
 		if (pg.getLevel() == 0){
