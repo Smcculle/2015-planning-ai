@@ -37,7 +37,7 @@ public class GraphPlanTest2 {
 			Graphplan rocket = new Graphplan(rproblem);
 		
 			cake.extend();
-			cake.areStepsSolution();
+	
 		
 			
 //			System.out.println(cake.parentList);

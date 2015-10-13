@@ -46,7 +46,6 @@ public class Graphplan {
 		pg = new PlanGraph(pg);
 		nextPG(pg);
 		
-		
 		for (PlanGraph node: parentList){
 			if (node.getLevel() == (parentList.size() -1)){
 				currentPlanGraph = node;
@@ -64,20 +63,26 @@ public class Graphplan {
 			return;
 		}
 		else{
-			
 			goalLiterals = goals;
+		
 			steps = currentPlanGraph.getCurrentSteps();
 			
 			for (PlanGraphStep step: steps){
 				for (Literal goalLiteral: goalLiterals){
 					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
+							if (step.GetInitialLevel() == currentPlanGraph.getLevel()){
 							howToAchieveGoals.add(step);
 							iterateList.add(step);
+							}
 						}
 					}
 				}
 			}
+			
+//			System.out.println(howToAchieveGoals);
+			
+			
 			iter = howToAchieveGoals.iterator();
 			PlanGraphStep temp = iter.next();
 			for (int y = 1; y < iterateList.size(); y++){
@@ -86,14 +91,18 @@ public class Graphplan {
 						iterateList.remove(temp);
 					}
 				}
+				if (y < iterateList.size() -1)
 				iter.next();
 			}
+
 			
 			
-			solution._steps.addAll(iterateList);
-			System.out.println(solution._steps);
-			System.out.println(howToAchieveGoals);
 			
+			for (PlanGraphStep sol: iterateList){
+				solution._steps.add(sol);
+			}
+			
+		
 			for (PlanGraphStep step: iterateList){
 				for (Literal preconditionToLiteral: expressionToLiterals(step.GetStep().precondition)){
 					preconditions.add(preconditionToLiteral);
@@ -113,16 +122,14 @@ public class Graphplan {
 				}
 			}
 			
-			System.out.println(solution._steps);
-			
-			if (areStepsSolution()){
-//				search(preconditions);
-			}
+//			if (areStepsSolution()){
+				search(preconditions);
+//			}
 			
 			
 		}
 		
-//		System.out.println(solution.getLevel());	
+		System.out.println(solution);
 	}
 	
 	public Boolean areStepsSolution(){
