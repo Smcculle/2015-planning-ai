@@ -137,7 +137,7 @@ public class Graphplan {
 		list2.removeAll(list1);
 
 		if (list2.isEmpty()){
-			returnSolution();
+			
 		} else{
 			extend();
 		}
