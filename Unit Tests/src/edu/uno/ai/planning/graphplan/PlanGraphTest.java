@@ -13,6 +13,7 @@ import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Constant;
+import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.logic.Predication;
 import edu.uno.ai.planning.logic.Term;
@@ -101,6 +102,14 @@ public class PlanGraphTest {
 		PlanGraph graph = new PlanGraph(cargoProblem);
 		return graph;
 	}
+	
+	private Expression getHaveCakeAndEatIt(){
+		Problem cakeProblem = createCakeProblem();
+		return cakeProblem.goal;
+	}
+	
+	
+	// TESTS
 	
 	@Test
 	public void constructorCakeDomain(){
@@ -256,48 +265,64 @@ public class PlanGraphTest {
 	public void isMutex(){
 		PlanGraph initialCakeGraph = createCakePlanGraph();
 		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		
 		// Build Steps
-		PlanGraphStep eatCake = getCakeDomainStep("(eat Cake)");
-		PlanGraphStep noopHaveCake = getCakeDomainStep("(Persistence Step (have Cake))");
-		assertEquals(true, firstCakeStep.isMutex(eatCake, noopHaveCake));
-//		Step eatCake = getCake;
-//
-//		String actionName = "(eat Cake)";
-//		PlanGraphStep test = getTestStep(actionName);
-//		PlanGraphStep result = getCakeDomainStep(actionName);
-//		Step noopCargoNola = null;
-//		Step flyRocketNolaLondon = null;
-////		loadCargoRocketNola = new PlanGraphStep();
-//		assertEquals(true,firstCakeStep.isMutex(loadCargoRocketNola, noopCargoNola));
-//		assertTrue(firstCakeStep.isMutex(loadCargoRocketNola, noopCargoNola));
-//		assertTrue(firstCakeStep.isMutex(loadCargoRocketNola, flyRocketNolaLondon));
-//		assertFalse(firstCakeStep.isMutex(noopCargoNola, flyRocketNolaLondon));
+		List<PlanGraphStep> cakeSteps = firstCakeStep.getCurrentSteps();
+		PlanGraphStep eatCake = getStep("(eat Cake)", cakeSteps);
+		PlanGraphStep noopHaveCake = getStep("(Persistence Step (have Cake))", cakeSteps);
+		PlanGraphStep noopNotEatCake = getStep("(Persistence Step (not (eaten Cake)))", cakeSteps);
+		assertTrue(firstCakeStep.isMutex(eatCake, noopHaveCake));
+		assertTrue(firstCakeStep.isMutex(eatCake, noopNotEatCake));
+		assertFalse(firstCakeStep.isMutex(noopHaveCake, noopNotEatCake));
 	}
 	
-//	@Test
-//	public void isGoalNonMutex(){
-//		assertFalse(true);
-//	}
-//	
-//	@Test
-//	public void isContainsGoal(){
-//		assertFalse(true);
-//	}
-//	
-//	@Test
-//	public void getSolvingActions(){
-//		assertFalse(true);
-//	}
-//	
-//	@Test
-//	public void leveledOff(){
-//		PlanGraph initialCakeGraph = createCakePlanGraph();
-//		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-//		PlanGraph secondCakeStep = new PlanGraph(firstCakeStep);
-//		PlanGraph leveledCakeStep = new PlanGraph(secondCakeStep);
-//		assertTrue(leveledCakeStep.isLeveledOff());
-//	}
-//	
+	@Test
+	public void isContainsGoal(){
+		Expression goal = getHaveCakeAndEatIt();
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		assertFalse(initialCakeGraph.containsGoal(goal));
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		assertTrue(firstCakeStep.containsGoal(goal));
+	}
+	
+	@Test
+	public void isGoalNonMutex(){
+		Expression goal = getHaveCakeAndEatIt();
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		assertFalse(initialCakeGraph.isGoalNonMutex(goal));
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		assertTrue(firstCakeStep.isGoalNonMutex(goal));
+	}
+	
+	@Test
+	public void getSolvingActions(){
+		Expression goal = getHaveCakeAndEatIt();
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		// Build Steps
+		List<PlanGraphStep> cakeSteps = firstCakeStep.getCurrentSteps();
+		PlanGraphStep eatCake = getStep("(eat Cake)", cakeSteps);		// SHOULD HAVE
+		PlanGraphStep noopHaveCake = getStep("(Persistence Step (have Cake))", cakeSteps);		// SHOULD HAVE
+		PlanGraphStep noopNotEatCake = getStep("(Persistence Step (not (eaten Cake)))", cakeSteps);		// SHOULD NOT HAVE!!!
+		
+		List<PlanGraphStep> results = firstCakeStep.getSolvingActions(goal);
+		assertEquals(true,results.contains(eatCake));
+		assertEquals(true,results.contains(noopHaveCake));
+		assertEquals(false,results.contains(noopNotEatCake));
+	}
+	
+	@Test
+	public void leveledOff(){
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		assertFalse(initialCakeGraph.isLeveledOff());
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		assertFalse(firstCakeStep.isLeveledOff());
+		PlanGraph secondCakeStep = new PlanGraph(firstCakeStep);
+		assertFalse(secondCakeStep.isLeveledOff());
+		PlanGraph leveledCakeStep = new PlanGraph(secondCakeStep);
+		assertTrue(leveledCakeStep.isLeveledOff());
+	}
+	
 //	@Test
 //	public void planGraphToString(){
 //		assertFalse(true);

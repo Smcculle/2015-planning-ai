@@ -302,7 +302,7 @@ public class PlanGraph
 			for(PlanGraphStep step : currentSteps){
 				List<Literal> stepEffects = expressionToLiterals(step.GetStep().effect);
 				for(Literal goalLiteral : goalLiterals){
-					if(stepEffects.contains(getPlanGraphLiteral(goalLiteral))){
+					if(stepEffects.contains(goalLiteral)){
 						solvingActions.add(step);
 						break;
 					}
