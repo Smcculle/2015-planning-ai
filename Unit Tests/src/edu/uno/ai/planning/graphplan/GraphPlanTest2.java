@@ -30,15 +30,15 @@ public class GraphPlanTest2 {
 			PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
 			
 			Graphplan cake = new Graphplan(cakeProblem);
-//			System.out.println(cakePlanGraphExt.getSolvingActions(cakeProblem.goal));
-//	
-//			System.out.println(cakeProblem.domain.operators.get(1));
+
 			Problem rproblem = createEasyCargoProblem();
 			Graphplan rocket = new Graphplan(rproblem);
 		
+
 			cake.extend();
-	
-		
+//			rocket.doGraphPlan();
+//			rocket.extend();
+//			rocket.areStepsSolution()
 			
 //			System.out.println(cake.parentList);
 //			System.out.println(cake.currentLevel);
