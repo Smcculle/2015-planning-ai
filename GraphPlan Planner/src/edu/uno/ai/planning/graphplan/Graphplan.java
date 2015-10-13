@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
@@ -44,6 +43,7 @@ public class Graphplan {
 	public void extend(){
 		pg = new PlanGraph(pg);
 		nextPG(pg);
+		
 		
 		for (PlanGraph node: parentList){
 			if (node.getLevel() == (parentList.size() -1)){
@@ -136,27 +136,15 @@ public class Graphplan {
 		list2.removeAll(list1);
 
 		if (list2.isEmpty()){
-			return;
+			returnSolution();
 		} else{
-			
+			extend();
 		}
 	}
-//		
-//		for (PlanGraphStep item: match){
-//			for (PlanGraphStep item2: solution.getAllSteps()){
-//				if (item == )
-//			}
-//			
-//		}
-		
-		
-//		for (PlanGraphStep step: solution._steps){
-////			if (step.GetStep() == )
-//		}
-//		
 	
-	
-	
+	private PlanGraph returnSolution(){
+		return solution;
+	}
 	
 	public void nextPG(PlanGraph pg){
 		if (pg.getLevel() == 0){
@@ -165,6 +153,17 @@ public class Graphplan {
 		}
 		parentList.add(pg);
 		nextPG(pg.getParent());
+	}
+	
+	public PlanGraph findInitialPlanGraph(){
+		PlanGraph temp = null;
+		for (PlanGraph node: parentList){
+			if (node.getLevel() == 0){
+				temp = node;
+				break;
+			}
+		} 
+		return temp;	
 	}
 	
 	/**
