@@ -15,6 +15,8 @@ import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Constant;
 import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.logic.Predication;
+import edu.uno.ai.planning.logic.Term;
+import edu.uno.ai.planning.util.ImmutableArray;
 
 public class PlanGraphTest {
 	
@@ -40,6 +42,52 @@ public class PlanGraphTest {
 		{
 			return null;
 		}
+	}
+	
+	// Test Helpers
+	private Conjunction getEmptyConjunction(String name){
+		Constant c = new Constant(name, name);
+		Predication p = new Predication(name, new ImmutableArray<Term>(new Term[] {c}));
+		return new Conjunction(p);
+	}
+	
+	private PlanGraphStep getTestStep(String name){
+		Conjunction preconditions = getEmptyConjunction("preconditions");
+		Conjunction effects = getEmptyConjunction("effects");
+		return new PlanGraphStep(new Step(name, preconditions, effects));
+	}
+	
+	private PlanGraphStep getStep(String stepName, List<PlanGraphStep> steps){
+		PlanGraphStep thisStep = getTestStep(stepName);
+		for(PlanGraphStep step : steps)
+			if(thisStep.GetStep().name.equals(step.GetStep().name))
+				return step;
+		return null;
+	}
+	
+	@Test
+	public void checkGetStep(){
+		PlanGraphStep thisStep = getTestStep("test1");
+		PlanGraphStep otherStep = getTestStep("test2");
+		List<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		steps.add(thisStep);
+		steps.add(otherStep);
+		assertEquals(thisStep, getStep("test1", steps));
+		assertEquals(otherStep, getStep("test2", steps));
+	}
+	
+	private PlanGraphStep getCakeDomainStep(String cakeStepName){
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		return getStep(cakeStepName, firstCakeStep.getCurrentSteps());
+	}
+	
+	@Test
+	public void checkGetCakeDomainStep(){
+		String actionName = "(eat Cake)";
+		PlanGraphStep test = getTestStep(actionName);
+		PlanGraphStep result = getCakeDomainStep(actionName);
+		assertEquals(0, test.GetStep().compareTo(result.GetStep()));
 	}
 	
 	private PlanGraph createCakePlanGraph(){
@@ -184,6 +232,7 @@ public class PlanGraphTest {
 		PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
 		PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
 		assertNotNull(cakePlanGraph);
+		assertNotNull(cakePlanGraphExt);
 	}
 	
 	@Test
@@ -193,4 +242,64 @@ public class PlanGraphTest {
 		PlanGraph rocketPlanGraph = PlanGraph.create(rocketProblem);
 		assertNotNull(rocketPlanGraph);
 	}
+	
+	@Test
+	public void nullIsMutex(){
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		PlanGraphStep noopCargoNola = null;
+		PlanGraphStep flyRocketNolaLondon = null;
+		assertFalse(firstCakeStep.isMutex(noopCargoNola, flyRocketNolaLondon));
+	}
+	
+	@Test
+	public void isMutex(){
+		PlanGraph initialCakeGraph = createCakePlanGraph();
+		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		// Build Steps
+		PlanGraphStep eatCake = getCakeDomainStep("(eat Cake)");
+		PlanGraphStep noopHaveCake = getCakeDomainStep("(Persistence Step (have Cake))");
+		assertEquals(true, firstCakeStep.isMutex(eatCake, noopHaveCake));
+//		Step eatCake = getCake;
+//
+//		String actionName = "(eat Cake)";
+//		PlanGraphStep test = getTestStep(actionName);
+//		PlanGraphStep result = getCakeDomainStep(actionName);
+//		Step noopCargoNola = null;
+//		Step flyRocketNolaLondon = null;
+////		loadCargoRocketNola = new PlanGraphStep();
+//		assertEquals(true,firstCakeStep.isMutex(loadCargoRocketNola, noopCargoNola));
+//		assertTrue(firstCakeStep.isMutex(loadCargoRocketNola, noopCargoNola));
+//		assertTrue(firstCakeStep.isMutex(loadCargoRocketNola, flyRocketNolaLondon));
+//		assertFalse(firstCakeStep.isMutex(noopCargoNola, flyRocketNolaLondon));
+	}
+	
+//	@Test
+//	public void isGoalNonMutex(){
+//		assertFalse(true);
+//	}
+//	
+//	@Test
+//	public void isContainsGoal(){
+//		assertFalse(true);
+//	}
+//	
+//	@Test
+//	public void getSolvingActions(){
+//		assertFalse(true);
+//	}
+//	
+//	@Test
+//	public void leveledOff(){
+//		PlanGraph initialCakeGraph = createCakePlanGraph();
+//		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+//		PlanGraph secondCakeStep = new PlanGraph(firstCakeStep);
+//		PlanGraph leveledCakeStep = new PlanGraph(secondCakeStep);
+//		assertTrue(leveledCakeStep.isLeveledOff());
+//	}
+//	
+//	@Test
+//	public void planGraphToString(){
+//		assertFalse(true);
+//	}
 }

@@ -229,13 +229,31 @@ public class PlanGraph
 		return _mutexLiterals;
 	}
 	
+	/**
+	 * Returns whether otherStep is a mutex action of step
+	 * 	Will return false if either step or otherStep is null
+	 * @param step
+	 * @param otherStep
+	 * @return
+	 */
 	public boolean isMutex(PlanGraphStep step, PlanGraphStep otherStep)
 	{
+		if(step == null || otherStep == null)
+			return false;
 		return _mutexSteps.get(step).contains(otherStep);
 	}
-	
+
+	/**
+	 * Returns whether otherStep is a mutex action of step
+	 * 	Will return false if either step or otherStep is null
+	 * @param step
+	 * @param otherStep
+	 * @return
+	 */
 	public boolean isMutex(Step step, Step otherStep)
 	{
+		if(step == null || otherStep == null)
+			return false;
 		PlanGraphStep pgStep = getPlanGraphStep(step);
 		PlanGraphStep phOtherStep = getPlanGraphStep(otherStep);
 		return isMutex(pgStep, phOtherStep);
