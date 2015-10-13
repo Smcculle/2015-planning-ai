@@ -229,13 +229,31 @@ public class PlanGraph
 		return _mutexLiterals;
 	}
 	
+	/**
+	 * Returns whether otherStep is a mutex action of step
+	 * 	Will return false if either step or otherStep is null
+	 * @param step
+	 * @param otherStep
+	 * @return
+	 */
 	public boolean isMutex(PlanGraphStep step, PlanGraphStep otherStep)
 	{
+		if(step == null || otherStep == null)
+			return false;
 		return _mutexSteps.get(step).contains(otherStep);
 	}
-	
+
+	/**
+	 * Returns whether otherStep is a mutex action of step
+	 * 	Will return false if either step or otherStep is null
+	 * @param step
+	 * @param otherStep
+	 * @return
+	 */
 	public boolean isMutex(Step step, Step otherStep)
 	{
+		if(step == null || otherStep == null)
+			return false;
 		PlanGraphStep pgStep = getPlanGraphStep(step);
 		PlanGraphStep phOtherStep = getPlanGraphStep(otherStep);
 		return isMutex(pgStep, phOtherStep);
@@ -243,12 +261,24 @@ public class PlanGraph
 	
 	public boolean isGoalNonMutex(Expression goal)
 	{
+		if (!containsGoal(goal))
+        	return false;
+   
 		if (_calculateMutex)
 		{
-			ArrayList<Literal> literals = expressionToLiterals(goal);
-			for (Literal literal : literals)
-				if (_mutexLiterals.containsKey(literal))
-					return false;
+        	ArrayList<Literal> literals = expressionToLiterals(goal);
+            for (Literal literal : literals)
+            {
+            	PlanGraphLiteral pgLiteral = getPlanGraphLiteral(literal);
+                for (Literal otherLiteral : literals)
+                {
+                	PlanGraphLiteral pgOtherLiteral = getPlanGraphLiteral(otherLiteral);
+                    if (!pgLiteral.equals(pgOtherLiteral))
+                    	if (_mutexLiterals.containsKey(pgLiteral))
+                        	if (_mutexLiterals.get(pgLiteral).contains(pgOtherLiteral))
+                            	return false;
+                }
+            }
 		}
 		return true;
 	}
