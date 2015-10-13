@@ -13,6 +13,7 @@ import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.logic.NegatedLiteral;
 
 
 public class Graphplan {
@@ -191,6 +192,7 @@ public class Graphplan {
 
 	////////////////////////////////
 	
+	
 	/**
 	 * step - the step we want to test
 	 * prev - the previous plan graph from the list
@@ -225,28 +227,83 @@ public class Graphplan {
 		return null;
 	}
 
-	/** see if we can use nop. may be a worthless method */
-	public boolean canNopEffect(PlanGraphLiteral effect, int position){
-		for (PlanGraphLiteral literal : parentList.get(position - 1).getCurrentLiterals()){	// for each literal in the specified location literal list
-			if (literal.equals(effect)) return true;
+	/**
+	 * Get a step, apply it
+	 * and return what that previous literal needs to change to
+	 */
+	public PlanGraphLiteral applyApplicableStep(PlanGraphLiteral literal, int prev){
+		if (canAddStep(literal)){
+			PlanGraphStep temp = getAddableStep(literal);
+			return new PlanGraphLiteral ((expressionToLiterals(temp.GetStep().precondition)).get(0));
 		}
-		return false;	
+		return null;
 	}
 
-	public boolean canNopPrecondition(PlanGraphLiteral precondition, int position){
-		for (PlanGraphLiteral literal : parentList.get(position + 1).getCurrentLiterals()){	// for each literal in the specified location literal list
-			if (literal.equals(precondition)) return true;
-		}
-		return false;	
-	}
-	
-	public boolean canNopPrev(int position){
-		for (PlanGraphLiteral precon : parentList.get(position -1 ).getCurrentLiterals()){
-			for (PlanGraphLiteral effect : parentList.get(position).getCurrentLiterals()){
-				if (effect.equals(precon)) return true;
+	/**
+	 * Check if we can apply steps from our goal step backwards. 
+	 * If we get any mutexes return false. 
+	 * If no mutexes, return true.
+	 */
+	public boolean canApplyApplicableSteps(ArrayList<PlanGraphLiteral> literals, int prev){
+		/** Saved bits, will check against level 0. */
+		ArrayList<ArrayList<PlanGraphLiteral>> literalprecTotal = new ArrayList<ArrayList<PlanGraphLiteral>>();
+
+		/** For while we have levels above 0. 0 is our initial state so we'll have to check that somewhere else. */
+		for (int i = prev; i > 0; i--){
+			ArrayList<PlanGraphLiteral> literalprec = new ArrayList<PlanGraphLiteral>();		// a list of our literal preconditions
+			ArrayList<PlanGraphStep> steplist = new ArrayList<PlanGraphStep>();					// our steps
+
+			ArrayList<PlanGraphLiteral> precList = new ArrayList<PlanGraphLiteral>();			// preconditions of steps - check for mutexes
+			ArrayList<PlanGraphLiteral> fxList = new ArrayList<PlanGraphLiteral>();				// effects of steps - check for mutexes
+
+			/** For each of our literals in our arraylist of literals, add its applicable step to our step array, and that step's precondition to our precondition array. 
+			for (PlanGraphLiteral literal : literals){
+				literalprec.add(applyApplicableStep(literal, i));
+				steplist.add(getAddableStep(literal));
 			}
+			/** Check for mutexes. If mutexes, return false. */
+			for (PlanGraphLiteral literal : literalprec){
+				PlanGraphLiteral litNegation = new PlanGraphLiteral((new NegatedLiteral(literal.getLiteral())).negate());
+				if (literalprec.contains(litNegation)) return false;
+			}
+			/** Add each step's preconditions to the precondition list, and effects to our effects list. */
+			for (PlanGraphStep step : steplist){
+				precList.add( new PlanGraphLiteral( (expressionToLiterals(step.GetStep().precondition)).get(0)));
+				fxList.add( new PlanGraphLiteral( (expressionToLiterals(step.GetStep().effect)).get(0)));
+			}
+			/** If there are precondition mutexes, return false. */
+			for (PlanGraphLiteral lit : precList){
+				if (precList.contains(lit.getLiteral().negate())) return false;
+			}
+			/** If there are effect mutexes, return false. */
+			for (PlanGraphLiteral lit : fxList){
+				if (fxList.contains(new PlanGraphLiteral((new NegatedLiteral(lit.getLiteral())).negate()))) return false;
+			}
+			literalprecTotal.add(0, literalprec);
 		}
-		return false;
+		/** So far so good. Now check against our first literals. */
+		for (PlanGraphLiteral literal : literalprecTotal.get(0)){
+			PlanGraphLiteral negate = new PlanGraphLiteral((new NegatedLiteral(literal.getLiteral())).negate());
+			if ( parentList.get(0).initialLiterals.contains(negate)) return false;
+		}
+		return true;	
+	}
+
+	/** 
+	 * Apply applicable steps and get what our preconditions will have to be. 
+	 * It's an arraylist of arraylists, so we have preconditions for each level. 
+	 */
+	public ArrayList<ArrayList<PlanGraphLiteral>> applyApplicableStepsGetLiterals(ArrayList<PlanGraphLiteral> literals, int prev){
+		if (!canApplyApplicableSteps(literals, prev)) return null;
+		ArrayList<ArrayList<PlanGraphLiteral>> literalList = new ArrayList<ArrayList<PlanGraphLiteral>>();
+		for (int i = prev; i > 0; i--){
+			ArrayList<PlanGraphLiteral> literalprec = new ArrayList<PlanGraphLiteral>();
+			for (PlanGraphLiteral literal : literals){
+				literalprec.add(applyApplicableStep(literal, i));
+			}
+			literalList.add(0, literalprec);
+		}
+		return literalList;
 	}
 
 	/** see if the step's effect matches our literal */
@@ -297,5 +354,4 @@ public class Graphplan {
 		return null;
 	}
 
-	
 }
