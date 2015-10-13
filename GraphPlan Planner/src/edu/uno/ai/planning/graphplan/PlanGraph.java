@@ -26,8 +26,14 @@ import edu.uno.ai.planning.util.ImmutableArray;
  */
 public class PlanGraph 
 {
+
+	
 	/** PlanGraph's Parent */
 	PlanGraph _parent;
+	
+	ArrayList<Node> nodes;
+	
+	Node n;
 	
 	/** Will this PlanGraph calculate mutual exclusions? */
 	boolean _calculateMutex;
@@ -86,6 +92,10 @@ public class PlanGraph
 		addAllPerstitenceSteps();
 		setInitialEffects(problem.initial);
 		setNonSpecifiedInitialEffects(problem.initial);
+		nodes = new ArrayList<Node>();
+		n = new Node();
+		n.steps = _steps;
+		n.literals = _effects;
 	}
 
 	/**
