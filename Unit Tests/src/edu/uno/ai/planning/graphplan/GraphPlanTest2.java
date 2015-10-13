@@ -33,10 +33,9 @@ public class GraphPlanTest2 {
 
 			Problem rproblem = createEasyCargoProblem();
 			Graphplan rocket = new Graphplan(rproblem);
-		
-
-			cake.extend();
-//			rocket.doGraphPlan();
+	
+//			cake.extend();
+			rocket.doGraphPlan();
 //			rocket.extend();
 //			rocket.areStepsSolution()
 			

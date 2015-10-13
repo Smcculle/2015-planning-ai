@@ -54,7 +54,6 @@ public class Graphplan {
 	}
 	
 	public void extend(){
-		pg = new PlanGraph(pg);
 		nextPG(pg);
 		
 		for (PlanGraph node: parentList){
@@ -74,6 +73,7 @@ public class Graphplan {
 			return;
 		}
 		else{
+//			System.out.println(parentList.size());
 			goalLiterals = goals;
 		
 			steps = currentPlanGraph.getCurrentSteps();
@@ -82,27 +82,27 @@ public class Graphplan {
 				for (Literal goalLiteral: goalLiterals){
 					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
-//							if (step.GetInitialLevel() == currentPlanGraph.getLevel()){
+							if (step.GetInitialLevel() == currentPlanGraph.getLevel()){
 							howToAchieveGoals.add(step);
 							iterateList.add(step);
-//							}
+							}
 						}
 					}
 				}
 			}
 			
-			System.out.println(iterateList);
+//			System.out.println(steps);
 			
 			
 			howToAchieveGoalsList.addAll(howToAchieveGoals);
 			
-			System.out.println(howToAchieveGoalsList);
+//			System.out.println(howToAchieveGoalsList);
 			
 			for (int i = 0; i < howToAchieveGoalsList.size(); i++) {
 				for (int j = i+1; j < howToAchieveGoalsList.size(); j++) {
-					System.out.println(howToAchieveGoalsList.get(i));
-					System.out.println(howToAchieveGoalsList.get(j));
-					System.out.println(currentPlanGraph._mutexSteps);
+//					System.out.println(howToAchieveGoalsList.get(i));
+//					System.out.println(howToAchieveGoalsList.get(j));
+//					System.out.println(currentPlanGraph._mutexSteps);
 					
 					if (currentPlanGraph.isMutex(howToAchieveGoalsList.get(i), howToAchieveGoalsList.get(j))){
 						
@@ -110,7 +110,7 @@ public class Graphplan {
 					}
 				}
 			}
-			System.out.println(iterateList);	
+//			System.out.println(iterateList);	
 				
 				
 				
@@ -141,9 +141,10 @@ public class Graphplan {
 				search(preconditions);
 //			}
 			
-			
 		}
 		
+		System.out.println(solution.getAllSteps());
+		System.out.println(solution.deleteRepeats());
 		System.out.println(solution);
 	}
 	

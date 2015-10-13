@@ -2,6 +2,7 @@ package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -805,6 +806,13 @@ public class PlanGraph
 			if (planGraphLiteral.getLiteral().equals(literal))
 				return planGraphLiteral;
 		return null;
+	}
+	
+	public ArrayList<PlanGraphStep> deleteRepeats(){
+		ArrayList<PlanGraphStep> x = new ArrayList<PlanGraphStep>(new LinkedHashSet<PlanGraphStep>(_steps));
+		_steps.clear();
+		_steps = x;
+ 		return x;
 	}
 	
 	/**
