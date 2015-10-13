@@ -42,6 +42,7 @@ public class Node{
 			for (int i = 0; i < steps.size() - 1; i++){
 				if( (steps.get(i).GetStep().precondition.equals(step.GetStep().precondition))  ||  (steps.get(i).GetStep().effect.equals(step.GetStep().effect)) ){
 					steps.set(i, step);
+					return;
 				}
 			}
 			steps.add(step);
@@ -54,6 +55,7 @@ public class Node{
 			for (int i = 0; i < literals.size() - 1; i++){
 				if( (literals.get(i).equals(literal)) || (literals.get(i).equals(new NegatedLiteral(literal.getLiteral().negate())) )){
 					literals.set(i, literal);
+					return;
 				}
 			}
 			literals.add(literal);				
