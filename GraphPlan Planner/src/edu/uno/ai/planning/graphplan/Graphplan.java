@@ -37,6 +37,7 @@ public class Graphplan {
 		pg = PlanGraph.create(this.problem);
 		solution = new PlanGraph(problem);
 		solution._steps.clear();
+		solution._effects.clear();
 		
 		
 	}
@@ -113,21 +114,19 @@ public class Graphplan {
 				}
 			}
 
+				
 			search(preconditions);
-
+	
 		}
 		
-		
-		
-//		System.out.println(solution.getLevel());	
-//		System.out.println(solution.getAllSteps());	
-		
+		System.out.println(solution.getLevel());	
 	}
 	
 	public void areStepsSolution(){
 		solution = new PlanGraph(solution);
-		System.out.println(parentList.get(0).getSolvingActions(problem.goal));
-		System.out.println(solution.getAllSteps());
+		System.out.println(solution);
+//		System.out.println(parentList.get(0).getSolvingActions(problem.goal));
+//		System.out.println(solution.getAllSteps());
 		
 		List<PlanGraphStep> match = pg.getSolvingActions(problem.goal);
 		ArrayList<PlanGraphStep> x = new ArrayList<PlanGraphStep>();
@@ -137,14 +136,14 @@ public class Graphplan {
 		list2.removeAll(list1);
 
 		if (list2.isEmpty()){
-			
+			printSolution();
 		} else{
 			extend();
 		}
 	}
 	
-	private PlanGraph returnSolution(){
-		return solution;
+	private void printSolution(){
+//		System.out.println(solution);
 	}
 	
 	public void nextPG(PlanGraph pg){
@@ -282,8 +281,8 @@ public class Graphplan {
 		}
 		/** So far so good. Now check against our first literals. */
 		for (PlanGraphLiteral literal : literalprecTotal.get(0)){
-			PlanGraphLiteral negate = new PlanGraphLiteral((new NegatedLiteral(literal.getLiteral())).negate());
-			if ( parentList.get(0).initialLiterals.contains(negate)) return false;
+//			PlanGraphLiteral negate = new PlanGraphLiteral((new NegatedLiteral(literal.getLiteral())).negate());
+//			if ( parentList.get(0).initialLiterals.contains(negate)) return false;
 		}
 		return true;	
 	}
@@ -311,7 +310,7 @@ public class Graphplan {
 	}
 	/** see if the step's percondition matches our literal */
 	public boolean isStepApplicablePrecon(PlanGraphStep step, PlanGraphLiteral literal){
-		return ((literal.getLiteral().equals(step.GetStep().effect)));
+		return ((literal.getLiteral().equals(step.GetStep().precondition)));
 	}
 
 	/**
