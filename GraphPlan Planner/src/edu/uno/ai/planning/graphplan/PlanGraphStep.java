@@ -18,9 +18,11 @@ import edu.uno.ai.planning.util.ConversionUtil;
  */
 public class PlanGraphStep extends Step implements PlanGraphNode
 {
-
+	
 	/** The level the Step first appeared in PlanGraph **/
 	private int _initialLevel;
+	private boolean _isPersistent;
+
 	private List<PlanGraphLiteral> _parents;
 	private List<PlanGraphLiteral> _children;
 
@@ -42,6 +44,15 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 			_parents.add(effectPGLit);
 		}
 		_initialLevel = initialLevel;
+		_isPersistent = false;
+	}
+	
+	
+	static public PlanGraphStep createPersistentStep(Step step)
+	{
+		PlanGraphStep persistentStep = new PlanGraphStep(step);
+		persistentStep._isPersistent = true;
+		return persistentStep;
 	}
 	
 	 /**
@@ -90,6 +101,25 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 		return _initialLevel;
 	}
 	
+	public boolean isPersistent()
+	{
+		return _isPersistent;
+	}
+	
+	public ArrayList<PlanGraphLiteral> getParents(int level)
+	{
+		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+		// TODO Get all possible literals 
+		return literals;
+	}
+	
+	public ArrayList<PlanGraphLiteral> getChildren(int level)
+	{
+		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+		// TODO Get all possible literals 
+		return literals;
+	}
+	
 	@Override
 	/**
 	 * Change/Set first level Step appears in PlanGraph
@@ -100,7 +130,7 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	{
 		_initialLevel = levelNumber;
 	}
-	
+
 	protected void addPlanGraphChild(PlanGraphLiteral newStep){
 		_children.add(newStep);
 	}
@@ -108,7 +138,7 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	protected void addPlanGraphParent(PlanGraphLiteral newStep){
 		_parents.add(newStep);
 	}
-	
+
 	@Override
 	public String toString()
 	{

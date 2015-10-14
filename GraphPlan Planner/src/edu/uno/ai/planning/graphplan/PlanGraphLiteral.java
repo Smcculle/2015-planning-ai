@@ -57,6 +57,20 @@ public class PlanGraphLiteral implements PlanGraphNode
 		this(literal, -1, new ArrayList<PlanGraphStep>(), new ArrayList<PlanGraphStep>());
 	}
 	
+	public ArrayList<PlanGraphStep> getParents(int level)
+	{
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		// TODO Get all possible steps 
+		return steps;
+	}
+	
+	public ArrayList<PlanGraphStep> getChildren(int level)
+	{
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		// TODO Get all possible steps 
+		return steps;
+	}
+	
 	public boolean equals(PlanGraphLiteral pgLiteral){
 		return getLiteral().compareTo(pgLiteral.getLiteral()) == 0;  
 	}
