@@ -61,7 +61,7 @@ public class PlanGraphTest {
 	private PlanGraphStep getStep(String stepName, List<PlanGraphStep> steps){
 		PlanGraphStep thisStep = getTestStep(stepName);
 		for(PlanGraphStep step : steps)
-			if(thisStep.GetStep().name.equals(step.GetStep().name))
+			if(thisStep.getStep().name.equals(step.getStep().name))
 				return step;
 		return null;
 	}
@@ -77,29 +77,24 @@ public class PlanGraphTest {
 		assertEquals(otherStep, getStep("test2", steps));
 	}
 	
-	private PlanGraphStep getCakeDomainStep(String cakeStepName){
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		return getStep(cakeStepName, firstCakeStep.getCurrentSteps());
-	}
-	
 	@Test
 	public void checkGetCakeDomainStep(){
 		String actionName = "(eat Cake)";
 		PlanGraphStep test = getTestStep(actionName);
-		PlanGraphStep result = getCakeDomainStep(actionName);
-		assertEquals(0, test.GetStep().compareTo(result.GetStep()));
+		PlanGraph cakeGraph = createCakePlanGraph();
+		PlanGraphStep result = getStep(actionName, cakeGraph.getAllPossiblePlanGraphSteps());
+		assertEquals(0, test.getStep().compareTo(result.getStep()));
 	}
 	
 	private PlanGraph createCakePlanGraph(){
 		Problem cakeProblem = createCakeProblem();
-		PlanGraph graph = new PlanGraph(cakeProblem);
+		PlanGraph graph = new PlanGraph(cakeProblem, true);
 		return graph;
 	}
 	
 	private PlanGraph createRocketPlanGraph(){
 		Problem cargoProblem = createEasyCargoProblem();
-		PlanGraph graph = new PlanGraph(cargoProblem);
+		PlanGraph graph = new PlanGraph(cargoProblem, true);
 		return graph;
 	}
 	
@@ -114,81 +109,78 @@ public class PlanGraphTest {
 	@Test
 	public void constructorCakeDomain(){
 		// TEST CAKE DOMAIN
-		PlanGraph initialCakeGraph = createCakePlanGraph();
+		PlanGraph cakeGraph = createCakePlanGraph();
+		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)cakeGraph.getRootLevel(); 
 
 		// Test existence
-		assertNotNull(initialCakeGraph);
+		assertNotNull(rootLevel);
 		// Test parent and level for new Plan Graph
-		assertNull(initialCakeGraph.getParent());
-		assertEquals(0, initialCakeGraph.getLevel());
+		assertNull(rootLevel.getParent());
+		assertEquals(0, rootLevel.getLevel());
 		// Test nothing should be mutually exclusive in initial state
-		assertEquals(0, initialCakeGraph.getMutuallyExclusiveSteps().size());
-		assertEquals(0, initialCakeGraph.getMutuallyExclusiveLiterals().size());
+		assertEquals(0, rootLevel.getMutuallyExclusiveSteps().size());
+		assertEquals(0, rootLevel.getMutuallyExclusiveLiterals().size());
 		// Test steps
-		assertEquals(6,initialCakeGraph.getAllSteps().size());
-		assertEquals(0, initialCakeGraph.getCurrentSteps().size());
+		assertEquals(0, rootLevel.countCurrentSteps());
 		// Test literals
-		assertEquals(4,initialCakeGraph.getAllLiterals().size());
-		assertEquals(2, initialCakeGraph.getCurrentLiterals().size());
+		assertEquals(2, rootLevel.countCurrentEffects());
 	}
 	
 	@Test
 	public void firstStepCakeDomain(){
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		PlanGraph cakeGraph = createCakePlanGraph();
+		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)cakeGraph.getRootLevel();
+		PlanGraphLevelMutex firstLevel = (PlanGraphLevelMutex)cakeGraph.getLevel(1);
 
 		// Test existence
-		assertNotNull(firstCakeStep);
+		assertNotNull(firstLevel);
 		// Test parent and level for new Plan Graph
-		assertNotNull(firstCakeStep.getParent());
-		assertEquals(firstCakeStep.getParent(), initialCakeGraph);
-		assertEquals(1, firstCakeStep.getLevel());
+		assertNotNull(firstLevel.getParent());
+		assertEquals(firstLevel.getParent(), rootLevel);
+		assertEquals(1, firstLevel.getLevel());
 		// Test steps
-		assertEquals(6,firstCakeStep.getAllSteps().size());
-		assertEquals(3, firstCakeStep.getCurrentSteps().size());
-		// Test nothing should be mutually exclusive in initial state
-		assertEquals(3, firstCakeStep.getMutuallyExclusiveSteps().size());
-		assertEquals(4, firstCakeStep.getMutuallyExclusiveLiterals().size());
+		assertEquals(3, firstLevel.countCurrentSteps());
+		// ---------
+		assertEquals(3, firstLevel.getMutuallyExclusiveSteps().size());
+		assertEquals(4, firstLevel.getMutuallyExclusiveLiterals().size());
 		// Test literals
-		assertEquals(4,firstCakeStep.getAllLiterals().size());
-		assertEquals(4, firstCakeStep.getCurrentLiterals().size());	
+		assertEquals(4, firstLevel.countCurrentEffects());	
 	}
 	
 	@Test
 	public void constructorRocketDomain(){
 		// TEST ROCKET DOMAIN
-		PlanGraph initialRocketGraph = createRocketPlanGraph();
+		PlanGraph rocketGraph = createRocketPlanGraph();
+		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)rocketGraph.getRootLevel();
 
 		// Test existence
-		assertNotNull(initialRocketGraph);
+		assertNotNull(rootLevel);
 		// Test parent and level for new Plan Graph
-		assertNull(initialRocketGraph.getParent());
-		assertEquals(0, initialRocketGraph.getLevel());
+		assertNull(rootLevel.getParent());
+		assertEquals(0, rootLevel.getLevel());
 		// Test nothing should be mutually exclusive in initial state
-		assertEquals(0, initialRocketGraph.getMutuallyExclusiveSteps().size());
-		assertEquals(0, initialRocketGraph.getMutuallyExclusiveLiterals().size());
+		assertEquals(0, rootLevel.getMutuallyExclusiveSteps().size());
+		assertEquals(0, rootLevel.getMutuallyExclusiveLiterals().size());
 		// Test steps
-		assertEquals(18,initialRocketGraph.getAllSteps().size());
-		assertEquals(0, initialRocketGraph.getCurrentSteps().size());
+		assertEquals(0, rootLevel.countCurrentSteps());
 		// Test literals
-		assertEquals(10,initialRocketGraph.getAllLiterals().size());
-		assertEquals(5, initialRocketGraph.getCurrentLiterals().size());
+		assertEquals(5, rootLevel.countCurrentEffects());
 	}
 	
 	@Test
 	public void firstStepRocketDomain(){
-		PlanGraph initialRocketGraph = createRocketPlanGraph();
-		PlanGraph firstRocketStep = new PlanGraph(initialRocketGraph);
+		PlanGraph rocketGraph = createRocketPlanGraph();
+		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)rocketGraph.getRootLevel();
+		PlanGraphLevelMutex firstLevel = (PlanGraphLevelMutex)rocketGraph.getLevel(1);
 
 		// Test existence
-		assertNotNull(firstRocketStep);
+		assertNotNull(firstLevel);
 		// Test parent and level for new Plan Graph
-		assertNotNull(firstRocketStep.getParent());
-		assertEquals(firstRocketStep.getParent(), initialRocketGraph);
-		assertEquals(1, firstRocketStep.getLevel());
+		assertNotNull(firstLevel.getParent());
+		assertEquals(firstLevel.getParent(), rootLevel);
+		assertEquals(1, firstLevel.getLevel());
 		// Test steps
-		assertEquals(18,firstRocketStep.getAllSteps().size());
-		assertEquals(8, firstRocketStep.getCurrentSteps().size());
+		assertEquals(8, firstLevel.countCurrentSteps());
 		// Test mutex Literals does not contain any entries for (not (at cargo london))
 		Constant cargo = new Constant("cargo", "Cargo");
 		Constant rocket = new Constant("rocket", "Rocket"); 
@@ -199,18 +191,17 @@ public class PlanGraphTest {
 		PlanGraphLiteral cargoIsNotAtLondon0 = new PlanGraphLiteral(notCargoAtLondon, 0);
 		PlanGraphLiteral cargoIsNotAtLondon1 = new PlanGraphLiteral(notCargoAtLondon, 1);
 		List<PlanGraphLiteral> cinalMutexLiterals = null;
-		for(PlanGraphLiteral key : firstRocketStep.getMutuallyExclusiveLiterals().keySet()){
+		for(PlanGraphLiteral key : firstLevel.getMutuallyExclusiveLiterals().keySet()){
 			if(key.equals(cargoIsNotAtLondon0) || key.equals(cargoIsNotAtLondon1)){
-				cinalMutexLiterals = firstRocketStep.getMutuallyExclusiveLiterals().get(key);
+				cinalMutexLiterals = firstLevel.getMutuallyExclusiveLiterals().get(key);
 			}
 		}
 		assertNull(cinalMutexLiterals);
 		// Test mutually exclusive Steps and Literals  during this step
-		assertEquals(7, firstRocketStep.getMutuallyExclusiveSteps().size());
- 		assertEquals(8, firstRocketStep.getMutuallyExclusiveLiterals().size());
+		assertEquals(7, firstLevel.getMutuallyExclusiveSteps().size());
+ 		assertEquals(8, firstLevel.getMutuallyExclusiveLiterals().size());
 		// Test literals
-		assertEquals(10,firstRocketStep.getAllLiterals().size());
-		assertEquals(9, firstRocketStep.getCurrentLiterals().size());
+		assertEquals(9, firstLevel.countCurrentEffects());
 		// Test mutuallyExclusiveStep specifics (fly Rocket NOLA NOLA)
 //		(fly Rocket NOLA NOLA)[1]=[(Persistence Step (at Rocket NOLA))[1], 	<----
 //		          				 (load Cargo Rocket NOLA)[1], 				<----
@@ -224,10 +215,10 @@ public class PlanGraphTest {
 		PlanGraphStep pgFlyRocketNolaNola0 = new PlanGraphStep(flyRocketNolaNola, 0);
 		PlanGraphStep pgFlyRocketNolaNola1 = new PlanGraphStep(flyRocketNolaNola, 1);
 		List<PlanGraphStep> mutexStepsForFlyNolaNola = new ArrayList<PlanGraphStep>();
-		for(PlanGraphStep key : firstRocketStep.getMutuallyExclusiveSteps().keySet()){
-			if((key.GetStep().compareTo(pgFlyRocketNolaNola0.GetStep()) == 0) || 
-			   (key.GetStep().compareTo(pgFlyRocketNolaNola1.GetStep()) == 0)){
-				mutexStepsForFlyNolaNola = firstRocketStep.getMutuallyExclusiveSteps().get(key);
+		for(PlanGraphStep key : firstLevel.getMutuallyExclusiveSteps().keySet()){
+			if((key.getStep().compareTo(pgFlyRocketNolaNola0.getStep()) == 0) || 
+			   (key.getStep().compareTo(pgFlyRocketNolaNola1.getStep()) == 0)){
+				mutexStepsForFlyNolaNola = firstLevel.getMutuallyExclusiveSteps().get(key);
 				break;
 			}
 		}
@@ -238,91 +229,67 @@ public class PlanGraphTest {
 	public void entireCakePlanGraph()
 	{
 		Problem cakeProblem = createCakeProblem();
-		PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
-		PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
-		assertNotNull(cakePlanGraph);
-		assertNotNull(cakePlanGraphExt);
+		PlanGraph cakeGraph = new PlanGraph(cakeProblem);
+		assertNotNull(cakeGraph);
+		assertEquals(2, cakeGraph.countLevels());
+		cakeGraph.extend();
+		assertEquals(3, cakeGraph.countLevels());
 	}
 	
 	@Test
 	public void entireRocketPlanGraph()
 	{
 		Problem rocketProblem = createEasyCargoProblem();
-		PlanGraph rocketPlanGraph = PlanGraph.create(rocketProblem);
-		assertNotNull(rocketPlanGraph);
+		PlanGraph rocketGraph = new PlanGraph(rocketProblem);
+		assertNotNull(rocketGraph);
 	}
 	
 	@Test
 	public void nullIsMutex(){
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		PlanGraph cakeGraph = createCakePlanGraph();
+		PlanGraphLevelMutex firstLevel = (PlanGraphLevelMutex)cakeGraph.getLevel(1);
+		
 		PlanGraphStep noopCargoNola = null;
 		PlanGraphStep flyRocketNolaLondon = null;
-		assertFalse(firstCakeStep.isMutex(noopCargoNola, flyRocketNolaLondon));
+		assertFalse(firstLevel.isMutex(noopCargoNola, flyRocketNolaLondon));
 	}
 	
 	@Test
 	public void isMutex(){
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
+		PlanGraph cakeGraph = createCakePlanGraph();
+		PlanGraphLevelMutex firstLevel = (PlanGraphLevelMutex)cakeGraph.getLevel(1);
 		
 		// Build Steps
-		List<PlanGraphStep> cakeSteps = firstCakeStep.getCurrentSteps();
-		PlanGraphStep eatCake = getStep("(eat Cake)", cakeSteps);
-		PlanGraphStep noopHaveCake = getStep("(Persistence Step (have Cake))", cakeSteps);
-		PlanGraphStep noopNotEatCake = getStep("(Persistence Step (not (eaten Cake)))", cakeSteps);
-		assertTrue(firstCakeStep.isMutex(eatCake, noopHaveCake));
-		assertTrue(firstCakeStep.isMutex(eatCake, noopNotEatCake));
-		assertFalse(firstCakeStep.isMutex(noopHaveCake, noopNotEatCake));
+		PlanGraphStep eatCake = getStep("(eat Cake)", cakeGraph.getAllPossiblePlanGraphSteps());
+		PlanGraphStep noopHaveCake = getStep("(Persistence Step (have Cake))", cakeGraph.getAllPossiblePlanGraphSteps());
+		PlanGraphStep noopNotEatCake = getStep("(Persistence Step (not (eaten Cake)))", cakeGraph.getAllPossiblePlanGraphSteps());
+		assertTrue(firstLevel.isMutex(eatCake, noopHaveCake));
+		assertTrue(firstLevel.isMutex(eatCake, noopNotEatCake));
+		assertFalse(firstLevel.isMutex(noopHaveCake, noopNotEatCake));
 	}
 	
 	@Test
 	public void isContainsGoal(){
 		Expression goal = getHaveCakeAndEatIt();
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		assertFalse(initialCakeGraph.containsGoal(goal));
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		assertTrue(firstCakeStep.containsGoal(goal));
-	}
-	
-	@Test
-	public void isGoalNonMutex(){
-		Expression goal = getHaveCakeAndEatIt();
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		assertFalse(initialCakeGraph.isGoalNonMutex(goal));
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		assertFalse(firstCakeStep.isGoalNonMutex(goal));
-		PlanGraph solutionCakeStep = new PlanGraph(firstCakeStep);
-		assertTrue(solutionCakeStep.isGoalNonMutex(goal));
-	}
-	
-	@Test
-	public void getSolvingActions(){
-		Expression goal = getHaveCakeAndEatIt();
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		// Build Steps
-		List<PlanGraphStep> cakeSteps = firstCakeStep.getCurrentSteps();
-		PlanGraphStep eatCake = getStep("(eat Cake)", cakeSteps);		// SHOULD HAVE
-		PlanGraphStep noopHaveCake = getStep("(Persistence Step (have Cake))", cakeSteps);		// SHOULD HAVE
-		PlanGraphStep noopNotEatCake = getStep("(Persistence Step (not (eaten Cake)))", cakeSteps);		// SHOULD NOT HAVE!!!
-		
-		List<PlanGraphStep> results = firstCakeStep.getSolvingActions(goal);
-		assertEquals(true,results.contains(eatCake));
-		assertEquals(true,results.contains(noopHaveCake));
-		assertEquals(false,results.contains(noopNotEatCake));
+		PlanGraph cakeGraph = createCakePlanGraph();
+		assertTrue(cakeGraph.containsGoal(goal));
+
+		PlanGraphLevel rootLevel = cakeGraph.getRootLevel();
+		PlanGraphLevel firstLevel = cakeGraph.getLevel(1);
+		PlanGraphLevel secondLevel = cakeGraph.getLevel(2);
+		assertFalse(rootLevel.containsGoal(goal));
+		assertFalse(firstLevel.containsGoal(goal));
+		assertTrue(secondLevel.containsGoal(goal));
 	}
 	
 	@Test
 	public void leveledOff(){
-		PlanGraph initialCakeGraph = createCakePlanGraph();
-		assertFalse(initialCakeGraph.isLeveledOff());
-		PlanGraph firstCakeStep = new PlanGraph(initialCakeGraph);
-		assertFalse(firstCakeStep.isLeveledOff());
-		PlanGraph secondCakeStep = new PlanGraph(firstCakeStep);
-		assertFalse(secondCakeStep.isLeveledOff());
-		PlanGraph leveledCakeStep = new PlanGraph(secondCakeStep);
-		assertTrue(leveledCakeStep.isLeveledOff());
+		PlanGraph cakeGraph = createCakePlanGraph();
+		assertFalse(cakeGraph.isLeveledOff());
+		cakeGraph.extend();
+		assertTrue(cakeGraph.isLeveledOff());
+		cakeGraph.extend();
+		assertTrue(cakeGraph.isLeveledOff());
 	}
 	
 //	@Test

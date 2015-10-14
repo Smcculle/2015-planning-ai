@@ -15,10 +15,19 @@ import edu.uno.ai.planning.Step;
 public class PlanGraphStep 
 {
 	/** The wrapped Step **/
-	Step _step;
+	private Step _step;
 	
 	/** The level the Step first appeared in PlanGraph **/
-	 int _initialLevel;
+	private int _initialLevel;
+	
+	private boolean _isPersistent;
+	
+	static public PlanGraphStep createPersistentStep(Step step)
+	{
+		PlanGraphStep persistentStep = new PlanGraphStep(step);
+		persistentStep._isPersistent = true;
+		return persistentStep;
+	}
 	
 	 /**
 	 * Creates a wrapped Step with a set initialLevel
@@ -47,9 +56,14 @@ public class PlanGraphStep
 	/**
 	 * @return initialLevel First level Step appears in PlanGraph
 	 */
-	public int GetInitialLevel()
+	public int getInitialLevel()
 	{
 		return _initialLevel;
+	}
+	
+	public boolean isPersistent()
+	{
+		return _isPersistent;
 	}
 	
 	public ArrayList<PlanGraphLiteral> getParents(int level)
@@ -79,7 +93,7 @@ public class PlanGraphStep
 	/**
 	 * @return step Wrapped Step
 	 */
-	public Step GetStep()
+	public Step getStep()
 	{
 		return _step;
 	}

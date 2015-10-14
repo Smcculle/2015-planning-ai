@@ -20,19 +20,16 @@ public class PlanGraphLiteral
 	/** The level the Literal first appeared in PlanGraph **/
 	private int _initialLevel;
 	
-	private PlanGraph _planGraph;
-	
 	/**
 	 * Creates a wrapped Literal with a set initialLevel
 	 * 
 	 * @param literal Literal to be wrapped
 	 * @param initialLevel First level Literal appears in PlanGraph
 	 */
-	public PlanGraphLiteral(Literal literal, int initialLevel, PlanGraph planGraph)
+	public PlanGraphLiteral(Literal literal, int initialLevel)
 	{
 		_literal = literal;
 		_initialLevel = initialLevel;
-		_planGraph = planGraph;
 	}
 	
 	/**
@@ -41,9 +38,9 @@ public class PlanGraphLiteral
 	 * 
 	 * @param literal Literal to be wrapped
 	 */
-	public PlanGraphLiteral(Literal literal, PlanGraph planGraph)
+	public PlanGraphLiteral(Literal literal)
 	{
-		this(literal, -1, planGraph);
+		this(literal, -1);
 	}
 	
 	/**

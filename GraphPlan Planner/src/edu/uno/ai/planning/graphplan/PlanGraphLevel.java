@@ -1,20 +1,13 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.NegatedLiteral;
-import edu.uno.ai.planning.ss.StateSpaceProblem;
-import edu.uno.ai.planning.util.ImmutableArray;
 
 public class PlanGraphLevel 
 {
@@ -22,10 +15,10 @@ public class PlanGraphLevel
 	private PlanGraphLevel _parent;
 	
 	/** List of all unique steps in PlanGraph */
-	private ArrayList<PlanGraphStep> _steps;
+	protected ArrayList<PlanGraphStep> _steps;
 	
 	/** List of all unique effects in PlanGraph */
-	private ArrayList<PlanGraphLiteral> _effects;
+	protected ArrayList<PlanGraphLiteral> _effects;
 	
 	/** List of all Persistence Steps (easier record keeping) */
 	private ArrayList<PlanGraphStep> _persistenceSteps;
@@ -33,7 +26,7 @@ public class PlanGraphLevel
 	/** Current level number */
 	private int _level;
 	
-	private PlanGraph _planGraph;
+	protected PlanGraph _planGraph;
 	
 	/**
 	 * Constructs a new root of PlanGraph
@@ -65,6 +58,7 @@ public class PlanGraphLevel
 		_steps = parent._steps;
 		_persistenceSteps = parent._persistenceSteps;
 		_level = _parent._level + 1;
+		_planGraph = parent._planGraph;
 		setPerstitenceStepLevels();
 		addAllPossibleNewSteps();
 	}
@@ -81,15 +75,20 @@ public class PlanGraphLevel
 	}
 	
 	public boolean containsGoal(Expression goal)
-	{
-		ArrayList<Literal> literals = expressionToLiterals(goal);
-		ArrayList<PlanGraphLiteral> currentPlanGraphLiterals = getCurrentLiterals();
-		
+	{		
+		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(goal);
 		for (Literal literal : literals)
-			if (!currentPlanGraphLiterals.contains(getPlanGraphLiteral(literal)))
+		{
+			PlanGraphLiteral pgLiteral = _planGraph.getPlanGraphLiteral(literal);
+			if (!exists(pgLiteral))
 				return false;
-		
+		}
 		return true;
+	}
+	
+	public PlanGraphLevel getParent()
+	{
+		return _parent;
 	}
 
 	public boolean isLeveledOff()
@@ -97,14 +96,14 @@ public class PlanGraphLevel
 		if (_parent == null)
 			return false;
 
-		if (_parent.currentEffectCount() == currentEffectCount())
-			if (_parent.currentStepCount() == currentStepCount())
+		if (_parent.countCurrentEffects() == countCurrentEffects())
+			if (_parent.countCurrentSteps() == countCurrentSteps())
 				return true;
 
 		return false;
 	}
 	
-	public int currentEffectCount()
+	public int countCurrentEffects()
 	{
 		int count = 0;
 		for (PlanGraphLiteral effect : _effects)
@@ -113,7 +112,7 @@ public class PlanGraphLevel
 		return count;
 	}
 	
-	public int currentStepCount()
+	public int countCurrentSteps()
 	{
 		int count = 0;
 		for (PlanGraphStep step : _steps)
@@ -141,12 +140,13 @@ public class PlanGraphLevel
 		if (!isPreconditionSatisfied(step))
 			return;
 		
-		if (step.GetInitialLevel() == -1)
+		if (step.getInitialLevel() == -1)
 		{
 			step.SetInitialLevel(getLevel());
-			for (Literal literal : expressionToLiterals(step.GetStep().effect))
-				if (getPlanGraphLiteral(literal).GetInitialLevel() == -1)
-					getPlanGraphLiteral(literal).SetInitialLevel(getLevel());
+			ArrayList<Literal> literals = PlanGraph.expressionToLiterals(step.getStep().effect);
+			for (Literal literal : literals)
+				if (!exists(literal))
+					_planGraph.getPlanGraphLiteral(literal).SetInitialLevel(_level);
 		}
 	}
 	
@@ -160,16 +160,21 @@ public class PlanGraphLevel
 		if (_parent == null)
 			return false;
 		
-		Step step = planGraphStep.GetStep();
-		for (Literal literal : expressionToLiterals(step.precondition))
+		Step step = planGraphStep.getStep();
+		for (Literal literal : PlanGraph.expressionToLiterals(step.precondition))
 		{
 			boolean didFindValue = false;
-			for (PlanGraphLiteral planGraphLiteral : _parent.getCurrentLiterals())
-				if (literal.equals(planGraphLiteral.getLiteral()))
+			for (PlanGraphLiteral planGraphLiteral : _effects)
+			{
+				if (_parent.exists(planGraphLiteral))
 				{
-					didFindValue = true;
-					break;
+					if (literal.equals(planGraphLiteral.getLiteral()))
+					{
+						didFindValue = true;
+						break;
+					}
 				}
+			}
 			
 			if (!didFindValue)
 				return false;
@@ -186,7 +191,7 @@ public class PlanGraphLevel
 	 */
 	private void setInitialEffects(State initialState) 
 	{
-		ArrayList<Literal> literals = expressionToLiterals(initialState.toExpression());
+		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(initialState.toExpression());
 		for (Literal literal : literals)
 			for (PlanGraphLiteral planGraphLiteral : _effects)
 				if (literal.equals(planGraphLiteral.getLiteral()))
@@ -195,7 +200,7 @@ public class PlanGraphLevel
 
 	private void setNonSpecifiedInitialEffects(State initialState) 
 	{
-		ArrayList<Literal> literals = expressionToLiterals(initialState.toExpression());
+		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(initialState.toExpression());
 		for (PlanGraphLiteral planGraphLiteral : _effects)
 			if (planGraphLiteral.getLiteral() instanceof NegatedLiteral)
 				if (!literals.contains(planGraphLiteral.getLiteral().negate()))
@@ -209,9 +214,9 @@ public class PlanGraphLevel
 	{
 		for (PlanGraphStep persistenceStep : _persistenceSteps)
 		{
-			Literal literal = (Literal)persistenceStep.GetStep().effect;
-			if (persistenceStep.GetInitialLevel() == -1)
-				if (getCurrentLiterals().contains(getPlanGraphLiteral(literal)))
+			Literal literal = (Literal)persistenceStep.getStep().effect;
+			if (!exists(persistenceStep))
+				if (_parent.exists(literal))
 					persistenceStep.SetInitialLevel(getLevel());
 		}
 	}
@@ -237,12 +242,12 @@ public class PlanGraphLevel
 		str += "PlanGraph Level " + getLevel() + "\n";
 		str += "--------------------------------\n";
 		
-		str += "Steps [" + currentStepCount() + "]:\n";
+		str += "Steps [" + countCurrentSteps() + "]:\n";
 		for (PlanGraphStep step : _steps)
 			if (exists(step))
 				str += "-" + step.toString() + "\n";
 		
-		str += "Effects [" + currentEffectCount() + "]:\n";
+		str += "Effects [" + countCurrentEffects() + "]:\n";
 		for (PlanGraphLiteral effect : _effects)
 			if (exists(effect))
 				str += "-" + effect.toString() + "\n";
@@ -252,13 +257,25 @@ public class PlanGraphLevel
 
 	public boolean exists(PlanGraphStep pgStep) 
 	{
+		if (pgStep== null) return false;
 		// Between 0 and current level
-		return 0 <= pgStep.GetInitialLevel() && pgStep.GetInitialLevel() <= _level;
+		return 0 <= pgStep.getInitialLevel() && pgStep.getInitialLevel() <= _level;
 	}
 
 	public boolean exists(PlanGraphLiteral pgLiteral) 
 	{		
+		if (pgLiteral == null) return false;
 		// Between 0 and current level
 		return 0 <= pgLiteral.GetInitialLevel() && pgLiteral.GetInitialLevel() <= _level;
+	}
+	
+	public boolean exists(Step step) 
+	{
+		return exists(_planGraph.getPlanGraphStep(step));
+	}
+
+	public boolean exists(Literal literal) 
+	{		
+		return exists(_planGraph.getPlanGraphLiteral(literal));
 	}
 }

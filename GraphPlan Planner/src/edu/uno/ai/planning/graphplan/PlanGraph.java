@@ -1,18 +1,14 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+
 
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.util.ImmutableArray;
 
@@ -25,7 +21,9 @@ import edu.uno.ai.planning.util.ImmutableArray;
  */
 public class PlanGraph 
 {
-	private ArrayList<PlanGraphLevel> _levels;
+	private int _levels;
+	
+	private ArrayList<PlanGraphLevel> _levelList;
 		
 	/** List of all unique steps in PlanGraph */
 	private ArrayList<PlanGraphStep> _steps;
@@ -46,7 +44,7 @@ public class PlanGraph
 	 */
 	public PlanGraph (Problem problem, boolean calculateMutex)
 	{
-		_levels = new ArrayList<PlanGraphLevel>();
+		_levelList = new ArrayList<PlanGraphLevel>();
 		_steps = new ArrayList<PlanGraphStep>();
 		_effects = new ArrayList<PlanGraphLiteral>();
 		_persistenceSteps = new ArrayList<PlanGraphStep>();
@@ -57,14 +55,20 @@ public class PlanGraph
 		addAllEffects(ssProblem.steps);
 		addAllPerstitenceSteps();
 		
-		PlanGraphLevel level = _calculateMutex ?
+		PlanGraphLevel rootLevel = _calculateMutex ?
 			new PlanGraphLevelMutex(problem, _steps, _effects, _persistenceSteps, this) :
 			new PlanGraphLevel(problem, _steps, _effects, _persistenceSteps, this);
 			
-		_levels.add(level);
+		_levelList.add(rootLevel);
+		_levels = 1;
 		
         while (!getMaxLevel().containsGoal(problem.goal) && !getMaxLevel().isLeveledOff())
         	extend();
+	}
+	
+	public PlanGraph (Problem problem)
+	{
+		this (problem, false);
 	}
 	
 	public void extend()
@@ -73,15 +77,26 @@ public class PlanGraph
 			new PlanGraphLevelMutex((PlanGraphLevelMutex)getMaxLevel()) :
 			new PlanGraphLevel(getMaxLevel());
 			
-		_levels.add(nextLevel);
+		_levelList.add(nextLevel);
+		_levels++;
 	}
 	
-	public PlanGraphLevel getPlanGraphLevel(int level)
+	public PlanGraphLevel getLevel(int level)
 	{
-		if (_levels.size() < level)
-			return _levels.get(level);
+		if (level < _levels)
+			return _levelList.get(level);
 		else
 			return null;
+	}
+	
+	public PlanGraphLevel getRootLevel()
+	{
+		return _levelList.get(0);
+	}
+	
+	public int countLevels()
+	{
+		return _levels;
 	}
 	
 	 /**
@@ -93,7 +108,7 @@ public class PlanGraph
 	public PlanGraphStep getPlanGraphStep(Step step)
     {
         for (PlanGraphStep planGraphStep : _steps)
-            if (planGraphStep.GetStep() == step)
+            if (planGraphStep.getStep() == step)
                 return planGraphStep;
         return null;
     }
@@ -114,20 +129,29 @@ public class PlanGraph
 	
 	public boolean existsAtLevel(PlanGraphStep pgStep, int level)
 	{
-		PlanGraphLevel planGraphLevel = getPlanGraphLevel(level);
+		PlanGraphLevel planGraphLevel = getLevel(level);
 		return planGraphLevel.exists(pgStep);
+	}
+	
+	public ArrayList<PlanGraphStep> getAllPossiblePlanGraphSteps()
+	{
+		return _steps;
+	}
+	
+	public ArrayList<PlanGraphLiteral> getAllPossiblePlanGraphEffects()
+	{
+		return _effects;
 	}
 	
 	public boolean existsAtLevel(PlanGraphLiteral pgLiteral, int level)
 	{
-		PlanGraphLevel planGraphLevel = getPlanGraphLevel(level);
+		PlanGraphLevel planGraphLevel = getLevel(level);
 		return planGraphLevel.exists(pgLiteral);
 	}
 	
 	private PlanGraphLevel getMaxLevel()
 	{
-		int size = _levels.size();
-		return _levels.get(size-1);
+		return _levelList.get(_levels - 1);
 	}
 	
 	/**
@@ -158,7 +182,7 @@ public class PlanGraph
 		}
 		
 		for (Literal literal : literals)
-			_effects.add(new PlanGraphLiteral(literal, this));
+			_effects.add(new PlanGraphLiteral(literal));
 	}
 	
 	/**
@@ -181,7 +205,7 @@ public class PlanGraph
 		{
 			Literal literal = planGraphLiteral.getLiteral();
 			Step step = new Step("(Persistence Step " + literal.toString() + ")", literal, literal);
-			PlanGraphStep planGraphStep = new PlanGraphStep(step);
+			PlanGraphStep planGraphStep = PlanGraphStep.createPersistentStep(step);
 			_steps.add(planGraphStep);
 			_persistenceSteps.add(planGraphStep);
 		}
@@ -193,7 +217,7 @@ public class PlanGraph
 	 * @param expression The Expression to convert to list
 	 * @return ArrayList<Literal> List of literals in expression
 	 */
-	private ArrayList<Literal> expressionToLiterals(Expression expression)
+	static public ArrayList<Literal> expressionToLiterals(Expression expression)
 	{
 		ArrayList<Literal> literals = new ArrayList<Literal>();
 		if (expression instanceof Literal)
@@ -207,5 +231,25 @@ public class PlanGraph
 				// else -- Do Nothing!
 		}
 		return literals;
+	}
+	
+	public boolean containsGoal(Expression goal)
+	{
+		return getMaxLevel().containsGoal(goal);
+	}
+	
+	public boolean isLeveledOff()
+	{
+		return getMaxLevel().isLeveledOff();
+	}
+	
+	@Override
+	public String toString()
+	{
+		String str = "";
+		for(PlanGraphLevel level : _levelList)
+			str += level.toString();
+		
+		return str;
 	}
 }
