@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.graphplan;
 
+import java.util.ArrayList;
+
 import edu.uno.ai.planning.Step;
 
 /**
@@ -48,6 +50,20 @@ public class PlanGraphStep
 	public int GetInitialLevel()
 	{
 		return _initialLevel;
+	}
+	
+	public ArrayList<PlanGraphLiteral> getParents(int level)
+	{
+		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+		// TODO Get all possible literals 
+		return literals;
+	}
+	
+	public ArrayList<PlanGraphLiteral> getChildren(int level)
+	{
+		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
+		// TODO Get all possible literals 
+		return literals;
 	}
 	
 	/**

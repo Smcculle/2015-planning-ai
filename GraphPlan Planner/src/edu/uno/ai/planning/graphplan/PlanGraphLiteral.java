@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.graphplan;
 
+import java.util.ArrayList;
+
 import edu.uno.ai.planning.logic.Literal;
 
 /**
@@ -13,10 +15,12 @@ import edu.uno.ai.planning.logic.Literal;
 public class PlanGraphLiteral 
 {
 	/** The wrapped Literal **/
-	Literal _literal;
+	private Literal _literal;
 	
 	/** The level the Literal first appeared in PlanGraph **/
-	int _initialLevel;
+	private int _initialLevel;
+	
+	private PlanGraph _planGraph;
 	
 	/**
 	 * Creates a wrapped Literal with a set initialLevel
@@ -24,10 +28,11 @@ public class PlanGraphLiteral
 	 * @param literal Literal to be wrapped
 	 * @param initialLevel First level Literal appears in PlanGraph
 	 */
-	public PlanGraphLiteral(Literal literal, int initialLevel)
+	public PlanGraphLiteral(Literal literal, int initialLevel, PlanGraph planGraph)
 	{
 		_literal = literal;
 		_initialLevel = initialLevel;
+		_planGraph = planGraph;
 	}
 	
 	/**
@@ -36,10 +41,9 @@ public class PlanGraphLiteral
 	 * 
 	 * @param literal Literal to be wrapped
 	 */
-	public PlanGraphLiteral(Literal literal)
+	public PlanGraphLiteral(Literal literal, PlanGraph planGraph)
 	{
-		_literal = literal;
-		_initialLevel = -1;
+		this(literal, -1, planGraph);
 	}
 	
 	/**
@@ -66,6 +70,20 @@ public class PlanGraphLiteral
 	public Literal getLiteral()
 	{
 		return _literal;
+	}
+	
+	public ArrayList<PlanGraphStep> getParents(int level)
+	{
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		// TODO Get all possible steps 
+		return steps;
+	}
+	
+	public ArrayList<PlanGraphStep> getChildren(int level)
+	{
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		// TODO Get all possible steps 
+		return steps;
 	}
 	
 	public boolean equals(PlanGraphLiteral pgLiteral){
