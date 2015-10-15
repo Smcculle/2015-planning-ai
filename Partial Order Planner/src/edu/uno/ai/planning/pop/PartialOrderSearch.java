@@ -61,7 +61,7 @@ public class PartialOrderSearch extends Search {
 	private Plan pop(){
 		TotalOrderPlan plan = null;
 
-		while(!this.pQueue.isEmpty() && this.nodesVisited < 20000){
+		while(!this.pQueue.isEmpty() && this.nodesVisited < this.limit){
 			PartialOrderNode workingNode = this.pQueue.poll(); // get the node to work on next
 			if(workingNode.flaws.length == 0){
 				plan = workingNode.toTotalOrderPlan();
