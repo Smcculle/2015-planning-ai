@@ -104,7 +104,7 @@ public class PartialOrderSearch extends Search {
 		for (Expression effect : new LiteralCollector(threat.threateningStep.effect)) {
 			NegatedLiteral negatedPredicate = threat.threatenedLink.label.negate();
 
-			if (effect.equals(negatedPredicate, workingNode.binds)) {
+			if (effect.unify(negatedPredicate, workingNode.binds) != null) {
 				handleThreat(threat, workingNode);
 				return true;
 			}
