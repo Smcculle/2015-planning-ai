@@ -153,8 +153,8 @@ public class PartialOrderSearch extends Search {
 				}
 			}
 			if(newOrderings != null){
-			
-				
+
+
 				for(Expression effect: newStep.effects()){
 					newNodeBindings = satisfiedPredication.unify(effect,workingNode.binds);
 					if(newNodeBindings != null){
@@ -164,14 +164,14 @@ public class PartialOrderSearch extends Search {
 				CausalLink newLink = new CausalLink(newStep,o.step(),(Predication)satisfiedPredication);
 				ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
 				ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
-				newFlawSet.remove((Flaw)o);
+				newFlawSet.remove(o);
 				ImmutableArray<Flaw> allFlaws = newFlawsFromAddingStep(newFlawSet,newStep,workingNode, newNodeBindings);
 				ImmutableList<PartialStep> allSteps = workingNode.steps.add(newStep);
 				PartialOrderNode newNode = new PartialOrderNode(allSteps,newOrderings,newCausalLinkList,(ListBindings) newNodeBindings,allFlaws, workingNode.startStep, workingNode.endStep);
 				this.pQueue.add(newNode);
 				this.nodesExpanded++;
 			}
-		
+
 	}
 
 	private void useStepToSatisfyOpenPrecondition(Literal satisfiedPredication, Literal satisfyingPredication, PartialStep satisfyingStep, PartialOrderNode workingNode, OpenCondition o){
@@ -181,7 +181,7 @@ public class PartialOrderSearch extends Search {
 			//shit unified correctly, now lets make the causal links
 			CausalLink newLink = new CausalLink(satisfyingStep,o.step(),(Predication)satisfiedPredication);
 			ArrayList<Flaw> newFlawSet = workingNode.flaws.clone();
-			newFlawSet.remove((Flaw)o);
+			newFlawSet.remove(o);
 			//add any new flaws created from making the new causal link
 			ImmutableArray<Flaw> newFlawsIncluded = newFlawsFromCausalLink(newFlawSet,workingNode,satisfiedPredication,newNodeBindings,newLink);
 			ImmutableList<CausalLink> newCausalLinkList = workingNode.causalLinks.add(newLink);
