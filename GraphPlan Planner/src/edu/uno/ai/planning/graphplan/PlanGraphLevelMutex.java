@@ -8,6 +8,7 @@ import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.util.ConversionUtil;
 
 public class PlanGraphLevelMutex extends PlanGraphLevel
 {
@@ -109,7 +110,7 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		if (!super.containsGoal(goal))
 			return false;
 		
-		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(goal);
+		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(goal);
 		for (Literal literal : literals)
 		{
 			PlanGraphLiteral pgLiteral = _planGraph.getPlanGraphLiteral(literal);
@@ -175,10 +176,8 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 				{
 					if (exists(otherStep))
 					{
-//						ArrayList<Literal> stepEffectLiterals = PlanGraph.expressionToLiterals(step.getStep().effect);
-//						ArrayList<Literal> otherStepEffectLiterals = PlanGraph.expressionToLiterals(otherStep.getStep().effect);
-						ArrayList<Literal> stepEffectLiterals = PlanGraph.expressionToLiterals(step.effect);
-						ArrayList<Literal> otherStepEffectLiterals = PlanGraph.expressionToLiterals(otherStep.effect);
+						ArrayList<Literal> stepEffectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
+						ArrayList<Literal> otherStepEffectLiterals = ConversionUtil.expressionToLiterals(otherStep.getStep().effect);
 						for (Expression literal : stepEffectLiterals)
 						{
 							Expression negatedLiteral = literal.negate();
@@ -211,10 +210,8 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 					{
 						if (exists(otherStep))
 						{
-//							ArrayList<Literal> stepEffectLiterals = PlanGraph.expressionToLiterals(step.getStep().effect);
-//							ArrayList<Literal> otherStepPreconditionLiterals = PlanGraph.expressionToLiterals(otherStep.getStep().precondition);
-							ArrayList<Literal> stepEffectLiterals = PlanGraph.expressionToLiterals(step.effect);
-							ArrayList<Literal> otherStepPreconditionLiterals = PlanGraph.expressionToLiterals(otherStep.precondition);
+							ArrayList<Literal> stepEffectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
+							ArrayList<Literal> otherStepPreconditionLiterals = ConversionUtil.expressionToLiterals(otherStep.getStep().precondition);
 							for (Expression literal : stepEffectLiterals)
 							{
 								Expression negatedLiteral = literal.negate();
@@ -247,10 +244,8 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 					{
 						if (exists(otherStep))
 						{
-//							ArrayList<Literal> stepPreconditionLiterals = PlanGraph.expressionToLiterals(step.getStep().precondition);
-//							ArrayList<Literal> otherStepPreconditionLiterals = PlanGraph.expressionToLiterals(otherStep.getStep().precondition);
-							ArrayList<Literal> stepPreconditionLiterals = PlanGraph.expressionToLiterals(step.precondition);
-							ArrayList<Literal> otherStepPreconditionLiterals = PlanGraph.expressionToLiterals(otherStep.precondition);
+							ArrayList<Literal> stepPreconditionLiterals = ConversionUtil.expressionToLiterals(step.getStep().precondition);
+							ArrayList<Literal> otherStepPreconditionLiterals = ConversionUtil.expressionToLiterals(otherStep.getStep().precondition);
 							for (Expression literal : stepPreconditionLiterals)
 							{
 								if (_parent._mutexLiterals.containsKey(literal))
@@ -326,15 +321,13 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 							// Get steps containing effect
 							for (PlanGraphStep step : _steps)
 								if (exists(step))
-//									if (PlanGraph.expressionToLiterals(step.getStep().effect).contains(effect.getLiteral()))
-									if (PlanGraph.expressionToLiterals(step.effect).contains(effect.getLiteral()))
+									if (ConversionUtil.expressionToLiterals(step.getStep().effect).contains(effect.getLiteral()))
 										stepsWithEffect.add(step);
 							
 							// Get steps containing otherEffect
 							for (PlanGraphStep step : _steps)
 								if (exists(step))
-//									if (PlanGraph.expressionToLiterals(step.getStep().effect).contains(otherEffect.getLiteral()))
-									if (PlanGraph.expressionToLiterals(step.effect).contains(otherEffect.getLiteral()))
+									if (ConversionUtil.expressionToLiterals(step.getStep().effect).contains(otherEffect.getLiteral()))
 										stepsWithOtherEffect.add(step);
 							
 							boolean allSupportingStepsAreMutex = true;

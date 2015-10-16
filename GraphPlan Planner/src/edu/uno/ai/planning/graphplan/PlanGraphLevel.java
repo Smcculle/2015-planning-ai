@@ -8,6 +8,7 @@ import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.NegatedLiteral;
+import edu.uno.ai.planning.util.ConversionUtil;
 
 public class PlanGraphLevel 
 {
@@ -76,7 +77,7 @@ public class PlanGraphLevel
 	
 	public boolean containsGoal(Expression goal)
 	{		
-		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(goal);
+		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(goal);
 		for (Literal literal : literals)
 		{
 			PlanGraphLiteral pgLiteral = _planGraph.getPlanGraphLiteral(literal);
@@ -120,120 +121,29 @@ public class PlanGraphLevel
 				count++;
 		return count;
 	}
-	
-	/**
-	 * Updates a PlanGraphStep on PlanGraph.
-	 * Does not add a step if already exist in PlanGraph.
-	 * Only updates a step if current all preconditions of step exist in parent's effects.
-	 * Also computes all new mutual exclusions introduced
-	 * 
-	 * @param PlanGraphStep Step to be added
-	 */
-	private void updateStep(PlanGraphStep step)
+
+	public boolean exists(PlanGraphStep pgStep) 
 	{
-		if (step == null)
-			return;
-		
-		if (_parent == null)
-			return;
-		
-		if (!isPreconditionSatisfied(step))
-			return;
-		
-		if (step.getInitialLevel() == -1)
-		{
-//			step.SetInitialLevel(getLevel());
-//			ArrayList<Literal> literals = PlanGraph.expressionToLiterals(step.getStep().effect);
-			step.setInitialLevel(getLevel());
-			ArrayList<Literal> literals = PlanGraph.expressionToLiterals(step.effect);
-			for (Literal literal : literals)
-				if (!exists(literal))
-					_planGraph.getPlanGraphLiteral(literal).setInitialLevel(_level);
-//					_planGraph.getPlanGraphLiteral(literal).SetInitialLevel(_level);
-		}
-	}
-	
-	/**
-	 * Checks effects of parent to see if preconditions are met.
-	 * 
-	 * @param planGraphStep Step to test precondition
-	 * @return True if preconditions exist in parent.
-	 */
-	private boolean isPreconditionSatisfied(PlanGraphStep planGraphStep) {
-		if (_parent == null)
-			return false;
-		
-//		Step step = planGraphStep.getStep();
-//		for (Literal literal : PlanGraph.expressionToLiterals(step.precondition))
-		for (Literal literal : PlanGraph.expressionToLiterals(planGraphStep.precondition))
-		{
-			boolean didFindValue = false;
-			for (PlanGraphLiteral planGraphLiteral : _effects)
-			{
-				if (_parent.exists(planGraphLiteral))
-				{
-					if (literal.equals(planGraphLiteral.getLiteral()))
-					{
-						didFindValue = true;
-						break;
-					}
-				}
-			}
-			
-			if (!didFindValue)
-				return false;
-		}
-		return true;
-	}
-	
-	
-	
-	/**
-	 * Adds effect of initial state to PlanGraph root
-	 * 
-	 * @param initialState State from which to add effects
-	 */
-	private void setInitialEffects(State initialState) 
-	{
-		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(initialState.toExpression());
-		for (Literal literal : literals)
-			for (PlanGraphLiteral planGraphLiteral : _effects)
-				if (literal.equals(planGraphLiteral.getLiteral()))
-//					planGraphLiteral.SetInitialLevel(getLevel());
-					planGraphLiteral.setInitialLevel(getLevel());
+		if (pgStep== null) return false;
+		// return PlanGraphStep exists at this Level
+		return pgStep.existsAtLevel(getLevel());
 	}
 
-	private void setNonSpecifiedInitialEffects(State initialState) 
-	{
-		ArrayList<Literal> literals = PlanGraph.expressionToLiterals(initialState.toExpression());
-		for (PlanGraphLiteral planGraphLiteral : _effects)
-			if (planGraphLiteral.getLiteral() instanceof NegatedLiteral)
-				if (!literals.contains(planGraphLiteral.getLiteral().negate()))
-//					planGraphLiteral.SetInitialLevel(getLevel());
-					planGraphLiteral.setInitialLevel(getLevel());
+	public boolean exists(PlanGraphLiteral pgLiteral) 
+	{		
+		if (pgLiteral == null) return false;
+		// return PlanGraphStep exists at this Level
+		return pgLiteral.existsAtLevel(getLevel());
 	}
 	
-	/**
-	 * Checks to see if any new persistence steps can be created at PlanGraph level.
-	 */
-	private void setPerstitenceStepLevels()
+	public boolean exists(Step step) 
 	{
-		for (PlanGraphStep persistenceStep : _persistenceSteps)
-		{
-//			Literal literal = (Literal)persistenceStep.getStep().effect;
-			Literal literal = (Literal)persistenceStep.effect;
-			if (!exists(persistenceStep))
-				if (_parent.exists(literal))
-//					persistenceStep.SetInitialLevel(getLevel());
-					persistenceStep.setInitialLevel(getLevel());
-		}
+		return exists(_planGraph.getPlanGraphStep(step));
 	}
-	
-	private void addAllPossibleNewSteps() 
-	{
-		for (PlanGraphStep step : _steps)
-			if (!_persistenceSteps.contains(step))
-				updateStep(step);
+
+	public boolean exists(Literal literal) 
+	{		
+		return exists(_planGraph.getPlanGraphLiteral(literal));
 	}
 	
 	/**
@@ -262,29 +172,112 @@ public class PlanGraphLevel
 		
 		return str;
 	}
-
-	public boolean exists(PlanGraphStep pgStep) 
+	
+	// Private methods
+	
+	/**
+	 * Adds effect of initial state to PlanGraph root
+	 * 
+	 * @param initialState State from which to add effects
+	 */
+	private void setInitialEffects(State initialState) 
 	{
-		if (pgStep== null) return false;
-		// Between 0 and current level
-		return 0 <= pgStep.getInitialLevel() && pgStep.getInitialLevel() <= _level;
+		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(initialState.toExpression());
+		for (Literal literal : literals)
+			for (PlanGraphLiteral planGraphLiteral : _effects)
+				if (literal.equals(planGraphLiteral.getLiteral()))
+					planGraphLiteral.setInitialLevel(getLevel());
 	}
 
-	public boolean exists(PlanGraphLiteral pgLiteral) 
-	{		
-		if (pgLiteral == null) return false;
-		// Between 0 and current level
-//		return 0 <= pgLiteral.GetInitialLevel() && pgLiteral.GetInitialLevel() <= _level;
-		return 0 <= pgLiteral.getInitialLevel() && pgLiteral.getInitialLevel() <= _level;
+	private void setNonSpecifiedInitialEffects(State initialState) 
+	{
+		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(initialState.toExpression());
+		for (PlanGraphLiteral planGraphLiteral : _effects)
+			if (planGraphLiteral.getLiteral() instanceof NegatedLiteral)
+				if (!literals.contains(planGraphLiteral.getLiteral().negate()))
+					planGraphLiteral.setInitialLevel(getLevel());
 	}
 	
-	public boolean exists(Step step) 
+	/**
+	 * Checks to see if any new persistence steps can be created at PlanGraph level.
+	 */
+	private void setPerstitenceStepLevels()
 	{
-		return exists(_planGraph.getPlanGraphStep(step));
+		for (PlanGraphStep persistenceStep : _persistenceSteps)
+		{
+			Literal literal = (Literal)persistenceStep.getStep().effect;
+			if (!exists(persistenceStep))
+				if (_parent.exists(literal))
+					persistenceStep.setInitialLevel(getLevel());
+		}
 	}
-
-	public boolean exists(Literal literal) 
-	{		
-		return exists(_planGraph.getPlanGraphLiteral(literal));
+	
+	private void addAllPossibleNewSteps() 
+	{
+		for (PlanGraphStep step : _steps)
+			if (!_persistenceSteps.contains(step))
+				updateStep(step);
 	}
+	
+	/**
+	 * Updates a PlanGraphStep on PlanGraph.
+	 * Does not add a step if already exist in PlanGraph.
+	 * Only updates a step if current all preconditions of step exist in parent's effects.
+	 * Also computes all new mutual exclusions introduced
+	 * 
+	 * @param PlanGraphStep Step to be added
+	 */
+	private void updateStep(PlanGraphStep step)
+	{
+		if (step == null)
+			return;
+		
+		if (_parent == null)
+			return;
+		
+		if (!isPreconditionSatisfied(step))
+			return;
+		
+		if (step.getInitialLevel() == -1)
+		{
+			step.setInitialLevel(getLevel());
+			ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(step.getStep().effect);
+			for (Literal literal : literals)
+				if (!exists(literal))
+					_planGraph.getPlanGraphLiteral(literal).setInitialLevel(_level);
+		}
+	}
+	
+	/**
+	 * Checks effects of parent to see if preconditions are met.
+	 * 
+	 * @param planGraphStep Step to test precondition
+	 * @return True if preconditions exist in parent.
+	 */
+	private boolean isPreconditionSatisfied(PlanGraphStep planGraphStep) {
+		if (_parent == null)
+			return false;
+		
+		Step step = planGraphStep.getStep();
+		for (Literal literal : ConversionUtil.expressionToLiterals(step.precondition))
+		{
+			boolean didFindValue = false;
+			for (PlanGraphLiteral planGraphLiteral : _effects)
+			{
+				if (_parent.exists(planGraphLiteral))
+				{
+					if (literal.equals(planGraphLiteral.getLiteral()))
+					{
+						didFindValue = true;
+						break;
+					}
+				}
+			}
+			
+			if (!didFindValue)
+				return false;
+		}
+		return true;
+	}
+	
 }

@@ -1,15 +1,14 @@
 package edu.uno.ai.planning.graphplan;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
+import edu.uno.ai.planning.util.ConversionUtil;
 import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
@@ -53,6 +52,7 @@ public class PlanGraph
 		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		addAllSteps(ssProblem.steps);
 		addAllEffects(ssProblem.steps);
+		connectParentsToChildren();
 		addAllPerstitenceSteps();
 		
 		PlanGraphLevel rootLevel = _calculateMutex ?
@@ -108,8 +108,7 @@ public class PlanGraph
 	public PlanGraphStep getPlanGraphStep(Step step)
     {
         for (PlanGraphStep planGraphStep : _steps)
-//            if (planGraphStep.getStep() == step)
-            if (step.compareTo(planGraphStep) == 0)
+            if (planGraphStep.getStep().compareTo(step) == 0)
                 return planGraphStep;
         return null;
     }
@@ -165,19 +164,19 @@ public class PlanGraph
 		ArrayList<Literal> literals = new ArrayList<Literal>();
 		for (Step step : steps)
 		{
-			for (Literal literal : expressionToLiterals(step.effect))
+			for (Literal literal : ConversionUtil.expressionToLiterals(step.effect))
 				if (!literals.contains(literal))
 					literals.add(literal);
 			
-			for (Literal literal : expressionToLiterals(step.precondition))
+			for (Literal literal : ConversionUtil.expressionToLiterals(step.precondition))
 				if (!literals.contains(literal))
 					literals.add(literal);
 			
-			for (Literal literal : expressionToLiterals(step.effect))
+			for (Literal literal : ConversionUtil.expressionToLiterals(step.effect))
 				if (!literals.contains(literal.negate()))
 					literals.add(literal.negate());
 			
-			for (Literal literal : expressionToLiterals(step.precondition))
+			for (Literal literal : ConversionUtil.expressionToLiterals(step.precondition))
 				if (!literals.contains(literal.negate()))
 					literals.add(literal.negate());
 		}
@@ -198,6 +197,30 @@ public class PlanGraph
 	}
 	
 	/**
+	 * Connect all Steps and Effects to their parents and children
+	 */
+	private void connectParentsToChildren(){
+		for(PlanGraphStep step : _steps){
+			// Add Step effects as Plan Graph Children
+			List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
+			for(Literal literal : effectLiterals)
+				for(PlanGraphLiteral effect : _effects)
+					if(effect.equals(new PlanGraphLiteral(literal))){
+						step.addChildLiteral(effect);
+						effect.addParentStep(step);
+					}
+			// Add Step Preconditions as Plan Graph Parents
+			List<Literal> preconditionLiterals = ConversionUtil.expressionToLiterals(step.getStep().precondition);
+			for(Literal literal : preconditionLiterals)
+				for(PlanGraphLiteral effect : _effects)
+					if(effect.equals(new PlanGraphLiteral(literal))){
+						step.addParentLiteral(effect);
+						effect.addChildStep(step);
+					}
+		}
+	}
+	
+	/**
 	 * Adds all possible persistence steps from _effects.
 	 */
 	private void addAllPerstitenceSteps()
@@ -210,28 +233,6 @@ public class PlanGraph
 			_steps.add(planGraphStep);
 			_persistenceSteps.add(planGraphStep);
 		}
-	}
-	
-	/**
-	 * Helper function to get all the literals from an Expression
-	 * 
-	 * @param expression The Expression to convert to list
-	 * @return ArrayList<Literal> List of literals in expression
-	 */
-	static public ArrayList<Literal> expressionToLiterals(Expression expression)
-	{
-		ArrayList<Literal> literals = new ArrayList<Literal>();
-		if (expression instanceof Literal)
-			literals.add((Literal)expression);
-		else
-		{
-			Conjunction cnf = (Conjunction)expression.toCNF();
-			for (Expression disjunction : cnf.arguments)
-				if (((Disjunction) disjunction).arguments.length == 1)
-					literals.add((Literal)((Disjunction) disjunction).arguments.get(0));
-				// else -- Do Nothing!
-		}
-		return literals;
 	}
 	
 	public boolean containsGoal(Expression goal)

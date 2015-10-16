@@ -61,8 +61,7 @@ public class PlanGraphTest {
 	private PlanGraphStep getStep(String stepName, List<PlanGraphStep> steps){
 		PlanGraphStep thisStep = getTestStep(stepName);
 		for(PlanGraphStep step : steps)
-//			if(thisStep.getStep().name.equals(step.getStep().name))
-			if(thisStep.name.equals(step.name))
+			if(thisStep.getStep().name.equals(step.getStep().name))
 				return step;
 		return null;
 	}
@@ -84,7 +83,7 @@ public class PlanGraphTest {
 		PlanGraphStep test = getTestStep(actionName);
 		PlanGraph cakeGraph = createCakePlanGraph();
 		PlanGraphStep result = getStep(actionName, cakeGraph.getAllPossiblePlanGraphSteps());
-		assertEquals(0, test.compareTo(result));
+		assertEquals(0, test.getStep().compareTo(result.getStep()));
 	}
 	
 	private PlanGraph createCakePlanGraph(){
@@ -217,10 +216,8 @@ public class PlanGraphTest {
 		PlanGraphStep pgFlyRocketNolaNola1 = new PlanGraphStep(flyRocketNolaNola, 1);
 		List<PlanGraphStep> mutexStepsForFlyNolaNola = new ArrayList<PlanGraphStep>();
 		for(PlanGraphStep key : firstLevel.getMutuallyExclusiveSteps().keySet()){
-//			if((key.getStep().compareTo(pgFlyRocketNolaNola0.getStep()) == 0) || 
-//			   (key.getStep().compareTo(pgFlyRocketNolaNola1.getStep()) == 0)){
-			if((key.compareTo(pgFlyRocketNolaNola0) == 0) || 
-			   (key.compareTo(pgFlyRocketNolaNola1) == 0)){
+			if((key.getStep().compareTo(pgFlyRocketNolaNola0.getStep()) == 0) || 
+			   (key.getStep().compareTo(pgFlyRocketNolaNola1.getStep()) == 0)){
 				mutexStepsForFlyNolaNola = firstLevel.getMutuallyExclusiveSteps().get(key);
 				break;
 			}

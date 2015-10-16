@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Expression;
-import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.util.ConversionUtil;
 
 /**
  * PlanGraphStep is a wrapper class that wraps a Step
@@ -16,69 +13,23 @@ import edu.uno.ai.planning.util.ConversionUtil;
  * @author Christian Levi
  * 
  */
-public class PlanGraphStep extends Step implements PlanGraphNode
+public class PlanGraphStep implements PlanGraphNode
 {
 	
 	/** The level the Step first appeared in PlanGraph **/
 	private int _initialLevel;
 	private boolean _isPersistent;
 
+	private Step _step;
 	private List<PlanGraphLiteral> _parents;
 	private List<PlanGraphLiteral> _children;
 
-	public PlanGraphStep(String name, Expression precondition, Expression effect, int initialLevel)
-	{
-		super(name, precondition, effect);
-		// Get PlanGraphLiterals Parent Nodes Preconditions 
-		List<Literal> preconditionLiterals = ConversionUtil.expressionToLiterals(precondition);
-		_parents = new ArrayList<PlanGraphLiteral>();
-		for(Literal preConLiteral : preconditionLiterals){
-			PlanGraphLiteral preconPGLit = new PlanGraphLiteral(preConLiteral);
-			_parents.add(preconPGLit);
-		}
-		// Get PlanGraphLiterals Parent Nodes Effects
-		List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(effect);
-		_children = new ArrayList<PlanGraphLiteral>();
-		for(Literal effectLiteral : effectLiterals){
-			PlanGraphLiteral effectPGLit = new PlanGraphLiteral(effectLiteral);
-			_parents.add(effectPGLit);
-		}
-		_initialLevel = initialLevel;
-		_isPersistent = false;
-	}
-	
 	
 	static public PlanGraphStep createPersistentStep(Step step)
 	{
 		PlanGraphStep persistentStep = new PlanGraphStep(step);
 		persistentStep._isPersistent = true;
 		return persistentStep;
-	}
-	
-	 /**
-	 * Creates a wrapped Step with a set initialLevel
-	 * 
-	 * @param step Step to be wrapped
-	 * @param initialLevel First level Literal appears in PlanGraph
-	 */
-	public PlanGraphStep(Step step, int initialLevel)
-	{
-		super(step.name, step.precondition, step.effect);
-		// Get PlanGraphLiterals Parent Nodes Preconditions 
-		List<Literal> preconditionLiterals = ConversionUtil.expressionToLiterals(precondition);
-		_parents = new ArrayList<PlanGraphLiteral>();
-		for(Literal preConLiteral : preconditionLiterals){
-			PlanGraphLiteral preconPGLit = new PlanGraphLiteral(preConLiteral);
-			_parents.add(preconPGLit);
-		}
-		// Get PlanGraphLiterals Parent Nodes Effects
-		List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(effect);
-		_children = new ArrayList<PlanGraphLiteral>();
-		for(Literal effectLiteral : effectLiterals){
-			PlanGraphLiteral effectPGLit = new PlanGraphLiteral(effectLiteral);
-			_parents.add(effectPGLit);
-		}
-		_initialLevel = initialLevel;
 	}
 	
 	/**
@@ -89,7 +40,56 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	 */
 	public PlanGraphStep(Step step)
 	{
-		this(step, -1);
+		_step = step;
+		_initialLevel = -1;
+		_parents = new ArrayList<PlanGraphLiteral>();
+		_children = new ArrayList<PlanGraphLiteral>();
+		_isPersistent = false;
+	}
+	
+	 /**
+	 * Creates a wrapped Step with a set initialLevel
+	 * 
+	 * @param step Step to be wrapped
+	 * @param initialLevel First level Literal appears in PlanGraph
+	 */
+	public PlanGraphStep(Step step, int initialLevel)
+	{
+		_step = step;
+		_initialLevel = initialLevel;
+		_parents = new ArrayList<PlanGraphLiteral>();
+		_children = new ArrayList<PlanGraphLiteral>();
+		_isPersistent = false;
+	}
+	
+	/**
+	 * Creates a wrapped Step with an initialLevel at -1
+	 * Note: -1 meaning no level has been yet set
+	 * 
+	 * @param step Step to be wrapped
+	 */
+	public PlanGraphStep(Step step, int initialLevel, List<PlanGraphLiteral> parents, List<PlanGraphLiteral> children)
+	{
+		this(step, initialLevel);
+		_initialLevel = initialLevel;
+		_parents = new ArrayList<PlanGraphLiteral>(parents);
+		_children = new ArrayList<PlanGraphLiteral>(children);
+	}
+	
+	/**
+	 * Creates a wrapped Step with an initialLevel at -1
+	 * Note: -1 meaning no level has been yet set
+	 * 
+	 * @param step Step to be wrapped
+	 */
+	public PlanGraphStep(Step step, List<PlanGraphLiteral> parents, List<PlanGraphLiteral> children)
+	{
+		this(step, -1, parents, children);
+	}
+	
+	public boolean isPersistent()
+	{
+		return _isPersistent;
 	}
 
 	@Override
@@ -99,25 +99,6 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	public int getInitialLevel()
 	{
 		return _initialLevel;
-	}
-	
-	public boolean isPersistent()
-	{
-		return _isPersistent;
-	}
-	
-	public ArrayList<PlanGraphLiteral> getParents(int level)
-	{
-		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-		// TODO Get all possible literals 
-		return literals;
-	}
-	
-	public ArrayList<PlanGraphLiteral> getChildren(int level)
-	{
-		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-		// TODO Get all possible literals 
-		return literals;
 	}
 	
 	@Override
@@ -130,21 +111,11 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	{
 		_initialLevel = levelNumber;
 	}
-
-	protected void addPlanGraphChild(PlanGraphLiteral newStep){
-		_children.add(newStep);
-	}
 	
-	protected void addPlanGraphParent(PlanGraphLiteral newStep){
-		_parents.add(newStep);
-	}
-
-	@Override
-	public String toString()
-	{
-		String output = super.toString();
-		output += "[" + _initialLevel + "]";
-		return output;
+	public boolean existsAtLevel(int level){
+		boolean hasValidInitialLevel = _initialLevel > -1;
+		boolean isUnderOrInLevel = _initialLevel <= level;
+		return hasValidInitialLevel && isUnderOrInLevel;
 	}
 
 	@Override
@@ -155,6 +126,30 @@ public class PlanGraphStep extends Step implements PlanGraphNode
 	@Override
 	public List<PlanGraphLiteral> getChildNodes() {
 		return _children;
+	}
+
+	protected void addChildLiteral(PlanGraphLiteral newLiteral){
+		_children.add(newLiteral);
+	}
+	
+	protected void addParentLiteral(PlanGraphLiteral newLiteral){
+		_parents.add(newLiteral);
+	}
+	
+	public Step getStep(){
+		return _step;
+	}
+	
+	public boolean equals(PlanGraphStep pgStep){
+		return getStep().compareTo(pgStep.getStep()) == 0;  
+	}
+
+	@Override
+	public String toString()
+	{
+		String output = _step.toString();
+		output += "[" + _initialLevel + "]";
+		return output;
 	}
 
 }

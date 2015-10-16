@@ -14,6 +14,14 @@ import edu.uno.ai.planning.util.ImmutableArray;
 
 public class PlanGraphLiteralTest {
 	
+	private PlanGraphStep testStep1;
+	private PlanGraphStep testStep2;
+	private PlanGraphStep testStep3;
+	private PlanGraphStep testStep4;
+	private PlanGraphStep testStep5;
+	private PlanGraphStep testStep6;
+	private PlanGraphStep testStep7;
+	
 	private PlanGraphLiteral test1;
 	private PlanGraphLiteral test2;
 	private PlanGraphLiteral test3;
@@ -28,16 +36,16 @@ public class PlanGraphLiteralTest {
 		Step step1 = new Step("step1", step1PreConds, step2PreConds);
 		Step step2 = new Step("step2", step2PreConds, step3PreConds);
 		Step step3 = new Step("step3", step3PreConds, step3Effects);
-		PlanGraphStep pgStep1 = new PlanGraphStep(step1);
-		PlanGraphStep pgStep2 = new PlanGraphStep(step2);
-		PlanGraphStep pgStep3 = new PlanGraphStep(step3);
+		testStep1 = new PlanGraphStep(step1);
+		testStep2 = new PlanGraphStep(step2);
+		testStep3 = new PlanGraphStep(step3);
 		int initialLevel1 = 3;
 		Predication predication1 = new Predication("is", new Term[]{});
 		List<PlanGraphStep> children1 = new ArrayList<PlanGraphStep>();
-		children1.add(pgStep1);
-		children1.add(pgStep2);
+		children1.add(testStep1);
+		children1.add(testStep2);
 		List<PlanGraphStep> parents1 = new ArrayList<PlanGraphStep>();
-		parents1.add(pgStep3);
+		parents1.add(testStep3);
 		test1 = new PlanGraphLiteral(predication1, initialLevel1, children1, parents1);
 
 		Predication step4PreConds = new Predication("step4PreConds", new ImmutableArray<Term>(new Term[] {}));
@@ -49,17 +57,17 @@ public class PlanGraphLiteralTest {
 		Step step5 = new Step("step5", step5PreConds, step6PreConds);
 		Step step6 = new Step("step6", step6PreConds, step7PreConds);
 		Step step7 = new Step("step7", step7PreConds, step7Effects);
-		PlanGraphStep pgStep4 = new PlanGraphStep(step4);
-		PlanGraphStep pgStep5 = new PlanGraphStep(step5);
-		PlanGraphStep pgStep6 = new PlanGraphStep(step6);
-		PlanGraphStep pgStep7 = new PlanGraphStep(step7);
+		testStep4 = new PlanGraphStep(step4);
+		testStep5 = new PlanGraphStep(step5);
+		testStep6 = new PlanGraphStep(step6);
+		testStep7 = new PlanGraphStep(step7);
 		Predication predication2 = new Predication("catch tiger", new Term[]{});
 		List<PlanGraphStep> children2 = new ArrayList<PlanGraphStep>();
-		children2.add(pgStep4);
-		children2.add(pgStep5);
+		children2.add(testStep4);
+		children2.add(testStep5);
 		List<PlanGraphStep> parents2 = new ArrayList<PlanGraphStep>();
-		parents2.add(pgStep6);
-		parents2.add(pgStep7);
+		parents2.add(testStep6);
+		parents2.add(testStep7);
 		test2 = new PlanGraphLiteral(predication2, children2, parents2);
 
 		Predication predication3 = new Predication("is flying", new Term[]{});
@@ -85,22 +93,18 @@ public class PlanGraphLiteralTest {
 	}
 	
 	@Test
-	public void getLiteral(){
-		assertTrue(test1.getLiteral() instanceof Predication);
-		Predication testPred1 = (Predication) test1.getLiteral();
-		assertEquals("is",testPred1.predicate);
-
-		assertTrue(test2.getLiteral() instanceof Predication);
-		Predication testPred2 = (Predication) test2.getLiteral();
-		assertEquals("catch tiger",testPred2.predicate);
-
-		assertTrue(test3.getLiteral() instanceof Predication);
-		Predication testPred3 = (Predication) test3.getLiteral();
-		assertEquals("is flying",testPred3.predicate);
-
-		assertTrue(test4.getLiteral() instanceof Predication);
-		Predication testPred4 = (Predication) test4.getLiteral();
-		assertEquals("fears",testPred4.predicate);
+	public void existsAtLevel(){
+		int testLevel = 3;
+		assertTrue(test1.existsAtLevel(testLevel));
+		assertFalse(test2.existsAtLevel(testLevel));
+		assertFalse(test3.existsAtLevel(testLevel));
+		assertFalse(test4.existsAtLevel(testLevel));
+		
+		assertEquals(-1, test2.getInitialLevel());
+		test1.setInitialLevel(2);
+		assertFalse(test1.existsAtLevel(1));
+		assertTrue(test1.existsAtLevel(2));
+		assertTrue(test1.existsAtLevel(3));
 	}
 	
 	@Test
@@ -109,6 +113,10 @@ public class PlanGraphLiteralTest {
 		assertEquals(2,test2.getParentNodes().size());
 		assertEquals(0,test3.getParentNodes().size());
 		assertEquals(0,test4.getParentNodes().size());
+		
+		assertTrue(test1.getParentNodes().contains(testStep3));
+		assertTrue(test2.getParentNodes().contains(testStep6));
+		assertTrue(test2.getParentNodes().contains(testStep7));
 	}
 	
 	@Test
@@ -130,6 +138,11 @@ public class PlanGraphLiteralTest {
 		assertEquals(2,test2.getChildNodes().size());
 		assertEquals(0,test3.getChildNodes().size());
 		assertEquals(0,test4.getChildNodes().size());
+		
+		assertTrue(test1.getChildNodes().contains(testStep1));
+		assertTrue(test1.getChildNodes().contains(testStep2));
+		assertTrue(test2.getChildNodes().contains(testStep4));
+		assertTrue(test2.getChildNodes().contains(testStep5));
 	}
 	
 	@Test
@@ -143,6 +156,25 @@ public class PlanGraphLiteralTest {
 		test4.addChildStep(pgNewStep);
 		assertTrue(test4.getChildNodes().contains(pgNewStep));
 		assertEquals(1,test4.getChildNodes().size());
+	}
+	
+	@Test
+	public void getLiteral(){
+		assertTrue(test1.getLiteral() instanceof Predication);
+		Predication testPred1 = (Predication) test1.getLiteral();
+		assertEquals("is",testPred1.predicate);
+
+		assertTrue(test2.getLiteral() instanceof Predication);
+		Predication testPred2 = (Predication) test2.getLiteral();
+		assertEquals("catch tiger",testPred2.predicate);
+
+		assertTrue(test3.getLiteral() instanceof Predication);
+		Predication testPred3 = (Predication) test3.getLiteral();
+		assertEquals("is flying",testPred3.predicate);
+
+		assertTrue(test4.getLiteral() instanceof Predication);
+		Predication testPred4 = (Predication) test4.getLiteral();
+		assertEquals("fears",testPred4.predicate);
 	}
 
 	@Test

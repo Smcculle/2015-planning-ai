@@ -8,6 +8,8 @@ public interface PlanGraphNode {
 
 	void setInitialLevel(int initialLevel);
 	
+	boolean existsAtLevel(int level);
+	
 	public List<?> getParentNodes();
 	
 	public List<?> getChildNodes();

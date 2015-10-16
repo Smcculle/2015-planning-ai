@@ -34,8 +34,8 @@ public class PlanGraphLiteral implements PlanGraphNode
 	{
 		_literal = literal;
 		_initialLevel = initialLevel;
-		_parents = parents;
-		_children = children;
+		_parents = new ArrayList<PlanGraphStep>(parents);
+		_children = new ArrayList<PlanGraphStep>(children);
 	}
 	
 	/**
@@ -55,32 +55,6 @@ public class PlanGraphLiteral implements PlanGraphNode
 	
 	public PlanGraphLiteral(Literal literal){
 		this(literal, -1, new ArrayList<PlanGraphStep>(), new ArrayList<PlanGraphStep>());
-	}
-	
-	public ArrayList<PlanGraphStep> getParents(int level)
-	{
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		// TODO Get all possible steps 
-		return steps;
-	}
-	
-	public ArrayList<PlanGraphStep> getChildren(int level)
-	{
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		// TODO Get all possible steps 
-		return steps;
-	}
-	
-	public boolean equals(PlanGraphLiteral pgLiteral){
-		return getLiteral().compareTo(pgLiteral.getLiteral()) == 0;  
-	}
-	
-	@Override
-	public String toString()
-	{
-		String output = _literal.toString();
-		output += "[" + _initialLevel + "]";
-		return output;
 	}
 
 	@Override
@@ -103,20 +77,12 @@ public class PlanGraphLiteral implements PlanGraphNode
 		_initialLevel = initialLevel;
 	}
 	
-	/**
-	 * @return literal Wrapped Literal
-	 */
-	public Literal getLiteral()
+	@Override
+	public boolean existsAtLevel(int level)
 	{
-		return _literal;
-	}
-	
-	protected void addParentStep(PlanGraphStep newStep){
-		_parents.add(newStep);
-	}
-	
-	protected void addChildStep(PlanGraphStep newStep){
-		_children.add(newStep);
+		boolean hasValidInitialLevel = _initialLevel > -1;
+		boolean isUnderOrInLevel = _initialLevel <= level;
+		return hasValidInitialLevel && isUnderOrInLevel;
 	}
 
 	@Override
@@ -127,5 +93,33 @@ public class PlanGraphLiteral implements PlanGraphNode
 	@Override
 	public List<PlanGraphStep> getChildNodes() {
 		return _children;
+	}
+	
+	protected void addParentStep(PlanGraphStep newStep){
+		_parents.add(newStep);
+	}
+	
+	protected void addChildStep(PlanGraphStep newStep){
+		_children.add(newStep);
+	}
+	
+	/**
+	 * @return literal Wrapped Literal
+	 */
+	public Literal getLiteral()
+	{
+		return _literal;
+	}
+	
+	public boolean equals(PlanGraphLiteral pgLiteral){
+		return getLiteral().compareTo(pgLiteral.getLiteral()) == 0;  
+	}
+	
+	@Override
+	public String toString()
+	{
+		String output = _literal.toString();
+		output += "[" + _initialLevel + "]";
+		return output;
 	}
 }
