@@ -8,5 +8,6 @@ import org.junit.runner.RunWith;
 	edu.uno.ai.planning.logic.HashBindingsTest.class,
 	edu.uno.ai.planning.logic.ListBindingsTest.class,
 	edu.uno.ai.planning.logic.NormalFormsTest.class,
+	edu.uno.ai.planning.pop.OpenConditionTest.class
 })
 public class AllTests {/* nothing */}
