@@ -1,7 +1,5 @@
 package edu.uno.ai.planning.pop;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
