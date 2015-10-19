@@ -2,9 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
-	<classpathentry kind="src" path="/Benchmarks"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Planning"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/State Space Search"/>
+	<classpathentry exported="true" kind="src" path="/Benchmarks"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Breadth First Search Planner"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Unit Tests"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
