@@ -1,5 +1,8 @@
 package edu.uno.ai.planning.graphplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.uno.ai.planning.logic.Literal;
 
 /**
@@ -10,13 +13,16 @@ import edu.uno.ai.planning.logic.Literal;
  * @author Christian Levi
  * 
  */
-public class PlanGraphLiteral 
+public class PlanGraphLiteral implements PlanGraphNode 
 {
 	/** The wrapped Literal **/
-	Literal _literal;
+	private Literal _literal;
 	
 	/** The level the Literal first appeared in PlanGraph **/
-	int _initialLevel;
+	private int _initialLevel;
+	
+	private List<PlanGraphStep> _parents;
+	private List<PlanGraphStep> _children;
 	
 	/**
 	 * Creates a wrapped Literal with a set initialLevel
@@ -24,10 +30,12 @@ public class PlanGraphLiteral
 	 * @param literal Literal to be wrapped
 	 * @param initialLevel First level Literal appears in PlanGraph
 	 */
-	public PlanGraphLiteral(Literal literal, int initialLevel)
+	public PlanGraphLiteral(Literal literal, int initialLevel, List<PlanGraphStep> children, List<PlanGraphStep> parents)
 	{
 		_literal = literal;
 		_initialLevel = initialLevel;
+		_parents = new ArrayList<PlanGraphStep>(parents);
+		_children = new ArrayList<PlanGraphStep>(children);
 	}
 	
 	/**
@@ -36,28 +44,63 @@ public class PlanGraphLiteral
 	 * 
 	 * @param literal Literal to be wrapped
 	 */
-	public PlanGraphLiteral(Literal literal)
+	public PlanGraphLiteral(Literal literal, List<PlanGraphStep> children, List<PlanGraphStep> parents)
 	{
-		_literal = literal;
-		_initialLevel = -1;
+		this(literal, -1, children, parents);
 	}
 	
+	public PlanGraphLiteral(Literal literal, int initialLevel){
+		this(literal, initialLevel, new ArrayList<PlanGraphStep>(), new ArrayList<PlanGraphStep>());
+	}
+	
+	public PlanGraphLiteral(Literal literal){
+		this(literal, -1, new ArrayList<PlanGraphStep>(), new ArrayList<PlanGraphStep>());
+	}
+
+	@Override
 	/**
 	 * @return initialLevel First level Literal appears in PlanGraph
 	 */
-	public int GetInitialLevel()
+	public int getInitialLevel()
 	{
 		return _initialLevel;
 	}
-	
+
+	@Override
 	/**
 	 * Change/Set first level Literal appears in PlanGraph
 	 * 
 	 * @param initialLevel First level Literal appears in PlanGraph
 	 */
-	public void SetInitialLevel(int initialLevel)
+	public void setInitialLevel(int initialLevel)
 	{
 		_initialLevel = initialLevel;
+	}
+	
+	@Override
+	public boolean existsAtLevel(int level)
+	{
+		boolean hasValidInitialLevel = _initialLevel > -1;
+		boolean isUnderOrInLevel = _initialLevel <= level;
+		return hasValidInitialLevel && isUnderOrInLevel;
+	}
+
+	@Override
+	public List<PlanGraphStep> getParentNodes() {
+		return _parents;
+	}
+
+	@Override
+	public List<PlanGraphStep> getChildNodes() {
+		return _children;
+	}
+	
+	protected void addParentStep(PlanGraphStep newStep){
+		_parents.add(newStep);
+	}
+	
+	protected void addChildStep(PlanGraphStep newStep){
+		_children.add(newStep);
 	}
 	
 	/**
