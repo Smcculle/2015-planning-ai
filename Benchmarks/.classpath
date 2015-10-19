@@ -5,6 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Breadth First Search Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

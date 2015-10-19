@@ -1,4 +1,4 @@
-package edu.uno.ai.planning.pop;
+package edu.uno.ai.planning.pop.sgware;
 
 public interface Flaw extends Partial {
 
