@@ -2,16 +2,18 @@ package edu.uno.ai.planning;
 
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.bfs.BFSPlanner;
+import edu.uno.ai.planning.pop.PartialOrderPlanner;
 
 public class TestSuite {
 
 	public static final int NODE_LIMIT = 10000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
-	
+
 	public static final Planner<?>[] PLANNERS = new Planner[]{
 		new BFSPlanner(),
+		new PartialOrderPlanner(),
 	};
-	
+
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
 		new Benchmark("blocks", "do_nothing"),
 		new Benchmark("blocks", "easy_stack"),
