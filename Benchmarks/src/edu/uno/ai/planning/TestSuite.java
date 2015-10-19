@@ -1,17 +1,14 @@
 package edu.uno.ai.planning;
 
-import edu.uno.ai.planning.bfs.*;
-import edu.uno.ai.planning.pop.*;
-
 public class TestSuite {
 
 	public static final int NODE_LIMIT = 10000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-		new BFSPlanner(),
-		new edu.uno.ai.planning.pop.sgware.PartialOrderPlanner(),
-		new PartialOrderPlanner()
+		new edu.uno.ai.planning.bfs.BFSPlanner(),
+		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{

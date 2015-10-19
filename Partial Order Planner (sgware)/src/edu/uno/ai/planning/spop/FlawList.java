@@ -1,4 +1,4 @@
-package edu.uno.ai.planning.pop.sgware;
+package edu.uno.ai.planning.spop;
 
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Literal;
