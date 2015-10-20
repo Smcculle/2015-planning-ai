@@ -22,6 +22,7 @@ public class Graphplan {
 	PlanGraph currentPlanGraph;
 	PlanGraph solution;
 	int currentLevel = new Integer(-1);
+	ArrayList<GraphPlanNode> nodes = new ArrayList<GraphPlanNode>();
 	ArrayList<PlanGraph> parentList = new ArrayList<PlanGraph>();
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
@@ -35,11 +36,16 @@ public class Graphplan {
 	
 	public Graphplan(Problem problem) {
 		this.problem = problem;
-		pg = PlanGraph.create(this.problem);
-		solution = new PlanGraph(problem);
-		solution._steps.clear();
-		solution._effects.clear();
+		pg = new PlanGraph(this.problem, true);
+		goalLiterals = expressionToLiterals(problem.goal);
+		
+	}
 	
+	public void setup(){
+		GraphPlanNode node = new GraphPlanNode();
+		node.addSteps();
+		nodes.add()
+		
 	}
 	
 	public void doGraphPlan(){
