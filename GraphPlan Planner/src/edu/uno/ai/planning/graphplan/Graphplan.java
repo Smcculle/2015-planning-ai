@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
@@ -15,14 +16,14 @@ import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.NegatedLiteral;
 
 
-public class Graphplan {
+public class Graphplan extends Planner<GraphPlanSearch>{
 
 	Problem problem;
-	PlanGraph pg;
+	
 	PlanGraph currentPlanGraph;
 	PlanGraph solution;
 	int currentLevel = new Integer(-1);
-	ArrayList<GraphPlanNode> nodes = new ArrayList<GraphPlanNode>();
+	
 	ArrayList<PlanGraph> parentList = new ArrayList<PlanGraph>();
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
@@ -35,16 +36,27 @@ public class Graphplan {
 
 	
 	public Graphplan(Problem problem) {
-		this.problem = problem;
-		pg = new PlanGraph(this.problem, true);
-		goalLiterals = expressionToLiterals(problem.goal);
-		
+			super("GraphPlan");
 	}
 	
-	public void setup(){
-		GraphPlanNode node = new GraphPlanNode();
-		node.addSteps();
-		nodes.add()
+	@Override
+	protected final GraphPlanSearch makeSearch(Problem problem){
+		return new GraphPlanSearch(problem);
+	}
+	
+	
+	
+	
+	public void createHighestNode(){
+		ArrayList<PlanGraphLiteral> properGoals = new ArrayList<>
+		for (Literal lit: goals){
+			
+		}
+		createNode(goals)
+	}
+	public void searchV2(){
+	
+		
 		
 	}
 	

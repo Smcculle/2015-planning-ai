@@ -7,9 +7,9 @@ import edu.uno.ai.planning.util.ConversionUtil;
 
 public class GraphPlanNode {
 	
-	ArrayList<PlanGraphStep> steps;			// list of steps at this node
-	ArrayList<PlanGraphLiteral>  literals;	// list of literals at this node
-	int level;								// level at which this node appears
+	private ArrayList<PlanGraphStep> steps;			// list of steps at this node
+	private ArrayList<PlanGraphLiteral>  literals;	// list of literals at this node
+	private int level;								// level at which this node appears
 	
 	/** Constructor with level specified */
 	public GraphPlanNode(int level) {
