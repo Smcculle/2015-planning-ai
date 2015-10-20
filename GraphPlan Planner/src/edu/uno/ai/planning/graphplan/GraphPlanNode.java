@@ -1,6 +1,9 @@
 package edu.uno.ai.planning.graphplan;
 import java.util.ArrayList;
 
+import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.util.ConversionUtil;
+
 
 public class GraphPlanNode {
 	
@@ -93,6 +96,46 @@ public class GraphPlanNode {
 		return result;
 	}		
 	
+	public void applySteps(ArrayList<PlanGraphStep> steps){
+		
+		ArrayList<PlanGraphLiteral> temp = new ArrayList<PlanGraphLiteral>();
+
+		for (PlanGraphStep step : steps){
+			for (PlanGraphLiteral literal : getPrevLits()){
+				if (isStepApplicableEffect(step, literal)){
+					temp.add(literal);
+				}
+			}
+		}
+		
+		ArrayList<PlanGraphLiteral> temp2 = new ArrayList<PlanGraphLiteral>();
+		for (PlanGraphLiteral literal : literals){
+			temp2.add(literal);
+		}
+		
+		for (PlanGraphStep step : steps){
+			for (Literal literal : ConversionUtil.expressionToLiterals(step.getStep().effect)){
+				PlanGraphLiteral n = new PlanGraphLiteral(literal.negate());
+				if (temp2.contains(n)){
+					temp2.remove(n);
+				}
+			}
+		}
+		
+		for (PlanGraphLiteral literal : temp){
+			temp2.add(literal);
+		}
+		
+		literals = temp2;
+		
+	}
+
+	/** see if the step's effect matches our literal */
+	public boolean isStepApplicableEffect(PlanGraphStep step, PlanGraphLiteral literal){
+		return ( (literal.getLiteral().equals(step.getStep().effect)) );
+	}	
+	
+	/** Set the level */
 	public void setLevel(int x){
 		level = x;
 	}
