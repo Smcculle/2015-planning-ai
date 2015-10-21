@@ -52,8 +52,9 @@ public class PlanGraph
 		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		addAllSteps(ssProblem.steps);
 		addAllEffects(ssProblem.steps);
+		addAllPersistenceSteps();
 		connectParentsToChildren();
-		addAllPerstitenceSteps();
+		
 		
 		PlanGraphLevel rootLevel = _calculateMutex ?
 			new PlanGraphLevelMutex(problem, _steps, _effects, _persistenceSteps, this) :
@@ -218,12 +219,35 @@ public class PlanGraph
 						effect.addChildStep(step);
 					}
 		}
+		
+//		for(PlanGraphStep step : _persistenceSteps){
+//			System.out.println(step);
+//			// Add Step effects as Plan Graph Children
+//			List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
+//			for(Literal literal : effectLiterals)
+//				for(PlanGraphLiteral effect : _effects){
+//					
+//					if(effect.equals(new PlanGraphLiteral(literal))){
+//						step.addChildLiteral(effect);
+//						effect.addParentStep(step);
+//					}
+//				}
+//			// Add Step Preconditions as Plan Graph Parents
+//			List<Literal> preconditionLiterals = ConversionUtil.expressionToLiterals(step.getStep().precondition);
+//			for(Literal literal : preconditionLiterals)
+//				for(PlanGraphLiteral effect : _effects)
+//					if(effect.equals(new PlanGraphLiteral(literal))){
+//						step.addParentLiteral(effect);
+//						effect.addChildStep(step);
+//					}
+//		}
+		
 	}
 	
 	/**
 	 * Adds all possible persistence steps from _effects.
 	 */
-	private void addAllPerstitenceSteps()
+	private void addAllPersistenceSteps()
 	{
 		for (PlanGraphLiteral planGraphLiteral : _effects)
 		{
@@ -233,6 +257,10 @@ public class PlanGraph
 			_steps.add(planGraphStep);
 			_persistenceSteps.add(planGraphStep);
 		}
+	}
+	
+	public ArrayList<PlanGraphStep> getPersistenceSteps(){
+		return _persistenceSteps;
 	}
 	
 	public boolean containsGoal(Expression goal)

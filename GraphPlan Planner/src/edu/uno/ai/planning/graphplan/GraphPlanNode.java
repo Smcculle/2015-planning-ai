@@ -24,6 +24,21 @@ public class GraphPlanNode {
 		level = 0;
 	}	
 	
+	/**
+	 * Get the steps within this node.
+	 */
+	public ArrayList<PlanGraphStep> getSteps(){
+		return steps;
+	}
+	
+	/**
+	 * Get the literals within this node.
+	 */
+	
+	public ArrayList<PlanGraphLiteral> getLiterals(){
+		return literals;
+	}
+	
 	/** Add a single step to the steps for this level */
 	public void addSteps(PlanGraphStep x){
 		steps.add(x);

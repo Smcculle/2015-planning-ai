@@ -28,14 +28,14 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 	ArrayList<PlanGraph> solutions;
 	ArrayList<PlanGraphStep> iterateList = new ArrayList<PlanGraphStep>();
 	ArrayList<Literal> preconditions = new ArrayList<Literal>();
-	ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
+	
 	ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 	Set<PlanGraphStep> howToAchieveGoals = new HashSet<PlanGraphStep>();
 	ArrayList<PlanGraphStep> howToAchieveGoalsList = new ArrayList<PlanGraphStep>();
 	Iterator<PlanGraphStep> iter;
 
 	
-	public Graphplan(Problem problem) {
+	public Graphplan() {
 			super("GraphPlan");
 	}
 	
@@ -98,7 +98,7 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 			
 			for (PlanGraphStep step: steps){
 				for (Literal goalLiteral: goalLiterals){
-					for (Literal effectLiteral: expressionToLiterals(step.GetStep().effect)){
+					for (Literal effectLiteral: expressionToLiterals(step.getStep().effect)){
 						if (effectLiteral.equals(goalLiteral)){
 							if (step.GetInitialLevel() == currentPlanGraph.getLevel()){
 							howToAchieveGoals.add(step);
@@ -206,28 +206,7 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 		return temp;	
 	}
 	
-	/**
-	 * Helper function to get all the literals from an Expression
-	 * 
-	 * @param expression The Expression to convert to list
-	 * @return ArrayList<Literal> List of literals in expression
-	 */
-	public ArrayList<Literal> expressionToLiterals(Expression expression)
-	{
-		ArrayList<Literal> literals = new ArrayList<Literal>();
-		if (expression instanceof Literal)
-			literals.add((Literal)expression);
-		else
-		{
-			Conjunction cnf = (Conjunction)expression.toCNF();
-			for (Expression disjunction : cnf.arguments)
-				if (((Disjunction) disjunction).arguments.length == 1)
-					literals.add((Literal)((Disjunction) disjunction).arguments.get(0));
-				// else -- Do Nothing!
-		}
-		return literals;
-	}
-
+	
 	////////////////////////////////
 	
 	

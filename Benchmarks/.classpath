@@ -5,7 +5,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Breadth First Search Planner"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/State Space Search"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Unit Tests"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/GraphPlan Planner"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Unit Tests"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
