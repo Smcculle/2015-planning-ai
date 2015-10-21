@@ -1,0 +1,116 @@
+package edu.uno.ai.planning.pg;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.function.Consumer;
+
+import edu.uno.ai.planning.State;
+import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.logic.Expression;
+import edu.uno.ai.planning.logic.Literal;
+import edu.uno.ai.planning.logic.NAryBooleanExpression;
+import edu.uno.ai.planning.ss.StateSpaceProblem;
+
+public class PlanGraph {
+
+	public final StateSpaceProblem problem;
+	public final Iterable<LiteralNode> goal;
+	protected final LinkedHashMap<Literal, LiteralNode> literals = new LinkedHashMap<>();
+	protected final LinkedHashMap<Step, StepNode> steps = new LinkedHashMap<>();
+	final ArrayList<Node> toReset = new ArrayList<>();
+	final ArrayList<StepNode> nextSteps = new ArrayList<>();
+	private final ArrayList<Level> levels = new ArrayList<>();
+	private int size = 0;
+	private boolean leveledOff = false;
+	
+	public PlanGraph(StateSpaceProblem problem) {
+		this.problem = problem;
+		for(Step step : problem.steps)
+			addEdgesForStep(step);
+		ArrayList<LiteralNode> goal = new ArrayList<>();
+		forEachLiteral(problem.goal.toDNF(), literal -> {
+			goal.add(getLiteralNode(literal));
+		});
+		this.goal = goal;
+		this.levels.add(new Level(this, 0));
+	}
+	
+	private final void addEdgesForStep(Step step) {
+		StepNode stepNode = new StepNode(this, step);
+		forEachLiteral(step.precondition.toDNF(), literal -> {
+			LiteralNode literalNode = getLiteralNode(literal);
+			literalNode.consumers.add(stepNode);
+			stepNode.preconditions.add(literalNode);
+		});
+		forEachLiteral(step.effect.toDNF(), literal -> {
+			LiteralNode literalNode = getLiteralNode(literal);
+			stepNode.effects.add(literalNode);
+			literalNode.producers.add(stepNode);
+		});
+	}
+	
+	private final void forEachLiteral(Expression expression, Consumer<Literal> consumer) {
+		if(expression instanceof Literal)
+			consumer.accept((Literal) expression);
+		else
+			for(Expression argument : ((NAryBooleanExpression) expression).arguments)
+				forEachLiteral(argument, consumer);
+	}
+	
+	private final LiteralNode getLiteralNode(Literal literal) {
+		LiteralNode literalNode = literals.get(literal);
+		if(literalNode == null) {
+			literalNode = new LiteralNode(this, literal);
+			literals.put(literal, literalNode);
+		}
+		return literalNode;
+	}
+	
+	public LiteralNode get(Literal literal) {
+		return literals.get(literal);
+	}
+	
+	public StepNode get(StepNode step) {
+		return steps.get(step);
+	}
+	
+	public void initialize(State initial) {
+		size = 1;
+		for(Node node : toReset)
+			node.reset();
+		toReset.clear();
+		for(LiteralNode node : literals.values())
+			if(initial.isTrue(node.literal))
+				node.setLevel(0);
+		leveledOff = nextSteps.size() == 0;
+	}
+	
+	public void extend() {
+		if(levels.size() == size)
+			levels.add(new Level(this, size));
+		size++;
+		addStep(0);
+		if(nextSteps.size() == 0)
+			leveledOff = true;
+	}
+	
+	public Level getLevel(int number) {
+		if(number < 0 || number >= size)
+			throw new IndexOutOfBoundsException("Level " + number + " does not exist.");
+		return levels.get(number);
+	}
+	
+	private final void addStep(int index) {
+		if(index == nextSteps.size())
+			nextSteps.clear();
+		else {
+			StepNode step = nextSteps.get(index);
+			addStep(index + 1);
+			step.setLevel(size - 1);
+		}
+	}
+	
+	public boolean hasLeveledOff() {
+		return leveledOff;
+	}
+}
