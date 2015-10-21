@@ -26,16 +26,13 @@ public class GraphPlanTest2 {
 	public void testInit(){
 		
 			Problem cakeProblem = createCakeProblem();
-			PlanGraph cakePlanGraph = PlanGraph.create(cakeProblem);
-			PlanGraph cakePlanGraphExt = new PlanGraph(cakePlanGraph);
+			Problem rocketProblem = createEasyCargoProblem();
+			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
+			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
+			s.search();
 			
-			Graphplan cake = new Graphplan(cakeProblem);
-
-			Problem rproblem = createEasyCargoProblem();
-			Graphplan rocket = new Graphplan(rproblem);
-	
 //			cake.extend();
-			rocket.doGraphPlan();
+//			rocket.doGraphPlan();
 //			rocket.extend();
 //			rocket.areStepsSolution()
 			
