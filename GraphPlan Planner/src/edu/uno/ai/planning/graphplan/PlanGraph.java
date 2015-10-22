@@ -55,7 +55,6 @@ public class PlanGraph
 		addAllPersistenceSteps();
 		connectParentsToChildren();
 		
-		
 		PlanGraphLevel rootLevel = _calculateMutex ?
 			new PlanGraphLevelMutex(problem, _steps, _effects, _persistenceSteps, this) :
 			new PlanGraphLevel(problem, _steps, _effects, _persistenceSteps, this);
@@ -219,29 +218,7 @@ public class PlanGraph
 						effect.addChildStep(step);
 					}
 		}
-		
-//		for(PlanGraphStep step : _persistenceSteps){
-//			System.out.println(step);
-//			// Add Step effects as Plan Graph Children
-//			List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
-//			for(Literal literal : effectLiterals)
-//				for(PlanGraphLiteral effect : _effects){
-//					
-//					if(effect.equals(new PlanGraphLiteral(literal))){
-//						step.addChildLiteral(effect);
-//						effect.addParentStep(step);
-//					}
-//				}
-//			// Add Step Preconditions as Plan Graph Parents
-//			List<Literal> preconditionLiterals = ConversionUtil.expressionToLiterals(step.getStep().precondition);
-//			for(Literal literal : preconditionLiterals)
-//				for(PlanGraphLiteral effect : _effects)
-//					if(effect.equals(new PlanGraphLiteral(literal))){
-//						step.addParentLiteral(effect);
-//						effect.addChildStep(step);
-//					}
-//		}
-		
+			
 	}
 	
 	/**

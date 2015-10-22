@@ -40,20 +40,23 @@ public class GraphPlanSearch extends Search{
 		this.visitedNodes = 0;
 		pg = new PlanGraph(this.problem, true);
 		currentMaxLevel = pg.countLevels() - 1;
+		
 	
 	}
 	
 	public Plan search(){
 		Plan x = null;
-		
+		System.out.println(pg);
 		if (firstCall == true)
 		{
 			createGoalNode();
 			firstCall = false;
 
 		} 
+//		while (currentLevel > 0){
 			
 		createNewNode();
+//		}
 		
 		return x;
 	}
@@ -65,24 +68,24 @@ public class GraphPlanSearch extends Search{
 	
 	public void createGoalNode(){
 		currentLevel = currentMaxLevel;
-		
 		ArrayList<PlanGraphLiteral> tempGoalList = new ArrayList<PlanGraphLiteral>();
 		ArrayList<PlanGraphStep> tempSteps = new ArrayList<PlanGraphStep>();
+		
 		for (Literal lit: expressionToLiterals(problem.goal)){
 			tempGoalList.add(pg.getPlanGraphLiteral(lit));
 		}
 	
-		
-		
+
 		for (PlanGraphLiteral goal: tempGoalList){
 			for (PlanGraphStep step: goal.getParentNodes()){
 			tempSteps.add(step);
 			}
 		}
+		
+	
+		defineNode(dealWithMutex(tempSteps), tempGoalList,currentMaxLevel);
+		
 
-
-
-		defineNode(tempSteps, tempGoalList,currentMaxLevel);
 		System.out.println(nodes.get(currentMaxLevel).getLiterals());
 		
 		
@@ -91,8 +94,7 @@ public class GraphPlanSearch extends Search{
 	}
 	
 	public void createNewNode(){
-		GraphPlanNode tempNode = null;
-		tempNode = nodes.get(currentLevel);
+		GraphPlanNode tempNode = nodes.get(currentLevel);
 		ArrayList<PlanGraphLiteral> tempLiterals = new ArrayList<PlanGraphLiteral>();
 		ArrayList<PlanGraphStep> tempSteps = new ArrayList<PlanGraphStep>();
 		Set<PlanGraphLiteral> deleteRepeats = new HashSet<PlanGraphLiteral>();
@@ -113,12 +115,46 @@ public class GraphPlanSearch extends Search{
 			}
 		}
 		
+		
 		currentLevel--;
-		defineNode(tempSteps,tempLiterals,currentLevel);
+	
+		defineNode(dealWithMutex(tempSteps),tempLiterals,currentLevel);
+		
+		extendedNodes++;
+		visitedNodes++;
 		System.out.println(tempLiterals);
-		System.out.println(tempSteps);
+		System.out.println(nodes.get(currentLevel).getSteps());
 		
 	}
+	
+	public ArrayList<PlanGraphStep> dealWithMutex(ArrayList<PlanGraphStep> tempSteps){
+		PlanGraphLevel mutex = pg.getLevel(currentMaxLevel);
+		ArrayList<PlanGraphStep> tempNonMutex = new ArrayList<PlanGraphStep>();
+		ArrayList<PlanGraphStep> tempMutex = new ArrayList<PlanGraphStep>();
+		
+		for (int i = 0; i < tempSteps.size(); i++) {
+			for (int j = i+1; j < tempSteps.size(); j++) {
+				if (((PlanGraphLevelMutex)mutex).isMutex(tempSteps.get(i),tempSteps.get(j))){
+					tempMutex.add(tempSteps.get(j));
+					tempNonMutex.add(tempSteps.get(i));
+					break;
+				} else {
+					tempNonMutex.add(tempSteps.get(i));
+					if ((j == (tempSteps.size() -1)) && (!(tempMutex.contains(tempSteps.get(j)))) ){
+						tempNonMutex.add(tempSteps.get(j));
+					}
+				}
+			}
+		}
+		
+		tempNonMutex.removeAll(tempMutex);
+		
+
+		System.out.println(tempMutex);
+		System.out.println(tempNonMutex);
+		return tempNonMutex;
+	}
+	
 	
 	/**
 	 * Create a GraphPlanNode which models the steps and literals at a certain level of the PlanGraph.
