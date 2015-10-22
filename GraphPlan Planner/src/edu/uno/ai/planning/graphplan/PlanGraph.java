@@ -52,8 +52,9 @@ public class PlanGraph
 		StateSpaceProblem ssProblem = new StateSpaceProblem(problem);
 		addAllSteps(ssProblem.steps);
 		addAllEffects(ssProblem.steps);
-		connectParentsToChildren();
 		addAllPerstitenceSteps();
+
+		connectParentsToChildren();
 		
 		PlanGraphLevel rootLevel = _calculateMutex ?
 			new PlanGraphLevelMutex(problem, _steps, _effects, _persistenceSteps, this) :
