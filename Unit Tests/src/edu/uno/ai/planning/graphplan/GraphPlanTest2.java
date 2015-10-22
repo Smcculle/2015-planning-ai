@@ -29,6 +29,8 @@ public class GraphPlanTest2 {
 			Problem rocketProblem = createEasyCargoProblem();
 			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
+		
+//			System.out.println(cakeProblem.initial);
 			s.search();
 			
 //			cake.extend();

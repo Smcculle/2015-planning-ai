@@ -34,7 +34,6 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 	ArrayList<PlanGraphStep> howToAchieveGoalsList = new ArrayList<PlanGraphStep>();
 	Iterator<PlanGraphStep> iter;
 
-	
 	public Graphplan() {
 			super("GraphPlan");
 	}
@@ -44,9 +43,7 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 		return new GraphPlanSearch(problem);
 	}
 	
-	
-	
-	
+
 	public void createHighestNode(){
 		ArrayList<PlanGraphLiteral> properGoals = new ArrayList<>
 		for (Literal lit: goals){

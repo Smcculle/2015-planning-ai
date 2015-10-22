@@ -19,7 +19,8 @@ public class GraphPlanSearch extends Search{
 	public final Problem problem;
 	
 	private HashMap<Integer, GraphPlanNode> nodes = new HashMap<Integer, GraphPlanNode>();
-
+	private HashMap<Integer, ArrayList<PlanGraphStep>> mutexLists = new HashMap<Integer, ArrayList<PlanGraphStep>>();
+	
 	private int extendedNodes;
 	
 	private int visitedNodes;
@@ -30,7 +31,7 @@ public class GraphPlanSearch extends Search{
 	
 	int limit = -1;
 	
-	
+	//Used to determine if we are creating the highest level node. 
 	boolean firstCall = true;
 	
 	public GraphPlanSearch(Problem problem){
@@ -53,10 +54,10 @@ public class GraphPlanSearch extends Search{
 			firstCall = false;
 
 		} 
-//		while (currentLevel > 0){
+		while (currentLevel > 0){
 			
 		createNewNode();
-//		}
+		}
 		
 		return x;
 	}
@@ -82,12 +83,12 @@ public class GraphPlanSearch extends Search{
 			}
 		}
 		
-	
+		System.out.println();
+		
+		
+		
 		defineNode(dealWithMutex(tempSteps), tempGoalList,currentMaxLevel);
-		
-
 		System.out.println(nodes.get(currentMaxLevel).getLiterals());
-		
 		
 		extendedNodes++;
 		visitedNodes++;
@@ -99,7 +100,7 @@ public class GraphPlanSearch extends Search{
 		ArrayList<PlanGraphStep> tempSteps = new ArrayList<PlanGraphStep>();
 		Set<PlanGraphLiteral> deleteRepeats = new HashSet<PlanGraphLiteral>();
 		
-		System.out.println(tempNode.getSteps());
+		
 		for (PlanGraphStep step: tempNode.getSteps()){
 			for (PlanGraphLiteral lit: step.getParentNodes()){
 				deleteRepeats.add(lit);
@@ -115,16 +116,30 @@ public class GraphPlanSearch extends Search{
 			}
 		}
 		
-		
 		currentLevel--;
-	
 		defineNode(dealWithMutex(tempSteps),tempLiterals,currentLevel);
+		
+		ArrayList<Literal> nonPGLiterals = new ArrayList<Literal>();
+		ArrayList<Literal> initialLiterals = new ArrayList<Literal>();
+		initialLiterals = expressionToLiterals(problem.initial.toExpression());
+		
+		for(PlanGraphLiteral lit:tempLiterals){
+			nonPGLiterals.add(lit.getLiteral());
+		}
+		
+		nonPGLiterals.equals(initialLiterals);
 		
 		extendedNodes++;
 		visitedNodes++;
+		
 		System.out.println(tempLiterals);
 		System.out.println(nodes.get(currentLevel).getSteps());
+	}
+	
+	public boolean goalReached(){
+		boolean result = false;
 		
+		return result;
 	}
 	
 	public ArrayList<PlanGraphStep> dealWithMutex(ArrayList<PlanGraphStep> tempSteps){
@@ -147,11 +162,11 @@ public class GraphPlanSearch extends Search{
 			}
 		}
 		
+		mutexLists.put(currentLevel,tempMutex);
 		tempNonMutex.removeAll(tempMutex);
 		
-
-		System.out.println(tempMutex);
-		System.out.println(tempNonMutex);
+		System.out.println(mutexLists);
+		System.out.println(tempNonMutex + "Non Mutex steps");
 		return tempNonMutex;
 	}
 	
