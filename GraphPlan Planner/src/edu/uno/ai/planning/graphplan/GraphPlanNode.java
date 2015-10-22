@@ -24,6 +24,11 @@ public class GraphPlanNode {
 		level = 0;
 	}	
 	
+	public int getLevel(){
+		return level;
+	}
+	
+	
 	/**
 	 * Get the steps within this node.
 	 */
