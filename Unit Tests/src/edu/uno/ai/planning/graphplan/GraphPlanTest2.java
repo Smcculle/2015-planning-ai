@@ -31,8 +31,8 @@ public class GraphPlanTest2 {
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 		
 //			System.out.println(cakeProblem.initial);
-			s.search();
-			
+//			s.search();
+			r.search();
 //			cake.extend();
 //			rocket.doGraphPlan();
 //			rocket.extend();

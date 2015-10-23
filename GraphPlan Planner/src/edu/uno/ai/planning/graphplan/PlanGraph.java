@@ -55,6 +55,7 @@ public class PlanGraph
 		addAllPersistenceSteps();
 		connectParentsToChildren();
 		
+		
 		PlanGraphLevel rootLevel = _calculateMutex ?
 			new PlanGraphLevelMutex(problem, _steps, _effects, _persistenceSteps, this) :
 			new PlanGraphLevel(problem, _steps, _effects, _persistenceSteps, this);
