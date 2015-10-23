@@ -12,7 +12,8 @@ import edu.uno.ai.planning.util.ConversionUtil;
 import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
- * A PlanGraph Structure is
+ * A PlanGraph is a structure of PlanGraphLevels
+ * Each level contains facts/literals and actions/steps
  * 
  * @author Edward Thomas Garcia
  * @author Christian Levi
@@ -20,14 +21,16 @@ import edu.uno.ai.planning.util.ImmutableArray;
  */
 public class PlanGraph 
 {
+	/** Number of Levels **/
 	private int _levels;
 	
+	/** List of all currently extended PlanGraphLevels **/
 	private ArrayList<PlanGraphLevel> _levelList;
 		
-	/** List of all unique steps in PlanGraph */
+	/** List of all unique PlanGraphSteps in PlanGraph **/
 	private ArrayList<PlanGraphStep> _steps;
 	
-	/** List of all unique effects in PlanGraph */
+	/** List of all unique PlanGraphLiterals in PlanGraph **/
 	private ArrayList<PlanGraphLiteral> _effects;
 	
     /** List of all Persistence Steps (easier record keeping) */
@@ -37,9 +40,14 @@ public class PlanGraph
     private boolean _calculateMutex;
 	
 	/**
-	 * Constructs a new PlanGraph
+	 * Constructs a new PlanGraph Structure
+	 * Will extend until new PlanGraphLevel contains goal or is leveled off
+	 * Contains 1 or more PlanGraphLevels
+	 * Contains 1 list of all Actions/Steps that will be used by all PlanGraphLevels
+	 * Contains 1 list of all Facts/Literals/Effects that will be used by all PlanGraphLevels
 	 * 
-	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
+	 * @param problem The Problem in which to setup PlanGraph
+	 * @param calculateMutex If true, will replace PlanGraphLevels with PlanGraphLevelMutexes
 	 */
 	public PlanGraph (Problem problem, boolean calculateMutex)
 	{
@@ -67,11 +75,19 @@ public class PlanGraph
         	extend();
 	}
 	
+	/**
+	 * Default value of PlanGraph is not to calculate mutual exclusions.
+	 * 
+	 * @param problem The Problem in which to setup PlanGraph
+	 */
 	public PlanGraph (Problem problem)
 	{
 		this (problem, false);
 	}
 	
+	/**
+	 * Extends the PlanGraph by adding an additional level to PlanGraph
+	 */
 	public void extend()
 	{
 		PlanGraphLevel nextLevel = _calculateMutex ?
@@ -82,6 +98,12 @@ public class PlanGraph
 		_levels++;
 	}
 	
+	/**
+	 * Get the PlanGraphLevel Instance at a certain level
+	 * 
+	 * @param level The PlanGraphLevel number
+	 * @return planGraphLevel Return planGraphLevel at level number if exists, null otherwise
+	 */
 	public PlanGraphLevel getLevel(int level)
 	{
 		if (level < _levels)
@@ -90,18 +112,28 @@ public class PlanGraph
 			return null;
 	}
 	
+	/**
+	 * Get the root PlanGraphLevel (ie PlanGraphLevel @ level 0)
+	 * 
+	 * @return planGraphLevel Returns root PlanGraphLevel
+	 */
 	public PlanGraphLevel getRootLevel()
 	{
 		return _levelList.get(0);
 	}
 	
+	/**
+	 * The number of levels in the PlanGraph
+	 * 
+	 * @return int Number of levels in the PlanGraph
+	 */
 	public int countLevels()
 	{
 		return _levels;
 	}
 	
 	 /**
-     * Helper function to get PlanGraphStep from step
+     * Helper function to get PlanGraphStep from Step
      * 
      * @param step Step to get PlanGraphStep
      * @return planGraphStep Corresponding PlanGraphStep
@@ -133,11 +165,11 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Boolean method to return whether or not a given PlanGraphStep
-	 * is valid for the given level
-	 * @param pgStep
-	 * @param level
-	 * @return
+	 * Does the PlanGraphStep exist at level specified?
+	 * 
+	 * @param pgStep PlanGraphStep to check if exists at certain level
+	 * @param level The level number to check
+	 * @return boolean True if planGraphStep exists at level, false otherwise
 	 */
 	public boolean existsAtLevel(PlanGraphStep pgStep, int level)
 	{
@@ -146,9 +178,9 @@ public class PlanGraph
 	}
 	
 	/**
-	 * Return the list of PlanGraphSteps that exist within this
-	 * PlanGraph
-	 * @return all possible Step Nodes for PlanGraph
+	 * The one and only list of all PlanGraphSteps in PlanGraph
+	 * 
+	 * @return ArrayList<PlanGraphStep> All Possible Plan Graph Steps
 	 */
 	public ArrayList<PlanGraphStep> getAllPossiblePlanGraphSteps()
 	{
@@ -156,41 +188,33 @@ public class PlanGraph
 	}
 
 	/**
-	 * Return the list of PlanGraphLiterals that exist within this
-	 * PlanGraph
-	 * @return all possible Effect Nodes for PlanGraph
+	 * The one and only list of all PlanGraphEffects in PlanGraph
+	 * 
+	 * @return ArrayList<PlanGraphEffects> All Possible Plan Graph Effects
 	 */
 	public ArrayList<PlanGraphLiteral> getAllPossiblePlanGraphEffects()
 	{
 		return _effects;
 	}
 	
+	/**
+	 * Does the PlanGraphLiteral exist at level specified?
+	 * 
+	 * @param pgLiteral PlanGraphLiteral to check if exists at certain level
+	 * @param level The level number to check
+	 * @return boolean True if planGraphLiteral exists at level, false otherwise
+	 */
 	public boolean existsAtLevel(PlanGraphLiteral pgLiteral, int level)
 	{
 		PlanGraphLevel planGraphLevel = getLevel(level);
 		return planGraphLevel.exists(pgLiteral);
 	}
 	
-	public boolean containsGoal(Expression goal)
-	{
-		return getMaxLevel().containsGoal(goal);
-	}
-	
-	public boolean isLeveledOff()
-	{
-		return getMaxLevel().isLeveledOff();
-	}
-	
-	@Override
-	public String toString()
-	{
-		String str = "";
-		for(PlanGraphLevel level : _levelList)
-			str += level.toString();
-		
-		return str;
-	}
-	
+	/**
+	 * Returns the most extended/maximum PlanGraphLevel in PlanGraph
+	 * 
+	 * @return PlanGraphLevel Maximum PlanGraphLevel in PlanGraph
+	 */
 	private PlanGraphLevel getMaxLevel()
 	{
 		return _levelList.get(_levels - 1);
@@ -275,5 +299,37 @@ public class PlanGraph
 			_steps.add(planGraphStep);
 			_persistenceSteps.add(planGraphStep);
 		}
+	}
+
+	
+	/**
+	 * Does the most extended/maximum PlanGraphLevel contain goal literals/facts? 
+	 * 
+	 * @param goal Goal expression
+	 * @return true if max PlanGraphLevel contains all goal facts, false otherwise
+	 */
+	public boolean containsGoal(Expression goal)
+	{
+		return getMaxLevel().containsGoal(goal);
+	}
+	
+	/**
+	 * Is the most extended/maximum PlanGraphLevel the same as its parent?
+	 * 
+	 * @return true if PlanGraph is leveled off, false otherwise
+	 */
+	public boolean isLeveledOff()
+	{
+		return getMaxLevel().isLeveledOff();
+	}
+	
+	@Override
+	public String toString()
+	{
+		String str = "";
+		for(PlanGraphLevel level : _levelList)
+			str += level.toString();
+		
+		return str;
 	}
 }

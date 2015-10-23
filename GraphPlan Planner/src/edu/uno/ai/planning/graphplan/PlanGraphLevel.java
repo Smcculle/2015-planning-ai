@@ -10,27 +10,38 @@ import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.util.ConversionUtil;
 
+/**
+ * A PlanGraphLevel is a substructure of PlanGraph
+ * Each level contains facts/literals and actions/steps
+ * 
+ * @author Edward Thomas Garcia
+ * @author Christian Levi
+ * 
+ */
 public class PlanGraphLevel 
 {
-	/** PlanGraph's Parent */
+	/** PlanGraphLevel's Parent **/
 	private PlanGraphLevel _parent;
 	
-	/** List of all unique steps in PlanGraph */
+	/** List of all unique PlanGraphSteps in PlanGraph **/
 	protected ArrayList<PlanGraphStep> _steps;
 	
-	/** List of all unique effects in PlanGraph */
+	/** List of all unique PlanGraphLiterals in PlanGraph **/
 	protected ArrayList<PlanGraphLiteral> _effects;
 	
-	/** List of all Persistence Steps (easier record keeping) */
+	/** List of all Persistence Steps (easier record keeping) **/
 	private ArrayList<PlanGraphStep> _persistenceSteps;
 
-	/** Current level number */
+	/** Current level number **/
 	private int _level;
 	
+	/** The PlanGraph structure containing this level **/
 	protected PlanGraph _planGraph;
 	
 	/**
-	 * Constructs a new root of PlanGraph
+	 * Constructs a new PlanGraphLevel
+	 * Does not create additional lists for facts/effect and steps/actions.
+	 * This constructor is specifically intended to create root level of PlanGraph
 	 * 
 	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
 	 */
@@ -48,7 +59,8 @@ public class PlanGraphLevel
 	}
 	
 	/**
-	 * Constructs a new PlanGraph child
+	 * Constructs a new PlanGraphLevel child
+	 * Does not create additional lists for facts/effect and steps/actions.
 	 * 
 	 * @param parent The parent of new PlanGraph
 	 */
@@ -76,13 +88,10 @@ public class PlanGraphLevel
 	}
 	
 	/**
-	 * Boolean method to return whether or not the given Expression
-	 * exists within the effects found at this PlanGraphLevel of the
-	 * PlanGraph 
-	 * @param goal
-	 * @return for(literal : goal)
-	 * 			if (!exists(literal))
-	 * 				return false
+	 * Does this level contain goal effects/facts?
+	 * 
+	 * @param goal Goal Expression
+	 * @return true if goal effect/facts are within this level, false otherwise
 	 */
 	public boolean containsGoal(Expression goal)
 	{		
@@ -97,11 +106,9 @@ public class PlanGraphLevel
 	}
 	
 	/**
-	 * Return the previous PlanGraphLevel in the PlanGraph
-	 * @return if(getLevel() == 0)
-	 * 			return null
-	 * 		   else
-	 * 			return parent
+	 * Previous/Parent level of this PlanGraphLevel
+	 * 
+	 * @return PlanGraphLevel Parent PlanGraphLevel or null if root
 	 */
 	public PlanGraphLevel getParent()
 	{
@@ -109,12 +116,10 @@ public class PlanGraphLevel
 	}
 
 	/**
-	 * Boolean method to return whether or not this 
-	 * PlanGraphLevel has leveled off compared to its
-	 * parent PlanGraphLevel
-	 * @return parent != null && 
-	 * 		   parent.currentEffects != this.currentEffects &&
-	 * 		   parent.currentSteps != this.currentSteps 
+	 * Is this PlanGraphLevel leveled off?
+	 * Determines this by checking the size of current steps and effects.
+	 * 
+	 * @return true if PlanGraph is leveled off, false otherwise
 	 */
 	public boolean isLeveledOff()
 	{
@@ -129,8 +134,9 @@ public class PlanGraphLevel
 	}
 	
 	/**
-	 * Get the number of Effects that exist in this PlanGraphLevel
-	 * @return currentEffects.size()
+	 * Number of Effects at this level
+	 * 
+	 * @return integer Number of Effects at this level
 	 */
 	public int countCurrentEffects()
 	{
@@ -140,10 +146,11 @@ public class PlanGraphLevel
 				count++;
 		return count;
 	}
-
+	
 	/**
-	 * Get the number of Steps that exist in this PlanGraphLevel
-	 * @return currentSteps.size()
+	 * Number of Steps at this level
+	 * 
+	 * @return integer Number of Steps at this level
 	 */
 	public int countCurrentSteps()
 	{
@@ -155,11 +162,10 @@ public class PlanGraphLevel
 	}
 
 	/**
-	 * Boolean method to return whether or not the given
-	 * PGStep exists in this PlanGraphLevel of the PlanGraph
-	 * @param pgStep
-	 * @return pgStep.getInitialLevel() > -1 &&
-	 * 		   pgStep.getInitialLevel() <= getLevel()
+	 * Does PlanGraphStep exist at this level?
+	 * 
+	 * @param pgStep PlanGraphStep to test if exists
+	 * @return true if PlanGraphStep exists at this level, false otherwise
 	 */
 	public boolean exists(PlanGraphStep pgStep) 
 	{
@@ -169,11 +175,10 @@ public class PlanGraphLevel
 	}
 
 	/**
-	 * Boolean method to return whether or not the given
-	 * PGLiteral exists in this PlanGraphLevel of the PlanGraph
-	 * @param pgLiteral
-	 * @return pgLiteral.getInitialLevel() > -1 &&
-	 * 		   pgLiteral.getInitialLevel() <= getLevel()
+	 * Does PlanGraphLiteral exist at this level?
+	 * 
+	 * @param pgLiteral PlanGraphLiteral to test if exists
+	 * @return true if PlanGraphLiteral exists at this level, false otherwise
 	 */
 	public boolean exists(PlanGraphLiteral pgLiteral) 
 	{		
@@ -181,13 +186,12 @@ public class PlanGraphLevel
 		// return PlanGraphStep exists at this Level
 		return pgLiteral.existsAtLevel(getLevel());
 	}
-
+	
 	/**
-	 * Boolean method to return whether or not the given
-	 * Step exists in this PlanGraphLevel of the PlanGraph
-	 * @param step
-	 * @return PlanGraphStep(step).getInitialLevel() > -1 &&
-	 * 		   PlanGraphStep(step).getInitialLevel() <= getLevel()
+	 * Helper function to see if Step exists at this level
+	 * 
+	 * @param step Step to test if exists at this level
+	 * @return true if PlanGraphStep of Step exists at this level, false otherwise
 	 */
 	public boolean exists(Step step) 
 	{
@@ -195,11 +199,10 @@ public class PlanGraphLevel
 	}
 
 	/**
-	 * Boolean method to return whether or not the given
-	 * Literal exists in this PlanGraphLevel of the PlanGraph
-	 * @param literal
-	 * @return PlanGraphLiteral(literal).getInitialLevel() > -1 &&
-	 * 		   PlanGraphLiteral(literal).getInitialLevel() <= getLevel()
+	 * Helper function to see if Literal exists at this level
+	 * 
+	 * @param literal SteLiteral test if exists at this level
+	 * @return true if PlanGraphLiteral of Literal exists at this level, false otherwise
 	 */
 	public boolean exists(Literal literal) 
 	{		
@@ -252,9 +255,10 @@ public class PlanGraphLevel
 	}
 
 	/**
-	 * Adds negated effect not mentioned in initialState to root PlanGraphLevel
+	 * Any effect that was not explicitly specified is initiated
+	 * at root Level as NegatedLiteral
 	 * 
-	 * @param initialState State from which to add effects
+	 * @param initialState Expression of the initial state
 	 */
 	private void setNonSpecifiedInitialEffects(State initialState) 
 	{
@@ -280,8 +284,8 @@ public class PlanGraphLevel
 	}
 	
 	/**
-	 * Sets InitialLevel of Steps that require it for this
-	 * level of the PlanGraph
+	 * Updates all non-persistent steps in PlanGraphLevel
+	 * Run at Constructor
 	 */
 	private void addAllPossibleNewSteps() 
 	{
@@ -350,5 +354,4 @@ public class PlanGraphLevel
 		}
 		return true;
 	}
-	
 }
