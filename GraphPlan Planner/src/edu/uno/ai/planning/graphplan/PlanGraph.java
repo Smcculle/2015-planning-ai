@@ -160,10 +160,6 @@ public class PlanGraph
 		return null;
 	}
 	
-	public ArrayList<PlanGraphStep> getPersistantSteps(){
-		return _persistenceSteps;
-	}
-	
 	/**
 	 * Does the PlanGraphStep exist at level specified?
 	 * 
