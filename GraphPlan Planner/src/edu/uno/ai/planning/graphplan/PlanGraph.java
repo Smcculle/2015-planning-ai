@@ -128,17 +128,38 @@ public class PlanGraph
 		return null;
 	}
 	
+	public ArrayList<PlanGraphStep> getPersistantSteps(){
+		return _persistenceSteps;
+	}
+	
+	/**
+	 * Boolean method to return whether or not a given PlanGraphStep
+	 * is valid for the given level
+	 * @param pgStep
+	 * @param level
+	 * @return
+	 */
 	public boolean existsAtLevel(PlanGraphStep pgStep, int level)
 	{
 		PlanGraphLevel planGraphLevel = getLevel(level);
 		return planGraphLevel.exists(pgStep);
 	}
 	
+	/**
+	 * Return the list of PlanGraphSteps that exist within this
+	 * PlanGraph
+	 * @return all possible Step Nodes for PlanGraph
+	 */
 	public ArrayList<PlanGraphStep> getAllPossiblePlanGraphSteps()
 	{
 		return _steps;
 	}
-	
+
+	/**
+	 * Return the list of PlanGraphLiterals that exist within this
+	 * PlanGraph
+	 * @return all possible Effect Nodes for PlanGraph
+	 */
 	public ArrayList<PlanGraphLiteral> getAllPossiblePlanGraphEffects()
 	{
 		return _effects;
@@ -148,6 +169,26 @@ public class PlanGraph
 	{
 		PlanGraphLevel planGraphLevel = getLevel(level);
 		return planGraphLevel.exists(pgLiteral);
+	}
+	
+	public boolean containsGoal(Expression goal)
+	{
+		return getMaxLevel().containsGoal(goal);
+	}
+	
+	public boolean isLeveledOff()
+	{
+		return getMaxLevel().isLeveledOff();
+	}
+	
+	@Override
+	public String toString()
+	{
+		String str = "";
+		for(PlanGraphLevel level : _levelList)
+			str += level.toString();
+		
+		return str;
 	}
 	
 	private PlanGraphLevel getMaxLevel()
@@ -234,25 +275,5 @@ public class PlanGraph
 			_steps.add(planGraphStep);
 			_persistenceSteps.add(planGraphStep);
 		}
-	}
-	
-	public boolean containsGoal(Expression goal)
-	{
-		return getMaxLevel().containsGoal(goal);
-	}
-	
-	public boolean isLeveledOff()
-	{
-		return getMaxLevel().isLeveledOff();
-	}
-	
-	@Override
-	public String toString()
-	{
-		String str = "";
-		for(PlanGraphLevel level : _levelList)
-			str += level.toString();
-		
-		return str;
 	}
 }

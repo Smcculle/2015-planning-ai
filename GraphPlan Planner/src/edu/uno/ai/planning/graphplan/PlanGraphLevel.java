@@ -75,6 +75,15 @@ public class PlanGraphLevel
 		return _level;
 	}
 	
+	/**
+	 * Boolean method to return whether or not the given Expression
+	 * exists within the effects found at this PlanGraphLevel of the
+	 * PlanGraph 
+	 * @param goal
+	 * @return for(literal : goal)
+	 * 			if (!exists(literal))
+	 * 				return false
+	 */
 	public boolean containsGoal(Expression goal)
 	{		
 		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(goal);
@@ -87,11 +96,26 @@ public class PlanGraphLevel
 		return true;
 	}
 	
+	/**
+	 * Return the previous PlanGraphLevel in the PlanGraph
+	 * @return if(getLevel() == 0)
+	 * 			return null
+	 * 		   else
+	 * 			return parent
+	 */
 	public PlanGraphLevel getParent()
 	{
 		return _parent;
 	}
 
+	/**
+	 * Boolean method to return whether or not this 
+	 * PlanGraphLevel has leveled off compared to its
+	 * parent PlanGraphLevel
+	 * @return parent != null && 
+	 * 		   parent.currentEffects != this.currentEffects &&
+	 * 		   parent.currentSteps != this.currentSteps 
+	 */
 	public boolean isLeveledOff()
 	{
 		if (_parent == null)
@@ -104,6 +128,10 @@ public class PlanGraphLevel
 		return false;
 	}
 	
+	/**
+	 * Get the number of Effects that exist in this PlanGraphLevel
+	 * @return currentEffects.size()
+	 */
 	public int countCurrentEffects()
 	{
 		int count = 0;
@@ -112,7 +140,11 @@ public class PlanGraphLevel
 				count++;
 		return count;
 	}
-	
+
+	/**
+	 * Get the number of Steps that exist in this PlanGraphLevel
+	 * @return currentSteps.size()
+	 */
 	public int countCurrentSteps()
 	{
 		int count = 0;
@@ -122,6 +154,13 @@ public class PlanGraphLevel
 		return count;
 	}
 
+	/**
+	 * Boolean method to return whether or not the given
+	 * PGStep exists in this PlanGraphLevel of the PlanGraph
+	 * @param pgStep
+	 * @return pgStep.getInitialLevel() > -1 &&
+	 * 		   pgStep.getInitialLevel() <= getLevel()
+	 */
 	public boolean exists(PlanGraphStep pgStep) 
 	{
 		if (pgStep== null) return false;
@@ -129,27 +168,50 @@ public class PlanGraphLevel
 		return pgStep.existsAtLevel(getLevel());
 	}
 
+	/**
+	 * Boolean method to return whether or not the given
+	 * PGLiteral exists in this PlanGraphLevel of the PlanGraph
+	 * @param pgLiteral
+	 * @return pgLiteral.getInitialLevel() > -1 &&
+	 * 		   pgLiteral.getInitialLevel() <= getLevel()
+	 */
 	public boolean exists(PlanGraphLiteral pgLiteral) 
 	{		
 		if (pgLiteral == null) return false;
 		// return PlanGraphStep exists at this Level
 		return pgLiteral.existsAtLevel(getLevel());
 	}
-	
+
+	/**
+	 * Boolean method to return whether or not the given
+	 * Step exists in this PlanGraphLevel of the PlanGraph
+	 * @param step
+	 * @return PlanGraphStep(step).getInitialLevel() > -1 &&
+	 * 		   PlanGraphStep(step).getInitialLevel() <= getLevel()
+	 */
 	public boolean exists(Step step) 
 	{
 		return exists(_planGraph.getPlanGraphStep(step));
 	}
 
+	/**
+	 * Boolean method to return whether or not the given
+	 * Literal exists in this PlanGraphLevel of the PlanGraph
+	 * @param literal
+	 * @return PlanGraphLiteral(literal).getInitialLevel() > -1 &&
+	 * 		   PlanGraphLiteral(literal).getInitialLevel() <= getLevel()
+	 */
 	public boolean exists(Literal literal) 
 	{		
 		return exists(_planGraph.getPlanGraphLiteral(literal));
 	}
 	
 	/**
-	 * The String representation of the current PlanGraph
+	 * The String representation of the current PlanGraphLevel
 	 * 
-	 * @return string String representation of the current PlanGraph
+	 * @return string String representation of the current PlanGraphLevel
+	 * 		listing the level number, the number of current steps, the current
+	 * 		steps, the number of current effects, and the current effects
 	 */
 	@Override
 	public String toString()
@@ -176,7 +238,7 @@ public class PlanGraphLevel
 	// Private methods
 	
 	/**
-	 * Adds effect of initial state to PlanGraph root
+	 * Adds effect of initial state to root PlanGraphLevel 
 	 * 
 	 * @param initialState State from which to add effects
 	 */
@@ -189,6 +251,11 @@ public class PlanGraphLevel
 					planGraphLiteral.setInitialLevel(getLevel());
 	}
 
+	/**
+	 * Adds negated effect not mentioned in initialState to root PlanGraphLevel
+	 * 
+	 * @param initialState State from which to add effects
+	 */
 	private void setNonSpecifiedInitialEffects(State initialState) 
 	{
 		ArrayList<Literal> literals = ConversionUtil.expressionToLiterals(initialState.toExpression());
@@ -212,6 +279,10 @@ public class PlanGraphLevel
 		}
 	}
 	
+	/**
+	 * Sets InitialLevel of Steps that require it for this
+	 * level of the PlanGraph
+	 */
 	private void addAllPossibleNewSteps() 
 	{
 		for (PlanGraphStep step : _steps)

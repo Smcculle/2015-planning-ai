@@ -8,5 +8,10 @@ import org.junit.runner.RunWith;
 	edu.uno.ai.planning.logic.HashBindingsTest.class,
 	edu.uno.ai.planning.logic.ListBindingsTest.class,
 	edu.uno.ai.planning.logic.NormalFormsTest.class,
+	edu.uno.ai.planning.graphplan.ConversionUntilTest.class,
+	edu.uno.ai.planning.graphplan.PlanGraphLevelMutexTest.class,
+	edu.uno.ai.planning.graphplan.PlanGraphLiteralTest.class,
+	edu.uno.ai.planning.graphplan.PlanGraphStepTest.class,
+	edu.uno.ai.planning.graphplan.PlanGraphTest.class
 })
 public class AllTests {/* nothing */}

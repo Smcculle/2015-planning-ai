@@ -104,7 +104,52 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		return isMutex(pgStep, phOtherStep);
 	}
 	
+	/**
+	 * Returns whether otherLiteral has a mutex relation with literal.  
+	 *  Will return false if either literal or otherLiteral is null
+	 * @param literal
+	 * @param otherLiteral
+	 * @return
+	 */
+	public boolean isMutex(PlanGraphLiteral literal, PlanGraphLiteral otherLiteral)
+	{
+		if (literal == null || otherLiteral == null)
+			return false;
+		
+		if (_mutexLiterals.containsKey(literal))
+			return _mutexLiterals.get(literal).contains(otherLiteral);
+		
+		return false;
+	}
+
+	/**
+	 * Returns whether otherLiteral has a mutex relation to literal
+	 * 	Will return false if either literal or otherLiteral is null
+	 * @param literal
+	 * @param otherLiteral
+	 * @return
+	 */
+	public boolean isMutex(Literal literal, Literal otherLiteral)
+	{
+		PlanGraphLiteral pgLiteral = _planGraph.getPlanGraphLiteral(literal);
+		PlanGraphLiteral phOtherLiteral = _planGraph.getPlanGraphLiteral(otherLiteral);
+		return isMutex(pgLiteral, phOtherLiteral);
+	}
+	
 	@Override
+	/**
+	 * Boolean method to return whether or not the given Expression
+	 * exists within the effects found at this PlanGraphLevelMutex of the
+	 * PlanGraph 
+	 * @param goal
+	 * @return for(literal : goal)
+	 * 			if (!exists(literal)) 
+	 * 				return false
+	 * 		   for(literal : goal)
+	 * 			 for(otherLiteral : getMutuallyExclusiveLiterals())
+	 * 				if(isMutex(literal : otherLiteral))
+	 * 					return false
+	 */
 	public boolean containsGoal(Expression goal)
 	{
 		if (!super.containsGoal(goal))
@@ -128,6 +173,16 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 	}
 	
 	@Override
+	/**
+	 * Boolean method to return whether or not this 
+	 * PlanGraphLevelMutex has leveled off compared to its
+	 * parent PlanGraphLevelMutex
+	 * @return parent != null && 
+	 * 		   parent.currentEffects != this.currentEffects &&
+	 * 		   parent.currentSteps != this.currentSteps &&
+	 * 		   mutexSteps == parent.mutexSteps &&
+	 * 		   mutexLiterals == parent.mutexLiterals
+	 */
 	public boolean isLeveledOff()
 	{
 		if (_parent == null)
@@ -298,6 +353,7 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		}
 	}
 
+	// Helper methods
 	/**
 	 * Checks to see if newly added effects contain inconsistent support.
 	 * Inconsistent Support: Every possible pair of actions that could achieve the literals
@@ -373,7 +429,8 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 
 
 	/**
-	 * Helper method to add Mutex Steps to PlanGraph Level
+	 * Helper method to add a Mutex PlanGraphStep to this level's
+	 * list of getMutuallyExclusiveSteps()
 	 * If step was already in Mutex Steps and otherStep was not in list of steps
 	 * 		Add otherStep to list of Mutex Steps for step
 	 * Else
@@ -401,6 +458,17 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		}
 	}
 	
+	/**
+	 * Helper method to add a Mutex PlanGraphLiteral to this level's
+	 * list of getMutuallyExclusiveLiterals()
+	 * If literal was already in Mutex Literals and otherLiteral was not in list of literals
+	 * 		Add otherLiteral to list of Mutex Literals for literal
+	 * Else
+	 * 		Add literal to Mutex Literal list with otherLiteral as its only Mutex Literal
+	 * 
+	 * @param effect
+	 * @param otherEffect
+	 */
 	private void addMutexLiteral(PlanGraphLiteral effect, PlanGraphLiteral otherEffect){
 		if (_mutexLiterals.containsKey(effect))
 		{
