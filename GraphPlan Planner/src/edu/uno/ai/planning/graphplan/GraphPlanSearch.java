@@ -51,17 +51,18 @@ public class GraphPlanSearch extends Search{
 	
 	public Plan search(){
 		TotalOrderPlan solution = null;
-//		System.out.println(pg);
+		System.out.println(pg);
 		
 		if (firstCall == true)
 		{
+			finished = checkGoalInInitial();
 			firstCall = false;
 			createGoalNode();
 //			goalReached(nodes.get(currentLevel).getLiterals());
 //			System.out.println(nodes.get(currentLevel).getLiterals());
 
 		} 
-		
+			
 		searchAux();
 
 		if (finished == true){
@@ -160,6 +161,35 @@ public class GraphPlanSearch extends Search{
 			tempGoalList.add(pg.getPlanGraphLiteral(lit));
 		}
 	
+
+		ArrayList<PlanGraphStep> newSteps = new ArrayList<PlanGraphStep>();
+		for (PlanGraphStep x: pg.getAllPossiblePlanGraphSteps()){
+			if (x.existsAtLevel(currentLevel)){
+				newSteps.add(x);
+			}
+		}
+		
+//		for (PlanGraph x: newSteps){
+//			expressionToLiterals(x.getStep().effect)
+//		}
+		
+		System.out.println(newSteps);
+		
+		
+//		
+//				for (PlanGraphLiteral y: tempGoalList){
+//					System.out.println(y);;
+//					for (Literal z: ){
+//						if (z == y){
+//							
+//						}
+//					}	
+//				}
+			
+		
+	
+		
+
 		for (PlanGraphLiteral goal: tempGoalList){
 			for (PlanGraphStep step: goal.getParentNodes()){
 				deleteRepeatedSteps.add(step);
@@ -169,9 +199,7 @@ public class GraphPlanSearch extends Search{
 			}
 		}
 		
-		
 		tempSteps.addAll(deleteRepeatedSteps);
-		
 		defineNode(checkMutexSteps(tempSteps), tempGoalList, currentMaxLevel);
 		System.out.println(nodes.get(currentMaxLevel).getLiterals());
 		System.out.println(nodes.get(currentMaxLevel).getSteps());
@@ -212,7 +240,7 @@ public class GraphPlanSearch extends Search{
 		
 		tempSteps.addAll(deleteRepeatedSteps);
 
-		defineNode(tempSteps,tempLiterals,currentLevel);
+		defineNode(checkMutexSteps(tempSteps),tempLiterals,currentLevel);
 		extendedNodes++;
 		visitedNodes++;
 		System.out.println(nodes.get(currentLevel).getLiterals() + " Level: " + currentLevel);
@@ -247,6 +275,34 @@ public class GraphPlanSearch extends Search{
 		return list;
 		
 	}
+	
+	public ArrayList<PlanGraphStep> getStepsFromAllPreconditions(ArrayList<PlanGraphLiteral> lits){
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		for (PlanGraphLiteral l : lits){
+			steps.addAll(getStepsFromPrecondition(l));
+		}
+		
+//		Set<PlanGraphStep> stepSet = new HashSet<PlanGraphStep>();
+//		stepSet.addAll(steps);
+//		steps.clear();
+//		steps.addAll(stepSet);
+		
+//		steps = checkMutexSteps(steps);
+		return steps;
+	}
+	
+	public ArrayList<PlanGraphStep> getStepsFromPrecondition(PlanGraphLiteral p){
+		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
+		for (PlanGraphStep s : pg.getAllPossiblePlanGraphSteps()){
+			if (isStepApplicablePrecon(s, p)) steps.add(s);
+		}
+		return steps;
+	}
+
+	public boolean isStepApplicablePrecon(PlanGraphStep step, PlanGraphLiteral literal){
+			return ( (literal.getLiteral().equals(step.getStep().effect)) );
+	}
+
 	
 	public void repeatPreviousLevel(){
 		currentLevel++;
@@ -285,20 +341,27 @@ public class GraphPlanSearch extends Search{
 	public boolean goalReached(ArrayList<PlanGraphLiteral> tempLiterals){
 		ArrayList<Literal> nonPGLiterals = new ArrayList<Literal>();
 		ArrayList<Literal> initialLiterals = new ArrayList<Literal>();
-	
 		initialLiterals = expressionToLiterals(problem.initial.toExpression());
 		
 		for(PlanGraphLiteral lit:tempLiterals){
 			nonPGLiterals.add(lit.getLiteral());
 		}
-
-//		for (Literal lit: expressionToLiterals(problem.goal)){
-//			if (!initialLiterals.contains(lit))
-//		}
-		
 		
 		for (Literal lit : initialLiterals){
 			if (!nonPGLiterals.contains(lit)) return false;
+		}
+		return true;
+		
+	}
+	
+	
+	public boolean checkGoalInInitial(){
+		
+		ArrayList<Literal> initialLiterals = new ArrayList<Literal>();
+		initialLiterals = expressionToLiterals(problem.initial.toExpression());
+		
+		for (Literal lit: expressionToLiterals(problem.goal)){
+			if (!initialLiterals.contains(lit)) return false;
 		}
 		return true;
 		
@@ -320,12 +383,14 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphLiteral lit1: step1.getParentNodes()){
 			for (PlanGraphLiteral lit2: step2.getParentNodes()){
 				if (isMutex(lit1, lit2)) return true;
+				if (isMutex(lit2, lit1)) return true;
 			}
 		}
 		
 		for (PlanGraphLiteral lit1: step1.getChildNodes()){
 			for (PlanGraphLiteral lit2: step2.getChildNodes()){
 				if (isMutex(lit1, lit2)) return true;
+				if (isMutex(lit2, lit1)) return true;
 			}
 		}
 		

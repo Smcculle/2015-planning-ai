@@ -31,10 +31,10 @@ public class GraphPlanTest2 {
 			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 			GraphPlanSearch d = new GraphPlanSearch(doNothing);
-			d.search();
+//			d.search();
 //			System.out.println(cakeProblem.initial);
 //			s.search();
-//			r.search();
+			r.search();
 //			cake.extend();
 //			rocket.doGraphPlan();
 //			rocket.extend();
