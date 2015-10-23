@@ -10,7 +10,7 @@ public class TestSuite {
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 	
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-		new BFSPlanner(),
+//		new BFSPlanner(),
 		new Graphplan()
 	};
 	
@@ -22,9 +22,9 @@ public class TestSuite {
 		new Benchmark("blocks", "reverse_2"),
 		new Benchmark("blocks", "reverse_4"),
 		new Benchmark("blocks", "reverse_6"),
-		new Benchmark("blocks", "reverse_8"),
-		new Benchmark("blocks", "reverse_10"),
-		new Benchmark("blocks", "reverse_12"),
+//		new Benchmark("blocks", "reverse_8"),
+//		new Benchmark("blocks", "reverse_10"),
+//		new Benchmark("blocks", "reverse_12"),
 		new Benchmark("cargo", "deliver_1"),
 		new Benchmark("cargo", "deliver_2"),
 		new Benchmark("cargo", "deliver_3"),

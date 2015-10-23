@@ -27,12 +27,14 @@ public class GraphPlanTest2 {
 		
 			Problem cakeProblem = createCakeProblem();
 			Problem rocketProblem = createEasyCargoProblem();
+			Problem doNothing = doNothing();
 			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
-		
+			GraphPlanSearch d = new GraphPlanSearch(doNothing);
+			d.search();
 //			System.out.println(cakeProblem.initial);
 //			s.search();
-			r.search();
+//			r.search();
 //			cake.extend();
 //			rocket.doGraphPlan();
 //			rocket.extend();
@@ -50,6 +52,14 @@ public class GraphPlanTest2 {
 
 		}
 
+	private Problem doNothing() {
+		try {
+			return new Benchmark("blocks", "do_nothing").getProblem();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
 		
 		private Problem createEasyCargoProblem() {
 			try {
