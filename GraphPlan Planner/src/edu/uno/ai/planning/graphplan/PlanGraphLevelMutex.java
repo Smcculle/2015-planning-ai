@@ -10,6 +10,13 @@ import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.util.ConversionUtil;
 
+/**
+ * An extension to PlanGraphLevel that calculates Mutual Exclusions
+ * 
+ * @author Edward Thomas Garcia
+ * @author Christian Levi
+ * 
+ */
 public class PlanGraphLevelMutex extends PlanGraphLevel
 {
 	/** List of all mutually exclusive steps in current PlanGraph Level */
@@ -18,10 +25,14 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 	/** List of all mutually exclusive literals in current PlanGraph Level */
 	Map<PlanGraphLiteral, ArrayList<PlanGraphLiteral>> _mutexLiterals;
 	
+	/** The PlanGraph structure containing this level **/
 	private PlanGraphLevelMutex _parent;
 		
 	/**
-	 * Constructs a new root of PlanGraph
+	 * Constructs a new PlanGraphLevel
+	 * Does not create additional lists for facts/effect and steps/actions.
+	 * This constructor is specifically intended to create root level of PlanGraph
+	 * Calculates all mutual exclusions at constructor
 	 * 
 	 * @param problem The StateSpaceProblem to setup PlanGraph Steps and Effects
 	 */
@@ -35,7 +46,9 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 	}
 	
 	/**
-	 * Constructs a new PlanGraph child
+	 * Constructs a new PlanGraphLevelMutex child
+	 * Does not create additional lists for facts/effect and steps/actions.
+	 * Calculates all mutual exclusions at constructor
 	 * 
 	 * @param parent The parent of new PlanGraph
 	 */
@@ -104,6 +117,12 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		return isMutex(pgStep, phOtherStep);
 	}
 	
+	/**
+	 * Does this level contain goal effects/facts and are they non-mutex?
+	 * 
+	 * @param goal Goal Expression
+	 * @return true if goal effect/facts are non-mutex and within this level, false otherwise
+	 */
 	@Override
 	public boolean containsGoal(Expression goal)
 	{
@@ -127,6 +146,12 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		return true;
 	}
 	
+	/**
+	 * Is this PlanGraphLevelMutex leveled off?
+	 * Determines this by checking the size of current steps and effects and mutexs.
+	 * 
+	 * @return true if PlanGraph is leveled off, false otherwise
+	 */
 	@Override
 	public boolean isLeveledOff()
 	{
@@ -401,6 +426,12 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 		}
 	}
 	
+	/**
+	 * Add mutual exclusion to list
+	 * 
+	 * @param effect
+	 * @param otherEffect
+	 */
 	private void addMutexLiteral(PlanGraphLiteral effect, PlanGraphLiteral otherEffect){
 		if (_mutexLiterals.containsKey(effect))
 		{
