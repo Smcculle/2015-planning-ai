@@ -76,8 +76,7 @@ public class GraphPlanSearch extends Search{
 //			
 //			repeatPreviousLevel();
 //		}
-		
-		
+
 		return solution;
 	}
 	
