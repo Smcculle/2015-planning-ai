@@ -1,12 +1,15 @@
 package edu.uno.ai.planning.pg;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.logic.Literal;
 
 public class StepNode extends Node {
 
 	public final Step step;
+	public final boolean persistence;
 	protected final ArrayList<LiteralNode> preconditions = new ArrayList<>();
 	protected final ArrayList<LiteralNode> effects = new ArrayList<>();
 	private int literalCount = 0;
@@ -14,6 +17,13 @@ public class StepNode extends Node {
 	protected StepNode(PlanGraph graph, Step step) {
 		super(graph);
 		this.step = step;
+		this.persistence = false;
+	}
+	
+	protected StepNode(PlanGraph graph, Literal literal) {
+		super(graph);
+		this.step = new Step("(persist " + literal + ")", literal, literal);
+		this.persistence = true;
 	}
 	
 	protected void incrementLiteralCount() {
@@ -38,5 +48,21 @@ public class StepNode extends Node {
 	protected void reset() {
 		super.reset();
 		literalCount = 0;
+	}
+	
+	public Iterator<LiteralNode> getPreconditions(int level) {
+		return new NodeIterator<>(level - 1, preconditions);
+	}
+	
+	public Iterator<LiteralNode> getEffects(int level) {
+		return new NodeIterator<>(level, effects);
+	}
+	
+	public boolean mutex(StepNode other, int level) {
+		if(level < this.level)
+			throw new IllegalArgumentException(step + " does not exist at level " + level + ".");
+		if(level < other.level)
+			throw new IllegalArgumentException(other + " does not exist at level " + level + ".");
+		return false;
 	}
 }

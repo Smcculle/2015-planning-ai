@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
+import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Expression;
@@ -14,7 +15,7 @@ import edu.uno.ai.planning.ss.StateSpaceProblem;
 public class PlanGraph {
 
 	public final StateSpaceProblem problem;
-	public final Iterable<LiteralNode> goal;
+	public final Iterable<LiteralNode> goals;
 	protected final LinkedHashMap<Literal, LiteralNode> literals = new LinkedHashMap<>();
 	protected final LinkedHashMap<Step, StepNode> steps = new LinkedHashMap<>();
 	final ArrayList<Node> toReset = new ArrayList<>();
@@ -26,23 +27,30 @@ public class PlanGraph {
 	public PlanGraph(StateSpaceProblem problem) {
 		this.problem = problem;
 		for(Step step : problem.steps)
-			addEdgesForStep(step);
-		ArrayList<LiteralNode> goal = new ArrayList<>();
+			addEdgesForStep(new StepNode(this, step));
+		ArrayList<Literal> literals = new ArrayList<>(this.literals.size());
+		literals.addAll(this.literals.keySet());
+		for(Literal literal : literals)
+			addEdgesForStep(new StepNode(this, literal));
+		ArrayList<LiteralNode> goals = new ArrayList<>();
 		forEachLiteral(problem.goal.toDNF(), literal -> {
-			goal.add(getLiteralNode(literal));
+			goals.add(getLiteralNode(literal));
 		});
-		this.goal = goal;
+		this.goals = goals;
 		this.levels.add(new Level(this, 0));
 	}
 	
-	private final void addEdgesForStep(Step step) {
-		StepNode stepNode = new StepNode(this, step);
-		forEachLiteral(step.precondition.toDNF(), literal -> {
+	public PlanGraph(Problem problem) {
+		this(new StateSpaceProblem(problem));
+	}
+	
+	private final void addEdgesForStep(StepNode stepNode) {
+		forEachLiteral(stepNode.step.precondition.toDNF(), literal -> {
 			LiteralNode literalNode = getLiteralNode(literal);
 			literalNode.consumers.add(stepNode);
 			stepNode.preconditions.add(literalNode);
 		});
-		forEachLiteral(step.effect.toDNF(), literal -> {
+		forEachLiteral(stepNode.step.effect.toDNF(), literal -> {
 			LiteralNode literalNode = getLiteralNode(literal);
 			stepNode.effects.add(literalNode);
 			literalNode.producers.add(stepNode);
@@ -94,6 +102,10 @@ public class PlanGraph {
 			leveledOff = true;
 	}
 	
+	public int size() {
+		return size;
+	}
+	
 	public Level getLevel(int number) {
 		if(number < 0 || number >= size)
 			throw new IndexOutOfBoundsException("Level " + number + " does not exist.");
@@ -108,6 +120,13 @@ public class PlanGraph {
 			addStep(index + 1);
 			step.setLevel(size - 1);
 		}
+	}
+	
+	public boolean goalAchieved() {
+		for(LiteralNode literal : goals)
+			if(literal.getLevel() == -1)
+				return false;
+		return true;
 	}
 	
 	public boolean hasLeveledOff() {
