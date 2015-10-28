@@ -27,12 +27,22 @@ public class LiteralNode extends Node {
 			return false;
 	}
 	
-	public Iterator<StepNode> getProducers(int level) {
-		return new NodeIterator<>(level - 1, producers);
+	public Iterable<StepNode> getProducers(int level) {
+		return new Iterable<StepNode>() {
+			@Override
+			public Iterator<StepNode> iterator() {
+				return new NodeIterator<>(level - 1, producers);
+			}
+		};
 	}
 	
-	public Iterator<StepNode> getConsumers(int level) {
-		return new NodeIterator<>(level, consumers);
+	public Iterable<StepNode> getConsumers(int level) {
+		return new Iterable<StepNode>() {
+			@Override
+			public Iterator<StepNode> iterator() {
+				return new NodeIterator<>(level, consumers);
+			}
+		};
 	}
 	
 	public boolean mutex(LiteralNode other, int level) {

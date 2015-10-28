@@ -37,8 +37,15 @@ public class DepthFirstSearch extends Search {
 	@Override
 	public Plan findNextSolution() {
 		while(!stack.isEmpty()) {
-			SubgraphNode node = stack.pop();
-			if(node)
+			SubgraphNode node = stack.peek();
+			SubgraphNode child = node.expand();
+			if(child == null)
+				stack.pop();
+			else if(child.level == 0)
+				return child.plan;
+			else
+				stack.push(child);
 		}
+		return null;
 	}
 }

@@ -50,12 +50,22 @@ public class StepNode extends Node {
 		literalCount = 0;
 	}
 	
-	public Iterator<LiteralNode> getPreconditions(int level) {
-		return new NodeIterator<>(level - 1, preconditions);
+	public Iterable<LiteralNode> getPreconditions(int level) {
+		return new Iterable<LiteralNode>() {
+			@Override
+			public Iterator<LiteralNode> iterator() {
+				return new NodeIterator<>(level - 1, preconditions);
+			}
+		};
 	}
 	
-	public Iterator<LiteralNode> getEffects(int level) {
-		return new NodeIterator<>(level, effects);
+	public Iterable<LiteralNode> getEffects(int level) {
+		return new Iterable<LiteralNode>() {
+			@Override
+			public Iterator<LiteralNode> iterator() {
+				return new NodeIterator<>(level, effects);
+			}
+		};
 	}
 	
 	public boolean mutex(StepNode other, int level) {
