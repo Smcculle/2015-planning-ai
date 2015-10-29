@@ -83,6 +83,7 @@ public class PlanGraph {
 	}
 	
 	public void initialize(State initial) {
+System.out.println("INITIALIZE");
 		size = 1;
 		for(Node node : toReset)
 			node.reset();
@@ -94,22 +95,13 @@ public class PlanGraph {
 	}
 	
 	public void extend() {
+System.out.println("EXTEND to level " + size);
 		if(levels.size() == size)
 			levels.add(new Level(this, size));
 		size++;
 		addStep(0);
 		if(nextSteps.size() == 0)
 			leveledOff = true;
-	}
-	
-	public int size() {
-		return size;
-	}
-	
-	public Level getLevel(int number) {
-		if(number < 0 || number >= size)
-			throw new IndexOutOfBoundsException("Level " + number + " does not exist.");
-		return levels.get(number);
 	}
 	
 	private final void addStep(int index) {
@@ -120,6 +112,16 @@ public class PlanGraph {
 			addStep(index + 1);
 			step.setLevel(size - 1);
 		}
+	}
+	
+	public int size() {
+		return size;
+	}
+	
+	public Level getLevel(int number) {
+		if(number < 0 || number >= size)
+			throw new IndexOutOfBoundsException("Level " + number + " does not exist.");
+		return levels.get(number);
 	}
 	
 	public boolean goalAchieved() {

@@ -16,17 +16,24 @@ public class GraphPlanSearch extends Search {
 	
 	public GraphPlanSearch(Problem problem) {
 		super(problem);
-		this.graph = new PlanGraph(problem);
+		graph = new PlanGraph(problem);
+		graph.initialize(problem.initial);
 	}
 
 	@Override
 	public int countVisited() {
-		return visited + search.countVisited();
+		if(search == null)
+			return visited;
+		else
+			return visited + search.countVisited();
 	}
 
 	@Override
 	public int countExpanded() {
-		return expanded + search.countExpanded();
+		if(search == null)
+			return expanded;
+		else
+			return expanded + search.countExpanded();
 	}
 
 	@Override

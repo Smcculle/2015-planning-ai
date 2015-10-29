@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

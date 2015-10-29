@@ -16,6 +16,7 @@ public abstract class Node {
 	
 	protected boolean setLevel(int level) {
 		if(this.level == -1) {
+System.out.println("  set level " + level + " " + this);
 			markForReset();
 			this.level = level;
 			return true;

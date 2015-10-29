@@ -26,6 +26,11 @@ public class StepNode extends Node {
 		this.persistence = true;
 	}
 	
+	@Override
+	public String toString() {
+		return step.toString();
+	}
+	
 	protected void incrementLiteralCount() {
 		markForReset();
 		literalCount++;

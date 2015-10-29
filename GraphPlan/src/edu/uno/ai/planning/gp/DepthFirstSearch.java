@@ -41,10 +41,10 @@ public class DepthFirstSearch extends Search {
 			SubgraphNode child = node.expand();
 			if(child == null)
 				stack.pop();
-			else if(child.level == 0)
-				return child.plan;
 			else
 				stack.push(child);
+			if(node.level == 0)
+				return node.plan;
 		}
 		return null;
 	}

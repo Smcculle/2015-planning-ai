@@ -17,6 +17,11 @@ public class LiteralNode extends Node {
 	}
 	
 	@Override
+	public String toString() {
+		return literal.toString();
+	}
+	
+	@Override
 	protected boolean setLevel(int level) {
 		if(super.setLevel(level)) {
 			for(StepNode consumer : consumers)
