@@ -15,7 +15,7 @@ import edu.uno.ai.planning.util.ImmutableArray;
 
 /**
  * This class models the encoding of the following things:
- * 	1. Initital State
+ * 	1. Initial State
  * 	2. Steps
  * 		a. Preconditions
  * 		b. Effects
@@ -91,6 +91,7 @@ public class CNFEncoding {
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();
 		
+		//Add the initial state
 		result.addAll(conjunctionFromExpression(initial, 0));		
 		
 		ArrayList<BooleanVariable> atleastOneActionHappensAtEachStep = 
@@ -103,14 +104,19 @@ public class CNFEncoding {
 				atleastOneActionHappensAtEachStep.add(
 						new BooleanVariable(step.toString() + " - " + counter, null, Boolean.FALSE));
 				result.addAll(stepToConjunction(step, counter));
-				stepToConjunction(step, counter);
 			}
+			
+			//Add conjunctions to make sure at least one action occur at each step
 			result.add(atleastOneActionHappensAtEachStep);			
+			
+			//Add conjunctions to make sure only one one occur at each step
 			result.addAll(onlyOneActionOccursAtEachStep(steps, counter));
 		}
 		
+		//Add the explanatory frame axioms
 		result.addAll(getExplanatoryFrameAxioms(timeMax));
 		
+		//Add the goal state
 		result.addAll(conjunctionFromExpression(goal, timeMax));		
 		
 	    this.cnf = result;
@@ -126,7 +132,7 @@ public class CNFEncoding {
 	 * 				
 	 * 				~PRECONDITION OR ~ACTION OR ~ EFFECT
 	 */
-	private ArrayList<ArrayList<BooleanVariable>> 
+	protected ArrayList<ArrayList<BooleanVariable>> 
 								stepToConjunction(Step step, int time){
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();
@@ -263,7 +269,7 @@ public class CNFEncoding {
 	 * @param time a time-step at which a step would run
 	 * @return
 	 */
-	private static ArrayList<ArrayList<BooleanVariable>> 
+	protected ArrayList<ArrayList<BooleanVariable>> 
 		 onlyOneActionOccursAtEachStep(ImmutableArray<Step> allSteps, int time){
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();
@@ -292,12 +298,12 @@ public class CNFEncoding {
 	 * @return A CNF of the expression
 	 */
 	
-	private static ArrayList<ArrayList<BooleanVariable>> 
+	protected ArrayList<ArrayList<BooleanVariable>> 
 			conjunctionFromExpression(Expression expression, int time)
 	{		
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();	
-		
+		if (expression == null) return result;
 		if (expression instanceof Predication){			
 			ArrayList<BooleanVariable> temp = new ArrayList<BooleanVariable>();
 			temp.add(argumentToBooleanVariable(expression, time));
@@ -322,7 +328,7 @@ public class CNFEncoding {
 	 * @return A boolean variable representing the given argument
 	 */
 	
-	private static BooleanVariable 
+	protected BooleanVariable 
 			argumentToBooleanVariable(Expression argument, int time)
 	{
 		BooleanVariable result;
@@ -343,7 +349,7 @@ public class CNFEncoding {
 	 * @param time a time-step at which the given argument holds
 	 * @return A negative BooleanVariable representing the given argument
 	 */	
-	private static BooleanVariable 
+	BooleanVariable 
 		argumentToNegativeBooleanVariable(Expression argument, int time)
 	{
 		BooleanVariable result;

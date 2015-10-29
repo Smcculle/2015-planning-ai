@@ -10,10 +10,6 @@ public class SATSolver {
 	
 	public static ArrayList<BooleanVariable> getModel(SATProblem problem, ArrayList<BooleanVariable> variableList){
 		if (satisfiable(problem, variableList)){
-			for(BooleanVariable BV : solution){
-                if(BV.value == Boolean.FALSE)
-                     BooleanVariable.removeBooleanVariable(solution, BV);
-			}
 			return solution;
 		}
 		else{
