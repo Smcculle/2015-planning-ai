@@ -27,6 +27,11 @@ public class StepNode extends Node {
 	}
 	
 	@Override
+	public int hashCode() {
+		return step.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return step.toString();
 	}

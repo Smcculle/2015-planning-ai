@@ -16,7 +16,7 @@ public class GraphPlanSearch extends Search {
 	
 	public GraphPlanSearch(Problem problem) {
 		super(problem);
-		graph = new PlanGraph(problem);
+		graph = new PlanGraph(problem, true);
 		graph.initialize(problem.initial);
 	}
 

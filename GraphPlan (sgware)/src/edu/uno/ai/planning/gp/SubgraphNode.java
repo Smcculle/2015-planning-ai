@@ -54,25 +54,44 @@ public class SubgraphNode {
 	}
 	
 	public SubgraphNode expand() {
-		// If this node has no more children, return null.
-		if(!permutations.hasNext())
-			return null;
-		// Get the next permutation of steps.
-		Set<StepNode> steps = permutations.next();
-		// My child's plan is my plan plus all non-persistence steps.
-		TotalOrderPlan childPlan = this.plan;
-		for(StepNode stepNode : steps)
-			if(!stepNode.persistence)
-				childPlan = childPlan.add(stepNode.step);
-		// My child's level is one level earlier than mine.
-		int childLevel = level - 1;
-		// My child's goals are the preconditions of the steps at this level.
-		ImmutableList<LiteralNode> childGoals = new ImmutableList<>();
-		for(StepNode stepNode : steps)
-			for(LiteralNode precondition : stepNode.getPreconditions(level))
-				if(!childGoals.contains(precondition))
-					childGoals = childGoals.add(precondition);
-		// Return new child node.
-		return new SubgraphNode(this, childPlan, childLevel, childGoals);
+		// Loop until we generate a child node or run out of permutations.
+		while(true) {
+			// If this node has no more children, return null.
+			if(!permutations.hasNext())
+				return null;
+			// Get the next permutation of steps.
+			Set<StepNode> steps = permutations.next();
+			// My child's plan is my plan plus all non-persistence steps.
+			TotalOrderPlan childPlan = this.plan;
+			for(StepNode stepNode : steps)
+				if(!stepNode.persistence)
+					childPlan = childPlan.add(stepNode.step);
+			// My child's level is one level earlier than mine.
+			int childLevel = level - 1;
+			// My child's goals are the preconditions of the steps at this level.
+			ImmutableList<LiteralNode> childGoals = new ImmutableList<>();
+			for(StepNode stepNode : steps)
+				for(LiteralNode precondition : stepNode.getPreconditions(level))
+					if(!childGoals.contains(precondition))
+						childGoals = childGoals.add(precondition);
+			// If any of the child's goals are mutex, try the next permutation.
+			// Otherwise, return the child node.
+			if(!anyMutex(childGoals, childLevel))
+				return new SubgraphNode(this, childPlan, childLevel, childGoals);
+		}
+	}
+	
+	private static final boolean anyMutex(ImmutableList<LiteralNode> literals, int level) {
+		ImmutableList<LiteralNode> first = literals;
+		while(first.length > 1) {
+			ImmutableList<LiteralNode> second = first.rest;
+			while(second.length > 0) {
+				if(first.first.mutex(second.first, level))
+					return true;
+				second = second.rest;
+			}
+			first = first.rest;
+		}
+		return false;
 	}
 }

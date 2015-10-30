@@ -16,20 +16,24 @@ public class PlanGraph {
 
 	public final StateSpaceProblem problem;
 	public final Iterable<LiteralNode> goals;
-	protected final LinkedHashMap<Literal, LiteralNode> literals = new LinkedHashMap<>();
-	protected final LinkedHashMap<Step, StepNode> steps = new LinkedHashMap<>();
+	public final boolean mutexes;
+	protected final LinkedHashMap<Literal, LiteralNode> literalMap = new LinkedHashMap<>();
+	protected final LiteralNode[] literals;
+	protected final LinkedHashMap<Step, StepNode> stepMap = new LinkedHashMap<>();
+	protected final StepNode[] steps;
 	final ArrayList<Node> toReset = new ArrayList<>();
 	final ArrayList<StepNode> nextSteps = new ArrayList<>();
 	private final ArrayList<Level> levels = new ArrayList<>();
 	private int size = 0;
 	private boolean leveledOff = false;
 	
-	public PlanGraph(StateSpaceProblem problem) {
+	public PlanGraph(StateSpaceProblem problem, boolean mutexes) {
 		this.problem = problem;
+		this.mutexes = mutexes;
 		for(Step step : problem.steps)
 			addEdgesForStep(new StepNode(this, step));
-		ArrayList<Literal> literals = new ArrayList<>(this.literals.size());
-		literals.addAll(this.literals.keySet());
+		ArrayList<Literal> literals = new ArrayList<>(this.literalMap.size());
+		literals.addAll(this.literalMap.keySet());
 		for(Literal literal : literals)
 			addEdgesForStep(new StepNode(this, literal));
 		ArrayList<LiteralNode> goals = new ArrayList<>();
@@ -38,10 +42,20 @@ public class PlanGraph {
 		});
 		this.goals = goals;
 		this.levels.add(new Level(this, 0));
+		this.literals = this.literalMap.values().toArray(new LiteralNode[this.literalMap.size()]);
+		this.steps = this.stepMap.values().toArray(new StepNode[this.stepMap.size()]);
+		// Compute negation mutexes.
+		if(mutexes) {
+			for(LiteralNode node : this.literalMap.values()) {
+				LiteralNode negation = this.literalMap.get(node.literal.negate());
+				if(negation != null)
+					node.mutexes.add(negation, -1);
+			}
+		}
 	}
 	
-	public PlanGraph(Problem problem) {
-		this(new StateSpaceProblem(problem));
+	public PlanGraph(Problem problem, boolean mutexes) {
+		this(new StateSpaceProblem(problem), mutexes);
 	}
 	
 	private final void addEdgesForStep(StepNode stepNode) {
@@ -66,20 +80,20 @@ public class PlanGraph {
 	}
 	
 	private final LiteralNode getLiteralNode(Literal literal) {
-		LiteralNode literalNode = literals.get(literal);
+		LiteralNode literalNode = literalMap.get(literal);
 		if(literalNode == null) {
 			literalNode = new LiteralNode(this, literal);
-			literals.put(literal, literalNode);
+			literalMap.put(literal, literalNode);
 		}
 		return literalNode;
 	}
 	
 	public LiteralNode get(Literal literal) {
-		return literals.get(literal);
+		return literalMap.get(literal);
 	}
 	
 	public StepNode get(StepNode step) {
-		return steps.get(step);
+		return stepMap.get(step);
 	}
 	
 	public void initialize(State initial) {
@@ -88,7 +102,7 @@ System.out.println("INITIALIZE");
 		for(Node node : toReset)
 			node.reset();
 		toReset.clear();
-		for(LiteralNode node : literals.values())
+		for(LiteralNode node : literalMap.values())
 			if(initial.isTrue(node.literal))
 				node.setLevel(0);
 		leveledOff = nextSteps.size() == 0;
@@ -96,10 +110,13 @@ System.out.println("INITIALIZE");
 	
 	public void extend() {
 System.out.println("EXTEND to level " + size);
+		Level level = new Level(this, size);
 		if(levels.size() == size)
-			levels.add(new Level(this, size));
+			levels.add(level);
 		size++;
 		addStep(0);
+		if(mutexes)
+			level.computeMutexes();
 		if(nextSteps.size() == 0)
 			leveledOff = true;
 	}

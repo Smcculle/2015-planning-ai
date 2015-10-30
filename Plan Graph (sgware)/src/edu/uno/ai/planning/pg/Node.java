@@ -4,10 +4,15 @@ public abstract class Node {
 
 	protected final PlanGraph graph;
 	protected int level = -1;
+	final Mutexes mutexes = new Mutexes();
 	private boolean reset = false;
 	
 	protected Node(PlanGraph graph) {
 		this.graph = graph;
+	}
+	
+	public boolean exists(int level) {
+		return level != -1 && level <= level;
 	}
 	
 	public int getLevel() {
@@ -32,8 +37,13 @@ System.out.println("  set level " + level + " " + this);
 		}
 	}
 	
+	public boolean mutex(Node node, int level) {
+		return mutexes.contains(node, level);
+	}
+	
 	protected void reset() {
 		reset = false;
 		level = -1;
+		mutexes.clear();
 	}
 }

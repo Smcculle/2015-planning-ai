@@ -17,6 +17,11 @@ public class LiteralNode extends Node {
 	}
 	
 	@Override
+	public int hashCode() {
+		return literal.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return literal.toString();
 	}
@@ -48,13 +53,5 @@ public class LiteralNode extends Node {
 				return new NodeIterator<>(level + 1, consumers);
 			}
 		};
-	}
-	
-	public boolean mutex(LiteralNode other, int level) {
-		if(level < this.level)
-			throw new IllegalArgumentException(literal + " does not exist at level " + level + ".");
-		if(level < other.level)
-			throw new IllegalArgumentException(other + " does not exist at level " + level + ".");
-		return false;
 	}
 }
