@@ -17,7 +17,7 @@ public class BooleanVariable {
 	public Boolean value;
 	
 	/** The negation value of the variable (TRUE if variable is negated) */
-	public Boolean negation;
+	public final Boolean negation;
 	
 	/**
 	 * Constructs a new boolean variable.
