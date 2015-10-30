@@ -2,6 +2,7 @@ package edu.uno.ai.planning.gp;
 
 import java.util.Set;
 
+import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.pg.LiteralNode;
 import edu.uno.ai.planning.pg.PlanGraph;
 import edu.uno.ai.planning.pg.StepNode;
@@ -54,6 +55,10 @@ public class SubgraphNode {
 	}
 	
 	public SubgraphNode expand() {
+		// If this would violate the search limit, throw an exception.
+		SubgraphRoot root = getRoot();
+		if(root.limit == root.descendants)
+			throw new SearchLimitReachedException();
 		// Loop until we generate a child node or run out of permutations.
 		while(true) {
 			// If this node has no more children, return null.

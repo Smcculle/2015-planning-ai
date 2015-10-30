@@ -77,12 +77,4 @@ public class StepNode extends Node {
 			}
 		};
 	}
-	
-	public boolean mutex(StepNode other, int level) {
-		if(level < this.level)
-			throw new IllegalArgumentException(step + " does not exist at level " + level + ".");
-		if(level < other.level)
-			throw new IllegalArgumentException(other + " does not exist at level " + level + ".");
-		return false;
-	}
 }

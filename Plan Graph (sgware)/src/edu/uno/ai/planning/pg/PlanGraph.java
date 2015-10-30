@@ -44,14 +44,8 @@ public class PlanGraph {
 		this.levels.add(new Level(this, 0));
 		this.literals = this.literalMap.values().toArray(new LiteralNode[this.literalMap.size()]);
 		this.steps = this.stepMap.values().toArray(new StepNode[this.stepMap.size()]);
-		// Compute negation mutexes.
-		if(mutexes) {
-			for(LiteralNode node : this.literalMap.values()) {
-				LiteralNode negation = this.literalMap.get(node.literal.negate());
-				if(negation != null)
-					node.mutexes.add(negation, -1);
-			}
-		}
+		if(mutexes)
+			computeStaticMutexes();
 	}
 	
 	public PlanGraph(Problem problem, boolean mutexes) {
@@ -59,6 +53,7 @@ public class PlanGraph {
 	}
 	
 	private final void addEdgesForStep(StepNode stepNode) {
+		stepMap.put(stepNode.step, stepNode);
 		forEachLiteral(stepNode.step.precondition.toDNF(), literal -> {
 			LiteralNode literalNode = getLiteralNode(literal);
 			literalNode.consumers.add(stepNode);
@@ -88,6 +83,50 @@ public class PlanGraph {
 		return literalNode;
 	}
 	
+	private final void computeStaticMutexes() {
+		// A literal is always mutex with its negation.
+		for(LiteralNode literalNode : literals) {
+			LiteralNode negation = get(literalNode.literal.negate());
+			if(negation != null)
+				literalNode.mutexes.add(negation, Mutexes.ALWAYS);
+		}
+		// Compute static mutexes for all pairs of steps.
+		for(int i=0; i<steps.length; i++) {
+			for(int j=i; j<steps.length; j++) {
+				if(alwaysMutex(steps[i], steps[j])) {
+					steps[i].mutexes.add(steps[j], Mutexes.ALWAYS);
+					steps[j].mutexes.add(steps[i], Mutexes.ALWAYS);
+				}
+			}
+		}
+	}
+	
+	private final boolean alwaysMutex(StepNode s1, StepNode s2) {
+		// Inconsistent effects: steps which undo each others' effects are always mutex.
+		for(LiteralNode s1Effect : s1.effects) {
+			Literal negation = s1Effect.literal.negate();
+			for(LiteralNode s2Effect : s2.effects)
+				if(s2Effect.literal.equals(negation))
+					return true;
+		}
+		// Interference: steps which undoe each other's preconditions are always mutex.
+		if(s1 == s2)
+			return false;
+		if(interference(s1, s2) || interference(s2, s1))
+			return true;
+		return false;
+	}
+	
+	private final boolean interference(StepNode s1, StepNode s2) {
+		for(LiteralNode s1Effect : s1.effects) {
+			Literal negation = s1Effect.literal.negate();
+			for(LiteralNode s2Precondition : s2.preconditions)
+				if(s2Precondition.literal.equals(negation))
+					return true;
+		}
+		return false;
+	}
+	
 	public LiteralNode get(Literal literal) {
 		return literalMap.get(literal);
 	}
@@ -97,7 +136,6 @@ public class PlanGraph {
 	}
 	
 	public void initialize(State initial) {
-System.out.println("INITIALIZE");
 		size = 1;
 		for(Node node : toReset)
 			node.reset();
@@ -109,7 +147,6 @@ System.out.println("INITIALIZE");
 	}
 	
 	public void extend() {
-System.out.println("EXTEND to level " + size);
 		Level level = new Level(this, size);
 		if(levels.size() == size)
 			levels.add(level);

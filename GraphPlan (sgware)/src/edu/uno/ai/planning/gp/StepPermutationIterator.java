@@ -87,7 +87,7 @@ class StepPermutationIterator implements Iterator<Set<StepNode>> {
 	
 	private final boolean anyMutex() {
 		for(int i=0; i<steps.length; i++)
-			for(int j=i+1; j<steps.length; j++)
+			for(int j=i; j<steps.length; j++)
 				if(step(i).mutex(step(j), level))
 					return true;
 		return false;

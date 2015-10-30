@@ -3,6 +3,8 @@ package edu.uno.ai.planning.pg;
 import java.util.HashMap;
 
 class Mutexes {
+	
+	public static final int ALWAYS = -1;
 
 	private final HashMap<Node, Integer> nodes = new HashMap<>();
 	
@@ -10,7 +12,7 @@ class Mutexes {
 		Integer end = nodes.get(node);
 		if(end == null)
 			nodes.put(node, level);
-		else if(end == -1)
+		else if(end == ALWAYS)
 			return;
 		else if(end < level)
 			nodes.put(node, level);
@@ -22,7 +24,7 @@ class Mutexes {
 		Integer end = nodes.get(node);
 		if(end == null)
 			return false;
-		else if(end == -1)
+		else if(end == ALWAYS)
 			return true;
 		else
 			return level <= end;
