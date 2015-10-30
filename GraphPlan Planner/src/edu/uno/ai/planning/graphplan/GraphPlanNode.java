@@ -44,6 +44,16 @@ public class GraphPlanNode {
 		return literals;
 	}
 	
+	/** Clear steps, for when node is being recalculated. */
+	public void clearSteps(){
+		steps.clear();
+	}
+	
+	/** Clear literals, for when node is being recalculated. */
+	public void clearLiterals(){
+		literals.clear();
+	}
+	
 	/** Add a single step to the steps for this level */
 	public void addSteps(PlanGraphStep x){
 		steps.add(x);

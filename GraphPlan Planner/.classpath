@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Breadth First Search Planner"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Unit Tests"/>
+	<classpathentry kind="lib" path="C:/Users/GlobalConfusion/Downloads/guava-18.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
