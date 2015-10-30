@@ -10,19 +10,41 @@ import edu.uno.ai.planning.pg.StepNode;
 
 class StepPermutationIterator implements Iterator<Set<StepNode>> {
 
+	private final Iterable<LiteralNode> goals;
 	private final int level;
 	private final StepNode[][] steps;
 	private final int[] indices;
 	private boolean done = false;
 	
 	StepPermutationIterator(int level, Iterable<LiteralNode> goals) {
+		this.goals = goals;
 		this.level = level;
+		// Make a group for each goal.
 		ArrayList<StepNode[]> steps = new ArrayList<>();
 		for(LiteralNode goal : goals)
 			steps.add(toArray(goal.getProducers(level)));
-		this.steps = new StepNode[steps.size()][];
+		this.steps = steps.toArray(new StepNode[steps.size()][]);
 		this.indices = new int[this.steps.length];
-		advance();
+		// If any group is empty, there are no permutations.
+		for(StepNode[] group : this.steps)
+			if(group.length == 0)
+				done = true;
+		// If all groups have at least 1 member, find the first valid permutation.
+		if(!done)
+			advance();
+	}
+	
+	@Override
+	public String toString() {
+		String str = "Step Permutation at Level " + level + ":";
+		if(done)
+			str += "\n  none";
+		else {
+			Iterator<LiteralNode> goals = this.goals.iterator();
+			for(int i=0; i<steps.length; i++)
+				str += "\n  " + goals.next() + " via " + steps[i][indices[i]];
+		}
+		return str;
 	}
 	
 	private static final StepNode[] toArray(Iterable<StepNode> iterable) {

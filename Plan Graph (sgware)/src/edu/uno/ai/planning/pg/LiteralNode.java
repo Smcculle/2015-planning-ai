@@ -36,7 +36,7 @@ public class LiteralNode extends Node {
 		return new Iterable<StepNode>() {
 			@Override
 			public Iterator<StepNode> iterator() {
-				return new NodeIterator<>(level - 1, producers);
+				return new NodeIterator<>(level, producers);
 			}
 		};
 	}
@@ -45,7 +45,7 @@ public class LiteralNode extends Node {
 		return new Iterable<StepNode>() {
 			@Override
 			public Iterator<StepNode> iterator() {
-				return new NodeIterator<>(level, consumers);
+				return new NodeIterator<>(level + 1, consumers);
 			}
 		};
 	}

@@ -61,8 +61,10 @@ public class GraphPlanSearch extends Search {
 				search = null;
 				graph.extend();
 			}
-			else
+			else {
+for(edu.uno.ai.planning.Step step : plan) System.out.println(step);
 				return plan;
+			}
 		}
 	}
 }

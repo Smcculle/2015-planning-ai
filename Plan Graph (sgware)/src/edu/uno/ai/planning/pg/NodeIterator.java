@@ -17,7 +17,7 @@ class NodeIterator<N extends Node> implements Iterator<N> {
 	private final void advance() {
 		while(nodes.hasNext()) {
 			next = nodes.next();
-			if(next.getLevel() <= level)
+			if(next.getLevel() != -1 && next.getLevel() <= level)
 				return;
 		}
 		next = null;

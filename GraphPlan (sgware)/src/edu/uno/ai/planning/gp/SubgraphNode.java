@@ -16,14 +16,14 @@ public class SubgraphNode {
 	public final int level;
 	public final ImmutableList<LiteralNode> goals;
 	int descendants = 0;
-	private final StepPermutationIterator sets;
+	private final StepPermutationIterator permutations;
 	
 	SubgraphNode(PlanGraph graph) {
 		this.parent = null;
 		this.plan = EMPTY;
 		this.level = graph.size() - 1;
 		this.goals = toList(graph.goals);
-		this.sets = new StepPermutationIterator(level, goals);
+		this.permutations = new StepPermutationIterator(level, goals);
 	}
 	
 	SubgraphNode(SubgraphNode parent, TotalOrderPlan plan, int level, ImmutableList<LiteralNode> goals) {
@@ -31,7 +31,7 @@ public class SubgraphNode {
 		this.plan = plan;
 		this.level = level;
 		this.goals = goals;
-		this.sets = new StepPermutationIterator(level, goals);
+		this.permutations = new StepPermutationIterator(level, goals);
 		SubgraphNode ancestor = parent;
 		while(ancestor != null) {
 			ancestor.descendants++;
@@ -55,10 +55,10 @@ public class SubgraphNode {
 	
 	public SubgraphNode expand() {
 		// If this node has no more children, return null.
-		if(!sets.hasNext())
+		if(!permutations.hasNext())
 			return null;
 		// Get the next permutation of steps.
-		Set<StepNode> steps = sets.next();
+		Set<StepNode> steps = permutations.next();
 		// My child's plan is my plan plus all non-persistence steps.
 		TotalOrderPlan childPlan = this.plan;
 		for(StepNode stepNode : steps)

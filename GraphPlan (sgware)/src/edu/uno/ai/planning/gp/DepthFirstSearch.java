@@ -43,7 +43,7 @@ public class DepthFirstSearch extends Search {
 				stack.pop();
 			else
 				stack.push(child);
-			if(node.level == 0)
+			if(node.level == 0 && problem.isSolution(node.plan))
 				return node.plan;
 		}
 		return null;
