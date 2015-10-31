@@ -44,6 +44,43 @@ public class ImmutableList<E> implements Iterable<E> {
 		this.length = 0;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if(this == other)
+			return true;
+		else if(other instanceof ImmutableList) {
+			ImmutableList<?> otherIL = (ImmutableList<?>) other;
+			if(length != otherIL.length)
+				return false;
+			if(length == 0)
+				return true;
+			if(!first.equals(otherIL.first))
+				return false;
+			else
+				return rest.equals(otherIL.rest);
+		}
+		else
+			return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return hashCode(this);
+	}
+	
+	/**
+	 * Returns the sum of the hashcodes of all elements in the list.
+	 * 
+	 * @param list the list for which the hashcode will be calculated
+	 * @return the hashcode
+	 */
+	private static final int hashCode(ImmutableList<?> list) {
+		if(list.length == 0)
+			return 0;
+		else
+			return list.first.hashCode() + hashCode(list.rest);
+	}
+	
 	/**
 	 * Returns a new list with the given element added as the first element.
 	 * 

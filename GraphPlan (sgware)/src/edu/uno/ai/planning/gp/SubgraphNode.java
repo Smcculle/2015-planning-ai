@@ -1,7 +1,5 @@
 package edu.uno.ai.planning.gp;
 
-import java.util.Set;
-
 import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.pg.LiteralNode;
 import edu.uno.ai.planning.pg.PlanGraph;
@@ -65,7 +63,7 @@ public class SubgraphNode {
 			if(!permutations.hasNext())
 				return null;
 			// Get the next permutation of steps.
-			Set<StepNode> steps = permutations.next();
+			ImmutableList<StepNode> steps = permutations.next();
 			// My child's plan is my plan plus all non-persistence steps.
 			TotalOrderPlan childPlan = this.plan;
 			for(StepNode stepNode : steps)
@@ -73,7 +71,7 @@ public class SubgraphNode {
 					childPlan = childPlan.add(stepNode.step);
 			// My child's level is one level earlier than mine.
 			int childLevel = level - 1;
-			// My child's goals are the preconditions of the steps at this level.
+			// My child's goals are the preconditions of the steps at my level.
 			ImmutableList<LiteralNode> childGoals = new ImmutableList<>();
 			for(StepNode stepNode : steps)
 				for(LiteralNode precondition : stepNode.getPreconditions(level))

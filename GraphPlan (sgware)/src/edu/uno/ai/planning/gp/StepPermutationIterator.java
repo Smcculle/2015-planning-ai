@@ -2,109 +2,125 @@ package edu.uno.ai.planning.gp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import edu.uno.ai.planning.pg.LiteralNode;
 import edu.uno.ai.planning.pg.StepNode;
+import edu.uno.ai.planning.util.ImmutableList;
 
-class StepPermutationIterator implements Iterator<Set<StepNode>> {
+class StepPermutationIterator implements Iterator<ImmutableList<StepNode>> {
 
-	private final Iterable<LiteralNode> goals;
 	private final int level;
-	private final StepNode[][] steps;
+	private final ImmutableList<LiteralNode> goals;
+	private final StepNode[][] groups;
 	private final int[] indices;
-	private boolean done = false;
+	private ImmutableList<StepNode> next = null;
 	
-	StepPermutationIterator(int level, Iterable<LiteralNode> goals) {
-		this.goals = goals;
+	StepPermutationIterator(int level, ImmutableList<LiteralNode> goals) {
 		this.level = level;
-		// Make a group for each goal.
-		ArrayList<StepNode[]> steps = new ArrayList<>();
-		for(LiteralNode goal : goals)
-			steps.add(toArray(goal.getProducers(level)));
-		this.steps = steps.toArray(new StepNode[steps.size()][]);
-		this.indices = new int[this.steps.length];
-		// If any group is empty, there are no permutations.
-		for(StepNode[] group : this.steps)
-			if(group.length == 0)
-				done = true;
-		// If all groups have at least 1 member, find the first valid permutation.
-		if(!done)
-			advance();
+		this.goals = goals;
+		this.groups = new StepNode[goals.length][];
+		for(int i=0; i<groups.length; i++) {
+			groups[i] = makeGroup(goals.first);
+			goals = goals.rest;
+		}
+		this.indices = new int[groups.length];
+		ImmutableList<StepNode> next = new ImmutableList<>();
+		for(int i=0; i<groups.length; i++) {
+			if(groups[i].length == 0)
+				return;
+			else
+				next = next.add(groups[i][0]);
+		}
+		this.next = new ImmutableList<>();
+		this.next = findNext();
+		if(this.next != null && allPersistence(this.next))
+			this.next = findNext();
+	}
+	
+	private final StepNode[] makeGroup(LiteralNode goal) {
+		ArrayList<StepNode> list = new ArrayList<>();
+		for(StepNode producer : goal.getProducers(level)) {
+			if(producer.persistence)
+				list.add(0, producer);
+			else
+				list.add(producer);
+		}
+		return list.toArray(new StepNode[list.size()]);
+	}
+	
+	private static final boolean allPersistence(ImmutableList<StepNode> steps) {
+		if(steps.length == 0)
+			return true;
+		else if(!steps.first.persistence)
+			return false;
+		else
+			return allPersistence(steps.rest);
+	}
+	
+	private final ImmutableList<StepNode> findNext() {
+		return findNext(0, new ImmutableList<>());
+	}
+	
+	private final ImmutableList<StepNode> findNext(int index, ImmutableList<StepNode> steps) {
+		if(index == groups.length) {
+			if(steps.equals(next))
+				return null;
+			else
+				return steps;
+		}
+		else {
+			do {
+				StepNode step = groups[index][indices[index]];
+				if(canAdd(step, steps)) {
+					ImmutableList<StepNode> result = findNext(index + 1, add(step, steps));
+					if(result != null)
+						return result;
+				}
+				indices[index]++;
+			} while(indices[index] < groups[index].length);
+			indices[index] = 0;
+			return null;
+		}
+	}
+	
+	private final boolean canAdd(StepNode step, ImmutableList<StepNode> steps) {
+		if(steps.length == 0)
+			return true;
+		else if(step.mutex(steps.first, level))
+			return false;
+		else
+			return canAdd(step, steps.rest);
+	}
+	
+	private static final ImmutableList<StepNode> add(StepNode step, ImmutableList<StepNode> steps) {
+		if(steps.contains(step))
+			return steps;
+		else
+			return steps.add(step);
 	}
 	
 	@Override
 	public String toString() {
 		String str = "Step Permutation at Level " + level + ":";
-		if(done)
+		if(next == null)
 			str += "\n  none";
 		else {
 			Iterator<LiteralNode> goals = this.goals.iterator();
-			for(int i=0; i<steps.length; i++)
-				str += "\n  " + goals.next() + " via " + steps[i][indices[i]];
+			for(int i=0; i<groups.length; i++)
+				str += "\n  " + goals.next() + " via " + groups[i][indices[i]];
 		}
 		return str;
 	}
 	
-	private static final StepNode[] toArray(Iterable<StepNode> iterable) {
-		ArrayList<StepNode> list = new ArrayList<>();
-		for(StepNode step : iterable)
-			list.add(step);
-		return list.toArray(new StepNode[list.size()]);
-	}
-	
-	private final StepNode step(int index) {
-		return steps[index][indices[index]];
-	}
-	
-	private final void advance() {
-		while(!done && !check())
-			increment();
-	}
-	
-	private final void increment() {
-		for(int i=0; i<indices.length; i++) {
-			indices[i]++;
-			if(indices[i] == steps[i].length)
-				indices[i] = 0;
-			else
-				return;
-		}
-		done = true;
-	}
-	
-	private final boolean check() {
-		return !allPersistence() && !anyMutex();
-	}
-	
-	private final boolean allPersistence() {
-		for(int i=0; i<steps.length; i++)
-			if(!step(i).persistence)
-				return false;
-		return true;
-	}
-	
-	private final boolean anyMutex() {
-		for(int i=0; i<steps.length; i++)
-			for(int j=i; j<steps.length; j++)
-				if(step(i).mutex(step(j), level))
-					return true;
-		return false;
-	}
-	
 	@Override
 	public boolean hasNext() {
-		return !done;
+		return next != null;
 	}
 
 	@Override
-	public Set<StepNode> next() {
-		LinkedHashSet<StepNode> permutation = new LinkedHashSet<>();
-		for(int i=0; i<steps.length; i++)
-			permutation.add(step(i));
-		increment();
-		advance();
-		return permutation;
+	public ImmutableList<StepNode> next() {
+		ImmutableList<StepNode> steps = next;
+		next = findNext();
+		return steps;
 	}
 }
