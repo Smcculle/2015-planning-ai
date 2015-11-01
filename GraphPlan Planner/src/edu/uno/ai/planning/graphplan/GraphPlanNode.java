@@ -5,7 +5,7 @@ import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.util.ConversionUtil;
 
 
-public class GraphPlanNode {
+public class GraphPlanNode{
 	
 	private ArrayList<PlanGraphStep> steps;			// list of steps at this node
 	private ArrayList<PlanGraphLiteral>  literals;	// list of literals at this node
