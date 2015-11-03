@@ -7,28 +7,17 @@ import edu.uno.ai.planning.ss.StateSpaceNode;
 
 public class HeuristicQueue {
 	
-	private final class Node {
-		
-		public final StateSpaceNode state;
-		public final double heuristic;
-		
-		Node(StateSpaceNode state) {
-			this.state = state;
-			this.heuristic = HeuristicQueue.this.heuristic.estimate(state.state);
-		}
-	}
+	public final StateHeuristic heuristic;
+	private final PriorityQueue<HeuristicNode> queue;
 	
-	public final Heuristic heuristic;
-	private final PriorityQueue<Node> queue;
-	
-	public HeuristicQueue(Heuristic heuristic, HeuristicComparator comparator) {
+	public HeuristicQueue(StateHeuristic heuristic, HeuristicComparator comparator) {
 		this.heuristic = heuristic;
-		this.queue = new PriorityQueue<>(new Comparator<Node>(){
+		this.queue = new PriorityQueue<>(new Comparator<HeuristicNode>(){
 			@Override
-			public int compare(Node n1, Node n2) {
-				double comparison = comparator.compare(n1.state.plan, n1.state.state, n1.heuristic, n2.state.plan, n2.state.state, n2.heuristic);
+			public int compare(HeuristicNode n1, HeuristicNode n2) {
+				double comparison = comparator.compare(n1, n2);
 				if(comparison == 0)
-					return 0;
+					return n1.id - n2.id;
 				else if(comparison < 0)
 					return -1;
 				else
@@ -45,12 +34,18 @@ public class HeuristicQueue {
 		return queue.size();
 	}
 	
-	public void push(StateSpaceNode node) {
-		queue.add(new Node(node));
+	public HeuristicNode push(StateSpaceNode node) {
+		HeuristicNode n = new HeuristicNode(node, heuristic.evaluate(node.state));
+		queue.add(n);
+		return n;
 	}
 	
-	public StateSpaceNode peek() {
-		return queue.peek().state;
+	public HeuristicNode peek() {
+		return queue.peek();
+	}
+	
+	public double hPeek() {
+		return queue.peek().heuristic;
 	}
 	
 	public StateSpaceNode pop() {

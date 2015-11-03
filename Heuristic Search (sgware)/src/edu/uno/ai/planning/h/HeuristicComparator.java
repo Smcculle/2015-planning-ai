@@ -1,9 +1,12 @@
 package edu.uno.ai.planning.h;
 
 import edu.uno.ai.planning.Plan;
-import edu.uno.ai.planning.State;
 
 public interface HeuristicComparator {
 
-	public double compare(Plan p1, State s1, double h1, Plan p2, State s2, double h2);
+	public default double compare(HeuristicNode n1, HeuristicNode n2) {
+		return compare(n1.state.plan, n1.heuristic, n2.state.plan, n2.heuristic);
+	}
+	
+	public double compare(Plan p1, double h1, Plan p2, double h2);
 }
