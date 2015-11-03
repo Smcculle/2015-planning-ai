@@ -17,8 +17,13 @@ public class MaxHeuristic extends HSPHeuristic {
 			return cost((Literal) expression);
 		else if(expression instanceof Conjunction) {
 			int max = 0;
-			for(Expression argument : ((Conjunction) expression).arguments)
-				max = Math.max(max, cost(argument));
+			for(Expression argument : ((Conjunction) expression).arguments) {
+				int argCost = cost(argument);
+				if(argCost == INFINITY)
+					return INFINITY;
+				else
+					max = Math.max(max, argCost);
+			}
 			return max;
 		}
 		else

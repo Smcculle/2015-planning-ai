@@ -32,21 +32,38 @@ public abstract class HSPHeuristic extends StateHeuristic {
 	@Override
 	public double evaluate(State current) {
 		cost.clear();
-		while(cost(problem.goal) != INFINITY)
-			for(Step step : problem.steps)
-				setCost(step.effect, cost(step.precondition) + 1);
+		for(Step step : problem.steps)
+			if(step.precondition.isTrue(current))
+				setCost(step.precondition, 0);
+		boolean again = true;
+		while(again && cost(problem.goal) == INFINITY) {
+			again = false;
+			for(Step step : problem.steps) {
+				int cost = cost(step.precondition);
+				if(cost != INFINITY)
+					again = setCost(step.effect, cost + 1) || again;
+			}
+		}
 		return cost(problem.goal);
 	}
 	
-	private final void setCost(Expression expression, int value) {
+	private final boolean setCost(Expression expression, int value) {
 		if(expression instanceof Literal) {
 			Literal literal = (Literal) expression;
-			int current = cost.get(literal);
-			cost.put((Literal) expression, Math.min(current, value));
+			int current = cost(literal);
+			if(value < current) {
+				cost.put((Literal) expression, value);
+				return true;
+			}
+			else
+				return false;
 		}
-		else if(expression instanceof Conjunction)
+		else if(expression instanceof Conjunction) {
+			boolean result = false;
 			for(Expression argument : ((Conjunction) expression).arguments)
-				setCost(argument, value);
+				result = setCost(argument, value) || result;
+			return result;
+		}
 		else
 			throw new UnsupportedOperationException(expression.getClass() + " not supported.");
 	}

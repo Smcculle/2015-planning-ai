@@ -10,6 +10,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
+		new edu.uno.ai.planning.hsp.HeuristicSearchPlanner(),
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{

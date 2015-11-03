@@ -8,5 +8,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

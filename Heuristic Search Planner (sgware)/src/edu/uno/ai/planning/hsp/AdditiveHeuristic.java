@@ -17,8 +17,13 @@ public class AdditiveHeuristic extends HSPHeuristic {
 			return cost((Literal) expression);
 		else if(expression instanceof Conjunction) {
 			int total = 0;
-			for(Expression argument : ((Conjunction) expression).arguments)
-				total += cost(argument);
+			for(Expression argument : ((Conjunction) expression).arguments) {
+				int argCost = cost(argument);
+				if(argCost == INFINITY)
+					return INFINITY;
+				else
+					total += argCost;
+			}
 			return total;
 		}
 		else

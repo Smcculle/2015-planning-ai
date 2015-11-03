@@ -1,5 +1,6 @@
 package edu.uno.ai.planning.hsp;
 
+import edu.uno.ai.planning.h.CompleteSearch;
 import edu.uno.ai.planning.h.StateHeuristic;
 import edu.uno.ai.planning.h.HeuristicPlanner;
 import edu.uno.ai.planning.h.HeuristicSearch;
@@ -15,6 +16,6 @@ public class HeuristicSearchPlanner extends HeuristicPlanner {
 	@Override
 	protected HeuristicSearch makeStateSpaceSearch(StateSpaceProblem problem) {
 		StateHeuristic heuristic = new AdditiveHeuristic(problem);
-		return new HillClimbingSearch(problem, heuristic, HeuristicSearch.A_STAR);
+		return new CompleteSearch(problem, heuristic, HeuristicSearch.A_STAR);
 	}
 }
