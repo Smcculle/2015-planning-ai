@@ -37,13 +37,13 @@ public class GraphPlanTest2 {
 			Problem cakeProblem = createCakeProblem();
 			Problem rocketProblem = createEasyCargoProblem();
 			Problem doNothing = doNothing();
-			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
+			GraphPlanSearch c = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 			GraphPlanSearch d = new GraphPlanSearch(doNothing);
 			GraphPlanSearchL rr = new GraphPlanSearchL(rocketProblem);
 		
-			TotalOrderPlan solution = (TotalOrderPlan) r.search();
-			System.out.println(rocketProblem.isSolution(solution));
+			TotalOrderPlan solution = (TotalOrderPlan) c.search();
+			System.out.println(cakeProblem.isSolution(solution));
 			
 			
 			
