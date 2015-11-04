@@ -24,7 +24,7 @@ public class HillClimbingSearch extends HeuristicSearch {
 				HeuristicNode hnode = queue.push(child);
 				if(comparator.compare(hnode, best) < 0) {
 					queue.clear();
-					queue.push(hnode.state);
+					queue.push(child);
 				}
 			}
 			if(problem.goal.isTrue(current.state))

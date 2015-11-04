@@ -4,7 +4,6 @@ import edu.uno.ai.planning.h.CompleteSearch;
 import edu.uno.ai.planning.h.StateHeuristic;
 import edu.uno.ai.planning.h.HeuristicPlanner;
 import edu.uno.ai.planning.h.HeuristicSearch;
-import edu.uno.ai.planning.h.HillClimbingSearch;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
 
 public class HeuristicSearchPlanner extends HeuristicPlanner {
