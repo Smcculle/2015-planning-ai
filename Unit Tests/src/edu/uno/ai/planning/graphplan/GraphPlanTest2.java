@@ -3,8 +3,9 @@ package edu.uno.ai.planning.graphplan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.*; 
+import static org.junit.Assert.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +13,26 @@ import java.util.List;
 import org.junit.Test;
 
 import edu.uno.ai.planning.Benchmark;
+import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
+import edu.uno.ai.planning.Result;
 import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.TestSuite;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Constant;
 import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.logic.Predication;
+import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class GraphPlanTest2 {
 
+	public static final int NODE_LIMIT = 10000;
+	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
+	
+
 	
 	@Test 
-	public void testInit(){
+	public void testInit() throws FileNotFoundException{
 		
 			Problem cakeProblem = createCakeProblem();
 			Problem rocketProblem = createEasyCargoProblem();
@@ -31,10 +40,18 @@ public class GraphPlanTest2 {
 			GraphPlanSearch s = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 			GraphPlanSearch d = new GraphPlanSearch(doNothing);
+			GraphPlanSearchL rr = new GraphPlanSearchL(rocketProblem);
+		
+			TotalOrderPlan solution = (TotalOrderPlan) r.search();
+			System.out.println(rocketProblem.isSolution(solution));
+			
+			
+			
 //			d.search();
 //			System.out.println(cakeProblem.initial);
 //			s.search();
-			r.search();
+//			r.search();
+//			rr.search();
 //			cake.extend();
 //			rocket.doGraphPlan();
 //			rocket.extend();

@@ -12,6 +12,7 @@ public class TestSuite {
 	public static final Planner<?>[] PLANNERS = new Planner[]{
 //		new BFSPlanner(),
 		new Graphplan()
+		
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
