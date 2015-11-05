@@ -22,6 +22,7 @@ public class GraphPlanSearch extends Search{
 	/** Actual problem to solve. **/
 	public final Problem problem;
 	
+	//HashMap used to define a node at each level. A node contains a list of literals and list of levels.
 	private HashMap<Integer, GraphPlanNode> nodes = new HashMap<Integer, GraphPlanNode>();
 	
 	private HashMap<Integer, ArrayList<PlanGraphStep>> stepListsByLevel = new HashMap<Integer, ArrayList<PlanGraphStep>>();
@@ -67,8 +68,6 @@ public class GraphPlanSearch extends Search{
 	HashMap<Integer, Set<Set<PlanGraphLiteral>>> possibleLiteralSets = new HashMap<Integer, Set<Set<PlanGraphLiteral>>>();
 	
 	Set<Set<PlanGraphLiteral>> pgLiterals;
-	
-	Boolean moreSolutions = true;
 			
 	public GraphPlanSearch(Problem problem){
 		super(problem);
@@ -80,14 +79,11 @@ public class GraphPlanSearch extends Search{
 		for (int i = 0; i <= currentMaxLevel; i++){
 			counter.add(0);
 		}
-	
 	}
 	
 	public Plan search(){
 		TotalOrderPlan solution = new TotalOrderPlan();
 		
-		
-//		System.out.println(pg);
 		if (firstCall == true)
 		{
 			finished = checkGoalInInitial();
@@ -103,84 +99,22 @@ public class GraphPlanSearch extends Search{
 		}
 		
 		if (finished == true){
-			
-		
-//			while (!problem.isSolution(createTotalOrderPlan())){
-//				
-//				System.out.println(currentLevel);
-//				finished = false; 				
-//				recalculateLevel();		
-//				
-//				if (allPermutationsSteps.get(currentLevel).size() <= positionInStepLists.get(currentLevel)){
-//					pg.extend();
-//					currentMaxLevel = pg.countLevels() - 1;
-//					counter.clear();
-//					for (int i = 0; i <= currentMaxLevel; i++){
-//						counter.add(0);
-//					}
-//					System.out.println(currentMaxLevel);
-//							
-//					createGoalNode();
-//					while (currentLevel > 0){
-//						createNewNode();
-//					}
-//					System.out.println("herrooo");
-//				
-//				}
-//				
-//				while (currentLevel > 0){
-//					continueDown();
-//				}
-				
-//				System.out.println(nodes.get(1).getSteps());	
-//			}
-			
 			solution = createTotalOrderPlan();
 			return solution;
 		}
-
 		return solution;
 	}
 	
 	
 	public void searchAux(){
-
 		while (currentLevel > 0){
 			createNewNode();
 		}
-		finished = goalReached(nodes.get(currentLevel).getLiterals());
-			
+		finished = goalReached(nodes.get(currentLevel).getLiterals());	
 		if (finished == true){
 			return;
 		}
-			
-//		if (currentLevel == 0){
-//			recalculateLevel();
-				
-//				if (currentLevel != currentMaxLevel){
-//					while (!checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals())){
-//						System.out.println(currentLevel);
-//						System.out.println(checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals()));
-//						recalculateLevel();
-//					}
-//				}
-//			while ((currentLevel > 0)){		
-//				continueDown();
-//			}	
-//					if (currentLevel != currentMaxLevel){
-//						while (!checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals())){
-//							System.out.println(currentLevel);
-//							System.out.println(checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals()));
-//							recalculateLevel();
-//						}
-//					}
-						
-				
-//			finished = goalReached(nodes.get(currentLevel).getLiterals());
-//			if (finished == true){
-//				return;
-//			}
-
+		
 		while (finished == false){
 			recalculateLevel();
 			while (currentLevel > 0){
@@ -195,29 +129,8 @@ public class GraphPlanSearch extends Search{
 			finished = goalReached(nodes.get(currentLevel).getLiterals());
 
 		}	
-				
-//				if (currentLevel == currentMaxLevel){			
-//					System.out.println("herrooo");		
-//				}	
-				
-//					if (currentLevel != currentMaxLevel){
-//				
-//						while (!checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals())){
-//							System.out.println(currentLevel);
-//							System.out.println(checkPreConditionsBetweenLevels(nodes.get(currentLevel).getLiterals()));
-//							recalculateLevel();
-//							System.out.println(currentLevel);
-//							System.out.println(currentMaxLevel);
-//						}
-//					}
-					
-					
-					
+	}
 		
-			}
-		
-	
-	
 	
 	//Create TotalOrderPlan which contains correct steps for solution
 	public TotalOrderPlan createTotalOrderPlan(){
@@ -228,13 +141,7 @@ public class GraphPlanSearch extends Search{
 				solution = solution.addStep(step.getStep());
 			}
 		}
-//		Iterator<Step> x = solution.iterator();
-//		while(x.hasNext()){
-//			System.out.println(x.next());
-//		}
-//		System.out.println("I am a solution");
 		return solution;
-		
 	}
 	
 	public void createMasterStepsForGoals(int level){
@@ -268,8 +175,7 @@ public class GraphPlanSearch extends Search{
 	public void createMasterStepListByLevel(int level){
 		ArrayList<PlanGraphStep> tempList = new ArrayList<PlanGraphStep>();
 		Set<PlanGraphStep> deleteRepeats = new HashSet<PlanGraphStep>();
-//		allPermutationsLiterals.get(currentLevel).get(positionInStepLists.get(currentLevel))
-		
+	
 		for (PlanGraphLiteral findAGoal: literalListsByLevel.get(currentLevel)){
 			for (PlanGraphStep step: pg.getAllPossiblePlanGraphSteps()){
 				if (step.existsAtLevel(currentLevel)){
@@ -290,16 +196,11 @@ public class GraphPlanSearch extends Search{
 	public void createMasterLiteralListByLevel(int level){
 		ArrayList<PlanGraphLiteral> tempList = new ArrayList<PlanGraphLiteral>();
 		Set<PlanGraphLiteral> deleteRepeats = new HashSet<PlanGraphLiteral>();
-		
 		for (PlanGraphStep step: nodes.get(currentLevel).getSteps()){
 			for (Literal pre: expressionToLiterals(step.getStep().precondition)){
 				for (PlanGraphLiteral literal: pg.getAllPossiblePlanGraphEffects()){
 					if (literal.existsAtLevel(currentLevel)){
-						
 						if(pre.equals(literal.getLiteral())){
-//							System.out.println("\r\n" + pre + "!!");
-//							System.out.println(step + "!!!");
-//							System.out.println(literal + "12345");
 							deleteRepeats.add(literal);
 						}
 					}
@@ -308,16 +209,12 @@ public class GraphPlanSearch extends Search{
 		}
 		tempList.addAll(deleteRepeats);
 		currentLevel--;
-//		System.out.println(tempList + "strange");
-//		System.exit(0);
 		literalListsByLevel.put(currentLevel, tempList);
-	
 	}
 	
 	/**
 	 * Creates a node based upon the goal literals
 	 */
-	
 	public void createGoalNode(){
 		nodes.clear();
 		goalList.clear();
@@ -342,10 +239,6 @@ public class GraphPlanSearch extends Search{
 		}
 		allPermutationsSteps.put(currentLevel,new ArrayList<ArrayList<PlanGraphStep>>(xy));
 		
-		
-		
-		
-		
 		int globalcount = counter.get(currentLevel);
 		globalcount++;
 		counter.set(currentLevel, globalcount);
@@ -354,10 +247,6 @@ public class GraphPlanSearch extends Search{
 		positionInStepLists.put(currentLevel,counter.get(currentLevel));
 		
 		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
-		
-//		for (int i = 1; i <allPermutationsSteps.size(); i++){
-//			System.out.println(allPermutationsSteps.get(i));
-//		}	
 		
 		defineNode(steps, goalList, currentLevel);
 		System.out.println("\r\n"+ nodes.get(currentLevel).getLiterals());
@@ -377,30 +266,6 @@ public class GraphPlanSearch extends Search{
 		Set<Set<PlanGraphLiteral>> setOfLiterals;
 		Set<PlanGraphLiteral> temp = new LinkedHashSet<PlanGraphLiteral>();
 		temp.addAll(literalListsByLevel.get(currentLevel));
-//		setOfLiterals = Sets.powerSet(temp);
-//		
-//		
-//		
-//		possibleLiteralSets.put(currentLevel, setOfLiterals);
-//		
-//		ArrayList<PlanGraphLiteral> x = new ArrayList<PlanGraphLiteral>();
-//		ArrayList<ArrayList<PlanGraphLiteral>> xy = new ArrayList<ArrayList<PlanGraphLiteral>>(); 
-//		for (Set<PlanGraphLiteral> set: setOfLiterals){
-//			for (PlanGraphLiteral step: set){
-//				x.add(step);
-//			}
-//			xy.add(new ArrayList<PlanGraphLiteral>(x));
-//			x.clear();
-//		}
-//		allPermutationsLiterals.put(currentLevel, new ArrayList<ArrayList<PlanGraphLiteral>>(xy));
-//		
-//		int globalLitCount = counter.get(currentLevel);
-//		globalLitCount++;
-//		counter.set(currentLevel, globalLitCount);
-//		
-//		positionInLiteralLists.put(currentLevel,counter.get(currentLevel));
-//		positionInStepLists.put(currentLevel,counter.get(currentLevel));
-//		literals = allPermutationsLiterals.get(currentLevel).get(positionInLiteralLists.get(currentLevel));
 		
 		if (currentLevel == 0){
 			ArrayList<PlanGraphStep> nullList = new ArrayList<PlanGraphStep>();
@@ -432,18 +297,6 @@ public class GraphPlanSearch extends Search{
 		counter.set(currentLevel, globalStepCount);
 		
 		positionInStepLists.put(currentLevel,counter.get(currentLevel));
-//		System.out.println(allPermutationsSteps);
-//		System.out.println(temp);
-//		System.out.println(tempSteps);
-//		System.exit(0);
-		
-//		int globalStepCount = counter.get(currentLevel);
-//		counter.set(currentLevel, globalStepCount);
-//		positionInMasterLists.put(currentLevel,counter.get(currentLevel));
-		
-//		System.out.println(allPermutationsSteps);
-//		System.out.println(currentLevel);
-//		System.out.println(positionInStepLists);
 		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 		
 		defineNode(steps,literalListsByLevel.get(currentLevel),currentLevel);
@@ -455,7 +308,7 @@ public class GraphPlanSearch extends Search{
 //		System.out.println(nodes.get(currentLevel).getSteps() + "Steps Level: " + currentLevel);
 //		
 		
-//		System.exit(0);
+
 	}
 	
 	
@@ -509,51 +362,15 @@ public class GraphPlanSearch extends Search{
 				
 				return;
 		}
-//			ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-//			literals = allPermutationsLiterals.get(currentLevel).get(positionInLiteralLists.get(currentLevel));
-//			
-//			createMasterStepListByLevel(currentLevel);
-//			
-//			ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-//			Set<Set<PlanGraphStep>> setOfSets;
-//			Set<PlanGraphStep> tempSteps = new LinkedHashSet<PlanGraphStep>();
-//			tempSteps.addAll(stepListsByLevel.get(currentLevel));
-//			setOfSets = Sets.powerSet(tempSteps);
-//		
-//			possibleStepSets.put(currentLevel, setOfSets);
-//			ArrayList<PlanGraphStep> s = new ArrayList<PlanGraphStep>();
-//			ArrayList<ArrayList<PlanGraphStep>> sy = new ArrayList<ArrayList<PlanGraphStep>>(); 
-//			for (Set<PlanGraphStep> set: possibleStepSets.get(currentLevel)){
-//				for (PlanGraphStep step: set){
-//					s.add(step);
-//				}
-//				sy.add(new ArrayList<PlanGraphStep>(s));
-//				s.clear();
-//			}
-//			
-//			allPermutationsSteps.put(currentLevel, new ArrayList<ArrayList<PlanGraphStep>>(sy));
-//
-//			int globalStepCount = 1;
-//		
-//			positionInStepLists.put(currentLevel,new Integer(globalStepCount));
-//		
-//			steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
-//	
-//			defineNode(steps,literalListsByLevel.get(currentLevel),currentLevel);
-//		}
 		
 		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();		
 		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 		defineNodeSteps(steps);
 		
-//		System.exit(0);
 	}
 	
 	
 	public void continueDown(){
-//		if (currentLevel == 0){
-//			return;
-//		}
 	
 		if ((currentLevel > 0)){ 
 	
@@ -618,7 +435,6 @@ public class GraphPlanSearch extends Search{
 			defineNode(steps,literalListsByLevel.get(currentLevel),currentLevel);
 			}
 		}
-//		System.exit(0);
 	}
 	
 	/**Compares a list of preconditions to a list of literals, to see if the preconditions contain the literals.
@@ -643,90 +459,9 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphLiteral lit: lits){
 			pLiterals.add(lit.getLiteral());
 		}
-		
-//		for (Literal pc: preConditionLiterals){
-//			if (!lits.contains(pc)){
-//				x = false;
-//			}
-//		}
-//		
-//		for (PlanGraphLiteral lit: lits){
-//			if (!preConditionLiterals.contains(lit.getLiteral())){
-//				x = false;
-//			}
-//		}
-		
-	
-	
-//		System.out.println("hey");
-//		System.out.println(lits);
-//		System.out.println(preConditionLiterals);
-//		System.out.println(nodes.get(currentLevel + 1).getSteps());
-
 
 		return pLiterals.containsAll(preConditionLiterals);
-		
-	
 	}
-	
-	public ArrayList<PlanGraphLiteral> checkForFailure(ArrayList<PlanGraphLiteral> list){	
-		ArrayList<PlanGraphLiteral> aList = new ArrayList<PlanGraphLiteral>();
-		
-		for (int i = 0; i < aList.size(); i++){
-			for (int j = i +1; j < aList.size(); j++){
-				if (isMutex(aList.get(i), aList.get(j))){
-					aList.remove(i);
-					checkForFailure(aList);
-				}
-			}
-		}
-		return aList;
-	}
-	
-	public ArrayList<PlanGraphStep> checkMutexSteps(ArrayList<PlanGraphStep> list){	
-		ArrayList<PlanGraphStep> changedList = new ArrayList<PlanGraphStep>();
-		changedList.addAll(list);
-		
-		for (int i = 0; i < changedList.size(); i++){
-			for (int j = i +1; j < changedList.size(); j++){
-				if (isMutex(changedList.get(i), changedList.get(j))){
-					changedList.remove(i);
-					checkMutexSteps(changedList);
-				}
-			}
-		}
-		
-		return changedList;
-		
-	}
-	
-	public ArrayList<PlanGraphStep> getStepsFromAllPreconditions(ArrayList<PlanGraphLiteral> lits){
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		for (PlanGraphLiteral l : lits){
-			steps.addAll(getStepsFromPrecondition(l));
-		}
-		
-//		Set<PlanGraphStep> stepSet = new HashSet<PlanGraphStep>();
-//		stepSet.addAll(steps);
-//		steps.clear();
-//		steps.addAll(stepSet);
-		
-//		steps = checkMutexSteps(steps);
-		return steps;
-	}
-	
-	public ArrayList<PlanGraphStep> getStepsFromPrecondition(PlanGraphLiteral p){
-		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
-		for (PlanGraphStep s : pg.getAllPossiblePlanGraphSteps()){
-			if (isStepApplicablePrecon(s, p)) steps.add(s);
-		}
-		return steps;
-	}
-
-	public boolean isStepApplicablePrecon(PlanGraphStep step, PlanGraphLiteral literal){
-			return ( (literal.getLiteral().equals(step.getStep().effect)) );
-	}
-	
 	
 	/** Check if the given list of literals equals the list of initial literals of the problem */
 	public boolean goalReached(ArrayList<PlanGraphLiteral> tempLiterals){
@@ -762,79 +497,7 @@ public class GraphPlanSearch extends Search{
 			if (!initialLiterals.contains(lit)) return false;
 		}
 		return true;
-	}
-	
-	public boolean isMutex(PlanGraphLiteral lit1, PlanGraphLiteral lit2){
-		PlanGraphLiteral litNegation = new PlanGraphLiteral((new NegatedLiteral(lit1.getLiteral())).negate());
-		if (lit2.equals(litNegation)){
-//			System.out.println(lit2.toString() +  " is mutex with " + lit1.toString() + " because its negation is " + litNegation.toString());
-			return true;
-		}
-//		System.out.println(lit2.toString() +  " isn't mutex with " + lit1.toString() + " because its negation is " + litNegation.toString());
-		return false;
-	}
-
-	public boolean isMutex(PlanGraphStep step1, PlanGraphStep step2){
-
-//		System.out.println("Checking " + step1.toString() + " versus " + step2.toString());
-		for (PlanGraphLiteral lit1: step1.getParentNodes()){
-			for (PlanGraphLiteral lit2: step2.getParentNodes()){
-				if (isMutex(lit1, lit2)) return true;
-				if (isMutex(lit2, lit1)) return true;
-			}
-		}
-		
-		for (PlanGraphLiteral lit1: step1.getChildNodes()){
-			for (PlanGraphLiteral lit2: step2.getChildNodes()){
-				if (isMutex(lit1, lit2)) return true;
-				if (isMutex(lit2, lit1)) return true;
-			}
-		}
-		
-//		System.out.println(step1.toString() + " and " + step2.toString() + " are not mutex");
-		return false;
-
-	}
-	
-	public boolean isStepApplicable(PlanGraphStep step, ArrayList<PlanGraphLiteral> lits){
-		for (PlanGraphLiteral literal1 : lits){	// for each literal in the specified level's list	
-			for (PlanGraphLiteral literal2 : step.getChildNodes()){
-				if (isMutex(literal1, literal2)) return false;
-			}
-		}
-		return true;
-	}
-	
-//	public ArrayList<PlanGraphStep> dealWithMutex(ArrayList<PlanGraphStep> tempSteps){
-//
-//		PlanGraphLevel mutex = pg.getLevel(currentMaxLevel);
-//		ArrayList<PlanGraphStep> nonMutex = new ArrayList<PlanGraphStep>();
-//		Set<PlanGraphStep> tempNonMutex = new HashSet<PlanGraphStep>();
-//		ArrayList<PlanGraphStep> tempMutex = new ArrayList<PlanGraphStep>();
-//		
-//		for (int i = 0; i < tempSteps.size(); i++) {
-//			for (int j = i+1; j < tempSteps.size(); j++) {
-//				if (((PlanGraphLevelMutex)mutex).isMutex(tempSteps.get(i),tempSteps.get(j))){
-//					tempMutex.add(tempSteps.get(j));
-//					tempNonMutex.add(tempSteps.get(i));
-//					break;
-//				} else {
-//					tempNonMutex.add(tempSteps.get(i));
-//					if ((j == (tempSteps.size() -1)) && (!(tempMutex.contains(tempSteps.get(j)))) ){
-//						tempNonMutex.add(tempSteps.get(j));
-//					}
-//				}
-//			}
-//		}	
-//		nonMutex.addAll(tempNonMutex);
-//		mutexLists.put(currentLevel,tempMutex);
-//		nonMutex.removeAll(tempMutex);
-//		
-////		System.out.println(mutexLists);
-////		System.out.println(tempNonMutex + "Non Mutex steps");
-//		return nonMutex;
-//	}
-	
+	}	
 	
 	/**
 	 * Create a GraphPlanNode which models the steps and literals at a certain level of the PlanGraph.
@@ -891,8 +554,6 @@ public class GraphPlanSearch extends Search{
 		return literals;
 	}
 
-	
-	
 	@Override
 	/**Increased each time there is a new GraphPlanNode.*/
 	public int countVisited() {
