@@ -5,12 +5,10 @@ import java.util.*;
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Disjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
-import edu.uno.ai.planning.logic.NegatedLiteral;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 import com.google.common.collect.Sets;
 
@@ -49,6 +47,8 @@ public class GraphPlanSearch extends Search{
 	//Used to determine if we are creating the highest level node. 
 	boolean firstCall = true;
 	
+	boolean noSteps = false;
+	
 	HashMap<Integer, ArrayList<ArrayList<PlanGraphStep>>> allPermutationsSteps = new HashMap<Integer, ArrayList<ArrayList<PlanGraphStep>>>();
 	
 	HashMap<Integer, ArrayList<ArrayList<PlanGraphLiteral>>> allPermutationsLiterals =  new HashMap<Integer, ArrayList<ArrayList<PlanGraphLiteral>>>();
@@ -86,17 +86,16 @@ public class GraphPlanSearch extends Search{
 		
 		if (firstCall == true)
 		{
-			finished = checkGoalInInitial();
+			noSteps = checkGoalInInitial();
+			if (noSteps == true){
+				solution = createTotalOrderPlan();
+				return solution;
+			}
 			firstCall = false;
 			createGoalNode();
 		} 
 			
 		searchAux();
-
-		for (int i =0; i<nodes.size(); i++){
-			System.out.println(nodes.get(i).getSteps()  + "Level " + nodes.get(i).getLevel() + " Steps");
-			System.out.println(nodes.get(i).getLiterals() + "Level " + nodes.get(i).getLevel() + " Literals");
-		}
 		
 		if (finished == true){
 			solution = createTotalOrderPlan();
@@ -115,7 +114,7 @@ public class GraphPlanSearch extends Search{
 			return;
 		}
 		
-		while (finished == false){
+		while (finished == false && this.visitedNodes < this.limit){
 			recalculateLevel();
 			while (currentLevel > 0){
 				createNewNode();
@@ -125,9 +124,7 @@ public class GraphPlanSearch extends Search{
 //				System.out.println(nodes.get(i).getSteps()  + "Level " + nodes.get(i).getLevel() + " Steps");
 //				System.out.println(nodes.get(i).getLiterals() + "Level " + nodes.get(i).getLevel() + " Literals");
 //			}
-			
 			finished = goalReached(nodes.get(currentLevel).getLiterals());
-
 		}	
 	}
 		
@@ -135,6 +132,10 @@ public class GraphPlanSearch extends Search{
 	//Create TotalOrderPlan which contains correct steps for solution
 	public TotalOrderPlan createTotalOrderPlan(){
 		TotalOrderPlan solution = new TotalOrderPlan();
+		
+		if (noSteps){
+			return solution;
+		}
 		
 		for (int i = 0; i <= currentMaxLevel; i++){
 			for (PlanGraphStep step: nodes.get(i).getSteps()){
@@ -245,8 +246,8 @@ public class GraphPlanSearch extends Search{
 		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 		
 		defineNode(steps, goalList, currentLevel);
-		System.out.println("\r\n"+ nodes.get(currentLevel).getLiterals());
-		System.out.println(nodes.get(currentLevel).getSteps());
+//		System.out.println("\r\n"+ nodes.get(currentLevel).getLiterals());
+//		System.out.println(nodes.get(currentLevel).getSteps());
 		
 	}
 			
@@ -359,12 +360,9 @@ public class GraphPlanSearch extends Search{
 		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();		
 		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 		defineNodeSteps(steps);
-		
 	}
 	
-	
 	public void continueDown(){
-	
 		if ((currentLevel > 0)){ 
 	
 		createMasterLiteralListByLevel(currentLevel);
@@ -377,7 +375,6 @@ public class GraphPlanSearch extends Search{
 	
 		possibleLiteralSets.put(currentLevel, setOfLiterals);
 
-		
 		ArrayList<PlanGraphLiteral> x = new ArrayList<PlanGraphLiteral>();
 		ArrayList<ArrayList<PlanGraphLiteral>> xy = new ArrayList<ArrayList<PlanGraphLiteral>>(); 
 		for (Set<PlanGraphLiteral> set: setOfLiterals){
@@ -485,8 +482,11 @@ public class GraphPlanSearch extends Search{
 	/** Possible function to check if there is a solution before any searching is done. */
 	public boolean checkGoalInInitial(){
 		ArrayList<Literal> initialLiterals = new ArrayList<Literal>();
+		ArrayList<Literal> goalLiterals = new ArrayList<Literal>();
 		initialLiterals = expressionToLiterals(problem.initial.toExpression());
-		for (Literal lit: expressionToLiterals(problem.goal)){
+		goalLiterals = expressionToLiterals(problem.goal);
+		
+		for (Literal lit: goalLiterals){
 			if (!initialLiterals.contains(lit)) return false;
 		}
 		return true;
@@ -505,8 +505,8 @@ public class GraphPlanSearch extends Search{
 		}
 		node.setLevel(level);
 		nodes.put(level,node);
-		extendedNodes++;
-		visitedNodes++;
+		this.extendedNodes++;
+		this.visitedNodes++;
 	}
 	
 	/** Change the steps of the node at the current level. */
@@ -516,8 +516,8 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphStep step: steps ){
 			nodes.get(currentLevel).addSteps(step);
 		}
-		extendedNodes++;
-		visitedNodes++;
+		this.extendedNodes++;
+		this.visitedNodes++;
 	}
 	
 	/** Change the literals of the node at the current level.*/
@@ -527,8 +527,8 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphLiteral literal: literals ){
 			nodes.get(currentLevel).addLiterals(literal);
 		}
-		extendedNodes++;
-		visitedNodes++;
+		this.extendedNodes++;
+		this.visitedNodes++;
 	}
 	
 	/**

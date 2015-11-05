@@ -1,27 +1,16 @@
 package edu.uno.ai.planning.graphplan;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import org.junit.Test;
 
 import edu.uno.ai.planning.Benchmark;
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Result;
-import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.TestSuite;
-import edu.uno.ai.planning.logic.Conjunction;
-import edu.uno.ai.planning.logic.Constant;
-import edu.uno.ai.planning.logic.NegatedLiteral;
-import edu.uno.ai.planning.logic.Predication;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class GraphPlanTest2 {
@@ -40,10 +29,9 @@ public class GraphPlanTest2 {
 			GraphPlanSearch c = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 			GraphPlanSearch d = new GraphPlanSearch(doNothing);
-			GraphPlanSearchL rr = new GraphPlanSearchL(rocketProblem);
 		
-			TotalOrderPlan solution = (TotalOrderPlan) c.search();
-			System.out.println(cakeProblem.isSolution(solution));
+			TotalOrderPlan solution = (TotalOrderPlan) d.search();
+			System.out.println(doNothing.isSolution(solution));
 			
 			
 			
