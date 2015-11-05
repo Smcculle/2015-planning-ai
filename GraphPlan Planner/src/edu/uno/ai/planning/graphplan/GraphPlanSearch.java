@@ -182,12 +182,9 @@ public class GraphPlanSearch extends Search{
 //			}
 
 		while (finished == false){
-
 			recalculateLevel();
 			while (currentLevel > 0){
-
 				createNewNode();
-				
 			}	
 //			System.out.println("\r\n" + "special text " );
 //			for (int i =0; i< nodes.size(); i++){
@@ -197,7 +194,6 @@ public class GraphPlanSearch extends Search{
 			
 			finished = goalReached(nodes.get(currentLevel).getLiterals());
 
-			
 		}	
 				
 //				if (currentLevel == currentMaxLevel){			
