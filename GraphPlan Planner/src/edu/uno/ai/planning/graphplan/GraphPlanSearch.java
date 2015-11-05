@@ -144,6 +144,7 @@ public class GraphPlanSearch extends Search{
 		return solution;
 	}
 	
+	//Creates the a list of steps for the current highest level. Steps are created solely from the list of goals.
 	public void createMasterStepsForGoals(int level){
 		Set<PlanGraphStep> deleteRepeatedSteps = new HashSet<PlanGraphStep>();
 		ArrayList<PlanGraphStep> tempList = new ArrayList<PlanGraphStep>();
@@ -160,18 +161,10 @@ public class GraphPlanSearch extends Search{
 			}}
 		
 		tempList.addAll(deleteRepeatedSteps);
-//		PlanGraphLevel lev = pg.getLevel(currentLevel);
-//		System.out.println(tempList);
-//		System.out.println(checkMutexSteps(tempList));
-//		System.out.println(((PlanGraphLevelMutex)lev).isMutex(tempList.get(0),tempList.get(1)));
-//		for (PlanGraphStep step: tempList){
-//		
-//		}
-//		System.exit(0);
-		
 		stepListsByLevel.put(currentLevel,tempList);
 	}
 	
+	//Creates list of steps for the current level by using the literals of the current level.
 	public void createMasterStepListByLevel(int level){
 		ArrayList<PlanGraphStep> tempList = new ArrayList<PlanGraphStep>();
 		Set<PlanGraphStep> deleteRepeats = new HashSet<PlanGraphStep>();
@@ -192,7 +185,10 @@ public class GraphPlanSearch extends Search{
 		stepListsByLevel.put(currentLevel,tempList);
 	}
 	
-	
+	/**Creates list of literals for current level by matching them to the preconditions of the steps 
+	 * of the level immediately above the current level.
+	 * @param level is the current level.
+	 */
 	public void createMasterLiteralListByLevel(int level){
 		ArrayList<PlanGraphLiteral> tempList = new ArrayList<PlanGraphLiteral>();
 		Set<PlanGraphLiteral> deleteRepeats = new HashSet<PlanGraphLiteral>();
@@ -251,8 +247,7 @@ public class GraphPlanSearch extends Search{
 		defineNode(steps, goalList, currentLevel);
 		System.out.println("\r\n"+ nodes.get(currentLevel).getLiterals());
 		System.out.println(nodes.get(currentLevel).getSteps());
-		extendedNodes++;
-		visitedNodes++;
+		
 	}
 			
 	/**
@@ -302,8 +297,6 @@ public class GraphPlanSearch extends Search{
 		defineNode(steps,literalListsByLevel.get(currentLevel),currentLevel);
 		}
 		
-		extendedNodes++;
-		visitedNodes++;
 //		System.out.println(nodes.get(currentLevel).getLiterals() + " Level: " + currentLevel);
 //		System.out.println(nodes.get(currentLevel).getSteps() + "Steps Level: " + currentLevel);
 //		
@@ -512,6 +505,8 @@ public class GraphPlanSearch extends Search{
 		}
 		node.setLevel(level);
 		nodes.put(level,node);
+		extendedNodes++;
+		visitedNodes++;
 	}
 	
 	/** Change the steps of the node at the current level. */
@@ -521,6 +516,8 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphStep step: steps ){
 			nodes.get(currentLevel).addSteps(step);
 		}
+		extendedNodes++;
+		visitedNodes++;
 	}
 	
 	/** Change the literals of the node at the current level.*/
@@ -530,6 +527,8 @@ public class GraphPlanSearch extends Search{
 		for (PlanGraphLiteral literal: literals ){
 			nodes.get(currentLevel).addLiterals(literal);
 		}
+		extendedNodes++;
+		visitedNodes++;
 	}
 	
 	/**
