@@ -1,12 +1,14 @@
 package edu.uno.ai.planning;
 
+import hsp2.HeuristicSearchPlanner;
+
 public class TestSuite {
 
 	public static final int NODE_LIMIT = 10000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-			new HSPSearch();
+			new HeuristicSearchPlanner()
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
