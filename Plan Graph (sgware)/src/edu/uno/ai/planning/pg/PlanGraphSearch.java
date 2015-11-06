@@ -1,23 +1,24 @@
-package edu.uno.ai.planning.gp;
+package edu.uno.ai.planning.pg;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
-import edu.uno.ai.planning.pg.PlanGraph;
 
-public class GraphPlanSearch extends Search {
+public class PlanGraphSearch extends Search {
 
+	private final PlanGraphPlanner planner;
 	private final PlanGraph graph;
-	private DepthFirstSearch search = null;
+	private Search search = null;
 	private int limit = Planner.NO_NODE_LIMIT;
 	private int visited = 0;
 	private int expanded = 0;
 	
-	public GraphPlanSearch(Problem problem) {
+	public PlanGraphSearch(PlanGraphPlanner planner, Problem problem) {
 		super(problem);
-		graph = new PlanGraph(problem, true);
-		graph.initialize(problem.initial);
+		this.planner = planner;
+		this.graph = new PlanGraph(problem, true);
+		this.graph.initialize(problem.initial);
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class GraphPlanSearch extends Search {
 			graph.extend();
 		while(true) {
 			if(search == null) {
-				search = new DepthFirstSearch(graph);
+				search = planner.makeSearch(graph);
 				if(limit != Planner.NO_NODE_LIMIT)
 					search.setNodeLimit(limit);
 			}

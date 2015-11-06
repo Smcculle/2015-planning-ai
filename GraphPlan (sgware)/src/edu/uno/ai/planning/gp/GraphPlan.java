@@ -1,16 +1,17 @@
 package edu.uno.ai.planning.gp;
 
-import edu.uno.ai.planning.Planner;
-import edu.uno.ai.planning.Problem;
+import edu.uno.ai.planning.Search;
+import edu.uno.ai.planning.pg.PlanGraph;
+import edu.uno.ai.planning.pg.PlanGraphPlanner;
 
-public class GraphPlan extends Planner<GraphPlanSearch> {
+public class GraphPlan extends PlanGraphPlanner {
 
 	public GraphPlan() {
 		super("SGP");
 	}
 
 	@Override
-	protected GraphPlanSearch makeSearch(Problem problem) {
-		return new GraphPlanSearch(problem);
+	protected Search makeSearch(PlanGraph graph) {
+		return new DepthFirstSearch(graph);
 	}
 }

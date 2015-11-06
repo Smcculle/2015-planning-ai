@@ -1,7 +1,5 @@
 package edu.uno.ai.planning.pg;
 
-import edu.uno.ai.planning.logic.Literal;
-
 public class Level {
 
 	public final int number;
