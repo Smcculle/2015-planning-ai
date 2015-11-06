@@ -5,7 +5,7 @@ import edu.uno.ai.planning.graphplan.Graphplan;
 
 public class TestSuite {
 
-	public static final int NODE_LIMIT = 1000000;
+	public static final int NODE_LIMIT = 2000000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{

@@ -26,12 +26,14 @@ public class GraphPlanTest2 {
 			Problem cakeProblem = createCakeProblem();
 			Problem rocketProblem = createEasyCargoProblem();
 			Problem doNothing = doNothing();
+			Problem suss = sussman();
 			GraphPlanSearch c = new GraphPlanSearch(cakeProblem);
 			GraphPlanSearch r = new GraphPlanSearch(rocketProblem);
 			GraphPlanSearch d = new GraphPlanSearch(doNothing);
+			GraphPlanSearch susser = new GraphPlanSearch(suss);
 		
-			TotalOrderPlan solution = (TotalOrderPlan) d.search();
-			System.out.println(doNothing.isSolution(solution));
+			TotalOrderPlan solution = (TotalOrderPlan) susser.search();
+			System.out.println(suss.isSolution(solution));
 			
 			
 			
@@ -60,6 +62,14 @@ public class GraphPlanTest2 {
 	private Problem doNothing() {
 		try {
 			return new Benchmark("blocks", "do_nothing").getProblem();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	private Problem sussman() {
+		try {
+			return new Benchmark("blocks", "sussman").getProblem();
 		} catch (IOException e) {
 			return null;
 		}

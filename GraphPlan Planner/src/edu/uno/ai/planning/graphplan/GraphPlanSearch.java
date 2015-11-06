@@ -42,7 +42,7 @@ public class GraphPlanSearch extends Search{
 	
 	private boolean finished = false;
 	
-	int limit = 100000000;
+	int limit =  10000000;
 	
 	//Used to determine if we are creating the highest level node. 
 	boolean firstCall = true;
@@ -83,7 +83,7 @@ public class GraphPlanSearch extends Search{
 	
 	public Plan search(){
 		TotalOrderPlan solution = new TotalOrderPlan();
-		
+//		System.out.println(pg);
 		if (firstCall == true)
 		{
 			noSteps = checkGoalInInitial();
@@ -255,6 +255,23 @@ public class GraphPlanSearch extends Search{
 //	
 //		while (true){
 //			
+////			if (allPermutationsSteps.get(currentLevel).size() <= positionInStepLists.get(currentLevel)){
+////				currentLevel++;
+////					if (currentLevel >  currentMaxLevel){
+////						currentLevel = currentMaxLevel;
+////						pg.extend();
+////						currentMaxLevel = pg.countLevels() - 1;
+////						counter.clear();
+////						for (int i = 0; i <= currentMaxLevel; i++){
+////							counter.add(0);
+////						}
+////						createGoalNode();	
+////						return;
+////					}
+////					recalculateLevel();	
+////					return;
+////			}	
+//			
 //		testMutexList = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 //		for (PlanGraphStep step: testMutexList){
 //			for (int i = 0; i < testMutexList.size(); i++){
@@ -325,17 +342,33 @@ public class GraphPlanSearch extends Search{
 		counter.set(currentLevel, globalStepCount);
 		positionInStepLists.put(currentLevel,counter.get(currentLevel));
 		
+		
 //		Boolean mutexFlag = false;
 //		PlanGraphLevel level = pg.getLevel(currentLevel);
 //		ArrayList<PlanGraphStep> testMutexList = new ArrayList<PlanGraphStep>();
-//	
-//	
 //		while (true){
-//			
+//			if (allPermutationsSteps.get(currentLevel).size() <= positionInStepLists.get(currentLevel)){
+//				currentLevel++;
+//					if (currentLevel >  currentMaxLevel){
+//						currentLevel = currentMaxLevel;
+//						pg.extend();
+//						currentMaxLevel = pg.countLevels() - 1;
+//						counter.clear();
+//						for (int i = 0; i <= currentMaxLevel; i++){
+//							counter.add(0);
+//						}
+//						createGoalNode();	
+//						return;
+//					}
+//					recalculateLevel();	
+//					return;
+//			}
+//	
 //		testMutexList = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 //		for (PlanGraphStep step: testMutexList){
 //			for (int i = 0; i < testMutexList.size(); i++){
 //				if (((PlanGraphLevelMutex)level).isMutex(step, testMutexList.get(i))){
+////					System.out.println(pg);
 ////					System.out.println(testMutexList + "hey");
 //					mutexFlag = true;
 //					break;
@@ -346,6 +379,8 @@ public class GraphPlanSearch extends Search{
 //			}
 //			steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
 //			defineNode(steps, goalList, currentLevel);
+////			System.out.println(steps);
+//			
 //			return;
 //
 //		}
@@ -354,7 +389,6 @@ public class GraphPlanSearch extends Search{
 //		counter.set(currentLevel, mutexCount);
 //		positionInStepLists.put(currentLevel,counter.get(currentLevel));
 //		}
-		
 		
 		
 		
@@ -413,56 +447,58 @@ public class GraphPlanSearch extends Search{
 		
 		ArrayList<PlanGraphStep> steps = new ArrayList<PlanGraphStep>();
 		
-//		Boolean mutexFlag = false;
-//		PlanGraphLevel level = pg.getLevel(currentLevel);
-//		ArrayList<PlanGraphStep> testMutexList = new ArrayList<PlanGraphStep>();
-//		while (true){
-//			if (allPermutationsSteps.get(currentLevel).size() <= positionInStepLists.get(currentLevel)){
-//				currentLevel++;
-//					if (currentLevel >  currentMaxLevel){
-//						currentLevel = currentMaxLevel;
-//						pg.extend();
-//						currentMaxLevel = pg.countLevels() - 1;
-//						counter.clear();
-//						for (int i = 0; i <= currentMaxLevel; i++){
-//							counter.add(0);
-//						}
-//						createGoalNode();	
-//						return;
-//					}
-//					recalculateLevel();	
-//					return;
-//			}
-//	
-//		testMutexList = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
-//		for (PlanGraphStep step: testMutexList){
-//			for (int i = 0; i < testMutexList.size(); i++){
-//				if (((PlanGraphLevelMutex)level).isMutex(step, testMutexList.get(i))){
-////					System.out.println(pg);
-////					System.out.println(testMutexList + "hey");
-//					mutexFlag = true;
-//					break;
-//				} 	
-//			}
-//			if (mutexFlag){
-//				break;
-//			}
-//			steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
-//			defineNode(steps, goalList, currentLevel);
-////			System.out.println(steps);
-//			
-//			return;
-//
-//		}
-//		int mutexCount = counter.get(currentLevel);
-//		mutexCount++;
-//		counter.set(currentLevel, mutexCount);
-//		positionInStepLists.put(currentLevel,counter.get(currentLevel));
-//		}
+		
+		PlanGraphLevel level = pg.getLevel(currentLevel);
+		ArrayList<PlanGraphStep> testMutexList = new ArrayList<PlanGraphStep>();
+		while (true){
+			Boolean mutexFlag = false;
+			if (allPermutationsSteps.get(currentLevel).size() <= positionInStepLists.get(currentLevel)){
+				currentLevel++;
+					if (currentLevel >  currentMaxLevel){
+						currentLevel = currentMaxLevel;
+						pg.extend();
+						currentMaxLevel = pg.countLevels() - 1;
+						counter.clear();
+						for (int i = 0; i <= currentMaxLevel; i++){
+							counter.add(0);
+						}
+						createGoalNode();	
+						return;
+					}
+					recalculateLevel();	
+					return;
+			}
+	
+		testMutexList = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
+		for (PlanGraphStep step: testMutexList){
+			for (int i = 0; i < testMutexList.size(); i++){
+				if (((PlanGraphLevelMutex)level).isMutex(step, testMutexList.get(i))){
+//					System.out.println(pg);
+//					System.out.println(testMutexList + "hey");
+					mutexFlag = true;
+					break;
+				} 	
+			}
+			if (mutexFlag){
+				break;
+			}
+			steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
+			defineNode(steps, goalList, currentLevel);
+//			System.out.println(steps);
+			
+			return;
+
+		}
+		int mutexCount = counter.get(currentLevel);
+		mutexCount++;
+		counter.set(currentLevel, mutexCount);
+		positionInStepLists.put(currentLevel,counter.get(currentLevel));
+		}
 		
 		
-		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
-		defineNodeSteps(steps);
+	
+//		steps = allPermutationsSteps.get(currentLevel).get(positionInStepLists.get(currentLevel));
+//		defineNodeSteps(steps);
 	}
 		
 	/**Compares a list of preconditions to a list of literals, to see if the preconditions contain the literals.
@@ -511,10 +547,7 @@ public class GraphPlanSearch extends Search{
 			return false;
 		}
 		
-	
-		
-		return true;
-		
+		return true;	
 	}
 
 	/** Possible function to check if there is a solution before any searching is done. */
@@ -535,6 +568,7 @@ public class GraphPlanSearch extends Search{
 	 */
 	public void defineNode(ArrayList<PlanGraphStep> steps, ArrayList<PlanGraphLiteral> literals, int level){
 		GraphPlanNode node = new GraphPlanNode();
+		
 		for (PlanGraphStep step: steps ){
 			node.addSteps(step);
 		}
@@ -613,6 +647,31 @@ public class GraphPlanSearch extends Search{
 	public Plan findNextSolution() {
 		return search();
 	}
+	
+
+	/**
+	 * Helper functions used in testing.
+	 */
+	protected boolean isFinished(){
+		return finished;
+	}
+
+	protected ArrayList<PlanGraphLiteral> getGoalLiterals(){
+		ArrayList<PlanGraphLiteral> res = new ArrayList<PlanGraphLiteral>(); 
+		for (Literal l : expressionToLiterals(problem.goal)){
+			res.add(new PlanGraphLiteral(l));
+		}
+		return res;
+	}
+
+	protected boolean getNoSteps(){
+		return noSteps;
+	}
+	
+	protected int getNodesSetSize(){
+		return nodes.size();
+	}
+	
 	
 
 }
