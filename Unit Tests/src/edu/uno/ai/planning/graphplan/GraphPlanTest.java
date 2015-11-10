@@ -17,7 +17,6 @@ import org.junit.Test;
 import edu.uno.ai.planning.Benchmark;
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Result;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 

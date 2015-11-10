@@ -4,7 +4,7 @@ import edu.uno.ai.planning.Planner;
 
 public class TestSuite {
 
-	public static final int NODE_LIMIT = 2000000;
+	public static final int NODE_LIMIT = 10000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
@@ -12,6 +12,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
+		new edu.uno.ai.planning.gp.GraphPlan(),
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{

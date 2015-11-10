@@ -5,8 +5,13 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Breadth First Search Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
+	<classpathentry kind="lib" path="lib/java-hamcrest-2.0.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/jgrapht-core-0.9.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Benchmarks"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
