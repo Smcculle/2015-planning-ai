@@ -1,7 +1,6 @@
 package edu.uno.ai.planning;
 
 import edu.uno.ai.planning.Planner;
-import edu.uno.ai.planning.graphplan.Graphplan;
 
 public class TestSuite {
 
@@ -12,7 +11,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
-		new Graphplan()
+		new edu.uno.ai.planning.graphplan.Graphplan(),
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
