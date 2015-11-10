@@ -20,6 +20,7 @@ public class TestSuite {
 		new Benchmark("blocks", "easy_stack"),
 		new Benchmark("blocks", "easy_unstack"),
 		new Benchmark("blocks", "sussman"),
+		new Benchmark("cake", "have_eat_cake"),
 		new Benchmark("blocks", "reverse_2"),
 		new Benchmark("blocks", "reverse_4"),
 		new Benchmark("blocks", "reverse_6"),

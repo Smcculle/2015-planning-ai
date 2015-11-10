@@ -243,8 +243,6 @@ public class GraphPlanSearch extends Search{
 	
 	public void createNewNode(){
 		createMasterLiteralListByLevel(currentLevel);
-		ArrayList<PlanGraphLiteral> literals = new ArrayList<PlanGraphLiteral>();
-		Set<Set<PlanGraphLiteral>> setOfLiterals;
 		Set<PlanGraphLiteral> temp = new LinkedHashSet<PlanGraphLiteral>();
 		temp.addAll(literalListsByLevel.get(currentLevel));
 		if (currentLevel == 0){

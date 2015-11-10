@@ -45,6 +45,19 @@ public class SubgraphNode {
 		return list;
 	}
 	
+	@Override
+	public String toString() {
+		String str;
+		if(parent == null)
+			str = "Subgraph:";
+		else
+			str = parent.toString();
+		str += "\n  Level " + level + " goals:";
+		for(LiteralNode literal : goals)
+			str += " " + literal.literal;
+		return str;
+	}
+	
 	public SubgraphRoot getRoot() {
 		SubgraphNode node = this;
 		while(node.parent != null)

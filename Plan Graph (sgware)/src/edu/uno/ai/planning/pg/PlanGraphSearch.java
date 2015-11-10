@@ -49,16 +49,14 @@ public class PlanGraphSearch extends Search {
 		while(true) {
 			if(search == null) {
 				search = planner.makeSearch(graph);
-				if(limit != Planner.NO_NODE_LIMIT)
-					search.setNodeLimit(limit);
+				search.setNodeLimit(limit);
 			}
-			if(limit == 0)
-				return null;
 			Plan plan = search.findNextSolution();
 			if(plan == null) {
 				visited += search.countVisited();
 				expanded += search.countExpanded();
-				limit -= search.countVisited();
+				if(limit != Planner.NO_NODE_LIMIT)
+					limit -= search.countVisited();
 				search = null;
 				graph.extend();
 			}

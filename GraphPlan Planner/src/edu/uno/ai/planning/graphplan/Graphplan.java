@@ -8,7 +8,7 @@ public class Graphplan extends Planner<GraphPlanSearch>{
 
 
 	public Graphplan() {
-			super("GraphPlan");
+			super("GP");
 	}
 	
 	@Override
