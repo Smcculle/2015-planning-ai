@@ -1,14 +1,18 @@
 package edu.uno.ai.planning;
 
+import edu.uno.ai.planning.bfs.BFSPlanner;
+import hsp2.BFSPlanner2;
 import hsp2.HeuristicSearchPlanner;
 
 public class TestSuite {
 
-	public static final int NODE_LIMIT = 10000;
+	public static final int NODE_LIMIT = 20000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-			new HeuristicSearchPlanner()
+//			new HeuristicSearchPlanner()
+//			new BFSPlanner(),
+			new BFSPlanner2()
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
@@ -18,10 +22,10 @@ public class TestSuite {
 		new Benchmark("blocks", "sussman"),
 		new Benchmark("blocks", "reverse_2"),
 		new Benchmark("blocks", "reverse_4"),
-//		new Benchmark("blocks", "reverse_6"),
-//		new Benchmark("blocks", "reverse_8"),
-//		new Benchmark("blocks", "reverse_10"),
-//		new Benchmark("blocks", "reverse_12"),
+		new Benchmark("blocks", "reverse_6"),
+		new Benchmark("blocks", "reverse_8"),
+		new Benchmark("blocks", "reverse_10"),
+		new Benchmark("blocks", "reverse_12"),
 		new Benchmark("cargo", "deliver_1"),
 		new Benchmark("cargo", "deliver_2"),
 		new Benchmark("cargo", "deliver_3"),
