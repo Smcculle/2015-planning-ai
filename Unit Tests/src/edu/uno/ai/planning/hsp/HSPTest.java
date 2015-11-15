@@ -13,8 +13,7 @@ import edu.uno.ai.planning.Benchmark;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.Step;
-import hsp2.BestFirstSearch2;
-import hsp2.HSPSearch;
+import hsp2.HeuristicSearch;
 import hsp2.StateSpaceNode;
 import hsp2.StateSpacePlanner;
 import hsp2.StateSpaceProblem;
@@ -24,45 +23,9 @@ import hsp2.TotalOrderPlan;
 public class HSPTest {
 
 //	@Test
-//	public void testInit() throws FileNotFoundException{
-//		Problem rocket = createEasyCargoProblem();
-//		Problem easyStack = createEasyStack();
-//		StateSpaceProblem ss = new StateSpaceProblem(rocket);
-//		StateSpaceProblem es = new StateSpaceProblem(easyStack);
-//		HSPSearch s = new HSPSearch(ss);
-//		HSPSearch x = new HSPSearch(es);
-//		assertEquals(s.getOpenList().get(0),s.getOpenList().get(0));
-//		assertEquals(x.getOpenList().get(0),x.getOpenList().get(0));
-//		s.getOpenList().get(0).expand();
-//		x.getOpenList().get(0).expand();
-//		for (StateSpaceNode child: s.getOpenList().get(0).children){
-//			s.getOpenList().add(child);
-//		}
-//		for (StateSpaceNode child: x.getOpenList().get(0).children){
-//			x.getOpenList().add(child);
-//		}
-//		assertNotEquals(s.getOpenList().get(0),s.getOpenList().get(1));
-//		assertNotEquals(x.getOpenList().get(0),x.getOpenList().get(1));
-//		assertEquals(s.getOpenList().get(7),s.getOpenList().get(11));
-//		s.getOpenList().get(7).expand();
-//		s.getOpenList().get(11).expand();
-//		
-//		assertEquals(s.getOpenList().size(),13);
-//		for (StateSpaceNode child: s.getOpenList().get(11).children){
-//			s.getOpenList().add(child);
-//		}
-//		assertNotEquals(s.getOpenList().size(),13);
-//		s.getOpenList().get(16).expand();
-//		assertEquals(s.getOpenList().get(7),s.getOpenList().get(11));
-//		assertEquals(s.getOpenList().get(7).plan.size(),s.getOpenList().get(11).plan.size());
-////		TotalOrderPlan sol = (TotalOrderPlan) s.search();
-////		Iterator<Step> iter = sol.iterator();
-////		System.out.println(rocket.isSolution(sol));
-////		
-////		while (iter.hasNext()){
-////			System.out.println(iter.next());
-////		}
-//	}
+	public void testInit() throws FileNotFoundException{
+		
+	}
 	
 	@Test
 	public void testInit2() throws FileNotFoundException{
@@ -70,9 +33,23 @@ public class HSPTest {
 		Problem easyStack = createEasyStack();
 		StateSpaceProblem ss = new StateSpaceProblem(rocket);
 		StateSpaceProblem es = new StateSpaceProblem(easyStack);
+		HeuristicSearch x = new HeuristicSearch(ss);
+		HeuristicSearch y = new HeuristicSearch(es);
+		StateSpaceNode node2 = y.getRoot();
+		StateSpaceNode node = x.getRoot();
+		assertEquals(node.plan.size(),0);
+		assertEquals(node2.plan.size(),0);
+		assertEquals(x.calculateHeuristic(node.state),1);
+		node.expand();
+		StateSpaceNode childnode = null;
+		for (StateSpaceNode child: node.children){
+			assertEquals(child.plan.size(),1);
+			childnode = child;
+		}
+		assertEquals(childnode.state.toString(), "(and (at plane_atl msy) (at cargo_msy atl))");
+		assertEquals(x.problem.goal.toString(),"(and (at cargo_msy msy) (at plane_atl atl))");
+		assertEquals(x.calculateHeuristic(childnode.state),2);
 		
-		BestFirstSearch2 x = new BestFirstSearch2(ss);
-
 		
 		TotalOrderPlan sol = (TotalOrderPlan) x.findNextSolution();
 		Iterator<Step> iter = sol.iterator();

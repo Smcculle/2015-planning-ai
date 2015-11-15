@@ -1,8 +1,10 @@
 package edu.uno.ai.planning;
 
+import edu.uno.ai.planning.Benchmark;
+import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.bfs.BFSPlanner;
-import hsp2.BFSPlanner2;
-import hsp2.HeuristicSearchPlanner;
+import hsp2.HSPlanner;
+
 
 public class TestSuite {
 
@@ -10,9 +12,8 @@ public class TestSuite {
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-//			new HeuristicSearchPlanner()
 //			new BFSPlanner(),
-			new BFSPlanner2()
+			new HSPlanner()
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
