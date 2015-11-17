@@ -30,17 +30,12 @@ public class HSPTest {
 	@Test
 	public void testInit2() throws FileNotFoundException{
 		Problem rocket = createEasyCargoProblem();
-		Problem easyStack = createEasyStack();
 		StateSpaceProblem ss = new StateSpaceProblem(rocket);
-		StateSpaceProblem es = new StateSpaceProblem(easyStack);
 		HeuristicSearch x = new HeuristicSearch(ss);
-		HeuristicSearch y = new HeuristicSearch(es);
-		StateSpaceNode node2 = y.getRoot();
 		StateSpaceNode node = x.getRoot();
 		assertEquals(node.plan.size(),0);
-		assertEquals(node2.plan.size(),0);
-		assertEquals(x.calculateHeuristic(node.state),1);
 		node.expand();
+		assertEquals(x.countExpanded(),12);
 		StateSpaceNode childnode = null;
 		for (StateSpaceNode child: node.children){
 			assertEquals(child.plan.size(),1);
@@ -53,8 +48,6 @@ public class HSPTest {
 		
 		TotalOrderPlan sol = (TotalOrderPlan) x.findNextSolution();
 		Iterator<Step> iter = sol.iterator();
-	
-		
 		while (iter.hasNext()){
 			System.out.println(iter.next());
 		}
