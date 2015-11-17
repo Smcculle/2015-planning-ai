@@ -44,6 +44,12 @@ public class HashBindings implements Bindings {
 	 * otherwise returns a new instance with added bindings
 	 */
 	public Bindings setEqual(Term t1, Term t2) {
+		if(t1.type != t2.type){
+			return null;
+		}
+		if (t1.equals(t2)) {
+			return this;
+		}
 		if (t1 instanceof Constant && t2 instanceof Constant){
 			return EquateConstants((Constant)t1, (Constant)t2);
 			

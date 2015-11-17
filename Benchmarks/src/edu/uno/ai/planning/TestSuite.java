@@ -1,9 +1,7 @@
 package edu.uno.ai.planning;
 
-import edu.uno.ai.planning.Benchmark;
+
 import edu.uno.ai.planning.Planner;
-import edu.uno.ai.planning.bfs.BFSPlanner;
-import hsp2.HSPlanner;
 
 
 public class TestSuite {
@@ -12,15 +10,20 @@ public class TestSuite {
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-//			new BFSPlanner(),
-			new HSPlanner()
+		new hsp2.HSPlanner(),
+		new edu.uno.ai.planning.bfs.BFSPlanner(),
+		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.graphplan.Graphplan(),
+		new edu.uno.ai.planning.gp.GraphPlan(),
 	};
-
+	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
 		new Benchmark("blocks", "do_nothing"),
 		new Benchmark("blocks", "easy_stack"),
 		new Benchmark("blocks", "easy_unstack"),
 		new Benchmark("blocks", "sussman"),
+		new Benchmark("cake", "have_eat_cake"),
 		new Benchmark("blocks", "reverse_2"),
 		new Benchmark("blocks", "reverse_4"),
 		new Benchmark("blocks", "reverse_6"),
