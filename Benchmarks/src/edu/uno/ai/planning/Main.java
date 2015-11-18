@@ -18,8 +18,9 @@ public class Main {
 		Table<Problem, Planner<?>, Result> results = new Table<>();
 		for(Planner<?> planner : TestSuite.PLANNERS)
 			results.addColumn(planner);
-		for(Benchmark benchmark : TestSuite.BENCHMARKS) {
-			Problem problem = benchmark.getProblem();
+		//for(Benchmark benchmark : TestSuite.BENCHMARKS) {
+		for (int counterrrr = 0; counterrrr <= 0; counterrrr++){
+			Problem problem = TestSuite.BENCHMARKS[3].getProblem();
 			results.addRow(problem);
 			for(Planner<?> planner : TestSuite.PLANNERS) {
 				Result result = planner.findSolutuion(problem, TestSuite.NODE_LIMIT, TestSuite.TIME_LIMIT);

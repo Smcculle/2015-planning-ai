@@ -90,7 +90,13 @@ public class CNFEncoding {
 			int timeMax){
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();
+		steps = removeUnsatisfiableSteps(steps);
 		
+		for (Step step: steps){
+			System.out.println(step);
+		}
+		
+		//int tt = 1/0;
 		//Add the initial state
 		result.addAll(conjunctionFromExpression(initial, 0));		
 		
@@ -102,7 +108,7 @@ public class CNFEncoding {
 			atleastOneActionHappensAtEachStep = new ArrayList<BooleanVariable>();
 			for (Step step: steps){
 				atleastOneActionHappensAtEachStep.add(
-						new BooleanVariable(step.toString() + " - " + counter, null, Boolean.FALSE));
+					new BooleanVariable(step.toString() + " - " + counter, null, Boolean.FALSE));
 				result.addAll(stepToConjunction(step, counter));
 			}
 			
@@ -361,5 +367,58 @@ public class CNFEncoding {
 			result = new BooleanVariable(argument.toString() + " - " + time, null, Boolean.TRUE);								
 		}
 		return result;
+	}
+	
+	/**
+	 * Returns if the step has the satisfiable effects. For example a step
+	 * like move(table, table, table) has not table and table as an effect
+	 * which is not satisfiable and hence the step doesn't make sense.
+	 * @param step
+	 * @return the boolean whether the effects of this step are satisfiable
+	 */	
+	Boolean hasSatisfiableEffects(Step step){	
+		System.out.println("step is " + step);
+		System.out.println("effect is " + step.effect);
+		ArrayList<ArrayList<BooleanVariable>> effectsConjunction = new ArrayList<ArrayList<BooleanVariable>>();
+		
+		for (Expression argument : ((Conjunction) step.effect).arguments)
+		{	
+			ArrayList<BooleanVariable> onlyOneDisjunction = 
+					new ArrayList<BooleanVariable>();
+			
+			onlyOneDisjunction.add(
+					argumentToBooleanVariable(argument, 1));
+			
+			effectsConjunction.add(onlyOneDisjunction);
+		}
+		
+		ArrayList<BooleanVariable> mainList = new ArrayList<BooleanVariable>();
+		
+		SATProblem problemo = new SATProblem(effectsConjunction, mainList);
+		
+		ArrayList<BooleanVariable> solution = SATSolver.getModel(problemo, mainList);
+		
+		for(BooleanVariable BV : solution){
+			if(BV.value == Boolean.TRUE){
+				System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
+			}
+		}	
+		
+		
+		System.out.println("solution is " + solution.size());
+		Boolean result = solution == null ? false: true;
+		System.out.println("It is " + result);
+		
+		//int ll = 1/0;
+		return result;
+	}
+	
+	ImmutableArray<Step> removeUnsatisfiableSteps(ImmutableArray<Step> steps){
+		ArrayList<Step> result = new ArrayList<Step>();
+		for (Step step: steps){
+			if (hasSatisfiableEffects(step))
+				result.add(step);
+		}		
+		return (new ImmutableArray<Step>(result, Step.class));
 	}
 }

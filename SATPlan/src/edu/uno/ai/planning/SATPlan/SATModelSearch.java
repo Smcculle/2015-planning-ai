@@ -84,7 +84,7 @@ public class SATModelSearch extends Search {
 					if(BV.value == Boolean.TRUE){
 						if (!BooleanVariable.containsEqualBooleanVariable(result, BV)){
 							result.add(BV);
-							System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
+							//System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
 						}
 					}
 				}			

@@ -40,7 +40,7 @@ public class BooleanVariable {
 	 * @return TRUE if names and negation values are equal, FALSE otherwise
 	 */
 	public static Boolean booleanVariablesEqual(BooleanVariable BV1, BooleanVariable BV2){
-		if(BV1.name == BV2.name && BV1.negation == BV2.negation)
+		if(BV1.name.equals(BV2.name) && BV1.negation == BV2.negation)
 			return Boolean.TRUE;
 		return Boolean.FALSE;
 	}
@@ -53,7 +53,7 @@ public class BooleanVariable {
 	 * @return TRUE if names are equal and negations are not equal, FALSE otherwise
 	 */
 	public static Boolean booleanVariablesOpposites(BooleanVariable BV1, BooleanVariable BV2){
-		if(BV1.name == BV2.name && BV1.negation != BV2.negation)
+		if(BV1.name.equals(BV2.name) && BV1.negation != BV2.negation)
 			return Boolean.TRUE;
 		return Boolean.FALSE;
 	}
@@ -101,7 +101,7 @@ public class BooleanVariable {
 		ListIterator<BooleanVariable> iterator;
 		iterator = BVarray.listIterator();
 		while(iterator.hasNext()){
-			if(BV.name == iterator.next().name){
+			if(BV.name.equals(iterator.next().name)){
 				iterator.remove();
 				break;
 			}
