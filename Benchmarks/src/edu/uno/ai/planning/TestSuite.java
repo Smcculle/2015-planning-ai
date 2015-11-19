@@ -1,7 +1,5 @@
 package edu.uno.ai.planning;
 
-import edu.uno.ai.planning.Planner;
-
 public class TestSuite {
 
 	public static final int NODE_LIMIT = 10000;
@@ -11,10 +9,10 @@ public class TestSuite {
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.graphplan.Graphplan(),
-		new edu.uno.ai.planning.gp.GraphPlan(),
+//		new edu.uno.ai.planning.graphplan.Graphplan(),
+//		new edu.uno.ai.planning.gp.GraphPlan(),
 	};
-	
+
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
 		new Benchmark("blocks", "do_nothing"),
 		new Benchmark("blocks", "easy_stack"),
