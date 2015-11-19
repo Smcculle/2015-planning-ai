@@ -1,13 +1,16 @@
 package edu.uno.ai.planning;
 
+
 import edu.uno.ai.planning.Planner;
+
 
 public class TestSuite {
 
-	public static final int NODE_LIMIT = 10000;
+	public static final int NODE_LIMIT = 20000;
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
+		new hsp2.HSPlanner(),
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
