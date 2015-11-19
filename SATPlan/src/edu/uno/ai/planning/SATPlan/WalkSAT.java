@@ -149,14 +149,25 @@ class Problem {
 
 	public Clause getUnsatisfiedClause() {
 		// Lazy evaluation... yay!
-		return clauses.stream()
-			.filter(clause -> !clause.satisfied())
-			.findAny().get();
+		try {
+			return clauses.stream()
+				.filter(clause -> !clause.satisfied())
+				.findAny().get();
+		} catch (NoSuchElementException e) {
+			throw new RuntimeException("No unsatisfied clause. This method should not be called");
+		}
 	}
 
+	/**
+	 * IMPORTANT: Assumes isSatisfied() to be called prior to this function
+	 * as the method is using cached results.
+	 * @param clause list of variable we're choosing from
+	 * @return variable that when flipped would cause least damage
+	 */
 	public Variable pickLeastDamagingVariable(Clause clause) {
 		// Get list of clauses that are currently satisfied (we're using the
 		// cached Clause#satisfied method to speed up the process)
+		// TODO: pick only those that contain current variables
 		List<Clause> satisfied = clauses.stream()
 			.filter(Clause::satisfied).collect(Collectors.toList());
 
@@ -199,6 +210,9 @@ class Clause {
 	}
 
 	public boolean isSatisfied() {
+		if (isEmpty()) {
+			return true;
+		}
 		this.satisfied = literals.stream().anyMatch(Literal::isSatisfied);
 		return this.satisfied;
 	}
@@ -220,6 +234,8 @@ class Clause {
 	public boolean isEmpty() {
 		return literals.size() == 0;
 	}
+
+	// Purification stuff...
 
 	public boolean isPure() {
 		return literals.size() == 1;
@@ -275,6 +291,8 @@ class Literal {
 		return (variable.isSatisfied() && !negated) || (!variable.isSatisfied() && negated);
 	}
 
+	// Purification stuff...
+
 	public boolean isFrozen() {
 		return variable.isFrozen();
 	}
@@ -312,6 +330,8 @@ class Variable {
 	public void pickRandomValue() {
 		setValue(WalkSAT.random.nextBoolean());
 	}
+
+	// Purification stuff...
 
 	public void freeze() {
 		frozen = true;
