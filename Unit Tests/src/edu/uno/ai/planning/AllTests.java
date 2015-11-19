@@ -9,7 +9,6 @@ import org.junit.runners.Suite;
 	edu.uno.ai.planning.logic.HashBindingsTest.class,
 	edu.uno.ai.planning.logic.ListBindingsTest.class,
 	edu.uno.ai.planning.logic.NormalFormsTest.class,
-	edu.uno.ai.planning.hsp.HSPTest.class,
 	edu.uno.ai.planning.pop.DirectedAcyclicGraphTest.class,
 	edu.uno.ai.planning.pop.POPGraphTest.class,
 	edu.uno.ai.planning.pop.FlawTest.class,
@@ -20,7 +19,6 @@ import org.junit.runners.Suite;
 	edu.uno.ai.planning.graphplan.PlanGraphStepTest.class,
 	edu.uno.ai.planning.graphplan.PlanGraphLiteralTest.class,
 	edu.uno.ai.planning.graphplan.GraphPlanTest.class,
-
 })
 public class AllTests {
 	/* nothing */}

@@ -8,8 +8,8 @@ bin/
 tmp/
 *.tmp
 *.bak
-*~.nib
 *.swp
+*~.nib
 local.properties
 .settings/
 .loadpath
