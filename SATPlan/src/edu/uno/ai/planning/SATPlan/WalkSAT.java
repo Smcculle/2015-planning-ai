@@ -71,13 +71,18 @@ public class WalkSAT implements ISATSolver {
 	}
 
 	protected Problem convertProblem(SATProblem problem) {
+		Map<String, Variable> lookupTable = new HashMap<>();
 		originalVariables = new LinkedList<>();
 		List<Clause> clauses = problem.conjunction.stream()
 			.map(clause -> {
 				List<Literal> literals = clause.stream()
 					.map(boolVar -> {
 						originalVariables.add(boolVar);
-						Variable var = new Variable(boolVar.name, boolVar.value);
+						Variable var = lookupTable.get(boolVar.name);
+						if (var == null) {
+							var = new Variable(boolVar.name);
+							lookupTable.put(boolVar.name, var);
+						}
 						return new Literal(var, boolVar.negation);
 					}).collect(Collectors.toList());
 				return new Clause(literals);
@@ -88,7 +93,9 @@ public class WalkSAT implements ISATSolver {
 	protected List<BooleanVariable> convertSolution(Set<Variable> solution) {
 		Map<String, Variable> lookupTable = new HashMap<>();
 		solution.forEach(variable -> lookupTable.put(variable.name, variable));
-		pures.forEach(variable -> lookupTable.put(variable.name, variable));
+		if (pures != null) {
+			pures.forEach(variable -> lookupTable.put(variable.name, variable));
+		}
 
 		for (BooleanVariable boolVar : originalVariables) {
 			Variable var = lookupTable.get(boolVar.name);
@@ -302,6 +309,10 @@ class Variable {
 	public final String name;
 	private boolean value;
 	private boolean frozen = false;
+
+	Variable(String name) {
+		this(name, false);
+	}
 
 	Variable(String name, boolean value) {
 		this.name = name;

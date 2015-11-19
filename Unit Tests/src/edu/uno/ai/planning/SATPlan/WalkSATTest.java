@@ -8,10 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
 
 public class WalkSATTest {
 	public static final boolean NEGATED = true;
@@ -22,21 +19,27 @@ public class WalkSATTest {
 	Variable vb;
 	Variable vc;
 	Variable vd;
+	BooleanVariable A;
+	BooleanVariable NotA;
+	BooleanVariable B;
+	BooleanVariable NotB;
 
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setUp() {
-		// Fix random seed so that we can verify the random functions
-		WalkSAT.random = new Random(0);
-
 		solver = new WalkSAT(0, 0, 0);
 
 		va = new Variable("a", false);
 		vb = new Variable("b", false);
 		vc = new Variable("c", false);
 		vd = new Variable("d", false);
+
+		A = new BooleanVariable("a", null, Boolean.FALSE);
+		NotA = new BooleanVariable("a", null, Boolean.TRUE);
+		B = new BooleanVariable("b", null, Boolean.FALSE);
+		NotB = new BooleanVariable("b", null, Boolean.TRUE);
 	}
 
 	@Test
@@ -54,14 +57,11 @@ public class WalkSATTest {
 		assertFalse(a.isSatisfied());
 		assertTrue(b.isSatisfied());
 
-		// We're using fixed random seed. The result has to be the same
-		// all the time.
+		// This merely verifies that the method can be called without failing
 		a.pickRandomValue();
-		assertTrue(a.isSatisfied());
+		assertThat(a.getValue(), anyOf(is(true), is(false)));
 		a.pickRandomValue();
-		assertTrue(a.isSatisfied());
-		a.pickRandomValue();
-		assertFalse(a.isSatisfied());
+		assertThat(a.getValue(), anyOf(is(true), is(false)));
 
 		a.setValue(true);
 		assertTrue(a.isSatisfied());
@@ -104,10 +104,9 @@ public class WalkSATTest {
 		assertTrue(clause.variables.contains(vb));
 
 		// Test picking random variable
-		// Once again we're using fixed random seed
-		assertThat(clause.pickRandomVariable(), is(vb));
-		assertThat(clause.pickRandomVariable(), is(vb));
-		assertThat(clause.pickRandomVariable(), is(va));
+		assertThat(clause.pickRandomVariable(), anyOf(is(va), is(vb)));
+		assertThat(clause.pickRandomVariable(), anyOf(is(va), is(vb)));
+		assertThat(clause.pickRandomVariable(), anyOf(is(va), is(vb)));
 
 		assertFalse(clause.isEmpty());
 		assertTrue((new Clause(new LinkedList<>())).isEmpty());
@@ -277,5 +276,157 @@ public class WalkSATTest {
 		assertFalse(vb.getValue());
 		assertTrue(va.isFrozen());
 		assertTrue(vb.isFrozen());
+	}
+
+	@Test
+	public void testConvertProblem() {
+		BooleanVariable NotC = new BooleanVariable("c", null, Boolean.TRUE);
+		BooleanVariable NotD = new BooleanVariable("d", null, Boolean.TRUE);
+		BooleanVariable NotE = new BooleanVariable("e", null, Boolean.TRUE);
+
+		ArrayList<BooleanVariable> AvB = new ArrayList<>(Arrays.asList(A, B));
+		ArrayList<BooleanVariable> NotAvNotB = new ArrayList<>(Arrays.asList(NotA, NotB));
+		ArrayList<BooleanVariable> NotAvNotC = new ArrayList<>(Arrays.asList(NotA, NotC));
+		ArrayList<BooleanVariable> NotAvNotD = new ArrayList<>(Arrays.asList(NotA, NotD));
+		ArrayList<BooleanVariable> NotAvNotE = new ArrayList<>(Arrays.asList(NotA, NotE));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(AvB);
+		conjunction.add(NotAvNotB);
+		conjunction.add(NotAvNotC);
+		conjunction.add(NotAvNotD);
+		conjunction.add(NotAvNotE);
+
+		Problem problem = solver.convertProblem(new SATProblem(conjunction, new ArrayList<>()));
+
+		// As the whole structure is immutable and the equals is simply
+		// comparing references, we have to examine the result manually.
+
+		// All original variables should be remembered
+		assertTrue(solver.originalVariables.containsAll(Arrays.asList(NotA, NotB, NotC, NotD, NotE)));
+
+		// Make sure that all variables have been correctly initialized
+		Variable a = problem.variables.stream().filter(v -> v.name.equals("a")).findFirst().get();
+		Variable b = problem.variables.stream().filter(v -> v.name.equals("b")).findFirst().get();
+		Variable c = problem.variables.stream().filter(v -> v.name.equals("c")).findFirst().get();
+		Variable d = problem.variables.stream().filter(v -> v.name.equals("d")).findFirst().get();
+		Variable e = problem.variables.stream().filter(v -> v.name.equals("e")).findFirst().get();
+		assertTrue(problem.variables.containsAll(Arrays.asList(a, b, c, d, e)));
+
+		// Verify content of the 1st clause.
+		assertFalse(problem.clauses.get(0).literals.get(0).negated);
+		assertThat(problem.clauses.get(0).literals.get(0).variable, is(a));
+		assertFalse(problem.clauses.get(0).literals.get(1).negated);
+		assertThat(problem.clauses.get(0).literals.get(1).variable, is(b));
+
+		// Verify content of the 5th clause.
+		assertTrue(problem.clauses.get(4).literals.get(0).negated);
+		assertThat(problem.clauses.get(4).literals.get(0).variable, is(a));
+		assertTrue(problem.clauses.get(4).literals.get(1).negated);
+		assertThat(problem.clauses.get(4).literals.get(1).variable, is(e));
+	}
+
+	@Test
+	public void convertSolution() {
+		BooleanVariable NotC = new BooleanVariable("c", null, Boolean.TRUE);
+
+		Variable a = new Variable("a", false);
+		Variable b = new Variable("b", true);
+		Variable c = new Variable("c", true);		BooleanVariable A = new BooleanVariable("a", null, Boolean.FALSE);
+
+		solver.originalVariables = Arrays.asList(A, NotA, B, NotB, NotC);
+		solver.pures = new HashSet<>(Collections.singletonList(c));
+
+		// The solution is a union of the variables passed as parameter and also
+		// of the previously calculated pures.
+		List<BooleanVariable> solution = solver.convertSolution(new HashSet<>(Arrays.asList(a, b)));
+
+		assertTrue(solution.containsAll(Arrays.asList(A, NotA, B, NotB, NotC)));
+		assertFalse(A.value);
+		assertFalse(NotA.value);
+		assertTrue(B.value);
+		assertTrue(NotB.value);
+		assertTrue(B.value);
+		assertTrue(NotB.value);
+	}
+
+	@Test
+	public void getModelForSolvableProblem() {
+		// This should be basically possible to solve using purification
+		ArrayList<BooleanVariable> cA = new ArrayList<>(Collections.singletonList(A));
+		ArrayList<BooleanVariable> AvB = new ArrayList<>(Arrays.asList(A, B));
+		ArrayList<BooleanVariable> cNotB = new ArrayList<>(Collections.singletonList(NotB));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(cA);
+		conjunction.add(AvB);
+		conjunction.add(cNotB);
+
+		solver = new WalkSAT(10, 10, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+		assertTrue(solution != null);
+		assertTrue(solution.containsAll(Arrays.asList(A, B, NotB)));
+		assertTrue(A.value);
+		assertFalse(B.value);
+		assertFalse(NotB.value);
+	}
+
+	@Test
+	public void getModelForAnotherSolvableProblem() {
+		// Satisfiable problem that cannot be solved by purification
+		BooleanVariable C = new BooleanVariable("c", null, Boolean.FALSE);
+
+		ArrayList<BooleanVariable> AvNotB = new ArrayList<>(Arrays.asList(A, NotB));
+		ArrayList<BooleanVariable> BvC = new ArrayList<>(Arrays.asList(B, C));
+		ArrayList<BooleanVariable> NotANotB = new ArrayList<>(Arrays.asList(NotA, NotB));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(AvNotB);
+		conjunction.add(BvC);
+		conjunction.add(NotANotB);
+
+		solver = new WalkSAT(10, 10, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+		assertTrue(solution != null);
+		assertTrue(solution.containsAll(Arrays.asList(A, NotA, B, NotB, C)));
+		assertThat(A.value, anyOf(is(true), is(false)));
+		assertThat(NotA.value, anyOf(is(true), is(false)));
+		assertFalse(B.value);
+		assertFalse(NotB.value);
+		assertTrue(C.value);
+	}
+
+	@Test
+	public void getModelForUnsolvableProblem() {
+		ArrayList<BooleanVariable> cA = new ArrayList<>(Collections.singletonList(A));
+		ArrayList<BooleanVariable> cNotA = new ArrayList<>(Collections.singletonList(NotA));
+
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(cA);
+		conjunction.add(cNotA);
+
+		solver = new WalkSAT(0, 0, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+		assertTrue(solution == null);
+	}
+
+	@Test
+	public void getModelForAnotherUnsolvableProblem() {
+		// Unsatisfiable problem that cannot by solved by purification
+		ArrayList<BooleanVariable> AvB = new ArrayList<>(Arrays.asList(A, B));
+		ArrayList<BooleanVariable> AvNotB = new ArrayList<>(Arrays.asList(A, NotB));
+		ArrayList<BooleanVariable> NotAvB = new ArrayList<>(Arrays.asList(NotA, B));
+		ArrayList<BooleanVariable> NotAvNotB = new ArrayList<>(Arrays.asList(NotA, NotB));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(AvB);
+		conjunction.add(AvNotB);
+		conjunction.add(NotAvB);
+		conjunction.add(NotAvNotB);
+
+		solver = new WalkSAT(10, 10, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+		assertTrue(solution == null);
 	}
 }
