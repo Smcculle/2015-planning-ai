@@ -27,16 +27,31 @@ public class WalkSAT implements ISATSolver {
 	/** List of variables in the original SAT problem */
 	protected List<BooleanVariable> originalVariables;
 
+	/** Number of visited variables (i. e. when looking for which variable to flip */
 	protected int variableVisited;
+
+	/** Number of variables actually and permanently flipped */
 	protected int variableFlipped;
 
-
+	/**
+	 * Instantiate a new WalkSAT.
+	 * @param maxTries how many times we restart the algorithm before stopping
+	 * @param maxFlips how many flips of variables we allowe before restarting the algorithm
+	 * @param randomPickProbability probability determining how often we choose
+	 *                              to pick a random variable to flip instead of
+	 *                              finding the "least damaging" one.
+	 */
 	public WalkSAT(int maxTries, int maxFlips, double randomPickProbability) {
 		this.maxTries = maxTries;
 		this.maxFlips = maxFlips;
 		this.randomPickProbability = randomPickProbability;
 	}
 
+	/**
+	 * Find satisfying model for input SAT problem.
+	 * @param satProblem problem we want to solve (CNF formula)
+	 * @return solution or null if not found within the limit
+	 */
 	@Override
 	public List<BooleanVariable> getModel(final SATProblem satProblem) {
 		Problem problem = convertProblem(satProblem);
@@ -89,6 +104,12 @@ public class WalkSAT implements ISATSolver {
 		return variableFlipped;
 	}
 
+	/**
+	 * Convert the original SAT problem into our internal format that uses
+	 * immutable structures but mutable ("flipable") variables.
+	 * @param problem original SAT problem
+	 * @return identical problem converted into our format.
+	 */
 	protected Problem convertProblem(SATProblem problem) {
 		Map<String, Variable> lookupTable = new HashMap<>();
 		originalVariables = new LinkedList<>();
@@ -109,6 +130,12 @@ public class WalkSAT implements ISATSolver {
 		return new Problem(clauses);
 	}
 
+	/**
+	 * Convert solution in our internal format to the format expected by the
+	 * outer SAT solver.
+	 * @param solution found solution in our internal format
+	 * @return converted solution
+	 */
 	protected List<BooleanVariable> convertSolution(Set<Variable> solution) {
 		Map<String, Variable> lookupTable = new HashMap<>();
 		solution.forEach(variable -> lookupTable.put(variable.name, variable));
@@ -126,19 +153,42 @@ public class WalkSAT implements ISATSolver {
 		return originalVariables;
 	}
 
+	/**
+	 * Find and "freeze" pure variables in the problem. "Pure" means that there
+	 * is only variable inside a clause and therefore its value can be
+	 * immediately inferred.
+	 * @param problem the problem that we want to purify
+	 * @return new instance of a problem without pure variables or null if the
+	 * 	problem turns out to be unsatisfiable.
+	 */
 	protected Problem purify(Problem problem) {
 		List<Clause> clauses = problem.clauses;
 
+		// Keep removing pure variables as long as there are some to be
+		// removed (removing one variable from all clauses might cause
+		// another variable to become pure as well). This cycle ensures that
+		// when it's over, it is not possible to remove any more variables.
+
+		// Each cycle consists of two passes. In the first pass I find all
+		// pure variables and fix their values ("freeze" the variable). In
+		// the second pass, I remove all frozen variables and empty clauses.
 		while (clauses.stream().anyMatch(Clause::findPureAndFreeze)) {
+			// If a pure formula turned out unsatisfiable, stop the cycle and
+			// return null (the problem has no solution)
 			if (clauses.stream().filter(Clause::isUnsatisfiable).count() > 0) {
 				return null;
 			}
+
+			// Second pass: Remove pure variables (their values have been
+			// "frozen") and consequently all clauses that became empty.
 			clauses = clauses.stream()
 				.map(Clause::removeFrozen)
 				.filter(clause -> !clause.isEmpty())
 				.collect(Collectors.toList());
 		}
 
+		// Remember pure variables and their values so that we can add it later
+		// to the solution
 		pures = problem.variables.stream()
 			.filter(Variable::isFrozen)
 			.collect(Collectors.toSet());
@@ -150,6 +200,10 @@ public class WalkSAT implements ISATSolver {
 	}
 }
 
+/**
+ * Immutable instance of a problem. Contains list of clauses and maintains
+ * list of all contained variables for quick access.
+ */
 class Problem {
 	public final List<Clause> clauses;
 	public final Set<Variable> variables;
@@ -161,18 +215,40 @@ class Problem {
 			.collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns true if all clauses are satisfied with current truth assignment.
+	 * @return true if the problem is satisfied.
+	 */
 	public boolean isSatisfied() {
 		return clauses.stream().allMatch(Clause::isSatisfied);
 	}
 
+	/**
+	 * Generates random solution. Goes through all the variables and randomly
+	 * decides their value.
+	 */
 	public void randomSolution() {
 		variables.forEach(Variable::pickRandomValue);
 	}
 
+	/**
+	 * Return current solution. Basically just list of all variables in the
+	 * formula with their values assigned.
+	 * @return current solution
+	 */
 	public Set<Variable> getSolution() {
 		return variables;
 	}
 
+	/**
+	 * Returns any clause unsatisfied by the current solution.
+	 *
+	 * IMPORTANT: to improve speed this method uses cached results from the last
+	 * Clause#isSatisfied() call. Also if there is no unsatisfied clause,
+	 * RuntimeException is thrown, i. e. this method shouldn't be called on
+	 * satisfied problem.
+	 * @return unsatisfied clause
+	 */
 	public Clause getUnsatisfiedClause() {
 		// Lazy evaluation... yay!
 		try {
@@ -185,8 +261,12 @@ class Problem {
 	}
 
 	/**
+	 * Picks least damaging variable to flip from the clause according to
+	 * a simple heuristics. We pick that particular variable that when flipped
+	 * would cause least currently satisfied clauses to become unsatisfied.
+	 *
 	 * IMPORTANT: Assumes isSatisfied() to be called prior to this function
-	 * as the method is using cached results.
+	 * as the method is using cached results for speed up.
 	 * @param clause list of variable we're choosing from
 	 * @return variable that when flipped would cause least damage
 	 */
@@ -223,6 +303,10 @@ class Problem {
 	}
 }
 
+/**
+ * Immutable instance of a clause. Contains a list of literals and maintains a
+ * set of all variables for quick access.
+ */
 class Clause {
 	public final List<Literal> literals;
 	public final Set<Variable> variables;
@@ -235,6 +319,11 @@ class Clause {
 			.collect(Collectors.toSet());
 	}
 
+	/**
+	 * Return if at least one of the literals is satisfied. If the clause is
+	 * empty, returns also true.
+	 * @return true if the clause is satisfied
+	 */
 	public boolean isSatisfied() {
 		if (isEmpty()) {
 			return true;
@@ -243,10 +332,18 @@ class Clause {
 		return this.satisfied;
 	}
 
+	/**
+	 * Return cached result of the last isSatisfied() call.
+	 * @return true if the clause is satisfied
+	 */
 	public boolean satisfied() {
 		return this.satisfied;
 	}
 
+	/**
+	 * Pick randomly any variable from the clause.
+	 * @return a randomly picked variable
+	 */
 	public Variable pickRandomVariable() {
 		// Ugly O(n) way. Set should become something with random accet.
 		int index = WalkSAT.random.nextInt(variables.size());
@@ -257,20 +354,40 @@ class Clause {
 		return iter.next();
 	}
 
+	/**
+	 * Return if the clause is empty (zero literals)
+	 * @return true if the clause is empty.
+	 */
 	public boolean isEmpty() {
 		return literals.size() == 0;
 	}
 
-	// Purification stuff...
+	// ***************** Purification stuff *********************
 
+	/**
+	 * Return if the clause is pure, i. e. it contains only one literal.
+	 * @return true if the clause is pure
+	 */
 	public boolean isPure() {
 		return literals.size() == 1;
 	}
 
+	/**
+	 * Return true if the clause is unsatisfiable but only in the purification
+	 * context. It doesn't actually check whether the clause is satisfiable,
+	 * it returns false only if the clause is pure, unsatisfied and the variable
+	 * is frozen (cannot be flipped). Then it's clearly unsatisfiable.
+	 * @return true if the clause is unsatisfiable
+	 */
 	public boolean isUnsatisfiable() {
 		return isPure() && !isSatisfied() && literals.get(0).isFrozen();
 	}
 
+	/**
+	 * If the clause contains pure literal, try to flip it and freeze
+	 * the variable.
+	 * @return true if there was a pure literal in the clause.
+	 */
 	public boolean findPureAndFreeze() {
 		if (!isPure()) {
 			return false;
@@ -286,6 +403,13 @@ class Clause {
 		return true;
 	}
 
+	/**
+	 * Remove all frozen literals from the clause. If the frozen literal is
+	 * actually satisfied, it satisfies the clause and it is pointless to
+	 * reason about the rest. As the clause is immutable, we have to return a
+	 * new instance.
+	 * @return new instance of clause with removed frozen variables
+	 */
 	public Clause removeFrozen() {
 		// If any of the frozen literals is satisfied, the whole clause is
 		// satisfied and we can remove it.
@@ -300,6 +424,10 @@ class Clause {
 	}
 }
 
+/**
+ * Immutable instance of a literal. It can be negated or not. Contains single
+ * variable (it pretty much works as a variable container)
+ */
 class Literal {
 	public final Variable variable;
 	public final boolean negated;
@@ -313,17 +441,29 @@ class Literal {
 		this.negated = negated;
 	}
 
+	/**
+	 * Return if the literal is satisfied based on the current variable value
+	 * and the negation sign.
+	 * @return true if the literal is satisfied
+	 */
 	public boolean isSatisfied() {
 		return (variable.isSatisfied() && !negated) || (!variable.isSatisfied() && negated);
 	}
 
-	// Purification stuff...
+	// ***************** Purification stuff *********************
 
+	/**
+	 * Return if the literal is frozen, i. e. the contained variable is frozen.
+	 * @return true if the literal is frozen
+	 */
 	public boolean isFrozen() {
 		return variable.isFrozen();
 	}
 }
 
+/**
+ * Variable representation. Contains truth value that can be changed.
+ */
 class Variable {
 	public final String name;
 	private boolean value;
@@ -338,6 +478,10 @@ class Variable {
 		this.value = value;
 	}
 
+	/**
+	 * If the value is true
+	 * @return value
+	 */
 	public boolean isSatisfied() {
 		return getValue();
 	}
@@ -346,6 +490,12 @@ class Variable {
 		return value;
 	}
 
+	/**
+	 * Tries to set a new value. If the variable is frozen, it will fail with
+	 * a RuntimeException (i. e. before setting you should always check that
+	 * the variable is not frozen)
+	 * @param value value to be set
+	 */
 	public void setValue(boolean value) {
 		if (frozen) {
 			throw new RuntimeException("Cannot set value on a frozen variable!");
@@ -353,20 +503,34 @@ class Variable {
 		this.value = value;
 	}
 
+	/**
+	 * Flips the truth value (false to true or true to false)
+	 */
 	public void flip() {
 		setValue(!value);
 	}
 
+	/**
+	 * Randomly picks a new truth value.
+	 */
 	public void pickRandomValue() {
 		setValue(WalkSAT.random.nextBoolean());
 	}
 
-	// Purification stuff...
+	// ***************** Purification stuff *********************
 
+	/**
+	 * Freeze variable which will prevent any further changes (it becomes
+	 * immutable)
+	 */
 	public void freeze() {
 		frozen = true;
 	}
 
+	/**
+	 * Returns if the variable is frozen.
+	 * @return true if its frozen.
+	 */
 	public boolean isFrozen() {
 		return frozen;
 	}
