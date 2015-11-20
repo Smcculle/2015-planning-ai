@@ -19,6 +19,7 @@ public class FastForwardHeuristic extends PlanGraph {
 		this.goalLiterals = Util.expressionToLiterals(problem.goal);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public int hValue (State state) {
 		initialize(state);
 		while (!goalAchieved() && !hasLeveledOff()) {

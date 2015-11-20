@@ -6,8 +6,6 @@ import java.util.List;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Planner;
-import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Search;
 import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.ss.StateSpaceNode;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
@@ -39,6 +37,7 @@ public class FastForwardSearch extends StateSpaceSearch {
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Plan findNextSolution() {
 		StateSpaceNode bestNode = root;
@@ -116,6 +115,7 @@ public class FastForwardSearch extends StateSpaceSearch {
 		return nextLevel;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private List<StateSpaceNode> makeNextLevel (List<StateSpaceNode>... lists) {
 		List<StateSpaceNode> nextLevel = new LinkedList<StateSpaceNode>();
 		for (List<StateSpaceNode> list : lists) {
