@@ -13,6 +13,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
+		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
