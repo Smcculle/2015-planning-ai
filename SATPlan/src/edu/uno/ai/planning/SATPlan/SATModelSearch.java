@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.SATPlan;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
@@ -20,10 +21,12 @@ public class SATModelSearch extends Search {
 
 	/** The Partial Order problem being solved */
 	public ArrayList<BooleanVariable> satisfiableModel;
+
+	protected ISATSolver satSolver;
 	
-	
-	public SATModelSearch(Problem problem) {
+	public SATModelSearch(Problem problem, ISATSolver satSolver) {
 		super(problem);
+		this.satSolver = satSolver;
 		//this.satisfiableModel = SATPlan.Solve(problem);
 	}
 	
@@ -63,7 +66,7 @@ public class SATModelSearch extends Search {
 		
 		ImmutableArray<Step> allSteps = (new StateSpaceProblem(problem)).steps;
 		
-		CNFEncoding encoding = new CNFEncoding();
+		CNFEncoding encoding = new CNFEncoding(satSolver);
 		
 		ArrayList<ArrayList<BooleanVariable>> cnf = 
 				new ArrayList<ArrayList<BooleanVariable>>();
@@ -76,21 +79,23 @@ public class SATModelSearch extends Search {
 			
 			SATProblem problemo = new SATProblem(cnf, mainList);
 			
-			ArrayList<BooleanVariable> solution = SATSolver.getModel(problemo, mainList);
+			List<BooleanVariable> solution = satSolver.getModel(problemo);
+			nodesVisited = satSolver.countVisited();
+			nodesExpanded = satSolver.countExpanded();
 			
 			if(solution != null){
-				System.out.println("\nSolution is:");
+				// System.out.println("\nSolution is:");
 				for(BooleanVariable BV : solution){
 					if(BV.value == Boolean.TRUE){
 						if (!BooleanVariable.containsEqualBooleanVariable(result, BV)){
 							result.add(BV);
-							//System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
+							// System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
 						}
 					}
 				}			
 				break;
-			}else
-				System.out.println("\nNo solution");
+			}else {}
+				// System.out.println("\nNo solution");
 		}//End of for statement
 		return result;
 	}//End of Solve

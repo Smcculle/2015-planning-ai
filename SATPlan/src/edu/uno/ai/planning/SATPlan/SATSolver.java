@@ -1,10 +1,26 @@
 package edu.uno.ai.planning.SATPlan;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
-public class SATSolver {
-	
+public class SATSolver implements ISATSolver {
+
+	@Override
+	public List<BooleanVariable> getModel(SATProblem problem) {
+		return getModel(problem, new ArrayList<>());
+	}
+
+	@Override
+	public int countVisited() {
+		return 0;
+	}
+
+	@Override
+	public int countExpanded() {
+		return 0;
+	}
+
 	/** Contains the Boolean Variables when they are given a value */
 	protected static ArrayList<BooleanVariable> solution = new ArrayList<BooleanVariable>();
 	
@@ -317,6 +333,7 @@ public class SATSolver {
 		
 		return satisfiable(newProblem1, newMainList1) || satisfiable(newProblem2, newMainList2);
 	}
+
 }
 
 

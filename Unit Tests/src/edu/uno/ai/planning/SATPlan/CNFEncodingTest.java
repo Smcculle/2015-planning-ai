@@ -34,7 +34,7 @@ public class CNFEncodingTest {
 	
 	@Test
 	public void conjunctionFromExpressionTest(){		
-		CNFEncoding encoding = new CNFEncoding();
+		CNFEncoding encoding = new CNFEncoding(new SATSolver());
 
 		ArrayList<ArrayList<BooleanVariable>> cnf = encoding.conjunctionFromExpression(A, 0);
 		assertTrue(cnf.size() == 1);		
@@ -96,8 +96,8 @@ public class CNFEncodingTest {
 	}
 	
 	@Test
-	public void argumentToBooleanVariableTest(){		
-		CNFEncoding encoding = new CNFEncoding();
+	public void argumentToBooleanVariableTest(){
+		CNFEncoding encoding = new CNFEncoding(new SATSolver());
 		BooleanVariable bnv = encoding.argumentToBooleanVariable(A, 1);
 		assertTrue(bnv.name.equals("(test A) - 1"));
 		assertTrue(bnv.negation == Boolean.FALSE);
@@ -109,7 +109,7 @@ public class CNFEncodingTest {
 	
 	@Test
 	public void argumentToNegativeBooleanVariableTest(){		
-		CNFEncoding encoding = new CNFEncoding();
+		CNFEncoding encoding = new CNFEncoding(new SATSolver());
 		BooleanVariable bnv = encoding.argumentToNegativeBooleanVariable(A, 1);
 		assertTrue(bnv.name.equals("(test A) - 1"));
 		assertTrue(bnv.negation == Boolean.TRUE);
@@ -123,7 +123,7 @@ public class CNFEncodingTest {
 	public void stepToConjunctionTest(){
 		Step step = new Step("testStep", AB, notAC);
 		
-		CNFEncoding encoding = new CNFEncoding();
+		CNFEncoding encoding = new CNFEncoding(new SATSolver());
 		ArrayList<ArrayList<BooleanVariable>> conjunction = encoding.stepToConjunction(step, 1);
 		
 		assertTrue(conjunction.size() == 2);
@@ -133,7 +133,7 @@ public class CNFEncodingTest {
 		
 		step = new Step("testStep", notAC, AC);
 		
-		encoding = new CNFEncoding();
+		encoding = new CNFEncoding(new SATSolver());
 		conjunction = encoding.stepToConjunction(step, 1);
 		
 		assertTrue(conjunction.size() == 2);
@@ -148,7 +148,7 @@ public class CNFEncodingTest {
 		steps[1] = new Step("testStep2", AB, notAC);
 		steps[2] = new Step("testStep3", AB, notAC);
 		
-		CNFEncoding encoding = new CNFEncoding();
+		CNFEncoding encoding = new CNFEncoding(new SATSolver());
 		ImmutableArray<Step> stepsArray = new ImmutableArray<Step>(steps);
 		
 		ArrayList<ArrayList<BooleanVariable>> conjunction = encoding.onlyOneActionOccursAtEachStep(stepsArray, 1);

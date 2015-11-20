@@ -1,9 +1,6 @@
 package edu.uno.ai.planning.SATPlan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.SATPlan.CNFEncodingModel.CNFVariableType;
@@ -37,11 +34,14 @@ public class CNFEncoding {
 	
 	/* Stores the Encoding, i.e. info about the literal in the CNF*/
 	private HashMap<String, CNFEncodingModel> encodingModel;
+
+	private ISATSolver satSolver;
 	
 	/**
 	 * Instantiates the Encoding
 	 */
-	public CNFEncoding() {
+	public CNFEncoding(ISATSolver satSolver) {
+		this.satSolver = satSolver;
 		this.cnf = new ArrayList<ArrayList<BooleanVariable>>();
 		this.frameAxiomBuilder = new HashMap<Expression, ArrayList<Step>>();
 		this.encodingModel = new HashMap<String, CNFEncodingModel>();
@@ -93,7 +93,7 @@ public class CNFEncoding {
 		steps = removeUnsatisfiableSteps(steps);
 		
 		for (Step step: steps){
-			System.out.println(step);
+			// System.out.println(step);
 		}
 		
 		//int tt = 1/0;
@@ -377,8 +377,8 @@ public class CNFEncoding {
 	 * @return the boolean whether the effects of this step are satisfiable
 	 */	
 	Boolean hasSatisfiableEffects(Step step){	
-		System.out.println("step is " + step);
-		System.out.println("effect is " + step.effect);
+		// System.out.println("step is " + step);
+		// System.out.println("effect is " + step.effect);
 		ArrayList<ArrayList<BooleanVariable>> effectsConjunction = new ArrayList<ArrayList<BooleanVariable>>();
 		
 		for (Expression argument : ((Conjunction) step.effect).arguments)
@@ -396,8 +396,11 @@ public class CNFEncoding {
 		
 		SATProblem problemo = new SATProblem(effectsConjunction, mainList);
 		
-		ArrayList<BooleanVariable> solution = SATSolver.getModel(problemo, mainList);
-		
+		List<BooleanVariable> solution = satSolver.getModel(problemo);
+
+		return solution != null;
+
+		/*
 		for(BooleanVariable BV : solution){
 			if(BV.value == Boolean.TRUE){
 				System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
@@ -411,6 +414,7 @@ public class CNFEncoding {
 		
 		//int ll = 1/0;
 		return result;
+		*/
 	}
 	
 	ImmutableArray<Step> removeUnsatisfiableSteps(ImmutableArray<Step> steps){

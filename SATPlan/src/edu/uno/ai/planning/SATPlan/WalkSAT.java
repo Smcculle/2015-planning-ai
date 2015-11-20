@@ -27,6 +27,10 @@ public class WalkSAT implements ISATSolver {
 	/** List of variables in the original SAT problem */
 	protected List<BooleanVariable> originalVariables;
 
+	protected int variableVisited;
+	protected int variableFlipped;
+
+
 	public WalkSAT(int maxTries, int maxFlips, double randomPickProbability) {
 		this.maxTries = maxTries;
 		this.maxFlips = maxFlips;
@@ -38,6 +42,9 @@ public class WalkSAT implements ISATSolver {
 		Problem problem = convertProblem(satProblem);
 		Clause unsatisfiedClause;
 		Variable variable;
+
+		variableVisited = 0;
+		variableFlipped = 0;
 
 		// Remove pure literals from the conjunction. If it turns out impossible,
 		// return null (as a failure)
@@ -61,13 +68,25 @@ public class WalkSAT implements ISATSolver {
 				if (shouldPickRandomly()) {
 					variable = unsatisfiedClause.pickRandomVariable();
 				} else {
+					variableVisited += unsatisfiedClause.literals.size();
 					variable = problem.pickLeastDamagingVariable(unsatisfiedClause);
 				}
 
 				variable.flip();
+				variableFlipped++;
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public int countVisited() {
+		return variableVisited;
+	}
+
+	@Override
+	public int countExpanded() {
+		return variableFlipped;
 	}
 
 	protected Problem convertProblem(SATProblem problem) {
