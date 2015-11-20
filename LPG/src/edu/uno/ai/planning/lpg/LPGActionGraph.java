@@ -30,8 +30,14 @@ public class LPGActionGraph {
 	/** random number generator */
 	private final Random rand;
 	
-	/** Measure of how much we prefer resolving inconsistencies at earlier levels */
-	private final float inconsistencyWeight; 
+	/** Measure (from 0 to 1) of how much we prefer resolving inconsistencies at earlier levels */
+	private static final float inconsistencyWeight = 0.5f; 
+	
+	/** PlanGraph for this problem shared by all action graphs.  Graph is not modified*/
+	private static PlanGraph graph; 
+	
+	/** Contains a mapping for literals to their corresponding persistent steps */
+	private static Map<PlanGraphLiteral, PlanGraphStep> persistentSteps;
 	
 	/** List of steps in the action graph indexed by level */
 	private Map<Integer, Set<PlanGraphStep>> steps;
@@ -42,14 +48,9 @@ public class LPGActionGraph {
 	/** List of inconsistencies in the action graph indexed by level */
 	private Map<Integer, List<LPGInconsistency>> inconsistencies;
 	
-	/** Contains a mapping for literals to their corresponding persistent steps */
-	private Map<PlanGraphLiteral, PlanGraphStep> persistentSteps;
-	
-	/** PlanGraph for this problem */
-	private PlanGraph graph; 
-	
 	/** number of current inconsistencies */
 	private int inconsistencyCount;
+	
 
 	/**
 	 * Initializes an empty action graph only containing special actions start, end, and noops of start
@@ -57,10 +58,10 @@ public class LPGActionGraph {
 	 */
 	public LPGActionGraph(Problem problem) {
 		
-		inconsistencyWeight = 0.5f;
 		graph = new PlanGraph(problem, true); 
 		maxLevel = graph.countLevels() - 1;
 		rand = new Random();
+		persistentSteps = getPersistentSteps();
 		initializeMaps();
 		addStartAndEndSteps(problem);
 		
@@ -70,16 +71,12 @@ public class LPGActionGraph {
 	public LPGActionGraph(LPGActionGraph actionGraph) {
 	
 		this.maxLevel = actionGraph.maxLevel;
-		this.rand = new Random();
-		this.inconsistencyWeight = actionGraph.inconsistencyWeight;
-		this.steps = new HashMap<Integer, Set<PlanGraphStep>>(actionGraph.steps);
-		this.facts = facts;
-		this.inconsistencies = inconsistencies;
-		this.persistentSteps = persistentSteps;
-		this.graph = actionGraph.graph;
 		this.inconsistencyCount = actionGraph.inconsistencyCount;
+		this.rand = new Random();
+		this.steps = DeepCloneMap.deepClone(actionGraph.steps);
+		this.facts = DeepCloneMap.deepClone(actionGraph.facts);
+		this.inconsistencies = DeepCloneMap.deepClone(actionGraph.inconsistencies);
 	}
-
 
 
 	public boolean isSolution() {
@@ -110,7 +107,7 @@ public class LPGActionGraph {
 	}
 
 	public int getInconsistencyCount() {
-
+		
 		return inconsistencyCount;
 	}
 	
@@ -179,7 +176,6 @@ public class LPGActionGraph {
 		steps = new HashMap<Integer, Set<PlanGraphStep>>();
 		facts = new HashMap<Integer, Set<PlanGraphLiteral>>();
 		inconsistencies = new HashMap<Integer, List<LPGInconsistency>>();
-		persistentSteps = new HashMap<PlanGraphLiteral, PlanGraphStep>();
 		
 		for(int i = 0; i <= maxLevel; i++) {
 			steps.put(i, new HashSet<PlanGraphStep>());
@@ -196,6 +192,7 @@ public class LPGActionGraph {
 		Expression startEffects = problem.initial.toExpression();
 		Expression goal = problem.goal;
 		
+		/* connect end step to the preconditions (goals) */
 		List<PlanGraphLiteral> endParents = new ArrayList<PlanGraphLiteral>();
 		for (Literal literal : ConversionUtil.expressionToLiterals(problem.goal)) {
 			PlanGraphLiteral pgLiteral = graph.getPlanGraphLiteral(literal);
@@ -203,6 +200,7 @@ public class LPGActionGraph {
 			endParents.add(pgLiteral);
 		}
 		
+		/* connect start step with effects (initial conditions) */
 		List<PlanGraphLiteral> startChildren = new ArrayList<PlanGraphLiteral>();
 		for (Literal literal : ConversionUtil.expressionToLiterals(problem.initial.toExpression())) {
 			PlanGraphLiteral pgLiteral = graph.getPlanGraphLiteral(literal);
@@ -273,6 +271,15 @@ public class LPGActionGraph {
 		}
 		
 		return foundMutex;
+	}
+	
+	private Map<PlanGraphLiteral, PlanGraphStep> getPersistentSteps(){
+		
+		HashMap<PlanGraphLiteral, PlanGraphStep> persistentSteps = new HashMap<PlanGraphLiteral, PlanGraphStep>();
+		for(PlanGraphStep step : graph.getPersistantSteps())
+			persistentSteps.put(step.getChildNodes().get(0), step);
+		
+		return persistentSteps;
 	}
 	
 	// TODO organize 
@@ -384,7 +391,46 @@ public class LPGActionGraph {
 		}
 	}
 	
-	
-	
+	private class InconsistencyIterator implements Iterator<LPGInconsistency> {
 
+		private Iterator<LPGInconsistency> iterator;
+		private int index;
+		
+		public InconsistencyIterator() {
+			
+			index = 1; 
+			setNextIterator();
+			if (iterator == null)
+				iterator = Collections.emptyIterator();
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return iterator.hasNext();
+		}
+
+		@Override
+		public LPGInconsistency next() {
+			LPGInconsistency next = iterator.next();
+			
+			if (!iterator.hasNext())
+				setNextIterator();
+			
+			return next;
+		}
+		
+		/** Gets an iterator for the next level */
+		private void setNextIterator() {
+			
+			for (int i = index; i < inconsistencies.size(); i++){
+				List<LPGInconsistency> inconsistencyList = inconsistencies.get(i);
+				if (!inconsistencyList.isEmpty()) {
+					iterator = inconsistencyList.iterator();
+					break;
+				}
+				else
+					index++;
+			}
+		}
+	}
 }
