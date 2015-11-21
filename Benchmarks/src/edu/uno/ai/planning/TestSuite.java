@@ -9,7 +9,8 @@ public class TestSuite {
 		//new edu.uno.ai.planning.bfs.BFSPlanner(),
 		//new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		//new edu.uno.ai.planning.spop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.SATPlan.SATPlan()
+		edu.uno.ai.planning.SATPlan.SATPlan.withWalkSAT(),
+		// edu.uno.ai.planning.SATPlan.SATPlan.withDavisPutnamSAT()
 	};
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
