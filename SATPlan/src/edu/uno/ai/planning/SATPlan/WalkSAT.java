@@ -148,7 +148,7 @@ public class WalkSAT implements ISATSolver {
 			if (var == null) {
 				throw new RuntimeException("Missing value for variable " + boolVar.name);
 			}
-			boolVar.value = var.getValue();
+			boolVar.value = boolVar.negation != var.getValue();
 		}
 		return originalVariables;
 	}

@@ -332,7 +332,7 @@ public class WalkSATTest {
 
 		Variable a = new Variable("a", false);
 		Variable b = new Variable("b", true);
-		Variable c = new Variable("c", true);		BooleanVariable A = new BooleanVariable("a", null, Boolean.FALSE);
+		Variable c = new Variable("c", true);
 
 		solver.originalVariables = Arrays.asList(A, NotA, B, NotB, NotC);
 		solver.pures = new HashSet<>(Collections.singletonList(c));
@@ -343,11 +343,10 @@ public class WalkSATTest {
 
 		assertTrue(solution.containsAll(Arrays.asList(A, NotA, B, NotB, NotC)));
 		assertFalse(A.value);
-		assertFalse(NotA.value);
+		assertTrue(NotA.value);
 		assertTrue(B.value);
-		assertTrue(NotB.value);
-		assertTrue(B.value);
-		assertTrue(NotB.value);
+		assertFalse(NotB.value);
+		assertFalse(NotC.value);
 	}
 
 	@Test
@@ -368,7 +367,7 @@ public class WalkSATTest {
 		assertTrue(solution.containsAll(Arrays.asList(A, B, NotB)));
 		assertTrue(A.value);
 		assertFalse(B.value);
-		assertFalse(NotB.value);
+		assertTrue(NotB.value);
 	}
 
 	@Test
@@ -392,7 +391,7 @@ public class WalkSATTest {
 		assertThat(A.value, anyOf(is(true), is(false)));
 		assertThat(NotA.value, anyOf(is(true), is(false)));
 		assertFalse(B.value);
-		assertFalse(NotB.value);
+		assertTrue(NotB.value);
 		assertTrue(C.value);
 	}
 
