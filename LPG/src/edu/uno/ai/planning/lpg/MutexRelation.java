@@ -80,5 +80,9 @@ public class MutexRelation implements LPGInconsistency {
 		else return false; 
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("%s=%s@%d", mutexStepA.toString(), mutexStepB.toString(), this.currentLevel);
+	}
 	
 }

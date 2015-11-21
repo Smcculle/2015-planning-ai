@@ -1,6 +1,8 @@
 package edu.uno.ai.planning.lpg;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
@@ -9,8 +11,9 @@ import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class LPGSearch extends Search {
 	
-	/** The problem being solved */
-	private final Problem problem;
+	
+	/** The number of times we will restart if not finding a solution */
+	private final static int restarts = 4;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
 	private final static int NOISE_WINDOW = 50;
@@ -21,16 +24,17 @@ public class LPGSearch extends Search {
 	/** Default value for noise factor */ 
 	private final static double DEFAULT_NOISE_FACTOR = 0.1;
 
+	/** The problem being solved */
+	private final Problem problem;
+	
 	/** The subgraph we are working on */
 	private LPGActionGraph actionGraph;
 	
-	private int nodesExpanded;
-
-	private int nodesVisited;
+	/** Total number of expanded nodes */
+	private int expanded;
 	
-	private int steps; 
-	
-	private int restarts;
+	/** Total number of visited nodes */
+	private int visited;
 	
 	/** noise factor increases or decreases based on variance of # of inconsistencies 
 	 * in the last NOISE_WINDOW number of steps */
@@ -43,13 +47,14 @@ public class LPGSearch extends Search {
 	private int[] numInconsistency;
 
 	/** The search limit on visited nodes (-1 if no limit) */
-	int limit = -1;
+	private int limit = -1;
 	
 	public LPGSearch(Problem problem) {
 		super(problem);
 		this.problem = problem;
 		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
+		actionGraph = new LPGActionGraph(problem);
 	}
 	
 	/**
@@ -60,9 +65,9 @@ public class LPGSearch extends Search {
 	 * @param maxRestarts Max times the search will restart from empty LPGPlanGraph 
 	 * @return A totally ordered plan representing a solution or null if none is found.  
 	 * 
-	 * TODO:  implement needed methods 
+	 * TODO:  implement needed methods, make private
 	 */
-	private Plan findPlan(int maxSteps, int maxRestarts)
+	public Plan findPlan(int maxSteps, int maxRestarts)
 	{
 		TotalOrderPlan plan = new TotalOrderPlan();
 		
@@ -75,17 +80,17 @@ public class LPGSearch extends Search {
 					break outer;
 				}
 				
-				LPGInconsistency inconsistency = actionGraph.getInconsistency();
+				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
 				numInconsistency[i % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
 				if(i % NOISE_WINDOW == 0)
 					updateNoiseFactor();
 				
-				ArrayList<LPGPlanGraph> neighborhood = actionGraph.getNeighborhood(inconsistency);
-				double[] graphQuality = evaluateNeighborhood(neighborhood);
-				//actionGraph = chooseNewActionGraph(neighborhood, graphQuality, actionGraph);
+				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
+				double[] graphQuality = {0.0}; // = evaluateNeighborhood(neighborhood);
+				actionGraph = chooseNewActionGraph(neighborhood, graphQuality);
 				
-				nodesExpanded += neighborhood.size();
-				nodesVisited++;
+				expanded += neighborhood.size();
+				visited++;
 			}
 		}
 		return plan;
@@ -104,11 +109,12 @@ public class LPGSearch extends Search {
 	 * 
 	 *   TODO:  All
 	 */
-	private LPGPlanGraph chooseNewActionGraph(
-			ArrayList<LPGPlanGraph> neighborhood, double[] graphQuality,
-			LPGPlanGraph actionGraph) {
+	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood, double[] graphQuality) {
 		
-		return null;
+		Random rand = new Random();
+		int next = rand.nextInt(neighborhood.size());
+		
+		return neighborhood.get(next);
 	}
 
 	/**
@@ -159,12 +165,12 @@ public class LPGSearch extends Search {
 
 	@Override
 	public int countVisited() {
-		return nodesVisited;
+		return visited;
 	}
 
 	@Override
 	public int countExpanded() {
-		return nodesExpanded;
+		return expanded;
 	}
 
 	@Override
@@ -175,7 +181,7 @@ public class LPGSearch extends Search {
 
 	@Override
 	public Plan findNextSolution() {
-		return findPlan(1000, 10);
+		return findPlan(limit/restarts, restarts);
 	}
 	
 	/**

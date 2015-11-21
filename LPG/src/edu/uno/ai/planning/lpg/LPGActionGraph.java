@@ -31,7 +31,7 @@ public class LPGActionGraph {
 	private final Random rand;
 	
 	/** Measure (from 0 to 1) of how much we prefer resolving inconsistencies at earlier levels */
-	private static final float inconsistencyWeight = 0.5f; 
+	private static final float inconsistencyWeight = 0.35f; 
 	
 	/** PlanGraph for this problem shared by all action graphs.  Graph is not modified*/
 	private static PlanGraph graph; 
@@ -49,12 +49,12 @@ public class LPGActionGraph {
 	private Map<Integer, List<LPGInconsistency>> inconsistencies;
 	
 	/** number of current inconsistencies */
-	private int inconsistencyCount;
+	public int inconsistencyCount;
 	
 
 	/**
 	 * Initializes an empty action graph only containing special actions start, end, and noops of start
-	 * @param problem
+	 * @param problem Problem we are trying to solve
 	 */
 	public LPGActionGraph(Problem problem) {
 		
@@ -64,11 +64,12 @@ public class LPGActionGraph {
 		persistentSteps = getPersistentSteps();
 		initializeMaps();
 		addStartAndEndSteps(problem);
+		updateUnsupportedPreconditionInconsistencies(maxLevel);
 		
 	}
 	
-	//TODO deep copy 
-	public LPGActionGraph(LPGActionGraph actionGraph) {
+	/** Used to copy an action graph */
+	private LPGActionGraph(LPGActionGraph actionGraph) {
 	
 		this.maxLevel = actionGraph.maxLevel;
 		this.inconsistencyCount = actionGraph.inconsistencyCount;
@@ -78,97 +79,8 @@ public class LPGActionGraph {
 		this.inconsistencies = DeepCloneMap.deepClone(actionGraph.inconsistencies);
 	}
 
-
-	public boolean isSolution() {
-		
-		boolean foundSolution = true;
-		for (List<LPGInconsistency> inconsistencyList : inconsistencies.values()) {
-			if (!inconsistencyList.isEmpty()) {
-				foundSolution = false;
-				break;
-			}
-		}
-		
-		return foundSolution;
-	}
-
-	public TotalOrderPlan getTotalOrderPlan(TotalOrderPlan plan) {
-		
-		for (int i = 1; i <= maxLevel; i++) {
-			for (PlanGraphStep pgStep : steps.get(i)) {
-				System.out.println("Level " + i + " " + pgStep);
-				if(!pgStep.isPersistent()) {
-					plan = plan.addStep(pgStep.getStep());
-				}
-			}
-		}
-		
-		return plan;
-	}
-
-	public int getInconsistencyCount() {
-		
-		return inconsistencyCount;
-	}
-	
-	public LPGInconsistency getInconsistency() {
-		
-		LPGInconsistency chosenInconsistency = null; 
-		
-		// TODO remove this, for debugging
-		float nf = rand.nextFloat();
-		/* check to see if we will prefer earlier inconsistencies or not */
-		if (nf <= inconsistencyWeight) {
-			for (int i = 1; i < inconsistencies.size(); i++) {
-				List<LPGInconsistency> inconsistenciesAtLevel = inconsistencies.get(i);
-				if (!inconsistenciesAtLevel.isEmpty()) {
-					chosenInconsistency = inconsistenciesAtLevel.get(rand.nextInt(inconsistenciesAtLevel.size()));
-					break;
-				}
-			}
-		} 
-		else {
-			
-			/* choose a random number and iterate until we get to that inconsistency */
-			int inconsistencyCounter = rand.nextInt(inconsistencyCount);
-			
-			outer:
-			for (List<LPGInconsistency> inconsistencyList: inconsistencies.values()) {
-				for (Iterator<LPGInconsistency> it = inconsistencyList.iterator(); it.hasNext();) {
-					
-					/* if we have iterated through enough inconsistencies, choose this one */
-					if (inconsistencyCounter == 0) {
-						chosenInconsistency = it.next();
-						break outer;
-					}
-					
-					/* otherwise decrease counter and continue iterating */
-					else {
-					it.next();
-					inconsistencyCounter--;
-					}
-				}
-			}
-		}
-		
-		return chosenInconsistency;
-	}
-
-	public ArrayList<LPGPlanGraph> getNeighborhood(LPGInconsistency inconsistency) {
-		
-		ArrayList<LPGPlanGraph> neighborhood = new ArrayList<LPGPlanGraph>(); 
-		if (inconsistency instanceof UnsupportedPrecondition) {
-			PlanGraphLiteral unsupportedLiteral = ((UnsupportedPrecondition) inconsistency).getUnsupportedPrecondition();
-			List<PlanGraphStep> addChoices = unsupportedLiteral.getParentNodes();
-			neighborhood.addAll(getAddGraphs(addChoices));
-			
-		}
-		return null;
-	}
-	
-	private ArrayList<LPGPlanGraph> getAddGraphs(List<PlanGraphStep> addChoices){
-		
-		return null;
+	private LPGActionGraph copyActionGraph() {
+		return new LPGActionGraph(this);
 	}
 	
 	private void initializeMaps(){
@@ -217,21 +129,172 @@ public class LPGActionGraph {
 		addStep(start, 0);
 		
 	}
+
+
+	public int getInconsistencyCount() {
+		
+		return inconsistencyCount;
+	}
+	
+	public LPGInconsistency chooseInconsistency() {
+		
+		LPGInconsistency chosenInconsistency = null; 
+		
+		// TODO remove this, for debugging
+		float nf = rand.nextFloat();
+		/* check to see if we will prefer earlier inconsistencies or not */
+		if (nf <= inconsistencyWeight) {
+			for (int i = 1; i < inconsistencies.size(); i++) {
+				List<LPGInconsistency> inconsistenciesAtLevel = inconsistencies.get(i);
+				if (!inconsistenciesAtLevel.isEmpty()) {
+					chosenInconsistency = inconsistenciesAtLevel.get(rand.nextInt(inconsistenciesAtLevel.size()));
+					break;
+				}
+			}
+		} 
+		
+		/* choose a random number and iterate until we get to that inconsistency */
+		else {
+			
+			int inconsistencyCounter = rand.nextInt(inconsistencyCount);
+			
+			for(InconsistencyIterator iterator = this.new InconsistencyIterator(); iterator.hasNext();){
+				if (inconsistencyCounter > 0 ) {
+					iterator.next();
+					inconsistencyCounter--;
+				}
+				else {
+					chosenInconsistency = iterator.next();
+					break;
+				}
+			}
+			
+			assert(inconsistencyCounter == 0);
+			assert(chosenInconsistency != null);
+		}
+		
+		return chosenInconsistency;
+	}
+	 
+	/** Generates action graphs based on each possible solution to the given inconsistency */
+	public List<LPGActionGraph> makeNeighborhood(LPGInconsistency inconsistency) {
+		
+		List<LPGActionGraph> neighborhood; 
+		if (inconsistency instanceof UnsupportedPrecondition) {
+			neighborhood = handleUnsupportedPrecondition((UnsupportedPrecondition)inconsistency);
+			
+		}
+		else if (inconsistency instanceof MutexRelation)
+			neighborhood = handleMutexRelation((MutexRelation) inconsistency);
+		else {
+			System.err.println("Invalid inconsistency type");
+			neighborhood = null;
+		}
+		
+		return neighborhood;
+	}
+	
+	private List<LPGActionGraph> handleUnsupportedPrecondition(UnsupportedPrecondition inconsistency) {
+		
+		List<LPGActionGraph> neighborhood = new ArrayList<LPGActionGraph>();
+		int currentLevel = inconsistency.getCurrentLevel();
+		PlanGraphLiteral unsupportedLiteral = inconsistency.getUnsupportedPrecondition();
+		
+		/* steps we can add to resolve the USP */
+		List<PlanGraphStep> addChoices = unsupportedLiteral.getParentNodes();
+		System.err.println("# choices = " + addChoices.size());
+		for (PlanGraphStep stepToAdd : addChoices) {
+			neighborhood.add(getAddNeighbor(stepToAdd, inconsistency, currentLevel));
+		}
+		
+		/* steps we can remove to resolve the USP*/
+		List<PlanGraphStep> removeChoices = findRemoveChoices(unsupportedLiteral, currentLevel);
+		neighborhood.add(getDeleteNeighbor(removeChoices, inconsistency, currentLevel));
+		
+		System.err.println("Neighborhood size = " + neighborhood.size());
+		
+		return neighborhood;
+		
+	}
+	
+	/** Copies the current action graph and returns a new A-graph solving the current inconsistency by 
+	 * adding the indicated step */ 
+	private LPGActionGraph getAddNeighbor(PlanGraphStep stepToAdd, 
+			UnsupportedPrecondition inconsistency, int currentLevel) {
+		
+		LPGActionGraph neighbor = this.copyActionGraph();
+		neighbor.addStep(stepToAdd, currentLevel);
+		neighbor.removeInconsistency(inconsistency);
+		neighbor.updateInconsistencies(stepToAdd, currentLevel);
+		return neighbor;
+	}
+	
+	/** Copies the current action graph and returns a new A-graph solving the current inconsistency by 
+	 * deleting the indicated steps */
+	private LPGActionGraph getDeleteNeighbor(List<PlanGraphStep> removeChoices,
+			UnsupportedPrecondition inconsistency, int currentLevel) {
+		
+		LPGActionGraph neighbor = this.copyActionGraph();
+		if (!removeChoices.isEmpty()) System.err.println("+1 remove choices");
+		
+		for (PlanGraphStep stepToRemove : removeChoices) {
+			neighbor.removeEffects(stepToRemove, currentLevel);
+			neighbor.removeInvalidMutex(stepToRemove, currentLevel);
+		}
+		neighbor.removeInconsistency(inconsistency);
+		neighbor.updateUnsupportedPreconditionInconsistencies(currentLevel);
+		
+		return neighbor;
+	}
+
+	/** Returns a list of steps to remove to resolve the unsupportedLiteral at currentLevel */
+	private List<PlanGraphStep> findRemoveChoices(PlanGraphLiteral unsupportedLiteral, int currentLevel) {
+		
+		List<PlanGraphStep> removeChoices = new ArrayList<PlanGraphStep>();
+		if (currentLevel + 1 <= maxLevel) {
+			Set<PlanGraphStep> nextLevelSteps = steps.get(currentLevel + 1);
+			/* remove each step present at the next level */
+			for (PlanGraphStep stepToRemove : unsupportedLiteral.getChildNodes()){
+				if (nextLevelSteps.contains(stepToRemove))
+					removeChoices.add(stepToRemove);
+			}
+		}
+		
+		return removeChoices;
+	}
+	
+	/** Returns 2 neighbors from deleting each of the 2 mutex steps in the relation */
+	private List<LPGActionGraph> handleMutexRelation(MutexRelation inconsistency) {
+		
+		List<LPGActionGraph> neighbors = new ArrayList<LPGActionGraph>();
+		
+		/** add A-graphs resulting from removing each mutex step */
+		neighbors.add(fixMutexStep(inconsistency.getMutexA(), inconsistency));
+		neighbors.add(fixMutexStep(inconsistency.getMutexB(), inconsistency));
+		
+		return neighbors;
+
+	}
+	
+	/** Returns the action graph (neighbor) by removing a step to resolve the mutex relation */ 
+	private LPGActionGraph fixMutexStep(PlanGraphStep stepToRemove, MutexRelation inconsistency) {
+
+		LPGActionGraph neighbor = this.copyActionGraph();
+		neighbor.removeStep(stepToRemove, inconsistency.getCurrentLevel());
+		neighbor.removeInconsistency(inconsistency);
+		
+		return neighbor;
+	}
+	
+	
 	
 	/** Adds a step and its effects to the current level and propagates effects until blocked */
-	private void addStep(PlanGraphStep stepToAdd, int currentLevel) {
+	public void addStep(PlanGraphStep stepToAdd, int currentLevel) {
 		
 		//_addStep(steps.get(currentLevel), facts.get(currentLevel), stepToAdd);
 		steps.get(currentLevel).add(stepToAdd);
 		facts.get(currentLevel).addAll(stepToAdd.getChildNodes());
 		propagateAddStep(stepToAdd, currentLevel);
-	}
-	
-	/** helper method to add steps/facts without calling propagate */
-	private void _addStep(Set<PlanGraphStep> currentLevelSteps, PlanGraphStep stepToAdd, int currentLevel) {
-		
-		currentLevelSteps.add(stepToAdd);
-		facts.get(currentLevel).addAll(stepToAdd.getChildNodes());
 	}
 	
 	private void propagateAddStep(PlanGraphStep stepToAdd, int currentLevel) {
@@ -241,17 +304,18 @@ public class LPGActionGraph {
 			
 			/* propagate if persistent and does not exist in next level if not mutex to any step at next level*/
 			Set<PlanGraphStep> nextLevelSteps = steps.get(currentLevel + 1);
-			if (stepToAdd.isPersistent() && !nextLevelSteps.contains(stepToAdd)) {
-				PlanGraphLevelMutex nextLevelMutex = (PlanGraphLevelMutex)graph.getLevel(currentLevel + 1);
-				if (!isMutexWithSteps(nextLevelMutex, nextLevelSteps, stepToAdd)) {
-					addStep(stepToAdd, currentLevel + 1);
+			if (stepToAdd.isPersistent()) { 
+				if (!nextLevelSteps.contains(stepToAdd)) {
+					PlanGraphLevelMutex nextLevelMutex = (PlanGraphLevelMutex)graph.getLevel(currentLevel + 1);
+					if (!isMutexWithSteps(nextLevelMutex, nextLevelSteps, stepToAdd)) {
+						addStep(stepToAdd, currentLevel + 1);
+					}
 				}
 			}
 			
 			/* get persistent steps for each effect and propagate those */
 			else {
 				for (PlanGraphLiteral effect : stepToAdd.getChildNodes()) {
-					//System.out.println("Getting persistent step for " + effect);
 					PlanGraphStep persistentStep = persistentSteps.get(effect);
 					propagateAddStep(persistentStep, currentLevel);
 				}
@@ -282,12 +346,7 @@ public class LPGActionGraph {
 		return persistentSteps;
 	}
 	
-	// TODO organize 
-	
-	private void updateUnsupportedPreconditionInconsistencies(PlanGraph graph, 
-			Map<Integer, Set<PlanGraphStep>> steps, 
-			Map<Integer, Set<PlanGraphLiteral>> facts, 
-			Map<Integer, List<LPGInconsistency>> inconsistencies, int currentLevel) {
+	private void updateUnsupportedPreconditionInconsistencies(int currentLevel) {
 		
 		List<LPGInconsistency> currentInconsistencies = inconsistencies.get(currentLevel);
 		/** check for unsupported preconditions in the next level if we aren't at max level */
@@ -296,26 +355,35 @@ public class LPGActionGraph {
 			Set<PlanGraphLiteral> currentFacts = facts.get(currentLevel);
 			for (PlanGraphStep pgStep : nextLevelSteps) {
 				for (PlanGraphLiteral pgLiteral : pgStep.getParentNodes()) {
-					if (!currentFacts.contains(pgLiteral))
+					if (!currentFacts.contains(pgLiteral)){
 						currentInconsistencies.add( new UnsupportedPrecondition(pgLiteral, currentLevel));
+						inconsistencyCount++;
+					}
 				}
 			}
 		}
 	}
 	
-	private void removeInvalidMutex(List<LPGInconsistency> currentInconsistencies, PlanGraphStep stepToRemove) {
+	private void removeInvalidMutex(PlanGraphStep stepToRemove, int currentLevel) {
 		
 		/** check for other mutex that are no longer valid */
-		for (Iterator<LPGInconsistency> iterator = currentInconsistencies.iterator(); iterator.hasNext();) {
+		for (Iterator<LPGInconsistency> iterator = inconsistencies.get(currentLevel).iterator(); iterator.hasNext();) {
 			LPGInconsistency lpgInconsistency = (LPGInconsistency) iterator.next();
 			if ((lpgInconsistency instanceof MutexRelation) && ((MutexRelation)lpgInconsistency).contains(stepToRemove))
 				iterator.remove();
 		}
 	}
 	
+	/** Removes a step and updates inconsistencies */
+	private void removeStep(PlanGraphStep stepToRemove, int currentLevel) {
+		
+		removeEffects(stepToRemove, currentLevel);
+		removeInvalidMutex(stepToRemove, currentLevel);
+		updateUnsupportedPreconditionInconsistencies(currentLevel);
+	}
+	
 	/** Removes a step and any unsupported effects from this level and propagates removal */
-	private void removeStep(Map<Integer, Set<PlanGraphStep>> steps, Map<Integer, Set<PlanGraphLiteral>> facts, 
-			PlanGraphStep stepToRemove, int currentLevel) {
+	private void removeEffects(PlanGraphStep stepToRemove, int currentLevel) {
 		
 		Set<PlanGraphStep> currentSteps = steps.get(currentLevel);
 		Set<PlanGraphLiteral> currentFacts = facts.get(currentLevel);
@@ -329,26 +397,22 @@ public class LPGActionGraph {
 					currentFacts.remove(pgLiteral);
 					if (stepToRemove.isPersistent()) {
 						// TODO verify bounds
-						removeStep(steps, facts, stepToRemove, currentLevel + 1);
+						removeEffects(stepToRemove, currentLevel + 1);
 					}
 					else {
 						PlanGraphStep persistentStep = persistentSteps.get(pgLiteral);
-						removeStep(steps, facts, persistentStep, currentLevel + 1);
+						removeEffects(persistentStep, currentLevel + 1);
 					}
 				}
 			}
 		}
 	}
 	
-	private void updateInconsistency(
-			Map<Integer, Set<PlanGraphStep>> steps,
-			Map<Integer, Set<PlanGraphLiteral>> facts,
-			Map<Integer, List<LPGInconsistency>> inconsistencies,
-			PlanGraph graph, PlanGraphStep newStep, int currentLevel) {
+	private void updateInconsistencies(PlanGraphStep newStep, int currentLevel) {
 		
 		List<LPGInconsistency> currentLevelInconsistencies = inconsistencies.get(currentLevel);
-		/** remove any unsupported preconditions that are now supported TODO modify w/ iterator for remove*/
-		
+
+		/** remove any unsupported preconditions that are now supported */ 
 		for (Iterator<LPGInconsistency> iterator = currentLevelInconsistencies.iterator(); iterator.hasNext();) {
 			LPGInconsistency lpgInconsistency = (LPGInconsistency) iterator.next();
 			if (lpgInconsistency instanceof UnsupportedPrecondition) {
@@ -358,21 +422,14 @@ public class LPGActionGraph {
 			}
 		}
 		
-		/*
-		for (LPGInconsistency lpgInconsistency : currentLevelInconsistencies) {
-			if (lpgInconsistency.isUnsupportedPrecondition()) {
-				PlanGraphLiteral unsupportedPrecondition = lpgInconsistency.getUnsupportedPrecondition();
-				if (newStep.getChildNodes().contains(unsupportedPrecondition))
-					currentLevelInconsistencies.remove(lpgInconsistency);
-			}
-		}*/
-		
 		PlanGraphLevelMutex pgLevel = (PlanGraphLevelMutex) graph.getLevel(currentLevel);
 		
 		/* add any new mutex steps at this level */
 		for (PlanGraphStep step : steps.get(currentLevel)) {
-			if (pgLevel.isMutex(step, newStep))
+			if (pgLevel.isMutex(step, newStep)){
 				currentLevelInconsistencies.add( new MutexRelation(step, newStep, currentLevel));
+				inconsistencyCount++;
+			}
 		}
 		
 		/* add unsupported preconditions for this step by checking facts of previous level */
@@ -386,11 +443,57 @@ public class LPGActionGraph {
 				if (pgLiteral.getInitialLevel() != 0 )
 					System.out.println("Some step added which cannot be supported: " + newStep);
 			}
-			else if (!facts.get(currentLevel - 1).contains(pgLiteral)) 
+			else if (!facts.get(currentLevel - 1).contains(pgLiteral)) { 
 				previousLevelInconsistencies.add(new UnsupportedPrecondition(pgLiteral, currentLevel - 1));
+				inconsistencyCount++;
+			}
 		}
 	}
 	
+	private void removeInconsistency(LPGInconsistency inconsistency){
+		int currentLevel = inconsistency.getCurrentLevel();
+		inconsistencies.get(currentLevel).remove(inconsistency);
+		inconsistencyCount--;
+	}
+	
+	public Map<Integer, List<LPGInconsistency>> getInconsistencies() {
+		return inconsistencies;
+	}
+	
+	public TotalOrderPlan getTotalOrderPlan(TotalOrderPlan plan) {
+		
+		for (int i = 1; i <= maxLevel; i++) {
+			for (PlanGraphStep pgStep : steps.get(i)) {
+				System.out.println("Level " + i + " " + pgStep);
+				if(!pgStep.isPersistent()) {
+					plan = plan.addStep(pgStep.getStep());
+				}
+			}
+		}
+		
+		return plan;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("steps: %s"
+				+ "\nfacts: %s"
+				+ "\ninconsistencies: %s\n", steps, facts, inconsistencies);
+	}
+	
+	public boolean isSolution() {
+		
+		boolean foundSolution = true;
+		for (List<LPGInconsistency> inconsistencyList : inconsistencies.values()) {
+			if (!inconsistencyList.isEmpty()) {
+				foundSolution = false;
+				break;
+			}
+		}
+		
+		return foundSolution;
+	}
+
 	private class InconsistencyIterator implements Iterator<LPGInconsistency> {
 
 		private Iterator<LPGInconsistency> iterator;
@@ -413,8 +516,10 @@ public class LPGActionGraph {
 		public LPGInconsistency next() {
 			LPGInconsistency next = iterator.next();
 			
-			if (!iterator.hasNext())
+			if (!iterator.hasNext()) {
+				index++;
 				setNextIterator();
+			}
 			
 			return next;
 		}

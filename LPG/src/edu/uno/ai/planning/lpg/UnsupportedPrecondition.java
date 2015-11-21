@@ -71,6 +71,4 @@ public class UnsupportedPrecondition implements LPGInconsistency {
 		return String.format("%s@%d", unsupportedPrecondition.toString(), this.currentLevel);
 	}
 	
-	
-
 }
