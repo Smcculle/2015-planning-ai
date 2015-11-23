@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.lpg;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -11,7 +12,7 @@ import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class LPGSearch extends Search {
 	
-	
+	private final static Random rand = new Random();
 	/** The number of times we will restart if not finding a solution */
 	private final static int restarts = 4;
 	
@@ -54,7 +55,6 @@ public class LPGSearch extends Search {
 		this.problem = problem;
 		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
-		actionGraph = new LPGActionGraph(problem);
 	}
 	
 	/**
@@ -74,23 +74,34 @@ public class LPGSearch extends Search {
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
 			actionGraph = new LPGActionGraph(problem);
+			
 			for(int j = 0; j < maxSteps; j++){
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
+					System.out.printf("Is solution triggered, inconsistences=%d", actionGraph.getInconsistencyCount());
 					break outer;
 				}
-				
+				int ic = actionGraph.getInconsistencyCount();
+				if (ic == 0) {
+					System.out.println(actionGraph.getInconsistencies());
+					throw new RuntimeException();
+				}
+				System.out.printf("\n\nAG at (%d,%d), %d inconsistencies: %s", i, j, ic, actionGraph);
 				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
+				System.out.println("\t New inconsistency chosen is " + inconsistency);
 				numInconsistency[i % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
 				if(i % NOISE_WINDOW == 0)
 					updateNoiseFactor();
 				
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
-				double[] graphQuality = {0.0}; // = evaluateNeighborhood(neighborhood);
-				actionGraph = chooseNewActionGraph(neighborhood, graphQuality);
+				double[] graphQuality = evaluateNeighborhood(neighborhood);
 				
-				expanded += neighborhood.size();
-				visited++;
+				if(neighborhood != null) {
+					actionGraph = chooseNewActionGraph(neighborhood, graphQuality);
+					expanded += neighborhood.size();
+					visited++;
+				}
+				
 			}
 		}
 		return plan;
@@ -98,9 +109,9 @@ public class LPGSearch extends Search {
 	
 	/**
 	 * Chooses a new action graph from the neighborhood based on graphQuality.  Chooses one with quality
-	 * that is not worse than the current graph; if there are multiple graphs that are not worse, 
-	 * chooses one randomly.  If every graph in the neighborhood is worse, uses noise parameter to decide
-	 * between choosing a random graph or the best available.  
+	 * that is not worse (does not increase # of inconsistencies) than the current graph; if there are multiple 
+	 * graphs that are not worse, choose one randomly.  If every graph in the neighborhood is worse, uses noise 
+	 * parameter to decide between choosing a random graph or the best available.  
 	 * 
 	 * @param neighborhood Potential new LPGPlanGraphs to choose between
 	 * @param graphQuality Quality of each LPGPlanGraph in consideration
@@ -111,10 +122,23 @@ public class LPGSearch extends Search {
 	 */
 	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood, double[] graphQuality) {
 		
-		Random rand = new Random();
-		int next = rand.nextInt(neighborhood.size());
+		Collections.sort(neighborhood);
+		int ci = actionGraph.getInconsistencyCount();
+		int count = 0;
+		for (LPGActionGraph neighbor: neighborhood) {
+			if (neighbor.getInconsistencyCount() < ci)
+				count++;
+		}
+		//Random rand = new Random();
+		//int next = rand.nextInt(neighborhood.size());
+		if( count == 1)
+			return neighborhood.get(0);
+		else if ( count > 1 ) {
+			int next = rand.nextInt(count);
+			return neighborhood.get(next);
+		}
 		
-		return neighborhood.get(next);
+		return neighborhood.get(0);
 	}
 
 	/**
@@ -127,11 +151,12 @@ public class LPGSearch extends Search {
 	 * 
 	 * TODO:  All 
 	 */
-	private double[] evaluateNeighborhood(ArrayList<LPGPlanGraph> neighborhood) {
+	private double[] evaluateNeighborhood(List<LPGActionGraph> neighborhood) {
 		double [] graphQuality = new double[neighborhood.size()];
 		
 		for (int i = 0; i < neighborhood.size(); i++) {
-			graphQuality[i] = calculateQuality(neighborhood.get(i));
+			//graphQuality[i] = calculateQuality(neighborhood.get(i));
+			graphQuality[i] = neighborhood.get(i).getInconsistencyCount();
 						
 		}
 		
