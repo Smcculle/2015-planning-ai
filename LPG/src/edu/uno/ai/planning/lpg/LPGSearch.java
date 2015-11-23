@@ -14,7 +14,7 @@ public class LPGSearch extends Search {
 	
 	private final static Random rand = new Random();
 	/** The number of times we will restart if not finding a solution */
-	private final static int restarts = 4;
+	private final static int restarts = 8;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
 	private final static int NOISE_WINDOW = 50;
@@ -78,7 +78,8 @@ public class LPGSearch extends Search {
 			for(int j = 0; j < maxSteps; j++){
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
-					System.out.printf("Is solution triggered, inconsistences=%d", actionGraph.getInconsistencyCount());
+					//System.out.printf("Is solution triggered, inconsistences=%d", actionGraph.getInconsistencyCount());
+					//System.out.println(actionGraph.getInconsistencies());
 					break outer;
 				}
 				int ic = actionGraph.getInconsistencyCount();
@@ -86,24 +87,25 @@ public class LPGSearch extends Search {
 					System.out.println(actionGraph.getInconsistencies());
 					throw new RuntimeException();
 				}
-				System.out.printf("\n\nAG at (%d,%d), %d inconsistencies: %s", i, j, ic, actionGraph);
+				//System.out.printf("\n\nAG at (%d,%d), %d inconsistencies: %s", i, j, ic, actionGraph);
 				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
-				System.out.println("\t New inconsistency chosen is " + inconsistency);
-				numInconsistency[i % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
-				if(i % NOISE_WINDOW == 0)
-					updateNoiseFactor();
+				//System.out.println("\t New inconsistency chosen is " + inconsistency);
+				//numInconsistency[i % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
+				//if(i % NOISE_WINDOW == 0)
+					//updateNoiseFactor();
 				
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
-				double[] graphQuality = evaluateNeighborhood(neighborhood);
+				//double[] graphQuality = evaluateNeighborhood(neighborhood);
 				
 				if(neighborhood != null) {
-					actionGraph = chooseNewActionGraph(neighborhood, graphQuality);
+					actionGraph = chooseNewActionGraph(neighborhood);
 					expanded += neighborhood.size();
 					visited++;
 				}
 				
 			}
 		}
+		System.out.println("Time ended");
 		return plan;
 	}
 	
@@ -120,7 +122,7 @@ public class LPGSearch extends Search {
 	 * 
 	 *   TODO:  All
 	 */
-	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood, double[] graphQuality) {
+	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood) {
 		
 		Collections.sort(neighborhood);
 		int ci = actionGraph.getInconsistencyCount();
