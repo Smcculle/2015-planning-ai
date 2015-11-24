@@ -2,9 +2,7 @@ package edu.uno.ai.planning.hsp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.State;
@@ -52,7 +50,6 @@ public class HeuristicSearch extends StateSpaceSearch {
 	// it does not include the accumulated cost to the given state, which is added in later.
 	public int calculateHeuristic(State state){
 		double heuristic = 0;
-		int cost = 0;
 		
 		ArrayList<Literal> literalsInThisState = new ArrayList<Literal>();
 		HashMap<Literal,Double> costs = new HashMap<Literal,Double>();

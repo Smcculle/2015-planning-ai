@@ -1,10 +1,7 @@
 package edu.uno.ai.planning.hsp;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
-import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.State;
 import edu.uno.ai.planning.Step;
