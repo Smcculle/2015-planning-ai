@@ -14,6 +14,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
+		new edu.uno.ai.planning.hsp.HSPlanner(),
 		new edu.uno.ai.planning.ff.FastForwardPlanner(),
 	};
 	
