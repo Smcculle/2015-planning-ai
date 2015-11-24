@@ -13,5 +13,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Iterative Width Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FastForward Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
