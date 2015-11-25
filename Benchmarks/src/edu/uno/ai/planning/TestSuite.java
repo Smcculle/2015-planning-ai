@@ -9,6 +9,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.pop_un_loc.POPUnLOC(),
 //		new edu.uno.ai.planning.graphplan.Graphplan(),
 //		new edu.uno.ai.planning.gp.GraphPlan(),
 	};

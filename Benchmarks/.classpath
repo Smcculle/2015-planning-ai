@@ -6,6 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner with Unsafe and Local Open Conditions"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
