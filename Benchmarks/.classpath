@@ -9,6 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner with Unsafe and Local Open Conditions"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Plan Graph (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Iterative Width Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FastForward Planner"/>
