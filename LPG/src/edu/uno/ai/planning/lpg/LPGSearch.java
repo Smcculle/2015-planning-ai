@@ -8,6 +8,7 @@ import java.util.Random;
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
+import edu.uno.ai.planning.graphplan.PlanGraph;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 
 public class LPGSearch extends Search {
@@ -27,6 +28,9 @@ public class LPGSearch extends Search {
 
 	/** The problem being solved */
 	private final Problem problem;
+	
+	/** Complete plan graph for the problem */
+	private final PlanGraph graph;
 	
 	/** The subgraph we are working on */
 	private LPGActionGraph actionGraph;
@@ -55,6 +59,7 @@ public class LPGSearch extends Search {
 		this.problem = problem;
 		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
+		graph = new PlanGraph(problem, true);
 	}
 	
 	/**
@@ -73,7 +78,7 @@ public class LPGSearch extends Search {
 		
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
-			actionGraph = new LPGActionGraph(problem);
+			actionGraph = new LPGActionGraph(problem, graph);
 			
 			for(int j = 0; j < maxSteps; j++){
 				if(actionGraph.isSolution()){
@@ -90,9 +95,9 @@ public class LPGSearch extends Search {
 				//System.out.printf("\n\nAG at (%d,%d), %d inconsistencies: %s", i, j, ic, actionGraph);
 				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
 				//System.out.println("\t New inconsistency chosen is " + inconsistency);
-				//numInconsistency[i % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
-				//if(i % NOISE_WINDOW == 0)
-					//updateNoiseFactor();
+				numInconsistency[j % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
+				if( (j-1) % NOISE_WINDOW == 0)
+					updateNoiseFactor();
 				
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
 				//double[] graphQuality = evaluateNeighborhood(neighborhood);
@@ -117,30 +122,45 @@ public class LPGSearch extends Search {
 	 * 
 	 * @param neighborhood Potential new LPGPlanGraphs to choose between
 	 * @param graphQuality Quality of each LPGPlanGraph in consideration
-	 * @param actionGraph The current LPGPlanGraph that is being replaced
 	 * @return A new actionGraph chosen from the neighborhood.
 	 * 
-	 *   TODO:  All
 	 */
 	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood) {
 		
 		Collections.sort(neighborhood);
 		int ci = actionGraph.getInconsistencyCount();
 		int count = 0;
+		
+		/* count the neighbors with better quality.  They are sorted, so we can break after finding the cutoff */
 		for (LPGActionGraph neighbor: neighborhood) {
 			if (neighbor.getInconsistencyCount() < ci)
 				count++;
+			else
+				break;
 		}
-		//Random rand = new Random();
-		//int next = rand.nextInt(neighborhood.size());
+
+		/* if there is only one A-graph that is better, return that */ 
 		if( count == 1)
 			return neighborhood.get(0);
+		
+		/* otherwise randomly pick one of the better options */
 		else if ( count > 1 ) {
 			int next = rand.nextInt(count);
 			return neighborhood.get(next);
 		}
 		
-		return neighborhood.get(0);
+		/* otherwise pick any graph with probability noiseFactor or the best (index 0) with probability 1-noiseFactor */
+		else {
+			double random = rand.nextDouble();
+			
+			if ( random < noiseFactor) {
+				/* choosing randomly between all options, instead of between the first count good options as above */
+				int next = rand.nextInt(neighborhood.size());
+				return neighborhood.get(next);
+			}
+			else 
+				return neighborhood.get(0);
+		}
 	}
 
 	/**
@@ -214,24 +234,20 @@ public class LPGSearch extends Search {
 	/**
 	 * Increases noise factor if current variance is not significantly different 
 	 * than lastVariance since the last noiseWindow number of steps, or sets it to default.
+	 * noiseFactor is always increasing until set to default, so it has range [default, 1].
 	 * 
-	 * TODO: getVariance
 	 */
 	private void updateNoiseFactor(){
-		double variance = getVariance();
+		double variance = Statistics.calculateVariance(numInconsistency);
 		
+		/* increase if variance is not changing, ceiling of 1 as it is a probability */
 		if( (variance - lastVariance) < VARIANCE_THRESHOLD )
-			this.noiseFactor *= 1.25;
+			this.noiseFactor = Math.min(1, noiseFactor*1.25);
 		else
 			this.noiseFactor = DEFAULT_NOISE_FACTOR;
 		
 		this.lastVariance = variance;
 	}
 	
-	/** Calculates and returns variance of numInconsistency */
-	private double getVariance(){
-		return 0;
-	}
-
 }
 
