@@ -22,6 +22,9 @@ public abstract class StateSpacePlanner extends Planner<StateSpaceSearch> {
 
 	@Override
 	protected final StateSpaceSearch makeSearch(Problem problem) {
+		if (problem instanceof StateSpaceProblem){
+			return makeStateSpaceSearch((StateSpaceProblem)problem);
+		}
 		return makeStateSpaceSearch(new StateSpaceProblem(problem));
 	}
 	

@@ -40,7 +40,11 @@ public class StateSpaceProblem extends Problem {
 		this.steps = collectSteps(problem);
 		this.literals = collectLiterals(problem, steps);
 	}
-
+	public StateSpaceProblem(Problem problem, ImmutableArray<Step> steps,ImmutableArray<Literal> literals) {
+		super(problem.name, problem.domain, problem.objects, problem.initial, problem.goal);
+		this.steps = steps;
+		this.literals = literals;
+	}
 	/**
 	 * Returns an array of every possible ground step.
 	 * 
