@@ -2,22 +2,17 @@ package edu.uno.ai.planning.SATPlan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
+import edu.uno.ai.planning.ss.TotalOrderPlan;
 import edu.uno.ai.planning.util.ImmutableArray;
 
-/**
- * Represents a search space whose
- * {@link edu.uno.ai.planning.pop.PartialOrderNodes nodes} are plans
- * and whose edges are orderings?
- *
- * @author
- */
-public class SATModelSearch extends Search {
+class SATModelSearch extends Search {
 
 	/** The Partial Order problem being solved */
 	public ArrayList<BooleanVariable> satisfiableModel;
@@ -51,15 +46,10 @@ public class SATModelSearch extends Search {
 
 	@Override
 	public Plan findNextSolution() {
-		ArrayList<BooleanVariable> result = Solve(this.problem);	
-		
-		
-		if (result.isEmpty())
-			return null;
-		return null;
+		return Solve(problem);
 	}
 	
-	public ArrayList<BooleanVariable> Solve(Problem problem){
+	public Plan Solve(Problem problem){
 		int maxTimeForSAT = 4;
 		
 		ArrayList<BooleanVariable> result = new ArrayList<BooleanVariable>();
@@ -97,7 +87,27 @@ public class SATModelSearch extends Search {
 			}else {}
 				// System.out.println("\nNo solution");
 		}//End of for statement
-		return result;
+		System.out.println("Initial condition is " + problem.initial);
+		System.out.println("Goal condition is " + problem.goal);
+		if (result.isEmpty()) return null;
+		else return convertSATPlanResultToSolution(result, encoding.getEncodingModel());
 	}//End of Solve
+
+	public Plan convertSATPlanResultToSolution(ArrayList<BooleanVariable> satisfiedModel, Map<String, CNFEncodingModel> encodingModel){
+		System.out.println("Converting the variables back to the plan");
+		TotalOrderPlan plan = new TotalOrderPlan();
+
+//		Step setp = encodingModel.get("(moveToTable a b) - 0").step;
+//		plan = plan.addStep(setp);
+		for(BooleanVariable bv : satisfiedModel)
+			if (encodingModel.containsKey(bv.name) && !bv.negation){
+				Step step = encodingModel.get(bv.name).step;
+				System.out.println("Pre condition is " + step.precondition);
+				plan = plan.addStep(step);
+				System.out.println(step);
+				System.out.println("Effect is " + step.effect);
+			}
+		return plan;
+	}
 	
 }

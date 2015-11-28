@@ -9,6 +9,7 @@ import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Negation;
 import edu.uno.ai.planning.logic.Predication;
 import edu.uno.ai.planning.util.ImmutableArray;
+import jdk.nashorn.internal.runtime.arrays.ArrayLikeIterator;
 
 /**
  * This class models the encoding of the following things:
@@ -70,8 +71,34 @@ public class CNFEncoding {
 		}
 		return result;
 	}
-	
-	
+
+	public String getStringFromListOfBooleanVariables(List<BooleanVariable> disjunctions){
+		String result = "";
+//          for (ArrayList<BooleanVariable> disjunctions : this.cnf){
+		for (BooleanVariable BV : disjunctions){
+			result += (BV.negation ? "~" : "") + BV.name + " V ";
+		}
+		if (!result.isEmpty())
+			result = result.substring(0, result.length() - 3);
+		result += "\n";
+//          }
+		return result;
+	}
+
+	public String cnfToString(ArrayList<ArrayList<BooleanVariable>> givenCNF){
+		String result = "";
+		for (ArrayList<BooleanVariable> disjunctions : givenCNF){
+			for (BooleanVariable BV : disjunctions){
+				result += (BV.negation ? "~" : "") + BV.name + " V ";
+			}
+			if (!result.isEmpty())
+				result = result.substring(0, result.length() - 3);
+			result += "\n";
+		}
+		return result;
+	}
+
+//	public ArrayList<BooleanVariable> not
 	
 	/**
 	 * Creates a CNF for all the possible steps in the given number of time steps
@@ -98,7 +125,9 @@ public class CNFEncoding {
 		
 		//int tt = 1/0;
 		//Add the initial state
-		result.addAll(conjunctionFromExpression(initial, 0));		
+		result.addAll(conjunctionFromExpression(initial, 0));
+
+
 		
 		ArrayList<BooleanVariable> atleastOneActionHappensAtEachStep = 
 				new ArrayList<BooleanVariable>();			
@@ -147,7 +176,7 @@ public class CNFEncoding {
 				step.toString() + " - " + time, null, Boolean.TRUE);
 		
 		CNFEncodingModel encodingModel = new CNFEncodingModel(
-				step.toString() + " - " + time, CNFVariableType.ACTION, time);	
+				step.toString() + " - " + time, CNFVariableType.ACTION, time, step);
 		
 		this.encodingModel.put(step.toString() + " - " + time, encodingModel);
 		
@@ -398,31 +427,42 @@ public class CNFEncoding {
 		
 		List<BooleanVariable> solution = satSolver.getModel(problemo);
 
-		return solution != null;
-
-		/*
-		for(BooleanVariable BV : solution){
-			if(BV.value == Boolean.TRUE){
-				System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
+		if (solution == null)
+			return false;
+		else {
+			System.out.println("solution length is " + solution.size());
+			System.out.println("EFFECT SOLVED MODEL IS " + getStringFromListOfBooleanVariables(solution));
+			for (BooleanVariable bv : solution){
+				if (bv.value){
+					return true;
+				}
 			}
-		}	
-		
-		
-		System.out.println("solution is " + solution.size());
-		Boolean result = solution == null ? false: true;
-		System.out.println("It is " + result);
-		
-		//int ll = 1/0;
-		return result;
-		*/
+			return false;
+		}
 	}
-	
+
 	ImmutableArray<Step> removeUnsatisfiableSteps(ImmutableArray<Step> steps){
-		ArrayList<Step> result = new ArrayList<Step>();
+		System.out.println("Steps before refining");
+		printSteps(steps);
+		Set<Step> result = new HashSet<Step>();
 		for (Step step: steps){
-			if (hasSatisfiableEffects(step))
+			if (hasSatisfiableEffects(step)){
 				result.add(step);
-		}		
-		return (new ImmutableArray<Step>(result, Step.class));
+			}
+		}
+		System.out.println("Steps after refining");
+		ImmutableArray<Step> resultSteps = new ImmutableArray<Step>(result, Step.class);
+		printSteps(resultSteps);
+		return resultSteps;
+	}
+
+	private void printSteps(ImmutableArray<Step> steps){
+		for (Step step: steps){
+			System.out.println("Precondition is " + step.precondition);
+			System.out.println(step);
+			System.out.println("Effect is " + step.effect);
+		}
+
+		System.out.println("----DONE PRINTING----");
 	}
 }

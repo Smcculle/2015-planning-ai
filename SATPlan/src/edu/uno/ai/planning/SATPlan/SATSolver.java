@@ -13,17 +13,19 @@ public class SATSolver implements ISATSolver {
 
 	@Override
 	public int countVisited() {
-		return 0;
+		return nodesVisited;
 	}
 
 	@Override
 	public int countExpanded() {
-		return 0;
+		return nodesExpanded;
 	}
 
 	/** Contains the Boolean Variables when they are given a value */
 	protected static ArrayList<BooleanVariable> solution = new ArrayList<BooleanVariable>();
-	
+	protected static int nodesExpanded;
+	protected static int nodesVisited;
+
 	public static ArrayList<BooleanVariable> getModel(SATProblem problem, ArrayList<BooleanVariable> variableList){
 		if (satisfiable(problem, variableList)){
 			return solution;
@@ -266,6 +268,7 @@ public class SATSolver implements ISATSolver {
 	protected static Boolean satisfiable(SATProblem problem, ArrayList<BooleanVariable> variableList){
 		ListIterator<ArrayList<BooleanVariable>> con = problem.conjunction.listIterator();
 		ArrayList<BooleanVariable> disjunction;
+		nodesVisited++;
 
 		while(con.hasNext()){			
 			disjunction = con.next();
@@ -296,7 +299,9 @@ public class SATSolver implements ISATSolver {
 		
 		if(valueOfConjunction(problem.conjunction) == Boolean.TRUE){
 			for(BooleanVariable BV : variableList){
-				if(BV.value == Boolean.TRUE)
+				if(BV.value == Boolean.TRUE && BV.negation == Boolean.FALSE)
+					solution.add(BV);
+				else if(BV.value == Boolean.FALSE && BV.negation == Boolean.TRUE)
 					solution.add(BV);
 			}
 			return Boolean.TRUE;
@@ -330,6 +335,8 @@ public class SATSolver implements ISATSolver {
 			
 		newProblem1 = simplifyConjunction(newProblem1, newMainList1.get(count));			
 		newProblem2 = simplifyConjunction(newProblem2,newMainList2.get(count));
+
+		nodesExpanded++;
 		
 		return satisfiable(newProblem1, newMainList1) || satisfiable(newProblem2, newMainList2);
 	}
