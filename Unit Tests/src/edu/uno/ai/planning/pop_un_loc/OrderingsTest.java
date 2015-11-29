@@ -34,6 +34,22 @@ public class OrderingsTest {
     assertThat(orderings, is(nullValue()));
   }
 
+  @Test public void report_if_a_step_can_be_ordered_before_another() {
+    Step start = mock(Step.class);
+    Step end = mock(Step.class);
+    Step notIncluded = mock(Step.class);
+    Orderings emptyOrderings = newEmptyOrderings();
+    Orderings orderings = orderingsWithSteps(start, end);
+
+    assertThat(emptyOrderings.allowedOrdering(start, end), is(true));
+    assertThat(emptyOrderings.allowedOrdering(end, start), is(true));
+
+    assertThat(orderings.allowedOrdering(start, notIncluded), is(true));
+    assertThat(orderings.allowedOrdering(start, end), is(true));
+    assertThat(orderings.allowedOrdering(notIncluded, end), is(true));
+    assertThat(orderings.allowedOrdering(end, start), is(false));
+  }
+
   @Test public void report_if_a_step_is_included_in_the_orderings() {
     Step start = mock(Step.class);
     Step end = mock(Step.class);
