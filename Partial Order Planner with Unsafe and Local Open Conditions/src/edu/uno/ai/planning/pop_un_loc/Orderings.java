@@ -95,6 +95,10 @@ public class Orderings implements Iterable<Step>, Partial {
     return result;
   }
 
+  public boolean allowedOrdering(Step from, Step to) {
+    return add(from, to) != null;
+  }
+
   public boolean allows(Step before, Step middle, Step after) {
     Orderings newOrderings = this;
     if(before != middle)
