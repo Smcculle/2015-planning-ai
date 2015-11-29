@@ -34,6 +34,38 @@ public class OrderingsTest {
     assertThat(orderings, is(nullValue()));
   }
 
+  @Test public void report_if_a_step_can_be_concurrent_with_another() {
+    Step start = mock(Step.class);
+    Step left = mock(Step.class);
+    Step right = mock(Step.class);
+    Step end = mock(Step.class);
+    Step notIncluded = mock(Step.class);
+    Orderings orderings = orderingsWithSteps(start, end)
+                          .add(start, left).add(left, end)
+                          .add(start, right).add(right, end);
+
+    assertThat(orderings.mayBeConcurrent(left, right), is(true));
+    assertThat(orderings.mayBeConcurrent(right, left), is(true));
+
+    assertThat(orderings.mayBeConcurrent(start, left), is(false));
+    assertThat(orderings.mayBeConcurrent(start, right), is(false));
+    assertThat(orderings.mayBeConcurrent(start, end), is(false));
+
+    assertThat(orderings.mayBeConcurrent(end, left), is(false));
+    assertThat(orderings.mayBeConcurrent(end, right), is(false));
+    assertThat(orderings.mayBeConcurrent(end, start), is(false));
+
+    assertThat(orderings.mayBeConcurrent(start, start), is(false));
+    assertThat(orderings.mayBeConcurrent(left, left), is(false));
+    assertThat(orderings.mayBeConcurrent(right, right), is(false));
+    assertThat(orderings.mayBeConcurrent(end, end), is(false));
+
+    assertThat(orderings.mayBeConcurrent(notIncluded, start), is(false));
+    assertThat(orderings.mayBeConcurrent(notIncluded, left), is(false));
+    assertThat(orderings.mayBeConcurrent(notIncluded, right), is(false));
+    assertThat(orderings.mayBeConcurrent(notIncluded, end), is(false));
+  }
+
   @Test public void report_if_a_step_can_be_ordered_before_another() {
     Step start = mock(Step.class);
     Step end = mock(Step.class);
