@@ -2,6 +2,7 @@ package edu.uno.ai.planning.SATPlan;
 
 import java.util.*;
 
+import com.sun.org.apache.xpath.internal.operations.Neg;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.SATPlan.CNFEncodingModel.CNFVariableType;
 import edu.uno.ai.planning.logic.Conjunction;
@@ -98,14 +99,63 @@ public class CNFEncoding {
 		return result;
 	}
 
-//	public ArrayList<BooleanVariable> not
+	/**
+	 * Everything that is not in the initial state at time = 0, it is not true in the
+	 * initial state unless it is the precondition of the step that happens at the time = 0
+	 * @param steps
+	 * @return
+	 */
+	public ArrayList<ArrayList<BooleanVariable>> notTrueInTheInitialStep(Expression initial, ImmutableArray<Step> steps){
+		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
+
+		for (Step step : steps){
+			for (Expression argument : ((Conjunction) step.effect).arguments)
+			{
+				boolean doesItNegateTheInitial = doesItNegateTheInitial(initial, argument);
+				if ((argument instanceof Negation) && !doesItNegateTheInitial)
+
+					result.add(new ArrayList<BooleanVariable>(){{
+						add(argumentToBooleanVariable(argument, 0));
+					}});
+				else if(!doesItNegateTheInitial)
+					result.add(new ArrayList<BooleanVariable>(){{
+								add(argumentToNegativeBooleanVariable(argument, 0));
+							}});
+			}
+		}
+		return result;
+	}
+
+	private boolean doesItNegateTheInitial(Expression initial, Expression argument){
+		boolean result = false;
+		for (Expression thisArgument : ((Conjunction) initial).arguments){
+//			System.out.println(thisArgument);
+//			System.out.println(argument);
+			if (
+					((thisArgument instanceof Negation)
+					&& !(argument instanceof Negation)
+					&& argument.equals(thisArgument.negate())
+					) ||
+					(!(thisArgument instanceof Negation)
+							&& (argument instanceof Negation)
+							&& (argument.negate().equals(thisArgument))
+					) || argument.equals(thisArgument)
+					)
+			{
+				result = true;
+				break;
+			}
+		}
+//		System.out.println("result is " + result);
+		return result;
+	}
 	
 	/**
 	 * Creates a CNF for all the possible steps in the given number of time steps
 	 * including the initial conditions at time 0 and the goal conditions at time
 	 * timeMax
 	 * 
-	 * @param inital The initial condition of the problem
+	 * @param initial The initial condition of the problem
 	 * @param steps The set of all the possible steps
 	 * @param goal The goal condition of the problem
 	 * @param timeMax The maximum number of time steps for the encoding
@@ -118,14 +168,8 @@ public class CNFEncoding {
 		ArrayList<ArrayList<BooleanVariable>> result = 
 				new ArrayList<ArrayList<BooleanVariable>>();
 		steps = removeUnsatisfiableSteps(steps);
-		
-		for (Step step: steps){
-			// System.out.println(step);
-		}
-		
-		//int tt = 1/0;
-		//Add the initial state
 		result.addAll(conjunctionFromExpression(initial, 0));
+		result.addAll(notTrueInTheInitialStep(initial, steps));
 
 
 		
@@ -161,7 +205,7 @@ public class CNFEncoding {
 	/**
 	 * Returns a CNF of a Step for a particular time
 	 * @param step one of the possible Step in the plan than is to be encoded
-	 * @param the time step value when the step happens
+	 * @param time step value when the step happens
 	 * @return A CNF of the step of the the form
 	 * 				PRECONDITION AND ACTION => EFFECT
 	 * 				
@@ -211,7 +255,7 @@ public class CNFEncoding {
 	 * A private function that helps keeps track of all the state changes
 	 * and generate a explanatory frame axiom in the end
 	 * @param step One of the possible step for the domain
-	 * @param one of the effect of this action
+	 * @param state of the effect of this action
 	 */
 	private void updateFrameAxiomBuilder(Step step, Expression state){
 		if(this.frameAxiomBuilder.get(state) == null){
@@ -422,6 +466,7 @@ public class CNFEncoding {
 		}
 		
 		ArrayList<BooleanVariable> mainList = new ArrayList<BooleanVariable>();
+		mainList.clear();
 		
 		SATProblem problemo = new SATProblem(effectsConjunction, mainList);
 		
@@ -430,8 +475,8 @@ public class CNFEncoding {
 		if (solution == null)
 			return false;
 		else {
-			System.out.println("solution length is " + solution.size());
-			System.out.println("EFFECT SOLVED MODEL IS " + getStringFromListOfBooleanVariables(solution));
+//			System.out.println("solution length is " + solution.size());
+//			System.out.println("EFFECT SOLVED MODEL IS " + getStringFromListOfBooleanVariables(solution));
 			for (BooleanVariable bv : solution){
 				if (bv.value){
 					return true;
@@ -442,17 +487,17 @@ public class CNFEncoding {
 	}
 
 	ImmutableArray<Step> removeUnsatisfiableSteps(ImmutableArray<Step> steps){
-		System.out.println("Steps before refining");
-		printSteps(steps);
+//		System.out.println("Steps before refining");
+//		printSteps(steps);
 		Set<Step> result = new HashSet<Step>();
 		for (Step step: steps){
 			if (hasSatisfiableEffects(step)){
 				result.add(step);
 			}
 		}
-		System.out.println("Steps after refining");
+//		System.out.println("Steps after refining");
 		ImmutableArray<Step> resultSteps = new ImmutableArray<Step>(result, Step.class);
-		printSteps(resultSteps);
+//		printSteps(resultSteps);
 		return resultSteps;
 	}
 

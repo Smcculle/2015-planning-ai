@@ -64,7 +64,9 @@ class SATModelSearch extends Search {
 		for (int counter = 1; counter <= maxTimeForSAT ; counter++){	
 			cnf = encoding.encode(
 					problem.initial.toExpression(), allSteps, problem.goal, counter);					
-		
+
+			System.out.println(encoding.cnfToString(cnf));
+
 			ArrayList<BooleanVariable> mainList = new ArrayList<BooleanVariable>();
 			
 			SATProblem problemo = new SATProblem(cnf, mainList);
@@ -104,7 +106,7 @@ class SATModelSearch extends Search {
 				Step step = encodingModel.get(bv.name).step;
 				System.out.println("Pre condition is " + step.precondition);
 				plan = plan.addStep(step);
-				System.out.println(step);
+				System.out.println(step + " at time " + encodingModel.get(bv.name).time);
 				System.out.println("Effect is " + step.effect);
 			}
 		return plan;
