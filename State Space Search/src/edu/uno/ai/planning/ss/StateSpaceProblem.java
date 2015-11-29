@@ -40,6 +40,12 @@ public class StateSpaceProblem extends Problem {
 		this.steps = collectSteps(problem);
 		this.literals = collectLiterals(problem, steps);
 	}
+	/**
+	 * Allows a state space problem to be constructed externally
+	 * @param problem the planning problem
+	 * @param steps the grounded operators All of them
+	 * @param literals the possible literals
+	 */
 	public StateSpaceProblem(Problem problem, ImmutableArray<Step> steps,ImmutableArray<Literal> literals) {
 		super(problem.name, problem.domain, problem.objects, problem.initial, problem.goal);
 		this.steps = steps;

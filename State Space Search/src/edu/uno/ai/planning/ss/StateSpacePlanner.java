@@ -19,9 +19,12 @@ public abstract class StateSpacePlanner extends Planner<StateSpaceSearch> {
 	public StateSpacePlanner(String name) {
 		super(name);
 	}
-
+	/**
+	 * check if the problem is already a state space problem
+	 */
 	@Override
 	protected final StateSpaceSearch makeSearch(Problem problem) {
+		
 		if (problem instanceof StateSpaceProblem){
 			return makeStateSpaceSearch((StateSpaceProblem)problem);
 		}
