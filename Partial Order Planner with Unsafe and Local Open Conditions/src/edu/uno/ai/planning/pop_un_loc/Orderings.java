@@ -129,6 +129,14 @@ public class Orderings implements Iterable<Step>, Partial {
     return true;
   }
 
+  public boolean mayBeConcurrent(Step first, Step second) {
+	if (!hasStep(first) || !hasStep(second)) {
+	  return false;
+	}
+
+    return !hasOrdering(first, second) && !hasOrdering(second, first);
+  }
+
   private final boolean path(Node from, Step to) {
     if(from.step == to)
       return true;
