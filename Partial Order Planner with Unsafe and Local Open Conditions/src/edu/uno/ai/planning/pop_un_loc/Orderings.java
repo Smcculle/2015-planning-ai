@@ -10,49 +10,49 @@ import edu.uno.ai.planning.util.ImmutableList;
 public class Orderings implements Iterable<Step>, Partial {
 
 	private final class Node implements Partial {
-		
+
 		public final Step step;
 		public final ImmutableList<Step> children;
-		
+
 		private Node(Step step, ImmutableList<Step> children) {
 			this.step = step;
 			this.children = children;
 		}
-		
+
 		public Node(Step step) {
 			this(step, new ImmutableList<>());
 		}
-		
+
 		@Override
 		public String toString() {
 			return toString(Bindings.EMPTY);
 		}
-		
+
 		@Override
 		public String toString(Substitution substitution) {
 			return step.toString(substitution);
 		}
-		
+
 		public Node addEdgeTo(Step child) {
 			return new Node(step, children.add(child));
 		}
 	}
-	
+
 	private final ImmutableList<Node> nodes;
-	
+
 	private Orderings(ImmutableList<Node> nodes) {
 		this.nodes = nodes;
 	}
-	
+
 	Orderings() {
 		this(new ImmutableList<Node>());
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString(Bindings.EMPTY);
 	}
-	
+
 	@Override
 	public String toString(Substitution substitution) {
 		String str = "ORDERINGS:";
@@ -61,7 +61,7 @@ public class Orderings implements Iterable<Step>, Partial {
 				str += "\n  " + before.toString(substitution) + " < " + after.toString(substitution);
 		return str;
 	}
-	
+
 	private final Node getNode(Step step) {
 		ImmutableList<Node> current = nodes;
 		while(current != null && current.length != 0) {
@@ -71,7 +71,7 @@ public class Orderings implements Iterable<Step>, Partial {
 		}
 		return null;
 	}
-	
+
 	public Orderings add(Step before, Step after) {
 		Orderings result = this;
 		Node beforeNode = getNode(before);
@@ -89,12 +89,12 @@ public class Orderings implements Iterable<Step>, Partial {
 			return null;
 		// Does this ordering already exist?
 		if(path(beforeNode, after))
-			return this;		
+			return this;
 		beforeNode = beforeNode.addEdgeTo(after);
 		result = new Orderings(replace(beforeNode, result.nodes));
 		return result;
 	}
-	
+
 	public boolean allows(Step before, Step middle, Step after) {
 		Orderings newOrderings = this;
 		if(before != middle)
@@ -116,7 +116,7 @@ public class Orderings implements Iterable<Step>, Partial {
 		}
 		return false;
 	}
-	
+
 	private static final ImmutableList<Node> replace(Node node, ImmutableList<Node> nodes) {
 		if(nodes.first.step == node.step)
 			return nodes.rest.add(node);
@@ -128,7 +128,7 @@ public class Orderings implements Iterable<Step>, Partial {
 	public Iterator<Step> iterator() {
 		return topologicalSort().iterator();
 	}
-	
+
 	private final LinkedList<Step> topologicalSort() {
 		LinkedList<Node> nodes = new LinkedList<>();
 		dfs(findStartNode(this.nodes), nodes);
@@ -137,14 +137,14 @@ public class Orderings implements Iterable<Step>, Partial {
 			steps.add(node.step);
 		return steps;
 	}
-	
+
 	private final Node findStartNode(ImmutableList<Node> nodes) {
 		if(nodes.first.step.isStart())
 			return nodes.first;
 		else
 			return findStartNode(nodes.rest);
 	}
-	
+
 	private final void dfs(Node node, LinkedList<Node> nodes) {
 		if(nodes.contains(node))
 			return;
