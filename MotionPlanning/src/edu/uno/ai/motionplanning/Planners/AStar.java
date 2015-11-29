@@ -36,7 +36,7 @@ public class AStar {
         expanded=1;
     }
 
-    public MotionPlan search() {
+    public MotionPlan<Point> search() {
         while (!frontier.isEmpty()) {
             MotionPlan<Point> currentPlan = frontier.remove();
             visited++;

@@ -27,13 +27,13 @@ public class Main {
             caseNum=i;
             Problem motionProblem=MotionProblemFactory.generateMotionProblem(complete.get(caseNum));
             AStar pathing=new AStar(complete.get(caseNum),new WeightedDistanceHeuristic(1.0f,new Euclidean()));
-            MotionPlan p=pathing.search();
+            MotionPlan<?>  p=pathing.search();
             if (p!=null){
                 System.out.println(complete.get(caseNum));
                // p.markSolution(complete.get(i).getMap());
                 //System.out.println(complete.get(i).getMap().toString());
                 System.out.println(i+","+p.getCost()+","+complete.get(caseNum).getOptimal());
-                for (Planner planner: TestSuite.PLANNERS){
+                for (Planner<?> planner: TestSuite.PLANNERS){
                 	Result r=planner.findSolutuion(motionProblem, TestSuite.NODE_LIMIT, TestSuite.TIME_LIMIT);
                 	System.out.println(r.toString());
                 }

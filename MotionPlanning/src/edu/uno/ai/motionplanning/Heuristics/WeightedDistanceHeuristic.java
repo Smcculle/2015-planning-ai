@@ -23,4 +23,11 @@ public class WeightedDistanceHeuristic implements DistanceHeuristic{
         return weight*dh.cost(p1, p2);
     }
     
+    public void reduceWeight( float reduction){
+    	weight-=reduction;
+    	if (weight<1) weight=1;
+    }
+    public float getWeight(){
+    	return weight;
+    }
 }

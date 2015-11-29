@@ -26,11 +26,13 @@ public class GridMap {
     }
 
     public void clearHistory() {
+    	setHistory(0.0f);
+    }
+    protected void setHistory(float value){
         for (int i = 0; i < history.length; i++) {
-            Arrays.fill(history[i], 0.0f);
+            Arrays.fill(history[i], value);
         }
     }
-
     public static GridMap load(String path) {
         synchronized (GridMap.class) {
             if (loadedMaps == null) {
@@ -51,7 +53,8 @@ public class GridMap {
             String heightLine = br.readLine();
             br.skip("width ".length());
             String widthLine = br.readLine();
-            String dummy = br.readLine();
+            String mapLine = br.readLine();
+            assert(mapLine.contains("map"));
             int height = Integer.parseInt(heightLine);
             int width = Integer.parseInt(widthLine);
             if (typeLine.contains("octile")) {
@@ -157,7 +160,7 @@ public class GridMap {
     	}
     	return false;
     }
-    public void mark(MotionPlan p) {
+    public void mark(MotionPlan<?> p) {
         Point2D spot = p.getLoc();
         mark(spot,(float)p.getCost() + 0.01f);
     }

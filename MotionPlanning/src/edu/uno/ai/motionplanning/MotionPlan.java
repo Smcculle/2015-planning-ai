@@ -8,22 +8,26 @@ package edu.uno.ai.motionplanning;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+
 import edu.uno.ai.motionplanning.Heuristics.DistanceHeuristic;
 
 /**
  *
  * @author jgrimm
  */
-public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan> {
+public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan<?>> {
 	List<T> path;
 	double cost;
 	double heuristic;
+	double actionCost;
 	final double EPSILON = 1e-10;
 
 	public MotionPlan(T start, double heuristic) {
 		path = new ArrayList<>();
 		path.add(start);
 		cost = 0;
+		actionCost=0;
 		this.heuristic = heuristic;
 	}
 
@@ -31,12 +35,13 @@ public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan> {
 		path = new ArrayList<>();
 		path.addAll(oldPlan.path);
 		path.add(next);
+		this.actionCost=costInc;
 		this.cost = oldPlan.cost + costInc;
 		this.heuristic = heuristic;
 	}
 
 	@Override
-	public int compareTo(MotionPlan p) {
+	public int compareTo(MotionPlan<?> p) {
 		int i = Double.compare(cost + heuristic, p.cost + p.heuristic);
 		if (i != 0) {
 			return i;
@@ -56,8 +61,11 @@ public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan> {
 		}
 	}
 
-	public List<MotionPlan<T>> nextSteps(Scenario s, DistanceHeuristic dh) {
+	public List<MotionPlan<T>> nextSteps(Scenario s, DistanceHeuristic dh){
 		GridMap m = s.getMap();
+		return nextSteps(s,m,dh);
+	}
+	public List<MotionPlan<T>> nextSteps(Scenario s, GridMap m, DistanceHeuristic dh) {
 		ArrayList<MotionPlan<T>> nextSteps = new ArrayList<>();
 		T currentLoc = path.get(path.size() - 1);
 		for (int y = -1; y <= 1; y++) {
@@ -88,6 +96,9 @@ public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan> {
 		return (T) currentLoc.clone();
 	}
 
+	public double getActionCost(){
+		return actionCost;
+	}
 	public double getCost() {
 		return cost;
 	}
@@ -99,4 +110,7 @@ public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan> {
 		}
 	}
 
+	public List<T> planSteps(){
+		return Collections.unmodifiableList(path);
+	}
 }
