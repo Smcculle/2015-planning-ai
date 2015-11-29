@@ -187,6 +187,18 @@ public class WalkSAT implements ISATSolver {
 				.collect(Collectors.toList());
 		}
 
+		Problem purified = new Problem(clauses);
+
+		// It might have happened that in one of those second passes we
+		// removed a complete satisfied clause that contained a variable
+		// that didn't show up anywhere else. We find those extra lost variables
+		// and freeze them as well. Their value is not important but we
+		// have to remember them (among other pures) so that we can
+		// correctly restore the solution.
+		problem.variables.stream()
+			.filter(variable -> !variable.isFrozen() && !purified.variables.contains(variable))
+			.forEach(Variable::freeze);
+
 		// Remember pure variables and their values so that we can add it later
 		// to the solution
 		pures = problem.variables.stream()

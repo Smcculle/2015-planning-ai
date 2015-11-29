@@ -23,6 +23,8 @@ public class WalkSATTest {
 	BooleanVariable NotA;
 	BooleanVariable B;
 	BooleanVariable NotB;
+	BooleanVariable C;
+	BooleanVariable NotC;
 
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
@@ -40,6 +42,8 @@ public class WalkSATTest {
 		NotA = new BooleanVariable("a", null, Boolean.TRUE);
 		B = new BooleanVariable("b", null, Boolean.FALSE);
 		NotB = new BooleanVariable("b", null, Boolean.TRUE);
+		C = new BooleanVariable("c", null, Boolean.FALSE);
+		NotC = new BooleanVariable("c", null, Boolean.TRUE);
 	}
 
 	@Test
@@ -427,5 +431,50 @@ public class WalkSATTest {
 		solver = new WalkSAT(10, 10, 0.5);
 		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
 		assertTrue(solution == null);
+	}
+
+	@Test
+	public void getModelForModelWithUnimportantVariables() {
+		// In this example, once the pure variable A is frozen, the whole
+		// conjunction is satisfied and the rest of variables becomes
+		// unimportant. Yet we have to make sure that a correct and complete
+		// solution is generated.
+
+		ArrayList<BooleanVariable> cA = new ArrayList<>(Collections.singletonList(A));
+		ArrayList<BooleanVariable> AvBvC = new ArrayList<>(Arrays.asList(A, B, C));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(cA);
+		conjunction.add(AvBvC);
+
+		solver = new WalkSAT(10, 10, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+
+		assertTrue(solution != null);
+		assertTrue(solution.containsAll(Arrays.asList(A, B, C)));
+		assertTrue(A.value);
+		assertThat(B.value, anyOf(is(true), is(false)));
+		assertThat(C.value, anyOf(is(true), is(false)));
+	}
+
+	@Test
+	public void getModelForSolvableProblemWithPuresOnly() {
+		ArrayList<BooleanVariable> cA = new ArrayList<>(Collections.singletonList(A));
+		ArrayList<BooleanVariable> cNotB = new ArrayList<>(Collections.singletonList(NotB));
+		ArrayList<BooleanVariable> cC = new ArrayList<>(Collections.singletonList(C));
+
+		ArrayList<ArrayList<BooleanVariable>> conjunction = new ArrayList<>();
+		conjunction.add(cA);
+		conjunction.add(cNotB);
+		conjunction.add(cC);
+
+		solver = new WalkSAT(10, 10, 0.5);
+		List<BooleanVariable> solution = solver.getModel(new SATProblem(conjunction, new ArrayList<>()));
+
+		assertTrue(solution != null);
+		assertTrue(solution.containsAll(Arrays.asList(A, NotB, C)));
+		assertTrue(A.value);
+		assertTrue(NotB.value);
+		assertTrue(C.value);
 	}
 }
