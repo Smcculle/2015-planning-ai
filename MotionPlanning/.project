@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>MotionPlanning</name>
+	<comment></comment>
+	<projects>
+		<project>Benchmarks</project>
+		<project>Breadth First Search Planner</project>
+		<project>FastForward Planner</project>
+		<project>GraphPlan (sgware)</project>
+		<project>GraphPlan Planner</project>
+		<project>Heuristic Search (sgware)</project>
+		<project>Heuristic Search Planner</project>
+		<project>Heuristic Search Planner (sgware)</project>
+		<project>Iterative Width Planner (sgware)</project>
+		<project>Partial Order Planner</project>
+		<project>Partial Order Planner (sgware)</project>
+		<project>Plan Graph (sgware)</project>
+		<project>Planning</project>
+		<project>State Space Search</project>
+		<project>Unit Tests</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>
