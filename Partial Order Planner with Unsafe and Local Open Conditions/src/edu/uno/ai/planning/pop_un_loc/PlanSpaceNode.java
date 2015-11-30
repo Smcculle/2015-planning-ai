@@ -4,7 +4,6 @@ import java.util.PriorityQueue;
 
 import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
@@ -96,9 +95,12 @@ public class PlanSpaceNode {
     return getRoot().isAtLimit();
   }
 
+  public void enforceNodeLimit() {
+    getRoot().enforceNodeLimit();
+  }
+
   void expand(PriorityQueue<PlanSpaceNode> queue) {
-    if (isAtLimit())
-      throw new SearchLimitReachedException();
+    enforceNodeLimit();
     // Repair flaw.
     Flaw flaw = flaws.chooseFlaw();
     if (flaw instanceof OpenPreconditionFlaw)
