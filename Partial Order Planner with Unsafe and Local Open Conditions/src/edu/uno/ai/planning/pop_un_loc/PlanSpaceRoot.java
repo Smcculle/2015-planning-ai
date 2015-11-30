@@ -13,6 +13,10 @@ public class PlanSpaceRoot extends PlanSpaceNode {
     this.problem = problem;
   }
 
+  public Boolean isAtLimit() {
+    return limit == visited;
+  }
+
   void setNodeLimit(int limit) {
     this.limit = limit;
   }
