@@ -158,6 +158,56 @@ public class OrderingsTest {
       }
     }
 
+    public class hasOrdering_from_to {
+      Step from;
+      Step to;
+
+      @Before public void setup() {
+        from = mock(Step.class);
+        to = mock(Step.class);
+      }
+
+      public class when_from_is_ordered_before_to {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(from, to);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.hasOrdering(from, to), is(true));
+        }
+      }
+
+      public class when_from_is_not_ordered {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(to, mock(Step.class));
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.hasOrdering(from, to), is(false));
+        }
+      }
+
+      public class when_from_is_not_ordered_before_to {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(to, from);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.hasOrdering(from, to), is(false));
+        }
+      }
+
+      public class when_to_is_not_ordered {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(from, mock(Step.class));
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.hasOrdering(from, to), is(false));
+        }
+      }
+    }
+
     public class mayBeConcurrent_first_second {
       Step first;
       Step second;
