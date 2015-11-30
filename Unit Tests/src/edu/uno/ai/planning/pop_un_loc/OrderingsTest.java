@@ -38,6 +38,26 @@ public class OrderingsTest {
 
   public class InstanceMethods {
 
+    public class add_before_after {
+      Step before;
+      Step after;
+
+      @Before public void setup() {
+        before = mock(Step.class);
+        after = mock(Step.class);
+      }
+
+      public class when_the_ordering_causes_a_cycle {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(after, before);
+        }
+
+        @Test public void is_null() {
+          assertThat(orderings.add(before, after), is(nullValue()));
+        }
+      }
+    }
+
     public class allowedOrdering_from_to {
       Step from;
       Step to;
