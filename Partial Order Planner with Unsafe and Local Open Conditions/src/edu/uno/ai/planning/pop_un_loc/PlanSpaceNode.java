@@ -103,16 +103,20 @@ public class PlanSpaceNode {
     enforceNodeLimit();
     // Repair flaw.
     Flaw flaw = flaws.chooseFlaw();
-    if (flaw instanceof OpenPreconditionFlaw)
-      fix((OpenPreconditionFlaw) flaw, queue);
-    else
-      fix((ThreatenedCausalLinkFlaw) flaw, queue);
+    fix(flaw, queue);
     // Notify all ancestors that this node has been visited.
     PlanSpaceNode ancestor = parent;
     while (ancestor != null) {
       ancestor.visited++;
       ancestor = ancestor.parent;
     }
+  }
+
+  public final void fix(Flaw flaw, PriorityQueue<PlanSpaceNode> queue) {
+    if (flaw instanceof OpenPreconditionFlaw)
+      fix((OpenPreconditionFlaw) flaw, queue);
+    else
+      fix((ThreatenedCausalLinkFlaw) flaw, queue);
   }
 
   private final void fix(OpenPreconditionFlaw flaw,
