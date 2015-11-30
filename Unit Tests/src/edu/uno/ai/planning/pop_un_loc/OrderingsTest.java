@@ -14,15 +14,15 @@ import com.nitorcreations.junit.runners.NestedRunner;
 
 @RunWith(NestedRunner.class)
 public class OrderingsTest {
-  private Class<Orderings> describedClass() {
+  Class<Orderings> describedClass() {
     return Orderings.class;
   }
 
-  private Orderings newEmptyOrderings() {
+  Orderings emptyOrderings() {
     return new Orderings();
   }
 
-  private Orderings orderingsWithSteps(Step first, Step second) {
+  Orderings orderingsWithSteps(Step first, Step second) {
     return new Orderings().add(first, second);
   }
 
@@ -47,7 +47,7 @@ public class OrderingsTest {
   Orderings orderings;
 
   @Before public void setup() {
-    orderings = newEmptyOrderings();
+    orderings = emptyOrderings();
   }
 
   @Test public void implements_iterable_step() {
@@ -87,7 +87,7 @@ public class OrderingsTest {
 
       public class when_neither_step_has_an_ordering {
         @Before public void setup() {
-          orderings = newEmptyOrderings();
+          orderings = emptyOrderings();
         }
 
         @Test public void is_true() {
@@ -119,7 +119,7 @@ public class OrderingsTest {
         }
       }
 
-      public class when_the_ordering_would_create_a_cycle {
+      public class when_the_ordering_causes_a_cycle {
         @Before public void setup() {
           orderings = orderingsWithSteps(from, to);
         }
@@ -149,7 +149,7 @@ public class OrderingsTest {
 
       public class when_step_is_not_ordered {
         @Before public void steup() {
-          orderings = newEmptyOrderings();
+          orderings = emptyOrderings();
         }
 
         @Test public void is_false() {
