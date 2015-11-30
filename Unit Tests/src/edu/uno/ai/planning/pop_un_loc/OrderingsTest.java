@@ -315,17 +315,4 @@ public class OrderingsTest {
       }
     }
   }
-
-  @Test public void report_if_steps_are_included_in_the_orderings() {
-    Step start = mock(Step.class);
-    Step end = mock(Step.class);
-    Step notIncluded = mock(Step.class);
-    Orderings orderings = orderingsWithSteps(start, end);
-
-    assertThat(orderings.hasSteps(start), is(true));
-    assertThat(orderings.hasSteps(start, end), is(true));
-    assertThat(orderings.hasSteps(notIncluded), is(false));
-    assertThat(orderings.hasSteps(start, end, notIncluded), is(false));
-  }
-
 }
