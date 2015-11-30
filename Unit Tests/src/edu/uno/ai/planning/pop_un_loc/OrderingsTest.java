@@ -1,11 +1,18 @@
 package edu.uno.ai.planning.pop_un_loc;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.typeCompatibleWith;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import com.nitorcreations.junit.runners.NestedRunner;
+
+@RunWith(NestedRunner.class)
 public class OrderingsTest {
   private Class<Orderings> describedClass() {
     return Orderings.class;
@@ -19,17 +26,75 @@ public class OrderingsTest {
     return new Orderings().add(first, second);
   }
 
+  Orderings orderings;
+
+  @Before public void setup() {
+    orderings = newEmptyOrderings();
+  }
+
   @Test public void implements_iterable_step() {
     assertThat(describedClass(), typeCompatibleWith(Iterable.class));
+  }
+
+  public class allowedOrdering_from_to {
+    Step from;
+    Step to;
+
+    @Before public void setup() {
+      from = mock(Step.class);
+      to = mock(Step.class);
+    }
+
+    public class when_neither_step_has_an_ordering {
+      @Before public void setup() {
+        orderings = newEmptyOrderings();
+      }
+
+      @Test public void is_true() {
+        assertThat(orderings.allowedOrdering(from, to), is(true));
+        assertThat(orderings.allowedOrdering(to, from), is(true));
+      }
+    }
+
+    public class when_one_step_has_no_ordering {
+      Step notIncluded;
+
+      @Before public void setup() {
+        orderings = orderingsWithSteps(from, to);
+      }
+
+      @Test public void is_true() {
+        assertThat(orderings.allowedOrdering(from, notIncluded), is(true));
+        assertThat(orderings.allowedOrdering(notIncluded, from), is(true));
+      }
+    }
+
+    public class when_the_ordering_already_exists {
+      @Before public void setup() {
+        orderings = orderingsWithSteps(from, to);
+      }
+
+      @Test public void is_true() {
+        assertThat(orderings.allowedOrdering(from, to), is(true));
+      }
+    }
+
+    public class when_the_ordering_would_create_a_cycle {
+      @Before public void setup() {
+        orderings = orderingsWithSteps(from, to);
+      }
+
+      @Test public void is_false() {
+        assertThat(orderings.allowedOrdering(to, from), is(false));
+      }
+    }
   }
 
   @Test public void cannot_create_cycles() {
     Step start = mock(Step.class);
     Step middle = mock(Step.class);
     Step end = mock(Step.class);
-    Orderings orderings = orderingsWithSteps(start, end)
-                         .add(start, middle)
-                         .add(middle, start);
+    Orderings orderings = orderingsWithSteps(start, end).add(start, middle).add(middle, start);
 
     assertThat(orderings, is(nullValue()));
   }
