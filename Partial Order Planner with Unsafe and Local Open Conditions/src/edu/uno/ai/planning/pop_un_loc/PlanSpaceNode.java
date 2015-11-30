@@ -102,12 +102,7 @@ public class PlanSpaceNode {
   void expand(PriorityQueue<PlanSpaceNode> queue) {
     enforceNodeLimit();
     repairNextFlaw(queue);
-    // Notify all ancestors that this node has been visited.
-    PlanSpaceNode ancestor = parent;
-    while (ancestor != null) {
-      ancestor.visited++;
-      ancestor = ancestor.parent;
-    }
+    markAsVisited();
   }
 
   public final void fix(Flaw flaw, PriorityQueue<PlanSpaceNode> queue) {
@@ -195,6 +190,14 @@ public class PlanSpaceNode {
     while (!(current instanceof PlanSpaceRoot))
       current = current.parent;
     return (PlanSpaceRoot) current;
+  }
+
+  public void markAsVisited() {
+    PlanSpaceNode ancestor = parent;
+    while (ancestor != null) {
+      ancestor.visited++;
+      ancestor = ancestor.parent;
+    }
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
