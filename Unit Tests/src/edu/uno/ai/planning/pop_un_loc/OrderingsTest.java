@@ -36,56 +36,59 @@ public class OrderingsTest {
     assertThat(describedClass(), typeCompatibleWith(Iterable.class));
   }
 
-  public class allowedOrdering_from_to {
-    Step from;
-    Step to;
+  public class InstanceMethods {
 
-    @Before public void setup() {
-      from = mock(Step.class);
-      to = mock(Step.class);
-    }
-
-    public class when_neither_step_has_an_ordering {
-      @Before public void setup() {
-        orderings = newEmptyOrderings();
-      }
-
-      @Test public void is_true() {
-        assertThat(orderings.allowedOrdering(from, to), is(true));
-        assertThat(orderings.allowedOrdering(to, from), is(true));
-      }
-    }
-
-    public class when_one_step_has_no_ordering {
-      Step notIncluded;
+    public class allowedOrdering_from_to {
+      Step from;
+      Step to;
 
       @Before public void setup() {
-        orderings = orderingsWithSteps(from, to);
+        from = mock(Step.class);
+        to = mock(Step.class);
       }
 
-      @Test public void is_true() {
-        assertThat(orderings.allowedOrdering(from, notIncluded), is(true));
-        assertThat(orderings.allowedOrdering(notIncluded, from), is(true));
-      }
-    }
+      public class when_neither_step_has_an_ordering {
+        @Before public void setup() {
+          orderings = newEmptyOrderings();
+        }
 
-    public class when_the_ordering_already_exists {
-      @Before public void setup() {
-        orderings = orderingsWithSteps(from, to);
-      }
-
-      @Test public void is_true() {
-        assertThat(orderings.allowedOrdering(from, to), is(true));
-      }
-    }
-
-    public class when_the_ordering_would_create_a_cycle {
-      @Before public void setup() {
-        orderings = orderingsWithSteps(from, to);
+        @Test public void is_true() {
+          assertThat(orderings.allowedOrdering(from, to), is(true));
+          assertThat(orderings.allowedOrdering(to, from), is(true));
+        }
       }
 
-      @Test public void is_false() {
-        assertThat(orderings.allowedOrdering(to, from), is(false));
+      public class when_one_step_has_no_ordering {
+        Step notIncluded;
+
+        @Before public void setup() {
+          orderings = orderingsWithSteps(from, to);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.allowedOrdering(from, notIncluded), is(true));
+          assertThat(orderings.allowedOrdering(notIncluded, from), is(true));
+        }
+      }
+
+      public class when_the_ordering_already_exists {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(from, to);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.allowedOrdering(from, to), is(true));
+        }
+      }
+
+      public class when_the_ordering_would_create_a_cycle {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(from, to);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.allowedOrdering(to, from), is(false));
+        }
       }
     }
   }
