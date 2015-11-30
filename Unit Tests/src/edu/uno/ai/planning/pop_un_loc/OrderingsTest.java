@@ -26,6 +26,18 @@ public class OrderingsTest {
     return new Orderings().add(first, second);
   }
 
+  Orderings orderingsWithMiddleSteps(Step... steps) {
+    Step start = mock(Step.class);
+    Step end = mock(Step.class);
+    Orderings orderings = orderingsWithSteps(start, end);
+
+    for (Step step : steps) {
+      orderings = orderings.add(start, step).add(step, end);
+    }
+
+    return orderings;
+  }
+
   Orderings orderings;
 
   @Before public void setup() {
