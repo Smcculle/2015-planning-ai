@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.SATPlan;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -27,6 +29,9 @@ public class SATSolver implements ISATSolver {
 	protected static int nodesVisited;
 
 	public static ArrayList<BooleanVariable> getModel(SATProblem problem, ArrayList<BooleanVariable> variableList){
+		nodesExpanded = 0;
+		nodesVisited = 0;
+		solution.clear();
 		if (satisfiable(problem, variableList)){
 			return solution;
 		}
@@ -270,6 +275,9 @@ public class SATSolver implements ISATSolver {
 		ArrayList<BooleanVariable> disjunction;
 		nodesVisited++;
 
+//		System.out.println("Before up propagation");
+//		print(problem.conjunction);
+
 		while(con.hasNext()){			
 			disjunction = con.next();
 			if(disjunction.isEmpty())
@@ -294,6 +302,18 @@ public class SATSolver implements ISATSolver {
 			problem.conjunction = removePures(problem.conjunction, pures);
 			problem.mainList = getVariables(problem.conjunction);
 		}
+
+        ListIterator<ArrayList<BooleanVariable>> con2 = problem.conjunction.listIterator();
+        ArrayList<BooleanVariable> disjunction2;
+
+        while(con2.hasNext()){
+            disjunction2 = con2.next();
+            if(disjunction2.isEmpty())
+                con2.remove();
+        }
+
+//		System.out.println("After UP Propagation");
+//		print(problem.conjunction);
 		
 		problem.mainList = getVariables(problem.conjunction);
 		
@@ -337,10 +357,30 @@ public class SATSolver implements ISATSolver {
 		newProblem2 = simplifyConjunction(newProblem2,newMainList2.get(count));
 
 		nodesExpanded++;
+
+//		System.out.println("Test " + problem.mainList.get(count).name);
 		
 		return satisfiable(newProblem1, newMainList1) || satisfiable(newProblem2, newMainList2);
 	}
 
+	public static void print(ArrayList<ArrayList<BooleanVariable>> conjunction){
+		String str = "";
+		for(ArrayList<BooleanVariable> disjunction : conjunction){
+			str += "(";
+			for(BooleanVariable BV : disjunction){
+				if(BV.negation == Boolean.TRUE)
+					str += "~";
+				str += BV.name + " v ";
+			}
+			if(!disjunction.isEmpty())
+				str = str.substring(0, str.length() - 3);
+			str += ") ^ ";
+		}
+
+		if(!conjunction.isEmpty())
+			str = str.substring(0, str.length() - 3);
+		System.out.println(str);
+	}
 }
 
 

@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import edu.uno.ai.planning.Plan;
+import edu.uno.ai.planning.*;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.Search;
-import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.logic.Constant;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 import edu.uno.ai.planning.util.ImmutableArray;
@@ -50,28 +49,34 @@ class SATModelSearch extends Search {
 	}
 	
 	public Plan Solve(Problem problem){
-		int maxTimeForSAT = 4;
+		int maxTimeForSAT = 3;
 		
 		ArrayList<BooleanVariable> result = new ArrayList<BooleanVariable>();
 		
 		ImmutableArray<Step> allSteps = (new StateSpaceProblem(problem)).steps;
+//		ImmutableArray<Operator> allLiters = (new StateSpaceProblem(problem))
+
+//		System.out.println("All constants are ");
+//		for(Operator constant : allLiters){
+//			System.out.println(constant);
+//		}
+
+
 		
 		CNFEncoding encoding = new CNFEncoding(satSolver);
 		
-		ArrayList<ArrayList<BooleanVariable>> cnf = 
-				new ArrayList<ArrayList<BooleanVariable>>();
+		ArrayList<ArrayList<BooleanVariable>> cnf;
 		
-		for (int counter = 1; counter <= maxTimeForSAT ; counter++){	
-			cnf = encoding.encode(
-					problem.initial.toExpression(), allSteps, problem.goal, counter);					
+		for (int counter = 1; counter <= maxTimeForSAT ; counter++){
+			cnf = encoding.encode(problem.initial.toExpression(), allSteps, problem.goal, counter);
 
 			System.out.println(encoding.cnfToString(cnf));
 
 			ArrayList<BooleanVariable> mainList = new ArrayList<BooleanVariable>();
 			
-			SATProblem problemo = new SATProblem(cnf, mainList);
+			SATProblem satProblem = new SATProblem(cnf, mainList);
 			
-			List<BooleanVariable> solution = satSolver.getModel(problemo);
+			List<BooleanVariable> solution = satSolver.getModel(satProblem);
 			nodesVisited = satSolver.countVisited();
 			nodesExpanded = satSolver.countExpanded();
 			
@@ -79,12 +84,12 @@ class SATModelSearch extends Search {
 				// System.out.println("\nSolution is:");
 				for(BooleanVariable BV : solution){
 					if(BV.value == Boolean.TRUE){
-						if (!BooleanVariable.containsEqualBooleanVariable(result, BV)){
+//						if (!BooleanVariable.containsEqualBooleanVariable(result, BV)){
 							result.add(BV);
 							System.out.println((BV.negation? " not " : "") + BV.name + " = " + BV.value);
-						}
+//						}
 					}
-				}			
+				}
 				break;
 			}else {}
 				// System.out.println("\nNo solution");

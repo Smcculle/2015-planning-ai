@@ -23,7 +23,7 @@ public class SATPlan extends Planner{
 	}
 
 	public static SATPlan withWalkSAT() {
-		return new SATPlan("SATPLAN_WALKSAT", new WalkSAT(100, 100, 0.5));
+		return new SATPlan("SATPLAN_WALKSAT", new WalkSAT(100, 100, 0.9));
 	}
 
 	public static SATPlan withDavisPutnamSAT() {
