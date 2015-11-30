@@ -14,7 +14,7 @@ import edu.uno.ai.planning.util.ImmutableList;
 public class PlanSpaceNode {
 
 	private static int nextID = 0;
-	
+
 	public final int id = nextID++;
 	public final PlanSpaceNode parent;
 	public final ImmutableList<Step> steps;
@@ -24,7 +24,7 @@ public class PlanSpaceNode {
 	public final FlawList flaws;
 	int visited = 0;
 	int expanded = 0;
-	
+
 	protected PlanSpaceNode(PlanSpaceNode parent, ImmutableList<Step> steps, Bindings bindings, Orderings orderings, ImmutableList<CausalLink> causalLinks, FlawList flaws) {
 		this.parent = parent;
 		this.steps = steps;
@@ -38,7 +38,7 @@ public class PlanSpaceNode {
 			ancestor = ancestor.parent;
 		}
 	}
-	
+
 	protected PlanSpaceNode(Problem problem) {
 		this.parent = null;
 		Step start = new Step(Expression.TRUE, problem.initial.toExpression());
@@ -49,7 +49,7 @@ public class PlanSpaceNode {
 		this.causalLinks = new ImmutableList<>();
 		this.flaws = new FlawList(end);
 	}
-	
+
 	@Override
 	public String toString() {
 		String str = "=== PARTIAL ORDER PLAN " + id + " ===\nSTEPS:" + toString(orderings, bindings);
@@ -59,21 +59,21 @@ public class PlanSpaceNode {
 		str += "\n" + flaws.toString(bindings);
 		return str;
 	}
-	
+
 	private static final String toString(Iterable<? extends Partial> list, Substitution substitution) {
 		String str = "";
 		for(Partial element : list)
 			str += "\n  " + element.toString(substitution);
 		return str;
 	}
-		
+
 	public PlanSpaceRoot getRoot() {
 		PlanSpaceNode current = this;
 		while(!(current instanceof PlanSpaceRoot))
 			current = current.parent;
 		return (PlanSpaceRoot) current;
 	}
-	
+
 	void expand(PriorityQueue<PlanSpaceNode> queue) {
 		// Check search limit.
 		PlanSpaceRoot root = getRoot();
@@ -92,7 +92,7 @@ public class PlanSpaceNode {
 			ancestor = ancestor.parent;
 		}
 	}
-	
+
 	private final void fix(OpenPreconditionFlaw flaw, PriorityQueue<PlanSpaceNode> queue) {
 		// Consider all existing steps.
 		for(Step step : steps)
@@ -101,7 +101,7 @@ public class PlanSpaceNode {
 		for(Operator operator : getRoot().problem.domain.operators)
 			fix(flaw, new Step(operator), queue);
 	}
-	
+
 	private final void fix(OpenPreconditionFlaw flaw, Step step, PriorityQueue<PlanSpaceNode> queue) {
 		// Check each effect of the step.
 		for(Literal effect : step.effects) {
@@ -138,11 +138,12 @@ public class PlanSpaceNode {
 			}
 		}
 	}
-	
+
 	private final FlawList checkForThreats(ImmutableList<Step> steps, Bindings bindings, Orderings orderings, ImmutableList<CausalLink> causalLinks, FlawList flaws) {
 		// For each causal link...
 		for(CausalLink link : causalLinks) {
 			Literal label = link.label.negate().substitute(bindings);
+
 			// Label must be ground to be a definite threat.
 			if(label.isGround()) {
 				// For each step...
@@ -162,7 +163,7 @@ public class PlanSpaceNode {
 		}
 		return flaws;
 	}
-	
+
 	private final void fix(ThreatenedCausalLinkFlaw flaw, PriorityQueue<PlanSpaceNode> queue) {
 		FlawList newFlaws = flaws.remove(flaw);
 		// Promote
