@@ -123,6 +123,78 @@ public class OrderingsTest {
         }
       }
     }
+
+    public class mayBeConcurrent_first_second {
+      Step first;
+      Step second;
+
+      @Before public void setup() {
+        first = mock(Step.class);
+        second = mock(Step.class);
+      }
+
+      public class when_first_is_not_ordered {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(mock(Step.class), second);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(false));
+        }
+      }
+
+      public class when_first_is_ordered_before_second {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(first, second);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(false));
+        }
+      }
+
+      public class when_neither_is_ordered_relative_to_the_other {
+        @Before public void setup() {
+          orderings = orderingsWithMiddleSteps(first, second);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(true));
+          assertThat(orderings.mayBeConcurrent(second, first), is(true));
+        }
+      }
+
+      public class when_second_is_not_ordered {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(first, mock(Step.class));
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(false));
+        }
+      }
+
+      public class when_second_is_ordered_before_first {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(second, first);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(false));
+        }
+      }
+
+      public class when_they_are_identical {
+        @Before public void setup() {
+          orderings = orderingsWithSteps(first, mock(Step.class));
+          second = first;
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.mayBeConcurrent(first, second), is(false));
+        }
+      }
+    }
   }
 
   @Test public void report_if_a_step_can_be_concurrent_with_another() {
