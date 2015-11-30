@@ -93,9 +93,7 @@ public class PlanSpaceNode {
   }
 
   void expand(PriorityQueue<PlanSpaceNode> queue) {
-    // Check search limit.
-    PlanSpaceRoot root = getRoot();
-    if (root.isAtLimit())
+    if (getRoot().isAtLimit())
       throw new SearchLimitReachedException();
     // Repair flaw.
     Flaw flaw = flaws.chooseFlaw();
