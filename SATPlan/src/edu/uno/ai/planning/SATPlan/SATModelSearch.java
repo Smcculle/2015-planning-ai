@@ -1,15 +1,16 @@
 package edu.uno.ai.planning.SATPlan;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import edu.uno.ai.planning.*;
+import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
-import edu.uno.ai.planning.logic.Constant;
+import edu.uno.ai.planning.Search;
+import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 import edu.uno.ai.planning.util.ImmutableArray;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 class SATModelSearch extends Search {
 

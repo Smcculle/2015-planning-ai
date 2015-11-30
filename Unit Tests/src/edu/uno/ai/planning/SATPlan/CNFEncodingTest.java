@@ -1,16 +1,18 @@
 package edu.uno.ai.planning.SATPlan;
 
-import static org.junit.Assert.assertTrue;
+import edu.uno.ai.planning.Settings;
+import edu.uno.ai.planning.Step;
+import edu.uno.ai.planning.logic.*;
+import edu.uno.ai.planning.util.ImmutableArray;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
-
-import edu.uno.ai.planning.Settings;
-import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.SATPlan.CNFEncoding;
-import edu.uno.ai.planning.logic.*;
-import edu.uno.ai.planning.util.ImmutableArray;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class CNFEncodingTest {		
 	Predication A = new Predication("test", new Constant(Settings.DEFAULT_TYPE, "A")); 
@@ -31,11 +33,26 @@ public class CNFEncodingTest {
 	Conjunction ANotBNotC = new Conjunction(A, notB, notC);
 	Conjunction ANotBNotCBCNotA = new Conjunction(A, notB, notC, B, C, notA);
 	Conjunction notAC = new Conjunction(notA, C);
-	
+
+	private CNFEncoding encoding;
+
+	Step testStep1 = new Step("testStep1", AB, notAC);
+	Step testStep2 = new Step("testStep2", notAC, AC);
+	Step testStep3 = new Step("testStep3", AC, C);
+
+	ArrayList<Step> allSteps = new ArrayList<Step>(){{
+		add(testStep1);
+		add(testStep2);
+		add(testStep3);
+	}};
+
+	@Before
+	public void Setup(){
+		encoding = new CNFEncoding(new SATSolver());
+	}
+
 	@Test
 	public void conjunctionFromExpressionTest(){		
-		CNFEncoding encoding = new CNFEncoding(new SATSolver());
-
 		ArrayList<ArrayList<BooleanVariable>> cnf = encoding.conjunctionFromExpression(A, 0);
 		assertTrue(cnf.size() == 1);		
 		assertTrue(cnf.get(0).get(0).name.equals("(test A) - 0"));
@@ -121,24 +138,50 @@ public class CNFEncodingTest {
 	
 	@Test
 	public void stepToConjunctionTest(){
-		Step step = new Step("testStep", AB, notAC);
+		ArrayList<ArrayList<BooleanVariable>> conjunction = encoding.stepToConjunction(testStep1, 1);
 		
-		CNFEncoding encoding = new CNFEncoding(new SATSolver());
-		ArrayList<ArrayList<BooleanVariable>> conjunction = encoding.stepToConjunction(step, 1);
+		assertTrue(conjunction.size() == 4);
+		assertTrue(arrayListStringComparator(conjunction.get(0), "~testStep1 - 1 V (test A) - 1"));
+		assertTrue(arrayListStringComparator(conjunction.get(1), "~testStep1 - 1 V (test B) - 1"));
+		assertTrue(arrayListStringComparator(conjunction.get(2), "~testStep1 - 1 V ~(test A) - 2"));
+		assertTrue(arrayListStringComparator(conjunction.get(3), "~testStep1 - 1 V (test C) - 2"));
 		
-		assertTrue(conjunction.size() == 2);
-		assertTrue(arrayListStringComparator(conjunction.get(0), "~testStep - 1 V ~(test A) - 1 V ~(test B) - 1 V ~(test A) - 2"));
-		assertTrue(arrayListStringComparator(conjunction.get(1), "~testStep - 1 V ~(test A) - 1 V ~(test B) - 1 V (test C) - 2"));
-		
-		
-		step = new Step("testStep", notAC, AC);
-		
-		encoding = new CNFEncoding(new SATSolver());
-		conjunction = encoding.stepToConjunction(step, 1);
-		
-		assertTrue(conjunction.size() == 2);
-		assertTrue(arrayListStringComparator(conjunction.get(0), "~testStep - 1 V (test A) - 1 V ~(test C) - 1 V (test A) - 2"));
-		assertTrue(arrayListStringComparator(conjunction.get(1), "~testStep - 1 V (test A) - 1 V ~(test C) - 1 V (test C) - 2"));
+		conjunction = encoding.stepToConjunction(testStep2, 1);
+
+		assertTrue(conjunction.size() == 4);
+		assertTrue(arrayListStringComparator(conjunction.get(0), "~testStep2 - 1 V ~(test A) - 1"));
+		assertTrue(arrayListStringComparator(conjunction.get(1), "~testStep2 - 1 V (test C) - 1"));
+		assertTrue(arrayListStringComparator(conjunction.get(2), "~testStep2 - 1 V (test A) - 2"));
+		assertTrue(arrayListStringComparator(conjunction.get(3), "~testStep2 - 1 V (test C) - 2"));
+	}
+
+	@Test
+	public void frameAxiomBuilderTest(){
+		encoding.stepToConjunction(testStep1 ,1);
+		encoding.stepToConjunction(testStep2, 1);
+
+		assertEquals(encoding.frameAxiomBuilder.size(), 3);
+		assertThat(encoding.frameAxiomBuilder.get(A).size(), equalTo(1));
+		assertThat(encoding.frameAxiomBuilder.get(notA).size(), equalTo(1));
+		assertThat(encoding.frameAxiomBuilder.get(C).size(), equalTo(2));
+	}
+
+	@Test
+	public void explanatoryFrameAxiomTest(){
+		Step testStep1 = new Step("testStep1", AB, notAC);
+		allSteps = new ArrayList<Step>(){{
+			add(testStep1);
+		}};
+		encoding.stepToConjunction(testStep1 ,1);
+
+		ArrayList<ArrayList<BooleanVariable>> result = encoding.getExplanatoryFrameAxioms(1, allSteps);
+
+		int counter = 0;
+		for(ArrayList<BooleanVariable> dij : result){
+			System.out.println(counter++ +  encoding.getStringFromListOfBooleanVariables(dij));
+		}
+
+		assertThat(result.size(), equalTo(2));
 	}
 	
 	@Test
@@ -175,5 +218,4 @@ public class CNFEncodingTest {
 		if (resultString.length() > 3) resultString = resultString.substring(0, resultString.length() - 3);		
 		return resultString.equals(cnf);
 	}
-	
 }

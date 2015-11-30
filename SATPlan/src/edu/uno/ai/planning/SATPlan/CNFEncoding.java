@@ -1,17 +1,16 @@
 package edu.uno.ai.planning.SATPlan;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.SATPlan.CNFEncodingModel.CNFVariableType;
+import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Negation;
 import edu.uno.ai.planning.logic.Predication;
 import edu.uno.ai.planning.util.ImmutableArray;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class models the encoding of the following things:
@@ -33,7 +32,7 @@ public class CNFEncoding {
 	private ArrayList<ArrayList<BooleanVariable>> cnf;	
 	
 	/* Stores steps that alter a state */
-	private HashMap<Expression, ArrayList<Step>> frameAxiomBuilder;
+	protected HashMap<Expression, ArrayList<Step>> frameAxiomBuilder;
 
 	/* Stores the Encoding, i.e. info about the literal in the CNF*/
 	private HashMap<String, CNFEncodingModel> encodingModel;
@@ -96,10 +95,25 @@ public class CNFEncoding {
 			for (BooleanVariable BV : disjunctions){
 				result += (BV.negation ? "~" : "") + BV.name + " V ";
 			}
-			if (!result.isEmpty())
+			if (!result.isEmpty() && result.endsWith(" V "))
 				result = result.substring(0, result.length() - 3);
 			result += "\n";
 		}
+		return result;
+	}
+
+	private ArrayList<ArrayList<BooleanVariable>> updateTheListOfUntrueStates(Expression initial, Expression argumentToCheck, int time){
+		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
+		boolean doesItNegateTheInitial = doesItNegateTheInitial(initial, argumentToCheck);
+		if ((argumentToCheck instanceof Negation) && !doesItNegateTheInitial)
+
+			result.add(new ArrayList<BooleanVariable>(){{
+				add(argumentToBooleanVariable(argumentToCheck, time));
+			}});
+		else if(!doesItNegateTheInitial)
+			result.add(new ArrayList<BooleanVariable>(){{
+				add(argumentToNegativeBooleanVariable(argumentToCheck, time));
+			}});
 		return result;
 	}
 
@@ -112,33 +126,17 @@ public class CNFEncoding {
 	public ArrayList<ArrayList<BooleanVariable>> notTrueInTheInitialStep(Expression initial, ImmutableArray<Step> steps, int time){
 		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
 		for (Step step : steps){
-			for (Expression argument : ((Conjunction) step.effect).arguments)
-			{
-				boolean doesItNegateTheInitial = doesItNegateTheInitial(initial, argument);
-				if ((argument instanceof Negation) && !doesItNegateTheInitial)
+			if (step.effect instanceof Predication)
+				result.addAll(updateTheListOfUntrueStates(initial, step.effect, time));
+			else
+				for (Expression argument : ((Conjunction) step.effect).arguments)
+					result.addAll(updateTheListOfUntrueStates(initial, argument, time));
 
-					result.add(new ArrayList<BooleanVariable>(){{
-						add(argumentToBooleanVariable(argument, time));
-					}});
-				else if(!doesItNegateTheInitial)
-					result.add(new ArrayList<BooleanVariable>(){{
-								add(argumentToNegativeBooleanVariable(argument, time));
-							}});
-			}
-
-			for (Expression argument : ((Conjunction) step.precondition).arguments)
-			{
-				boolean doesItNegateTheInitial = doesItNegateTheInitial(initial, argument);
-				if ((argument instanceof Negation) && !doesItNegateTheInitial)
-
-					result.add(new ArrayList<BooleanVariable>(){{
-						add(argumentToBooleanVariable(argument, time));
-					}});
-				else if(!doesItNegateTheInitial)
-					result.add(new ArrayList<BooleanVariable>(){{
-						add(argumentToNegativeBooleanVariable(argument, time));
-					}});
-			}
+			if (step.precondition instanceof Predication)
+				result.addAll(updateTheListOfUntrueStates(initial, step.precondition, time));
+			else
+				for (Expression argument : ((Conjunction) step.precondition).arguments)
+					result.addAll(updateTheListOfUntrueStates(initial, argument, time));
 		}
 		return result;
 	}
@@ -198,7 +196,7 @@ public class CNFEncoding {
 
 			//3. Add conjunctions to make sure at least one action occur at each step
 			result.add(atLeastOneActionHappensAtEachStep);
-
+//
 			//4. Add conjunctions to make sure only one one occur at each step
 			result.addAll(onlyOneActionOccursAtEachStep(steps, counter));
 		}
@@ -214,31 +212,41 @@ public class CNFEncoding {
 		result.addAll(conjunctionFromExpression(goal, timeMax));
 
 		//7. This is actually the final step
-		result.addAll(notTrueInTheInitialStep(goal, steps, timeMax));
+//		result.addAll(notTrueInTheInitialStep(goal, steps, timeMax));
 
 	    this.cnf = result;
+		return polishedCNF(cnf);
+	}
+
+	public ArrayList<ArrayList<BooleanVariable>> polishedCNF(ArrayList<ArrayList<BooleanVariable>> cnf){
+		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
+		for (ArrayList<BooleanVariable> disjunction : cnf){
+			if (disjunction != null && disjunction.size() > 0 && !getStringFromListOfBooleanVariables(disjunction).isEmpty()){
+				result.add(disjunction);
+			}
+		}
 		return result;
 	}
 
-	protected ArrayList<BooleanVariable> oneClauseForOneEffectOrPreconditionLiteral(BooleanVariable stepLiteral, Expression expression, int time){
+	protected ArrayList<BooleanVariable> oneClauseInDisjunction(BooleanVariable stepLiteral, Expression expression, int time){
 		ArrayList<BooleanVariable> disjunction = new ArrayList<>();
 		disjunction.add(stepLiteral);//this is already negative
 		disjunction.add(argumentToBooleanVariable(expression, time));
 		return disjunction;
 	}
 
-	protected ArrayList<ArrayList<BooleanVariable>> actionImpliesToCNF(Expression expression, Step step, int time, boolean updateFrameAxioms){
+	protected ArrayList<ArrayList<BooleanVariable>> actionImpliesToCNF(Expression expression, Step step, int stepTime, int time, boolean updateFrameAxioms){
 		BooleanVariable stepLiteral = new BooleanVariable(
-				step.toString() + " - " + time, null, Boolean.TRUE);
+				step.toString() + " - " + stepTime, null, Boolean.TRUE);
 		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
 		if (expression instanceof Predication){
-			result.add(oneClauseForOneEffectOrPreconditionLiteral(stepLiteral, expression, time));
+			result.add(oneClauseInDisjunction(stepLiteral, expression, time));
 			if (updateFrameAxioms) updateFrameAxiomBuilder(step, expression);
 			return result;
 		}
 		else{
 			for (Expression expressionLiteral : ((Conjunction) expression).arguments){
-				result.add(oneClauseForOneEffectOrPreconditionLiteral(stepLiteral, expressionLiteral, time));
+				result.add(oneClauseInDisjunction(stepLiteral, expressionLiteral, time));
 				if (updateFrameAxioms) updateFrameAxiomBuilder(step, expressionLiteral);
 			}
 			return result;
@@ -254,9 +262,9 @@ public class CNFEncoding {
 
 		this.encodingModel.put(step.toString() + " - " + time, encodingModel);
 
-		result.addAll(actionImpliesToCNF(step.precondition, step, time, false));
+		result.addAll(actionImpliesToCNF(step.precondition, step, time, time, false));
 
-		result.addAll(actionImpliesToCNF(step.effect, step, time + 1, true));
+		result.addAll(actionImpliesToCNF(step.effect, step, time, time + 1, true));
 		return result;
 	}
 
@@ -308,7 +316,7 @@ public class CNFEncoding {
 	 * @param step One of the possible step for the domain
 	 * @param state of the effect of this action
 	 */
-	private void updateFrameAxiomBuilder(Step step, Expression state){
+	protected void updateFrameAxiomBuilder(Step step, Expression state){
 		if(this.frameAxiomBuilder.get(state) == null){
 			ArrayList<Step> allStepsWithThisEffect = new ArrayList<>();
 			allStepsWithThisEffect.add(step);
@@ -342,34 +350,16 @@ public class CNFEncoding {
 	 * @return CNF describing the Explanatory Frame Axioms
 	 */
 
-	private ArrayList<ArrayList<BooleanVariable>> getExplanatoryFrameAxioms(int timeMax, ArrayList<Step> allSteps){
+	protected ArrayList<ArrayList<BooleanVariable>> getExplanatoryFrameAxioms(int timeMax, ArrayList<Step> allSteps){
 		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
 		Iterator it = frameAxiomBuilder.entrySet().iterator();
 	    while (it.hasNext()) {
 	    	ArrayList<BooleanVariable> explanatoryClauseForAction;
-			ArrayList<BooleanVariable> classicalAxiomForExpression;
 	        Map.Entry pair = (Map.Entry)it.next();
 	        Expression action = (Expression)pair.getKey();
 	        ArrayList<Step> setOfSteps = (ArrayList<Step>)pair.getValue();
 	        for (int counter = 1; counter <= timeMax; counter++)
 			{
-				for (Step step : allSteps){
-					classicalAxiomForExpression = new ArrayList<>();
-					if (!setOfSteps.contains(step)){
-						boolean originalNegationOfAction = false;
-						if (action instanceof  Negation)
-							originalNegationOfAction = true;
-						classicalAxiomForExpression.add(
-								new BooleanVariable((originalNegationOfAction ? action.negate().toString() : action.toString()) + " - " + (counter - 1), null, originalNegationOfAction ? Boolean.FALSE : Boolean.TRUE));
-						classicalAxiomForExpression.add(
-								new BooleanVariable(step.toString() + " - " + (counter - 1), null, Boolean.FALSE));
-						classicalAxiomForExpression.add(
-								new BooleanVariable((originalNegationOfAction ? action.negate().toString() : action.toString()) + " - " + counter, null, originalNegationOfAction ? Boolean.TRUE: Boolean.FALSE));
-					}
-					ArrayList<ArrayList<BooleanVariable>> temp = new ArrayList<>();
-					temp.add(classicalAxiomForExpression);
-					result.add(classicalAxiomForExpression);
-				}
 	        	explanatoryClauseForAction = new ArrayList<>();
 		        Expression pureExpression = action;
 		        if (action instanceof Negation){
@@ -394,14 +384,38 @@ public class CNFEncoding {
 		        			new BooleanVariable(actionStep.toString() + " - " + (counter - 1), null, Boolean.FALSE));
 
 		        	result.add(explanatoryClauseForActionWithStep);
-
 		        }
-
-
 	        }
-//	        it.remove();
+			System.out.println("Adding classical frame axioms");
+			for (int counter = 1; counter <= timeMax; counter++) {
+				result.addAll(getClassicalFrameAxioms(allSteps, counter, action, setOfSteps));
+			}
+	        it.remove();
 	    }
 
+		return polishedCNF(result);
+	}
+
+	private ArrayList<ArrayList<BooleanVariable>> getClassicalFrameAxioms(ArrayList<Step> allSteps, int counter, Expression action, ArrayList<Step> stepsModifyingTheAction){
+		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList();
+		ArrayList<BooleanVariable> classicalAxiomForExpression;
+		for (Step step : allSteps){
+			classicalAxiomForExpression = new ArrayList<>();
+			if (!stepsModifyingTheAction.contains(step)){
+				boolean originalNegationOfAction = false;
+				if (action instanceof  Negation)
+					originalNegationOfAction = true;
+				classicalAxiomForExpression.add(
+						new BooleanVariable((originalNegationOfAction ? action.negate().toString() : action.toString()) + " - " + (counter - 1), null, originalNegationOfAction ? Boolean.FALSE : Boolean.TRUE));
+				classicalAxiomForExpression.add(
+						new BooleanVariable(step.toString() + " - " + (counter - 1), null, Boolean.TRUE));
+				classicalAxiomForExpression.add(
+						new BooleanVariable((originalNegationOfAction ? action.negate().toString() : action.toString()) + " - " + counter, null, originalNegationOfAction ? Boolean.TRUE: Boolean.FALSE));
+			}
+			ArrayList<ArrayList<BooleanVariable>> temp = new ArrayList<>();
+			temp.add(classicalAxiomForExpression);
+			result.add(classicalAxiomForExpression);
+		}
 		return result;
 	}
 
@@ -423,6 +437,39 @@ public class CNFEncoding {
 					}//End of If
 				//End of Inner all steps
 			}//End of outer all steps
+		return result;
+	}
+
+	protected ArrayList<ArrayList<BooleanVariable>> conjunctionFromExpression(Expression expression, int time, boolean value)
+	{
+		ArrayList<ArrayList<BooleanVariable>> result = new ArrayList<>();
+		if (expression == null) return result;
+		if (expression instanceof Predication){
+			ArrayList<BooleanVariable> temp = new ArrayList<>();
+			temp.add(argumentToBooleanVariable(expression, time, value));
+			result.add(temp);
+		}
+		else{
+			for (Expression argument : ((Conjunction) expression).arguments)
+			{
+				ArrayList<BooleanVariable> temp = new ArrayList<>();
+				temp.add(argumentToBooleanVariable(argument, time, value));
+				result.add(temp);
+			}
+		}
+		return result;
+	}
+
+	protected BooleanVariable argumentToBooleanVariable(Expression argument, int time, boolean value)
+	{
+		BooleanVariable result;
+		if (argument instanceof Negation){
+			result = new BooleanVariable(
+					((Negation)argument).argument.toString() + " - " + time, value, Boolean.TRUE);
+		}
+		else{
+			result = new BooleanVariable(argument.toString() + " - " + time, value, Boolean.FALSE);
+		}
 		return result;
 	}
 
@@ -501,8 +548,7 @@ public class CNFEncoding {
 	 * @param time a time-step at which the given argument holds
 	 * @return A negative BooleanVariable representing the given argument
 	 */	
-	BooleanVariable 
-		argumentToNegativeBooleanVariable(Expression argument, int time)
+	BooleanVariable argumentToNegativeBooleanVariable(Expression argument, int time)
 	{
 		BooleanVariable result;
 		if (argument instanceof Negation){														
