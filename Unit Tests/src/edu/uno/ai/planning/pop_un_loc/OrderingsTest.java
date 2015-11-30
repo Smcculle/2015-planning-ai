@@ -158,6 +158,41 @@ public class OrderingsTest {
       }
     }
 
+    public class hasSteps_steps {
+      public class when_all_the_steps_are_ordered {
+        Step first;
+        Step second;
+
+        @Before public void setup() {
+          first = mock(Step.class);
+          second = mock(Step.class);
+          orderings = orderingsWithSteps(first, second);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.hasSteps(first, second), is(true));
+          assertThat(orderings.hasSteps(second, first), is(true));
+        }
+      }
+
+      public class when_any_step_is_not_ordered {
+        Step first;
+        Step second;
+        Step unordered;
+
+        @Before public void setup() {
+          first = mock(Step.class);
+          second = mock(Step.class);
+          unordered = mock(Step.class);
+          orderings = orderingsWithSteps(first, second);
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.hasSteps(first, second, unordered), is(false));
+        }
+      }
+    }
+
     public class hasOrdering_from_to {
       Step from;
       Step to;
