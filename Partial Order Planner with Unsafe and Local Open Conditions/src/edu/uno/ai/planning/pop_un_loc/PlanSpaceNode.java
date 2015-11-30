@@ -92,8 +92,12 @@ public class PlanSpaceNode {
     return flaws;
   }
 
+  public Boolean isAtLimit() {
+    return getRoot().isAtLimit();
+  }
+
   void expand(PriorityQueue<PlanSpaceNode> queue) {
-    if (getRoot().isAtLimit())
+    if (isAtLimit())
       throw new SearchLimitReachedException();
     // Repair flaw.
     Flaw flaw = flaws.chooseFlaw();
