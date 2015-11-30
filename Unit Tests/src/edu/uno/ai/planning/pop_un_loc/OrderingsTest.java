@@ -113,16 +113,6 @@ public class OrderingsTest {
     }
   }
 
-  @Test public void cannot_create_cycles() {
-    Step start = mock(Step.class);
-    Step middle = mock(Step.class);
-    Step end = mock(Step.class);
-    Orderings orderings = orderingsWithSteps(start, end).add(start, middle)
-                                                        .add(middle, start);
-
-    assertThat(orderings, is(nullValue()));
-  }
-
   @Test public void report_if_a_step_can_be_concurrent_with_another() {
     Step start = mock(Step.class);
     Step left = mock(Step.class);
