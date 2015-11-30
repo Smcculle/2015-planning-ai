@@ -94,7 +94,8 @@ public class OrderingsTest {
     Step start = mock(Step.class);
     Step middle = mock(Step.class);
     Step end = mock(Step.class);
-    Orderings orderings = orderingsWithSteps(start, end).add(start, middle).add(middle, start);
+    Orderings orderings = orderingsWithSteps(start, end).add(start, middle)
+                                                        .add(middle, start);
 
     assertThat(orderings, is(nullValue()));
   }
@@ -105,9 +106,10 @@ public class OrderingsTest {
     Step right = mock(Step.class);
     Step end = mock(Step.class);
     Step notIncluded = mock(Step.class);
-    Orderings orderings = orderingsWithSteps(start, end)
-                          .add(start, left).add(left, end)
-                          .add(start, right).add(right, end);
+    Orderings orderings = orderingsWithSteps(start, end).add(start, left)
+                                                        .add(left, end)
+                                                        .add(start, right)
+                                                        .add(right, end);
 
     assertThat(orderings.mayBeConcurrent(left, right), is(true));
     assertThat(orderings.mayBeConcurrent(right, left), is(true));
