@@ -281,17 +281,6 @@ public class OrderingsTest {
     }
   }
 
-  @Test public void report_if_a_step_is_ordered_before_another_step() {
-    Step start = mock(Step.class);
-    Step end = mock(Step.class);
-    Orderings twoStepOrderings = orderingsWithSteps(start, end);
-
-    assertThat(twoStepOrderings.hasOrdering(start, end), is(true));
-    assertThat(twoStepOrderings.hasOrdering(end, start), is(false));
-
-    assertThat(newEmptyOrderings().hasOrdering(start, end), is(false));
-  }
-
   @Test public void report_if_steps_are_included_in_the_orderings() {
     Step start = mock(Step.class);
     Step end = mock(Step.class);
