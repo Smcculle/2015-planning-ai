@@ -130,6 +130,34 @@ public class OrderingsTest {
       }
     }
 
+    public class hasStep_step {
+      Step step;
+
+      @Before public void setup() {
+        step = mock(Step.class);
+      }
+
+      public class when_step_is_ordered {
+        @Before public void setup() {
+          orderings = orderingsWithMiddleStep(step);
+        }
+
+        @Test public void is_true() {
+          assertThat(orderings.hasStep(step), is(true));
+        }
+      }
+
+      public class when_step_is_not_ordered {
+        @Before public void steup() {
+          orderings = newEmptyOrderings();
+        }
+
+        @Test public void is_false() {
+          assertThat(orderings.hasStep(step), is(false));
+        }
+      }
+    }
+
     public class mayBeConcurrent_first_second {
       Step first;
       Step second;
