@@ -15,13 +15,13 @@ public class LPGSearch extends Search {
 	
 	private final static Random rand = new Random();
 	/** The number of times we will restart if not finding a solution */
-	private final static int restarts = 100;
+	private final static int restarts = 300;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
 	private final static int NOISE_WINDOW = 50;
 	
 	/** noise factor updated if new variance differs by more than the threshold */
-	private final static double VARIANCE_THRESHOLD = 0.5;
+	private final static double VARIANCE_THRESHOLD = 0.25;
 	
 	/** Default value for noise factor */ 
 	private final static double DEFAULT_NOISE_FACTOR = 0.1;
@@ -78,19 +78,23 @@ public class LPGSearch extends Search {
 		TotalOrderPlan plan = new TotalOrderPlan();
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
+			if(i+1 % 100 == 0)
+				graph.extend();
+			
 			actionGraph = new LPGActionGraph(problem, graph);
 			
 			for(int j = 0; j < maxSteps; j++){
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
-					//System.out.printf("Is solution triggered, inconsistences=%d", actionGraph.getInconsistencyCount());
-					//System.out.println(actionGraph.getInconsistencies());
+					TotalOrderPlan plan2 = actionGraph.getOrderedTotalPlan(new TotalOrderPlan());
 					if (problem.isSolution(plan))
 						break outer;
+					else if(problem.isSolution(plan2)) {
+						plan = plan2;
+						break outer;
+					}
 					else {
-						graph.extend();
 						actionGraph = new LPGActionGraph(problem, graph);
-						System.out.println("extending");
 					}
 				}
 				int ic = actionGraph.getInconsistencyCount();
@@ -98,15 +102,13 @@ public class LPGSearch extends Search {
 					System.out.println(actionGraph.getInconsistencies());
 					throw new RuntimeException();
 				}
-				//System.out.printf("\n\nAG at (%d,%d), %d inconsistencies: %s", i, j, ic, actionGraph);
+
 				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
-				//System.out.println("\t New inconsistency chosen is " + inconsistency);
 				numInconsistency[j % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
 				if( (j-1) % NOISE_WINDOW == 0)
 					updateNoiseFactor();
 				
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
-				//double[] graphQuality = evaluateNeighborhood(neighborhood);
 				
 				if(neighborhood != null) {
 					actionGraph = chooseNewActionGraph(neighborhood);
@@ -116,7 +118,7 @@ public class LPGSearch extends Search {
 				
 			}
 		}
-		System.out.println("Time ended");
+		
 		return plan;
 	}
 	
@@ -172,53 +174,6 @@ public class LPGSearch extends Search {
 				/* return best plan, even though they are all worse than current*/
 				return neighborhood.get(0);
 		}
-	}
-
-	/**
-	 * Estimates the quality for each LPGPlanGraph in the neighborhood
-	 * 
-	 * @param neighborhood The list of new LPGPlanGraphs in consideration
-	 * 
-	 * @return an array of values based on the number of inconsistencies, estimated search steps, 
-	 * and overall action cost.   
-	 * 
-	 * TODO:  All 
-	 */
-	private double[] evaluateNeighborhood(List<LPGActionGraph> neighborhood) {
-		double [] graphQuality = new double[neighborhood.size()];
-		
-		for (int i = 0; i < neighborhood.size(); i++) {
-			//graphQuality[i] = calculateQuality(neighborhood.get(i));
-			graphQuality[i] = neighborhood.get(i).getInconsistencyCount();
-						
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Calculates quality for the given graph through relaxed plan.  
-	 * 
-	 * @param graph The LPGPlanGraph to calculate the quality for
-	 * @return Quality of the graph based on number of inconsistencies, estimated search steps, and 
-	 * cost of actions.  
-	 * 
-	 * TODO:  All
-	 */
-	private double calculateQuality(LPGPlanGraph graph){
-		calculateRelaxedPlan(graph);
-		return 0;
-	}
-	
-	/**
-	 * Returns a set of actions and a number estimating a minimal set of actions required 
-	 * to achieve a set of goal facts to be used in heuristic estimation.
-	 * 
-	 *   TODO:  All
-	 * @param graph 
-	 */
-	private void calculateRelaxedPlan(LPGPlanGraph graph){
-		
 	}
 
 	@Override
