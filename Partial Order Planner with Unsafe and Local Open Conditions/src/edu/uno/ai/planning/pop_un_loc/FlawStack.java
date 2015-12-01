@@ -21,6 +21,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public boolean add(Flaw flaw) {
+    return flaws().add(flaw);
+  }
+
+  @Override
   public boolean contains(Object object) {
     if (object instanceof Flaw) {
       return flaws().contains(object);
