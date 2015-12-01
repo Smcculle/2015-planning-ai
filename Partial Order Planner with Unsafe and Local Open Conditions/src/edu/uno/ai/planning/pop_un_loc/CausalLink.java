@@ -16,6 +16,14 @@ public class CausalLink implements Partial {
     this.head = head;
   }
 
+  public Boolean isGround() {
+    return label.isGround();
+  }
+
+  public Literal negatedLabelWithBindings(Bindings bindings) {
+    return label.negate().substitute(bindings);
+  }
+
   @Override
   public String toString() {
     return toString(Bindings.EMPTY);
