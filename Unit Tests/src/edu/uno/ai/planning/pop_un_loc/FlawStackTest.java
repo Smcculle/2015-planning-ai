@@ -2,12 +2,16 @@ package edu.uno.ai.planning.pop_un_loc;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import org.junit.Before;
@@ -47,6 +51,11 @@ public class FlawStackTest {
   @Before
   public void setup() {
     flawStack = emptyFlawStack();
+  }
+
+  @Test
+  public void implements_collection() {
+    assertThat(describedClass(), typeCompatibleWith(Collection.class));
   }
 
   @Test
@@ -126,6 +135,54 @@ public class FlawStackTest {
       assertThat(flawStack.flaws(), not(contains(flaw)));
       flawStack.push(flaw);
       assertThat(flawStack.flaws(), contains(flaw));
+    }
+  }
+
+  public class size {
+    public class when_the_flaw_stack_is_empty {
+      @Before
+      public void setup() {
+        flawStack = emptyFlawStack();
+      }
+
+      @Test
+      public void is_0() {
+        assertThat(flawStack.size(), is(0));
+      }
+    }
+
+    public class when_the_flaw_stack_has_one_flaw {
+      Flaw flaw;
+
+      @Before
+      public void setup() {
+        flaw = mock(Flaw.class);
+        flawStack = flawStackWithFlaw(flaw);
+      }
+
+      @Test
+      public void is_1() {
+        assertThat(flawStack.size(), is(1));
+      }
+    }
+
+    public class when_the_flaw_stack_has_five_flaws {
+      List<Flaw> flaws;
+
+      @Before
+      public void setup() {
+        flaws = new LinkedList<Flaw>();
+        for (int i = 0; i < 5; i++) {
+          flaws.add(mock(Flaw.class));
+        }
+
+        flawStack = flawStackWithFlaws(flaws.toArray(new Flaw[5]));
+      }
+
+      @Test
+      public void is_5() {
+        assertThat(flawStack.size(), is(5));
+      }
     }
   }
 
