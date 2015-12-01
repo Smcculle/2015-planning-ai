@@ -71,7 +71,7 @@ public class PlanSpaceNode {
         for (Step step : steps) {
           // It must be possible to order the step between the tail and head of
           // the causal link.
-          if (orderings.allows(link.tail, step, link.head)) {
+          if (orderings.allowedOrdering(link.tail, step, link.head)) {
             // For each effect of the step...
             for (Literal effect : step.effects) {
               effect = effect.substitute(bindings);
