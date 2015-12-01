@@ -190,6 +190,32 @@ public class FlawStackTest {
     }
   }
 
+  public class isEmpty {
+    public class when_the_flaw_stack_contains_no_flaws {
+      @Before
+      public void setup() {
+        flawStack = emptyFlawStack();
+      }
+
+      @Test
+      public void is_true() {
+        assertThat(flawStack.isEmpty(), is(true));
+      }
+    }
+
+    public class when_the_flaw_stack_contains_at_least_one_flaw {
+      @Before
+      public void setup() {
+        flawStack = flawStackWithFlaw(mock(Flaw.class));
+      }
+
+      @Test
+      public void is_false() {
+        assertThat(flawStack.isEmpty(), is(false));
+      }
+    }
+  }
+
   public class push_flaw {
     Flaw flaw;
 
