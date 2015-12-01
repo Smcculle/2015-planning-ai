@@ -46,8 +46,8 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   @Override
   public String toString(Substitution substitution) {
     String str = "FLAWS:";
-    // for (Flaw flaw : flaws)
-    // str += "\n " + flaw.toString(substitution);
+    for (Flaw flaw : flaws)
+      str += "\n " + flaw.toString(substitution);
     return str;
   }
 
