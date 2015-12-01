@@ -9,6 +9,7 @@ import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
+import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.util.ImmutableList;
 
 public class PlanSpaceNode {
@@ -87,11 +88,11 @@ public class PlanSpaceNode {
   }
 
   public Boolean isAtLimit() {
-    return getRoot().isAtLimit();
+    return root().isAtLimit();
   }
 
   public void enforceNodeLimit() {
-    getRoot().enforceNodeLimit();
+    root().enforceNodeLimit();
   }
 
   void expand(PriorityQueue<PlanSpaceNode> queue) {
@@ -113,8 +114,9 @@ public class PlanSpaceNode {
       fix(flaw, step, queue);
     });
     // Consider adding a new step of each operator type.
-    for (Operator operator : getRoot().problem.domain.operators)
+    operators().forEach(operator -> {
       fix(flaw, new Step(operator), queue);
+    });
   }
 
   private final void fix(ThreatenedCausalLinkFlaw flaw,
@@ -188,13 +190,6 @@ public class PlanSpaceNode {
     }
   }
 
-  public PlanSpaceRoot getRoot() {
-    PlanSpaceNode current = this;
-    while (!current.isRoot())
-      current = current.parent;
-    return (PlanSpaceRoot) current;
-  }
-
   public Boolean isRoot() {
     return false;
   }
@@ -213,6 +208,17 @@ public class PlanSpaceNode {
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
     fix(flaws.chooseFlaw(), queue);
+  }
+
+  public PlanSpaceRoot root() {
+    PlanSpaceNode current = this;
+    while (!current.isRoot())
+      current = current.parent;
+    return (PlanSpaceRoot) current;
+  }
+
+  public ImmutableArray<Operator> operators() {
+    return root().problem.domain.operators;
   }
 
   @Override
