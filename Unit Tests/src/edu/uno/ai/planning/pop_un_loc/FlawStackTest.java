@@ -71,6 +71,72 @@ public class FlawStackTest {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
   }
 
+  public class contains_object {
+    Flaw flaw;
+
+    @Before
+    public void setup() {
+      flaw = mock(Flaw.class);
+    }
+
+    public class when_the_flaw_stack_is_empty {
+      @Before
+      public void setup() {
+        flawStack = emptyFlawStack();
+      }
+
+      @Test
+      public void is_false() {
+        assertThat(flawStack.contains(flaw), is(false));
+      }
+    }
+
+    public class when_the_flaw_stack_has_a_different_flaw {
+      Flaw other;
+
+      @Before
+      public void setup() {
+        other = mock(Flaw.class);
+        flawStack = flawStackWithFlaw(other);
+      }
+
+      @Test
+      public void is_false() {
+        assertThat(flawStack.contains(flaw), is(false));
+      }
+    }
+
+    public class when_the_flaw_stack_has_that_flaw {
+      @Before
+      public void setup() {
+        flawStack = flawStackWithFlaw(flaw);
+      }
+
+      @Test
+      public void is_true() {
+        assertThat(flawStack.contains(flaw), is(true));
+      }
+    }
+
+    public class when_the_flaw_stack_has_that_flaw_and_others {
+      Flaw firstOther;
+      Flaw secondOther;
+
+      @Before
+      public void setup() {
+        firstOther = mock(Flaw.class);
+        secondOther = mock(Flaw.class);
+
+        flawStack = flawStackWithFlaws(flaw, firstOther, secondOther);
+      }
+
+      @Test
+      public void is_true() {
+        assertThat(flawStack.contains(flaw), is(true));
+      }
+    }
+  }
+
   public class flaws {
     Stack<Flaw> flaws;
 
