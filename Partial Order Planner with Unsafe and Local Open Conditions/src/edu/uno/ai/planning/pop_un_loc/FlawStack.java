@@ -34,6 +34,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public int size() {
+    return flaws().size();
+  }
+
+  @Override
   public String toString() {
     return toString(Bindings.EMPTY);
   }
