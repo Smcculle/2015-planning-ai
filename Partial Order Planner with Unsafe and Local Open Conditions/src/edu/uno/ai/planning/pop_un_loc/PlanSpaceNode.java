@@ -185,9 +185,13 @@ public class PlanSpaceNode {
 
   public PlanSpaceRoot getRoot() {
     PlanSpaceNode current = this;
-    while (!(current instanceof PlanSpaceRoot))
+    while (!current.isRoot())
       current = current.parent;
     return (PlanSpaceRoot) current;
+  }
+
+  public Boolean isRoot() {
+    return false;
   }
 
   public void markAsVisited() {
