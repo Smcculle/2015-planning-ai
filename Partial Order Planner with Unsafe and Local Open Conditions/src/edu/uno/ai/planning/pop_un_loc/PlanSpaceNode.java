@@ -1,6 +1,7 @@
 package edu.uno.ai.planning.pop_un_loc;
 
 import java.util.PriorityQueue;
+import java.util.function.Consumer;
 
 import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.Problem;
@@ -183,6 +184,14 @@ public class PlanSpaceNode {
     }
   }
 
+  public void forEachAncestor(Consumer<? super PlanSpaceNode> action) {
+    PlanSpaceNode current = parent;
+    while (current != null) {
+      action.accept(current);
+      current = current.parent;
+    }
+  }
+
   public PlanSpaceRoot getRoot() {
     PlanSpaceNode current = this;
     while (!current.isRoot())
@@ -195,11 +204,9 @@ public class PlanSpaceNode {
   }
 
   public void markAsVisited() {
-    PlanSpaceNode ancestor = parent;
-    while (ancestor != null) {
+    forEachAncestor(ancestor -> {
       ancestor.visited++;
-      ancestor = ancestor.parent;
-    }
+    });
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
