@@ -1,11 +1,12 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import java.util.Iterator;
 import java.util.Stack;
 
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Substitution;
 
-public class FlawStack implements Partial {
+public class FlawStack implements Iterable<Flaw>, Partial {
 
   private Stack<Flaw> flaws;
 
@@ -37,5 +38,10 @@ public class FlawStack implements Partial {
     // for (Flaw flaw : flaws)
     // str += "\n " + flaw.toString(substitution);
     return str;
+  }
+
+  @Override
+  public Iterator<Flaw> iterator() {
+    return flaws().iterator();
   }
 }

@@ -50,6 +50,11 @@ public class FlawStackTest {
   }
 
   @Test
+  public void implements_iterable() {
+    assertThat(describedClass(), typeCompatibleWith(Iterable.class));
+  }
+
+  @Test
   public void implements_partial() {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
   }
