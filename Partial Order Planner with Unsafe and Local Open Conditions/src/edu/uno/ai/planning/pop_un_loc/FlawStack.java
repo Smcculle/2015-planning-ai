@@ -33,6 +33,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
     return false;
   }
 
+  @Override
+  public boolean containsAll(Collection<?> collection) {
+    return flaws().containsAll(collection);
+  }
+
   public Stack<Flaw> flaws() {
     return flaws;
   }
