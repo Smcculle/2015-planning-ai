@@ -32,6 +32,10 @@ public class Flaws implements Partial {
     this.flaws = new ImmutableList<Flaw>(flaws);
   }
 
+  public ImmutableList<Flaw> toImmutableList() {
+    return flaws;
+  }
+
   @Override
   public String toString() {
     return toString(Bindings.EMPTY);
@@ -43,9 +47,5 @@ public class Flaws implements Partial {
     for (Flaw flaw : flaws)
       str += "\n " + flaw.toString(substitution);
     return str;
-  }
-
-  public ImmutableList<Flaw> toImmutableList() {
-    return flaws;
   }
 }
