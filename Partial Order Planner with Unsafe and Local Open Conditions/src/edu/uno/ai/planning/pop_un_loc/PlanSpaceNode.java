@@ -113,9 +113,9 @@ public class PlanSpaceNode {
 
   private final void fix(OpenPreconditionFlaw flaw,
                          PriorityQueue<PlanSpaceNode> queue) {
-    // Consider all existing steps.
-    for (Step step : steps)
+    steps.forEach(step -> {
       fix(flaw, step, queue);
+    });
     // Consider adding a new step of each operator type.
     for (Operator operator : getRoot().problem.domain.operators)
       fix(flaw, new Step(operator), queue);
