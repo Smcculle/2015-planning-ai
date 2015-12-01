@@ -20,6 +20,14 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
     push(flaw);
   }
 
+  @Override
+  public boolean contains(Object object) {
+    if (object instanceof Flaw) {
+      return flaws().contains(object);
+    }
+    return false;
+  }
+
   public Stack<Flaw> flaws() {
     return flaws;
   }
