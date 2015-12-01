@@ -38,6 +38,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public boolean isEmpty() {
+    return flaws().isEmpty();
+  }
+
+  @Override
   public Iterator<Flaw> iterator() {
     return flaws().iterator();
   }
