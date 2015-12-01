@@ -17,6 +17,7 @@ import com.nitorcreations.junit.runners.NestedRunner;
 
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Substitution;
+import edu.uno.ai.planning.util.ImmutableList;
 
 @RunWith(NestedRunner.class)
 public class FlawsTest {
@@ -46,6 +47,41 @@ public class FlawsTest {
   @Test
   public void implements_partial_interface() {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
+  }
+
+  public class toImmutableList {
+    public class when_there_are_no_flaws {
+      @Before
+      public void setup() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_an_empty_immutable_list_of_flaws() {
+        assertThat(flaws.toImmutableList(), equalTo(new ImmutableList<Flaw>()));
+      }
+    }
+
+    public class when_there_are_some_flaws {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void setup() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = mock(Flaw.class);
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void is_an_immutable_list_of_flaws_in_that_order() {
+        assertThat(flaws.toImmutableList(),
+                   equalTo(new ImmutableList<Flaw>().add(first).add(second)
+                                                    .add(third)));
+      }
+    }
   }
 
   public class toString {

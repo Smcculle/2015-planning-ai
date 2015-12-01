@@ -54,9 +54,9 @@ public class ImmutableList<E> implements Iterable<E> {
   }
 
   public ImmutableList(E... elements) {
-    this.first = elements[0];
+    this.first = elements[elements.length - 1];
     ImmutableList<E> tmp = new ImmutableList<E>();
-    for (int i = 1; i < elements.length; i++)
+    for (int i = 0; i < elements.length - 1; i++)
       tmp = tmp.add(elements[i]);
     this.rest = tmp;
     this.length = elements.length;
@@ -122,6 +122,14 @@ public class ImmutableList<E> implements Iterable<E> {
   @Override
   public Iterator<E> iterator() {
     return new MyIterator();
+  }
+
+  @Override
+  public String toString() {
+    String result = "ELEMENTS:\n " + first.toString();
+    for (E element : rest)
+      result += "\n " + element.toString();
+    return result;
   }
 
   /**
