@@ -14,6 +14,7 @@ public class PlanSpaceRoot extends PlanSpaceNode {
     this.problem = problem;
   }
 
+  @Override
   public void enforceNodeLimit() {
     if (isAtLimit())
       throw new SearchLimitReachedException();
@@ -22,6 +23,11 @@ public class PlanSpaceRoot extends PlanSpaceNode {
   @Override
   public Boolean isAtLimit() {
     return limit == visited;
+  }
+
+  @Override
+  public Boolean isRoot() {
+    return true;
   }
 
   void setNodeLimit(int limit) {
