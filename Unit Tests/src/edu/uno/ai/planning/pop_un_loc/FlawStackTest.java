@@ -1,6 +1,8 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
@@ -102,6 +104,23 @@ public class FlawStackTest {
         stack.push(second);
         assertThat(flawStack.flaws(), equalTo(stack));
       }
+    }
+  }
+
+  public class push_flaw {
+    Flaw flaw;
+
+    @Before
+    public void setup() {
+      flaw = mock(Flaw.class);
+      flawStack = emptyFlawStack();
+    }
+
+    @Test
+    public void adds_the_flaw_to_the_flaw_stack() {
+      assertThat(flawStack.flaws(), not(contains(flaw)));
+      flawStack.push(flaw);
+      assertThat(flawStack.flaws(), contains(flaw));
     }
   }
 
