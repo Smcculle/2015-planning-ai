@@ -67,6 +67,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public boolean removeAll(Collection<?> collection) {
+    return flaws().removeAll(collection);
+  }
+
+  @Override
   public int size() {
     return flaws().size();
   }
