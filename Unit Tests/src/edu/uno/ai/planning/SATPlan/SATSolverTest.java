@@ -7,6 +7,7 @@ import edu.uno.ai.planning.SATPlan.SATSolver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -293,6 +294,18 @@ public class SATSolverTest extends SATSolver{
 		conjunction.add(_NotB);
 		conjunction.add(AvNotD);
 		conjunction.add(NotAvD);
+		problem = new SATProblem(conjunction, mainList);
+		assertFalse(SATSolver.satisfiable(problem, mainList));
+	}
+
+	@Test
+	public void testAnotherUnsatisfiableProblem() {
+		mainList.clear();
+		conjunction.add(new ArrayList<>(Arrays.asList(A)));
+		conjunction.add(new ArrayList<>(Arrays.asList(B)));
+		conjunction.add(new ArrayList<>(Arrays.asList(NotA)));
+		conjunction.add(new ArrayList<>(Arrays.asList(NotB)));
+
 		problem = new SATProblem(conjunction, mainList);
 		assertFalse(SATSolver.satisfiable(problem, mainList));
 	}
