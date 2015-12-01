@@ -47,6 +47,16 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public Object[] toArray() {
+    return flaws().toArray();
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    return flaws().toArray(a);
+  }
+
+  @Override
   public String toString() {
     return toString(Bindings.EMPTY);
   }
