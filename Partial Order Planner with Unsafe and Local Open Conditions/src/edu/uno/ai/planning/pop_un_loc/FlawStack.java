@@ -31,6 +31,11 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
   }
 
   @Override
+  public void clear() {
+    flaws().clear();
+  }
+
+  @Override
   public boolean contains(Object object) {
     if (object instanceof Flaw) {
       return flaws().contains(object);
@@ -102,10 +107,5 @@ public class FlawStack implements Collection<Flaw>, Iterable<Flaw>, Partial {
     for (Flaw flaw : flaws)
       str += "\n " + flaw.toString(substitution);
     return str;
-  }
-
-  @Override
-  public Iterator<Flaw> iterator() {
-    return flaws().iterator();
   }
 }
