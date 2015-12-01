@@ -44,11 +44,7 @@ public class PlanSpaceNode {
     this.orderings = orderings;
     this.causalLinks = causalLinks;
     this.flaws = flaws;
-    PlanSpaceNode ancestor = parent;
-    while (ancestor != null) {
-      ancestor.expanded++;
-      ancestor = ancestor.parent;
-    }
+    markExpansion();
   }
 
   protected PlanSpaceNode(Problem problem) {
@@ -206,6 +202,12 @@ public class PlanSpaceNode {
   public void markAsVisited() {
     forEachAncestor(ancestor -> {
       ancestor.visited++;
+    });
+  }
+
+  public void markExpansion() {
+    forEachAncestor(ancestor -> {
+      ancestor.expanded++;
     });
   }
 
