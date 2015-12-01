@@ -67,10 +67,8 @@ public class PlanSpaceNode {
                                          FlawList flaws) {
     // For each causal link...
     for (CausalLink link : causalLinks) {
-      Literal label = link.label.negate().substitute(bindings);
-
       // Label must be ground to be a definite threat.
-      if (label.isGround()) {
+      if (link.negatedLabelWithBindings(bindings).isGround()) {
         // For each step...
         for (Step step : steps) {
           // It must be possible to order the step between the tail and head of
@@ -81,7 +79,7 @@ public class PlanSpaceNode {
               effect = effect.substitute(bindings);
               // If the effect is identical to the negated label, this is a
               // definite threat.
-              if (effect.equals(label))
+              if (effect.equals(link.negatedLabelWithBindings(bindings)))
                 flaws = flaws.add(new ThreatenedCausalLinkFlaw(link, step));
             }
           }
