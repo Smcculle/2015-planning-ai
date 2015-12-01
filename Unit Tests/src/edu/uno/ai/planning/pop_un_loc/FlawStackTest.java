@@ -1,12 +1,15 @@
 package edu.uno.ai.planning.pop_un_loc;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
@@ -194,11 +197,6 @@ public class FlawStackTest {
       substitution = mock(Substitution.class);
     }
 
-    @Test
-    public void starts_with_FLAWS() {
-      assertThat(flawStack.toString(substitution), startsWith("FLAWS:"));
-    }
-
     public class when_the_flaw_stack_is_empty {
       @Before
       public void setup() {
@@ -208,6 +206,45 @@ public class FlawStackTest {
       @Test
       public void is_just_FLAWS() {
         assertThat(flawStack.toString(substitution), equalTo("FLAWS:"));
+      }
+    }
+
+    public class when_the_flaw_stack_has_flaws {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+      String firstString;
+      String secondString;
+      String thirdString;
+
+      @Before
+      public void setup() {
+        firstString = "first";
+        first = given(mock(Flaw.class).toString(eq(substitution))).willReturn(firstString)
+                                                                  .getMock();
+        secondString = "second";
+        second = given(mock(Flaw.class).toString(eq(substitution))).willReturn(secondString)
+                                                                   .getMock();
+        thirdString = "third";
+        third = given(mock(Flaw.class).toString(eq(substitution))).willReturn(thirdString)
+                                                                  .getMock();
+
+        flawStack = flawStackWithFlaws(first, second, third);
+      }
+
+      @Test
+      public void starts_with_FLAWS() {
+        assertThat(flawStack.toString(substitution), startsWith("FLAWS:"));
+      }
+
+      @Test
+      public void contains_each_flaws_toString_substitution() {
+        assertThat(flawStack.toString(substitution),
+                   containsString(firstString));
+        assertThat(flawStack.toString(substitution),
+                   containsString(secondString));
+        assertThat(flawStack.toString(substitution),
+                   containsString(thirdString));
       }
     }
   }
