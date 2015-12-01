@@ -46,7 +46,7 @@ public class Orderings implements Iterable<Step>, Partial {
     return add(from, to) != null;
   }
 
-  public boolean allows(Step before, Step middle, Step after) {
+  public boolean allowedOrdering(Step before, Step middle, Step after) {
     Orderings newOrderings = this;
     if (before != middle)
       newOrderings = newOrderings.add(before, middle);
