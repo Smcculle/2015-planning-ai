@@ -15,7 +15,7 @@ public class LPGSearch extends Search {
 	
 	private final static Random rand = new Random();
 	/** The number of times we will restart if not finding a solution */
-	private final static int restarts = 8;
+	private final static int restarts = 100;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
 	private final static int NOISE_WINDOW = 50;
@@ -60,6 +60,7 @@ public class LPGSearch extends Search {
 		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
 		graph = new PlanGraph(problem, true);
+		graph.extend();
 	}
 	
 	/**
@@ -75,7 +76,6 @@ public class LPGSearch extends Search {
 	public Plan findPlan(int maxSteps, int maxRestarts)
 	{
 		TotalOrderPlan plan = new TotalOrderPlan();
-		
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
 			actionGraph = new LPGActionGraph(problem, graph);
@@ -85,7 +85,13 @@ public class LPGSearch extends Search {
 					plan = actionGraph.getTotalOrderPlan(plan);
 					//System.out.printf("Is solution triggered, inconsistences=%d", actionGraph.getInconsistencyCount());
 					//System.out.println(actionGraph.getInconsistencies());
-					break outer;
+					if (problem.isSolution(plan))
+						break outer;
+					else {
+						graph.extend();
+						actionGraph = new LPGActionGraph(problem, graph);
+						System.out.println("extending");
+					}
 				}
 				int ic = actionGraph.getInconsistencyCount();
 				if (ic == 0) {
@@ -128,12 +134,16 @@ public class LPGSearch extends Search {
 	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood) {
 		
 		Collections.sort(neighborhood);
-		int ci = actionGraph.getInconsistencyCount();
+		int currentQuality = actionGraph.getGraphQuality();
 		int count = 0;
 		
 		/* count the neighbors with better quality.  They are sorted, so we can break after finding the cutoff */
 		for (LPGActionGraph neighbor: neighborhood) {
-			if (neighbor.getInconsistencyCount() < ci)
+			if (neighbor.getGraphQuality() == 0) {
+					//System.out.println("quality 0");
+					neighbor.checkGoals();
+			}
+			if (neighbor.getGraphQuality() < currentQuality)
 				count++;
 			else
 				break;
@@ -159,6 +169,7 @@ public class LPGSearch extends Search {
 				return neighborhood.get(next);
 			}
 			else 
+				/* return best plan, even though they are all worse than current*/
 				return neighborhood.get(0);
 		}
 	}

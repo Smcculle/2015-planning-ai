@@ -35,7 +35,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	private final Random rand;
 	
 	/** Measure (from 0 to 1) of how much we prefer resolving inconsistencies at earlier levels */
-	private static final float inconsistencyWeight = 0.35f; 
+	private static final float INCONSISTENCY_WEIGHT = 0.35f; 
 	
 	/** PlanGraph for this problem shared by all action graphs.  Graph is not modified*/
 	private static PlanGraph graph;
@@ -50,7 +50,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	private Map<Integer, Set<PlanGraphLiteral>> facts; 
 	
 	/** List of inconsistencies in the action graph indexed by level */
-	private Map<Integer, List<LPGInconsistency>> inconsistencies;
+	private Map<Integer, Set<LPGInconsistency>> inconsistencies;
 	
 	/** number of current inconsistencies */
 	private int inconsistencyCount;
@@ -95,12 +95,12 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		
 		steps = new HashMap<Integer, Set<PlanGraphStep>>();
 		facts = new HashMap<Integer, Set<PlanGraphLiteral>>();
-		inconsistencies = new HashMap<Integer, List<LPGInconsistency>>();
+		inconsistencies = new HashMap<Integer, Set<LPGInconsistency>>();
 		
 		for(int i = 0; i <= maxLevel; i++) {
 			steps.put(i, new HashSet<PlanGraphStep>());
 			facts.put(i, new HashSet<PlanGraphLiteral>());
-			inconsistencies.put(i, new ArrayList<LPGInconsistency>());
+			inconsistencies.put(i, new HashSet<LPGInconsistency>());
 		}
 		
 		/* This level holds only the special action end which has the goals as preconditions */
@@ -148,13 +148,42 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	public LPGInconsistency chooseInconsistency() {
 		
 		LPGInconsistency chosenInconsistency = null; 
+		int inconsistencyCounter;
+		
+		/* check to see if we will prefer earlier inconsistencies or not */
+		if (rand.nextFloat() <= INCONSISTENCY_WEIGHT) 
+			inconsistencyCounter = rand.nextInt((int) Math.ceil(inconsistencyCount*INCONSISTENCY_WEIGHT));
+		
+		/* choose a random number and iterate until we get to that inconsistency */
+		else
+			inconsistencyCounter = rand.nextInt(inconsistencyCount);
+			
+			for(InconsistencyIterator iterator = this.new InconsistencyIterator(); iterator.hasNext();){
+				if (inconsistencyCounter > 0 ) {
+					iterator.next();
+					inconsistencyCounter--;
+				}
+				else {
+					chosenInconsistency = iterator.next();
+					break;
+				}
+			}
+			
+		
+		return chosenInconsistency;
+	}
+	
+	/*
+	public LPGInconsistency chooseInconsistency2() {
+		
+		LPGInconsistency chosenInconsistency = null; 
 		
 		// TODO remove this, for debugging
-		float nf = rand.nextFloat();
-		/* check to see if we will prefer earlier inconsistencies or not */
+		//float nf = rand.nextFloat();
+		/* check to see if we will prefer earlier inconsistencies or not 
 		if (nf <= inconsistencyWeight) {
 			for (int i = 1; i < inconsistencies.size(); i++) {
-				List<LPGInconsistency> inconsistenciesAtLevel = inconsistencies.get(i);
+				Set<LPGInconsistency> inconsistenciesAtLevel = inconsistencies.get(i);
 				if (!inconsistenciesAtLevel.isEmpty()) {
 					chosenInconsistency = inconsistenciesAtLevel.get(rand.nextInt(inconsistenciesAtLevel.size()));
 					break;
@@ -162,7 +191,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 			}
 		} 
 		
-		/* choose a random number and iterate until we get to that inconsistency */
+		/* choose a random number and iterate until we get to that inconsistency 
 		else {
 			
 			int inconsistencyCounter = rand.nextInt(inconsistencyCount);
@@ -218,6 +247,9 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		for (PlanGraphStep stepToAdd : addChoices) {
 			int initialLevel = stepToAdd.getInitialLevel();
 			if (initialLevel != -1 && initialLevel <= currentLevel) {
+				
+				neighborhood.add(getAddNeighbor(stepToAdd, inconsistency, currentLevel));
+				/* allow later 
 				Thread t = new Thread( new Runnable() {
 
 					@Override
@@ -226,10 +258,11 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 					}
 				});
 				threads.add(t);
-				t.start();
+				t.start();*/
 			}
 		}
 		
+			/*
 		for(Thread t : threads){
 			try {
 				t.join();
@@ -237,7 +270,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 		
 		/* steps we can remove to resolve the USP*/
 		List<PlanGraphStep> removeChoices = findRemoveChoices(unsupportedLiteral, currentLevel);
@@ -275,7 +308,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 			neighbor.removeInvalidMutex(stepToRemove, currentLevel + 1);
 		}
 		neighbor.removeInconsistency(inconsistency);
-		neighbor.updateUnsupportedPreconditionInconsistencies(currentLevel);
+		neighbor.updateUnsupportedPreconditionInconsistencies(currentLevel + 1);
 		neighbor.graphQuality = neighbor.calculateQuality();
 		
 		return neighbor;
@@ -398,7 +431,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	
 	private void updateUnsupportedPreconditionInconsistencies(int currentLevel) {
 		
-		List<LPGInconsistency> currentInconsistencies = inconsistencies.get(currentLevel);
+		Set<LPGInconsistency> currentInconsistencies = inconsistencies.get(currentLevel);
 		/** check for unsupported preconditions in the next level */
 		if (currentLevel <= maxLevel) {
 			Set<PlanGraphStep> nextLevelSteps = steps.get(currentLevel + 1);
@@ -468,7 +501,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	/** When adding steps, checks for any USP to add/remove or mutex relations to add */
 	private void updateInconsistencies(PlanGraphStep newStep, int currentLevel) {
 		
-		List<LPGInconsistency> currentLevelInconsistencies = inconsistencies.get(currentLevel);
+		Set<LPGInconsistency> currentLevelInconsistencies = inconsistencies.get(currentLevel);
 
 		/** remove any unsupported precondition inconsistencies that newStep supports */ 
 		checkSupportedPreconditions(newStep, currentLevel, currentLevelInconsistencies);
@@ -482,7 +515,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 
 	/** Check and remove any USP inconsistencies newStep now supports */
 	private void checkSupportedPreconditions(PlanGraphStep newStep,
-			int currentLevel, List<LPGInconsistency> currentLevelInconsistencies) {
+			int currentLevel, Set<LPGInconsistency> currentLevelInconsistencies) {
 		for (Iterator<LPGInconsistency> iterator = currentLevelInconsistencies.iterator(); iterator.hasNext();) {
 			LPGInconsistency lpgInconsistency = iterator.next();
 			if (lpgInconsistency instanceof UnsupportedPrecondition) {
@@ -507,7 +540,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 
 	/** Check any mutex relations between newStep and steps at this level */
 	private void checkMutexSteps(PlanGraphStep newStep, int currentLevel,
-			List<LPGInconsistency> currentLevelInconsistencies) {
+			Set<LPGInconsistency> currentLevelInconsistencies) {
 		PlanGraphLevelMutex pgLevel = (PlanGraphLevelMutex) graph.getLevel(currentLevel);
 		
 		/* add any new mutex steps at this level */
@@ -525,7 +558,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		/* add unsupported preconditions for this step by checking facts of previous level */
 		if (currentLevel == 0 )
 			System.out.println("Current level is 0 somehow... shouldn't happen");
-		List<LPGInconsistency> previousLevelInconsistencies = inconsistencies.get(currentLevel - 1);
+		Set<LPGInconsistency> previousLevelInconsistencies = inconsistencies.get(currentLevel - 1);
 		Set<PlanGraphLiteral> previousLevelFacts = facts.get(currentLevel - 1);
 		for (PlanGraphLiteral pgLiteral : newStep.getParentNodes()) {
 			/* if we are at the first level, fact must be part of initial condition to satisfy */
@@ -548,7 +581,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		removeInconsistency(inconsistency, inconsistencies.get(currentLevel));
 	}
 	
-	public void removeInconsistency(LPGInconsistency inconsistency, List<LPGInconsistency> currentInconsistencies){
+	public void removeInconsistency(LPGInconsistency inconsistency, Set<LPGInconsistency> currentInconsistencies){
 
 		//System.out.println("CLI = " + currentInconsistencies + " and trying to remove " + inconsistency);
 		//System.out.println("Does current contain? " + currentInconsistencies.contains(inconsistency));
@@ -559,7 +592,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		inconsistencyCount--;
 	}
 	
-	public Map<Integer, List<LPGInconsistency>> getInconsistencies() {
+	public Map<Integer, Set<LPGInconsistency>> getInconsistencies() {
 		return inconsistencies;
 	}
 	
@@ -581,7 +614,8 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	public String toString() {
 		return String.format("steps: %s"
 				+ "\nfacts: %s"
-				+ "\ninconsistencies: %s\n", steps, facts, inconsistencies);
+				+ "\ninconsistencies: %s"
+				+ "\ngraph quality=%d", steps, facts, inconsistencies, graphQuality);
 	}
 	
 	public boolean isSolution() {
@@ -612,7 +646,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 	public boolean isSolution2() {
 		
 		boolean foundSolution = true;
-		for (List<LPGInconsistency> inconsistencyList : inconsistencies.values()) {
+		for (Set<LPGInconsistency> inconsistencyList : inconsistencies.values()) {
 			if (!inconsistencyList.isEmpty()) {
 				foundSolution = false;
 				break;
@@ -635,6 +669,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		int quality = inconsistencyCount;
 		for(InconsistencyIterator iterator = new InconsistencyIterator(); iterator.hasNext();) {
 			LPGInconsistency inconsistency = iterator.next();
+			quality += inconsistency.getCurrentLevel();
 			if (inconsistency instanceof UnsupportedPrecondition) {
 				int currentLevel = inconsistency.getCurrentLevel();
 				PlanGraphLiteral unsupportedPrecondition = ((UnsupportedPrecondition) inconsistency).getUnsupportedPrecondition();
@@ -651,12 +686,14 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		int cost = Integer.MAX_VALUE;
 		
 		/* cost = 0 if part of initial conditions */
-		if (unsupportedPrecondition.getInitialLevel() == 0)
+		if (currentLevel == 0 && unsupportedPrecondition.getInitialLevel() == 0)
+			cost = 0;
+		else if(isSupported(unsupportedPrecondition, currentLevel))
 			cost = 0;
 		else {
 			/* cost of supporting this precondition is the cost of the cheapest step that supports it */
 			for (PlanGraphStep step : unsupportedPrecondition.getParentNodes()) {
-				cost = Math.min(cost, costToSupport(step, currentLevel) + 1);
+				cost = Math.min(cost, costToSupport(step, currentLevel));
 			}
 		}
 	
@@ -668,13 +705,13 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		
 		int cost = 0;
 		
-		/* make sure we can achieve step by this level */
-		if(step.getInitialLevel() <= currentLevel) {
+		/* make sure we can achieve step */
+		if(step.getInitialLevel() != -1 && step.getInitialLevel() <= currentLevel) {
 			
 			/* cost of achieving a step is the max over the cost of achieving the preconditions */
 			for (PlanGraphLiteral precondition : step.getParentNodes()) {
 				if (!isSupported(precondition, currentLevel - 1))
-					cost = Math.max(cost, costToSupport(precondition, currentLevel - 1));
+					cost = Math.max(cost, costToSupport(precondition, currentLevel - 1) + 1 );
 			}
 		}
 		else
@@ -683,10 +720,19 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		return cost;
 	}
 
+	/** Returns whether a literal is supported in the action graph at currentLevel*/
 	private boolean isSupported(PlanGraphLiteral literal, int currentLevel) {
-		return facts.get(currentLevel).contains(literal);
+		
+		/* check facts for support*/
+		if (currentLevel > 0)
+			return facts.get(currentLevel).contains(literal);
+		
+		/* if currentLevel = 0, check if literal in initial conditions */
+		else
+			return literal.getInitialLevel() == 0; 
 	}
 
+	/** Iterator to traverse inconsistencies*/
 	private class InconsistencyIterator implements Iterator<LPGInconsistency> {
 
 		private Iterator<LPGInconsistency> iterator;
@@ -721,7 +767,7 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		private void setNextIterator() {
 			
 			for (int i = index; i < inconsistencies.size(); i++){
-				List<LPGInconsistency> inconsistencyList = inconsistencies.get(i);
+				Set<LPGInconsistency> inconsistencyList = inconsistencies.get(i);
 				if (!inconsistencyList.isEmpty()) {
 					iterator = inconsistencyList.iterator();
 					break;
@@ -732,9 +778,18 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		}
 	}
 
+	public int getGraphQuality() {
+		return graphQuality;
+	}
+	
 	@Override
 	public int compareTo(LPGActionGraph o) {
 		return this.graphQuality - o.graphQuality;
+	}
+	
+	public void checkGoals() {
+		updateUnsupportedPreconditionInconsistencies(maxLevel);
+		graphQuality = calculateQuality();
 	}
 	
 	public static Problem getCake(){
@@ -795,4 +850,6 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 		g.updateInconsistencies(step, currentLevel);
 		System.out.println(g);*/
 	}
+
+	
 }
