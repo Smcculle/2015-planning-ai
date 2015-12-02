@@ -128,47 +128,6 @@ public class ImmutableListTest {
     }
   }
 
-  public class remove_element {
-    Integer element;
-
-    @Before
-    public void beforeExample() {
-      element = new Integer(1);
-    }
-
-    public class when_the_element_is_already_not_included {
-      @Before
-      public void beforeExample() {
-        list = emptyList();
-      }
-
-      @Test
-      public void is_the_existing_list() {
-        assertThat(list.remove(element), equalTo(list));
-      }
-    }
-
-    public class when_the_element_is_included {
-      Integer first;
-      Integer second;
-      Integer third;
-
-      @Before
-      public void beforeExample() {
-        first = new Integer(1);
-        element = second = new Integer(2);
-        third = new Integer(3);
-
-        list = listWith(first, second, third);
-      }
-
-      @Test
-      public void is_a_list_in_the_same_order_without_the_element() {
-        assertThat(list.remove(element), contains(third, first));
-      }
-    }
-  }
-
   public class last {
     public class when_the_list_is_empty {
       @Before
@@ -214,6 +173,47 @@ public class ImmutableListTest {
       @Test
       public void is_the_element_first_added() {
         assertThat(list.last(), equalTo(first));
+      }
+    }
+  }
+
+  public class remove_element {
+    Integer element;
+
+    @Before
+    public void beforeExample() {
+      element = new Integer(1);
+    }
+
+    public class when_the_element_is_already_not_included {
+      @Before
+      public void beforeExample() {
+        list = emptyList();
+      }
+
+      @Test
+      public void is_the_existing_list() {
+        assertThat(list.remove(element), equalTo(list));
+      }
+    }
+
+    public class when_the_element_is_included {
+      Integer first;
+      Integer second;
+      Integer third;
+
+      @Before
+      public void beforeExample() {
+        first = new Integer(1);
+        element = second = new Integer(2);
+        third = new Integer(3);
+
+        list = listWith(first, second, third);
+      }
+
+      @Test
+      public void is_a_list_in_the_same_order_without_the_element() {
+        assertThat(list.remove(element), contains(third, first));
       }
     }
   }
