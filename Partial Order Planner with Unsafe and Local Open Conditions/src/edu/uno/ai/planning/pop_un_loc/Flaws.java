@@ -50,6 +50,10 @@ public class Flaws implements Iterable<Flaw>, Partial {
     return chooseFirstFlaw();
   }
 
+  public Flaw chooseLastFlaw() {
+    return flaws.last();
+  }
+
   @Override
   public boolean equals(Object object) {
     if (object instanceof Flaws) {
