@@ -24,21 +24,6 @@ public class ImmutableList<E> implements Iterable<E> {
   public final int length;
 
   /**
-   * Constructs a new immutable list with a given first element and a given rest
-   * of the list.
-   *
-   * @param first
-   *          the first element in the list
-   * @param rest
-   *          the rest of the elements in the list
-   */
-  protected ImmutableList(E first, ImmutableList<E> rest) {
-    this.first = first;
-    this.rest = rest;
-    this.length = rest.length + 1;
-  }
-
-  /**
    * Constructs a new, empty immutable list.
    */
   public ImmutableList() {
@@ -49,7 +34,7 @@ public class ImmutableList<E> implements Iterable<E> {
 
   public ImmutableList(E element) {
     this.first = element;
-    this.rest = null;
+    this.rest = new ImmutableList<E>();
     this.length = 1;
   }
 
@@ -68,26 +53,19 @@ public class ImmutableList<E> implements Iterable<E> {
     this.length = elements.length;
   }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other instanceof ImmutableList) {
-      ImmutableList<?> otherList = (ImmutableList<?>) other;
-      if (length == otherList.length) {
-        if (length == 0)
-          return true;
-        else if (first.equals(otherList.first))
-          return rest.equals(otherList.rest);
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    if (length == 0)
-      return 0;
-    else
-      return first.hashCode() + rest.hashCode();
+  /**
+   * Constructs a new immutable list with a given first element and a given rest
+   * of the list.
+   *
+   * @param first
+   *          the first element in the list
+   * @param rest
+   *          the rest of the elements in the list
+   */
+  protected ImmutableList(E first, ImmutableList<E> rest) {
+    this.first = first;
+    this.rest = rest;
+    this.length = rest.length + 1;
   }
 
   /**
@@ -119,6 +97,68 @@ public class ImmutableList<E> implements Iterable<E> {
     return false;
   }
 
+  public boolean empty() {
+    return !firstPresent() && !restPresent();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other instanceof ImmutableList) {
+      ImmutableList<?> otherList = (ImmutableList<?>) other;
+      if (length == otherList.length) {
+        if (length == 0)
+          return true;
+        else if (first.equals(otherList.first))
+          return rest.equals(otherList.rest);
+      }
+    }
+    return false;
+  }
+
+  public int firstHashCode() {
+    if (firstPresent()) {
+      return first.hashCode();
+    }
+    return 0;
+  }
+
+  public boolean firstPresent() {
+    return first != null;
+  }
+
+  public String firstToString() {
+    if (firstPresent()) {
+      return first.toString();
+    }
+    return "";
+  }
+
+  public int restHashCode() {
+    if (restPresent()) {
+      return rest.hashCode();
+    }
+    return 0;
+  }
+
+  public boolean restPresent() {
+    return rest != null && !rest.empty();
+  }
+
+  public String restToString() {
+    if (restPresent()) {
+      return rest.toString();
+    }
+    return "";
+  }
+
+  @Override
+  public int hashCode() {
+    if (length == 0)
+      return 0;
+    else
+      return firstHashCode() + restHashCode();
+  }
+
   @Override
   public Iterator<E> iterator() {
     return new MyIterator();
@@ -126,10 +166,7 @@ public class ImmutableList<E> implements Iterable<E> {
 
   @Override
   public String toString() {
-    String result = "ELEMENTS:\n " + first.toString();
-    for (E element : rest)
-      result += "\n " + element.toString();
-    return result;
+    return "ELEMENTS:" + firstToString() + restToString();
   }
 
   /**
