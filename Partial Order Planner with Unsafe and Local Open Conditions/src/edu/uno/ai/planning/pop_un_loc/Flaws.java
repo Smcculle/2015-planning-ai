@@ -1,11 +1,13 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import java.util.Iterator;
+
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.util.ImmutableList;
 
-public class Flaws implements Partial {
+public class Flaws implements Iterable<Flaw>, Partial {
 
   private final ImmutableList<Flaw> flaws;
 
@@ -30,6 +32,23 @@ public class Flaws implements Partial {
 
   public Flaws(ImmutableList<Flaw> flaws) {
     this.flaws = new ImmutableList<Flaw>(flaws);
+  }
+
+  public Flaws add(Flaw flaw) {
+    return new Flaws(flaws.add(flaw));
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof Flaws) {
+      return flaws.equals(((Flaws) object).flaws);
+    }
+    return false;
+  }
+
+  @Override
+  public Iterator<Flaw> iterator() {
+    return flaws.iterator();
   }
 
   public ImmutableList<Flaw> toImmutableList() {
