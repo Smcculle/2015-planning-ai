@@ -292,6 +292,47 @@ public class FlawsTest {
     }
   }
 
+  public class remove_flaw {
+    Flaw flaw;
+
+    @Before
+    public void beforeExample() {
+      flaw = mock(Flaw.class);
+    }
+
+    public class when_the_flaw_is_not_already_included {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_the_current_flaws() {
+        assertThat(flaws.remove(flaw), equalTo(flaws));
+      }
+    }
+
+    public class when_the_flaw_is_already_included {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = flaw = mock(Flaw.class);
+        third = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void is_flaws_in_the_same_order_without_the_flaw() {
+        assertThat(flaws.remove(flaw), contains(third, first));
+      }
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_flaws {
       @Before
