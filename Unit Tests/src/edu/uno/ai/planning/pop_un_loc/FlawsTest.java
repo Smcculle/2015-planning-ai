@@ -46,6 +46,11 @@ public class FlawsTest {
   }
 
   @Test
+  public void implements_iterable_interface() {
+    assertThat(describedClass(), typeCompatibleWith(Iterable.class));
+  }
+
+  @Test
   public void implements_partial_interface() {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
   }
