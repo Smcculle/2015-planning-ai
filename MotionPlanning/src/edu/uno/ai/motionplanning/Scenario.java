@@ -42,10 +42,18 @@ public class Scenario {
         StringBuilder sb=new StringBuilder();
         sb.append(board.getName());
         sb.append(",");
-        sb.append(start.toString());
+        sb.append(group);
         sb.append(",");
-        sb.append(end.toString());
+        sb.append("[");
+        sb.append(start.x);
         sb.append(",");
+        sb.append(start.y);
+        sb.append("],");
+        sb.append("[");
+        sb.append(end.x);
+        sb.append(",");
+        sb.append(end.y);
+        sb.append("],");
         sb.append(optimal);
         return sb.toString();
     }

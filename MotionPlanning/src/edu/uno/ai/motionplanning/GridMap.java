@@ -26,11 +26,17 @@ public class GridMap {
 
     /**
      * Create a new map from an existing map
-     * the grid is shared but the history is indpendent
+     *  the grid is copied
+     *  the history is new
      * @param m an existing map
      */
     public GridMap(GridMap m) {
-        this.grid = m.grid;
+        this.grid = new byte[m.grid.length][m.grid[0].length];
+        for (int y=0; y< grid.length; y++){
+        	for (int x=0;x< grid[0].length;x++){
+        		this.grid[y][x]=m.grid[y][x];
+        	}
+        }
         this.name = m.name;
         this.history = new float[grid.length][grid[0].length];
         clearHistory();

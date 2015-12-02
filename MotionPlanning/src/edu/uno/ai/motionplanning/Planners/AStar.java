@@ -43,7 +43,7 @@ public class AStar {
             if (currentPlan.at(scenario.getEnd())) {
                 return currentPlan;
             }
-            List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, dh);
+            List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, map, dh);
             expanded += next.size();
             frontier.addAll(next);
             if (frontier.isEmpty()){
@@ -51,5 +51,9 @@ public class AStar {
             }            
         }
         return null;
+    }
+    
+    public GridMap getMap(){
+    	return map;
     }
 }
