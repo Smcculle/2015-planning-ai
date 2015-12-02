@@ -333,6 +333,55 @@ public class FlawsTest {
     }
   }
 
+  public class size {
+    public class when_there_are_no_flaws {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_0() {
+        assertThat(flaws.size(), is(0));
+      }
+    }
+
+    public class when_there_is_one_flaw {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_1() {
+        assertThat(flaws.size(), is(1));
+      }
+    }
+
+    public class when_there_are_some_flaws {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExmple() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void is_three() {
+        assertThat(flaws.size(), is(3));
+      }
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_flaws {
       @Before
