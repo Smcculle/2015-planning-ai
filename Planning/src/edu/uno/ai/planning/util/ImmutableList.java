@@ -146,6 +146,20 @@ public class ImmutableList<E> implements Iterable<E> {
     return "";
   }
 
+  public ImmutableList<E> remove(E element) {
+    if (empty())
+      return new ImmutableList<E>();
+    else if (first == element)
+      return rest;
+    else {
+      ImmutableList<E> tmp = rest.remove(element);
+      if (tmp == rest)
+        return rest;
+      else
+        return tmp.add(first);
+    }
+  }
+
   public int restHashCode() {
     if (restPresent()) {
       return rest.hashCode();
