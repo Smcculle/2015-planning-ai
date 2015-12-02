@@ -77,6 +77,57 @@ public class ImmutableListTest {
     }
   }
 
+  public class addLast_element {
+    Integer element;
+
+    @Before
+    public void beforeExample() {
+      element = new Integer(1);
+    }
+
+    public class when_the_element_is_already_included {
+      Integer first;
+      Integer second;
+      Integer third;
+
+      @Before
+      public void beforeExample() {
+        first = new Integer(1);
+        second = new Integer(2);
+        third = element = new Integer(3);
+
+        list = listWith(first, second, third);
+      }
+
+      @Test
+      public void adds_the_duplicate_to_the_end_of_the_list() {
+        assertThat(list.addLast(element),
+                   contains(element, second, first, element));
+      }
+
+      public class when_the_element_is_not_already_included {
+        Integer first;
+        Integer second;
+        Integer third;
+
+        @Before
+        public void beforeExample() {
+          first = new Integer(1);
+          second = new Integer(2);
+          third = new Integer(3);
+
+          list = listWith(first, second, third);
+        }
+
+        @Test
+        public void adds_the_element_to_the_end_of_the_list() {
+          assertThat(list.addLast(element),
+                     contains(third, second, first, element));
+        }
+      }
+    }
+  }
+
   public class remove_element {
     Integer element;
 
