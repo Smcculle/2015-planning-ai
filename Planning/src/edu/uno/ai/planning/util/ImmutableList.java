@@ -115,6 +115,19 @@ public class ImmutableList<E> implements Iterable<E> {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    if (length == 0)
+      return 0;
+    else
+      return firstHashCode() + restHashCode();
+  }
+
+  @Override
+  public Iterator<E> iterator() {
+    return new MyIterator();
+  }
+
   public int firstHashCode() {
     if (firstPresent()) {
       return first.hashCode();
@@ -149,19 +162,6 @@ public class ImmutableList<E> implements Iterable<E> {
       return rest.toString();
     }
     return "";
-  }
-
-  @Override
-  public int hashCode() {
-    if (length == 0)
-      return 0;
-    else
-      return firstHashCode() + restHashCode();
-  }
-
-  @Override
-  public Iterator<E> iterator() {
-    return new MyIterator();
   }
 
   @Override
