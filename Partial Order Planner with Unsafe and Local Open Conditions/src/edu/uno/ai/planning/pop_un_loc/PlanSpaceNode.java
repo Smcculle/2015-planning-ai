@@ -26,7 +26,7 @@ public class PlanSpaceNode {
 
   public final Bindings bindings;
   public final ImmutableList<CausalLink> causalLinks;
-  public final FlawList flaws;
+  public final Flaws flaws;
   public final int id = nextID++;
   public final PlanSpaceNode parent;
   public final Orderings orderings;
@@ -37,8 +37,7 @@ public class PlanSpaceNode {
 
   protected PlanSpaceNode(PlanSpaceNode parent, ImmutableList<Step> steps,
                           Bindings bindings, Orderings orderings,
-                          ImmutableList<CausalLink> causalLinks,
-                          FlawList flaws) {
+                          ImmutableList<CausalLink> causalLinks, Flaws flaws) {
     this.parent = parent;
     this.steps = steps;
     this.bindings = bindings;
@@ -56,13 +55,13 @@ public class PlanSpaceNode {
     bindings = Bindings.EMPTY;
     orderings = new Orderings().add(start, end);
     causalLinks = new ImmutableList<>();
-    flaws = new FlawList(end);
+    flaws = new Flaws(end);
   }
 
-  private final FlawList checkForThreats(ImmutableList<Step> steps,
-                                         Bindings bindings, Orderings orderings,
-                                         ImmutableList<CausalLink> causalLinks,
-                                         FlawList flaws) {
+  private final Flaws checkForThreats(ImmutableList<Step> steps,
+                                      Bindings bindings, Orderings orderings,
+                                      ImmutableList<CausalLink> causalLinks,
+                                      Flaws flaws) {
     // For each causal link...
     for (CausalLink link : causalLinks) {
       // Label must be ground to be a definite threat.
@@ -121,7 +120,7 @@ public class PlanSpaceNode {
 
   private final void fix(ThreatenedCausalLinkFlaw flaw,
                          PriorityQueue<PlanSpaceNode> queue) {
-    FlawList newFlaws = flaws.remove(flaw);
+    Flaws newFlaws = flaws.remove(flaw);
     // Promote
     Orderings promote = orderings.add(flaw.link.head, flaw.threat);
     if (promote != null) {
@@ -148,7 +147,7 @@ public class PlanSpaceNode {
         Orderings newOrderings = orderings.add(step, flaw.step);
         if (newOrderings != null) {
           ImmutableList<Step> newSteps = steps;
-          FlawList newFlaws = flaws.remove(flaw);
+          Flaws newFlaws = flaws.remove(flaw);
           // If the step is new, add the step, its orderings, and its flaws.
           if (!steps.contains(step)) {
             newSteps = newSteps.add(step);
