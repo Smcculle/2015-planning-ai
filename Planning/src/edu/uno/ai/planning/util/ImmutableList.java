@@ -146,6 +146,15 @@ public class ImmutableList<E> implements Iterable<E> {
     return "";
   }
 
+  public E last() {
+    if (empty())
+      return null;
+    else if (rest.empty())
+      return first;
+    else
+      return rest.last();
+  }
+
   public ImmutableList<E> remove(E element) {
     if (empty())
       return new ImmutableList<E>();

@@ -2,6 +2,8 @@ package edu.uno.ai.planning.util;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -112,6 +114,55 @@ public class ImmutableListTest {
       @Test
       public void is_a_list_in_the_same_order_without_the_element() {
         assertThat(list.remove(element), contains(third, first));
+      }
+    }
+  }
+
+  public class last {
+    public class when_the_list_is_empty {
+      @Before
+      public void beforeExample() {
+        list = emptyList();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(list.last(), is(nullValue()));
+      }
+    }
+
+    public class when_the_list_has_an_element {
+      Integer element;
+
+      @Before
+      public void beforeExample() {
+        element = new Integer(1);
+        list = listWith(element);
+      }
+
+      @Test
+      public void is_that_element() {
+        assertThat(list.last(), equalTo(element));
+      }
+    }
+
+    public class when_the_list_has_some_elements {
+      Integer first;
+      Integer second;
+      Integer third;
+
+      @Before
+      public void beforeExample() {
+        first = new Integer(1);
+        second = new Integer(2);
+        third = new Integer(3);
+
+        list = listWith(first, second, third);
+      }
+
+      @Test
+      public void is_the_element_first_added() {
+        assertThat(list.last(), equalTo(first));
       }
     }
   }
