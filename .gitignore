@@ -59,3 +59,7 @@ hs_err_pid*
 
 ### Benchmark Output ###
 Benchmarks/benchmarks/results.html
+
+.idea/
+.recommenders/
+*.iml
