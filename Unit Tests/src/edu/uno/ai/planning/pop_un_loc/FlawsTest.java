@@ -94,6 +94,55 @@ public class FlawsTest {
     }
   }
 
+  public class addLast_flaw {
+    Flaw flaw;
+
+    @Before
+    public void beforeExample() {
+      flaw = mock(Flaw.class);
+    }
+
+    public class when_the_flaw_is_already_included {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = flaw = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void adds_the_duplicate_to_the_end_of_the_list() {
+        assertThat(flaws.addLast(flaw), contains(flaw, second, first, flaw));
+      }
+    }
+
+    public class when_the_flaw_is_not_already_included {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void adds_the_flaw_to_the_end_of_the_list() {
+        assertThat(flaws.addLast(flaw), contains(third, second, first, flaw));
+      }
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_flaws {
       @Before
