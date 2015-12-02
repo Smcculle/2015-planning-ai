@@ -6,18 +6,29 @@ import java.awt.geom.Point2D;
 
 public class GridMap {
 
-    protected int[][] grid;
+    protected byte[][] grid;
     protected float[][] history;
     protected static WeakHashMap<String, GridMap> loadedMaps = null;
     protected String name;
 
+    /**
+     * Create an empty map
+     * @param width the width of the map
+     * @param height the height of the map
+     * @param name a name for the map
+     */
     public GridMap(int width, int height, String name) {
-        grid = new int[height][width];
+        grid = new byte[height][width];
         history = new float[height][width];
         clearHistory();
         this.name = name;
     }
 
+    /**
+     * Create a new map from an existing map
+     * the grid is shared but the history is indpendent
+     * @param m an existing map
+     */
     public GridMap(GridMap m) {
         this.grid = m.grid;
         this.name = m.name;
@@ -25,14 +36,26 @@ public class GridMap {
         clearHistory();
     }
 
+    /**
+     *  clears the history array
+     */
     public void clearHistory() {
     	setHistory(0.0f);
     }
+    /**
+     * sets the history array to the specified value
+     * @param value
+     */
     protected void setHistory(float value){
         for (int i = 0; i < history.length; i++) {
             Arrays.fill(history[i], value);
         }
     }
+    /**
+     * loads a map from file see the maps folder for the file format
+     * @param path
+     * @return
+     */
     public static GridMap load(String path) {
         synchronized (GridMap.class) {
             if (loadedMaps == null) {
@@ -77,6 +100,12 @@ public class GridMap {
         }
     }
 
+    /**
+     * helper function to read octile format maps
+     * 
+     * @param br
+     * @throws IOException
+     */
     protected void readOctileMap(BufferedReader br) throws IOException {
         for (int y = 0; y < grid.length; y++) {
             String terrain = br.readLine();
@@ -87,7 +116,7 @@ public class GridMap {
                     case '@':
                     case '0':
                     case 'T':
-                        grid[y][x] = -1;
+                        grid[y][x] = 0;
                         break;
                     case 'W':
                         grid[y][x] = 2;

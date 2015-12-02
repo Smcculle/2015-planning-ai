@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="src" path="/Benchmarks"/>
 	<classpathentry kind="src" path="/State Space Search"/>
+	<classpathentry kind="lib" path="libs/ij-1.50e.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
