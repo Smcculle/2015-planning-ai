@@ -11,6 +11,10 @@ public class TestSuite {
 //		new edu.uno.ai.planning.bfs.BFSPlanner(),
 //		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 //		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.bfs.BFSPlanner(),
+		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
+		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
+		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
 		new edu.uno.ai.planning.graphplan.LPGraphPlan()

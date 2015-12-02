@@ -12,7 +12,7 @@ public abstract class Node {
 	}
 	
 	public boolean exists(int level) {
-		return level != -1 && level <= level;
+		return this.level != -1 && this.level <= level;
 	}
 	
 	public int getLevel() {
