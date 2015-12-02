@@ -38,6 +38,10 @@ public class Flaws implements Iterable<Flaw>, Partial {
     return new Flaws(flaws.add(flaw));
   }
 
+  public Flaws addLast(Flaw flaw) {
+    return new Flaws(flaws.addLast(flaw));
+  }
+
   @Override
   public boolean equals(Object object) {
     if (object instanceof Flaws) {
