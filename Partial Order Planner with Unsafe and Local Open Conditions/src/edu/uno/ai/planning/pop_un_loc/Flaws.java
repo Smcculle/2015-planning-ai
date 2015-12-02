@@ -42,6 +42,14 @@ public class Flaws implements Iterable<Flaw>, Partial {
     return new Flaws(flaws.addLast(flaw));
   }
 
+  public Flaw chooseFirstFlaw() {
+    return flaws.first;
+  }
+
+  public Flaw chooseFlaw() {
+    return chooseFirstFlaw();
+  }
+
   @Override
   public boolean equals(Object object) {
     if (object instanceof Flaws) {
