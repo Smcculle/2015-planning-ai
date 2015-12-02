@@ -22,22 +22,22 @@ import edu.uno.ai.planning.util.ImmutableArray;
 public class PlanGraph 
 {
 	/** Number of Levels **/
-	private int _levels;
+	protected int _levels;
 	
 	/** List of all currently extended PlanGraphLevels **/
-	private ArrayList<PlanGraphLevel> _levelList;
+	protected ArrayList<PlanGraphLevel> _levelList;
 		
 	/** List of all unique PlanGraphSteps in PlanGraph **/
-	private ArrayList<PlanGraphStep> _steps;
+	protected ArrayList<PlanGraphStep> _steps;
 	
 	/** List of all unique PlanGraphLiterals in PlanGraph **/
-	private ArrayList<PlanGraphLiteral> _effects;
+	protected ArrayList<PlanGraphLiteral> _effects;
 	
     /** List of all Persistence Steps (easier record keeping) */
-    private ArrayList<PlanGraphStep> _persistenceSteps;
+	protected ArrayList<PlanGraphStep> _persistenceSteps;
 	
     /** Will this PlanGraph calculate mutual exclusions? */
-    private boolean _calculateMutex;
+	protected boolean _calculateMutex;
 	
 	/**
 	 * Constructs a new PlanGraph Structure
@@ -215,7 +215,7 @@ public class PlanGraph
 	 * 
 	 * @return PlanGraphLevel Maximum PlanGraphLevel in PlanGraph
 	 */
-	private PlanGraphLevel getMaxLevel()
+	protected PlanGraphLevel getMaxLevel()
 	{
 		return _levelList.get(_levels - 1);
 	}
@@ -225,7 +225,7 @@ public class PlanGraph
 	 * 
 	 * @param steps All possible steps
 	 */
-	private void addAllEffects(ImmutableArray<Step> steps) 
+	protected void addAllEffects(ImmutableArray<Step> steps) 
 	{
 		ArrayList<Literal> literals = new ArrayList<Literal>();
 		for (Step step : steps)
@@ -256,7 +256,7 @@ public class PlanGraph
 	 * 
 	 * @param steps All possible Steps.
 	 */
-	private void addAllSteps(ImmutableArray<Step> steps) 
+	protected void addAllSteps(ImmutableArray<Step> steps) 
 	{
 		for (Step step : steps)
 			_steps.add(new PlanGraphStep(step));
@@ -265,7 +265,7 @@ public class PlanGraph
 	/**
 	 * Connect all Steps and Effects to their parents and children
 	 */
-	private void connectParentsToChildren(){
+	protected void connectParentsToChildren(){
 		for(PlanGraphStep step : _steps){
 			// Add Step effects as Plan Graph Children
 			List<Literal> effectLiterals = ConversionUtil.expressionToLiterals(step.getStep().effect);
@@ -289,7 +289,7 @@ public class PlanGraph
 	/**
 	 * Adds all possible persistence steps from _effects.
 	 */
-	private void addAllPerstitenceSteps()
+	protected void addAllPerstitenceSteps()
 	{
 		for (PlanGraphLiteral planGraphLiteral : _effects)
 		{

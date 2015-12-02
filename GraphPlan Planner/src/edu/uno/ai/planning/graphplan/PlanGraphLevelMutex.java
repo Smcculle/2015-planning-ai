@@ -441,7 +441,7 @@ public class PlanGraphLevelMutex extends PlanGraphLevel
 	 * @param step
 	 * @param otherStep
 	 */
-	private void addMutexStep(PlanGraphStep step, PlanGraphStep otherStep){
+	protected void addMutexStep(PlanGraphStep step, PlanGraphStep otherStep){
 		if (_mutexSteps.containsKey(step))
 		{
 			ArrayList<PlanGraphStep> steps = _mutexSteps.get(step);

@@ -8,11 +8,12 @@ public class TestSuite {
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-		new edu.uno.ai.planning.bfs.BFSPlanner(),
-		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
+//		new edu.uno.ai.planning.bfs.BFSPlanner(),
+//		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
+//		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
+		new edu.uno.ai.planning.graphplan.LPGraphPlan()
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
