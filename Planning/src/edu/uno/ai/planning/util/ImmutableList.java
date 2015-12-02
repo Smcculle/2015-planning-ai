@@ -79,6 +79,13 @@ public class ImmutableList<E> implements Iterable<E> {
     return new ImmutableList<E>(element, this);
   }
 
+  public ImmutableList<E> addLast(E element) {
+    if (empty())
+      return new ImmutableList<E>(element);
+    else
+      return rest.addLast(element).add(first);
+  }
+
   /**
    * Indicates whether or not the list contains a given element.
    *
