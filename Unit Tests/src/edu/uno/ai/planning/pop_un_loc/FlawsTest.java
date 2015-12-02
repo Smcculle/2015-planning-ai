@@ -1,8 +1,9 @@
 package edu.uno.ai.planning.pop_un_loc;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -47,6 +48,45 @@ public class FlawsTest {
   @Test
   public void implements_partial_interface() {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
+  }
+
+  public class add_flaw {
+    Flaw flaw;
+
+    @Before
+    public void setup() {
+      flaw = mock(Flaw.class);
+    }
+
+    public class when_the_flaw_is_already_included {
+      @Before
+      public void setup() {
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void adds_a_duplicate_of_the_flaw() {
+        assertThat(flaws.add(flaw), contains(flaw, flaw));
+      }
+    }
+
+    public class when_the_flaw_is_not_already_included {
+      Flaw first;
+      Flaw second;
+
+      @Before
+      public void setup() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second);
+      }
+
+      @Test
+      public void adds_the_flaw_to_the_beginning_of_the_list() {
+        assertThat(flaws.add(flaw), contains(flaw, second, first));
+      }
+    }
   }
 
   public class toImmutableList {
@@ -176,10 +216,10 @@ public class FlawsTest {
       }
 
       @Test
-      public void contains_each_flaws_toString_substitution() {
-        assertThat(flaws.toString(substitution), containsString(firstString));
-        assertThat(flaws.toString(substitution), containsString(secondString));
-        assertThat(flaws.toString(substitution), containsString(thirdString));
+      public void contains_each_flaws_toString_substitution_in_lifo_order() {
+        assertThat(flaws.toString(substitution),
+                   stringContainsInOrder(thirdString, secondString,
+                                         firstString));
       }
     }
   }
