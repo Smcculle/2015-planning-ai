@@ -15,8 +15,8 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	Scenario scenario;
 	DistanceHeuristic dh;
 	WeightedDistanceHeuristic wdh;
-	protected PriorityQueue<MotionPlan<Point>> open;
-	protected HashMap<Point, MotionPlan<Point>> closed;
+	protected PriorityQueue<MotionNode<Point>> open;
+	protected HashMap<Point, MotionNode<Point>> closed;
 	protected long visited;
 	protected long expanded;
 	public final int perceptionDistance = 2;
@@ -34,7 +34,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		fullPath = new ArrayList<Point>();
 		setHistory(Float.POSITIVE_INFINITY);
 		mark(scenario.getEnd(), 0);
-		MotionPlan<Point> p = new MotionPlan<>(scenario.getEnd(), wdh.cost(scenario.getEnd(), scenario.getStart()));
+		MotionNode<Point> p = new MotionNode<>(scenario.getEnd(),0, wdh.cost(scenario.getEnd(), scenario.getStart()));
 		perception(scenario.getStart());
 		open.add(p);
 		visited = 0;
@@ -62,18 +62,22 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		edgesUpdated = false;
 		while (planning) {
 			while (!open.isEmpty()) {
-				MotionPlan<Point> currentPlan = open.remove();
-				closed.put(currentPlan.getLoc(), currentPlan);
+				MotionNode<Point> currentNode = open.remove();
+				closed.put(currentNode.getLoc(), currentNode);
 				visited++;
-				if (currentPlan.at(scenario.getEnd())) {
-					currentSolution = currentPlan;
+				if (currentNode.at(scenario.getEnd())) {
 					startExecuting();
 					if (!edgesUpdated) {
-						wdh.reduceWeight(5);
-
+						if (wdh.getWeight()< 1.00001) {
+							planning=false;
+						}
+						else{ 
+							wdh.reduceWeight(.5f);
+							//requeue open list to update heuristics
+						}
 					}
 				}
-				List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, this, dh);
+				List<MotionNode<Point>> next = currentNode.getSuccessors();
 				expanded += next.size();
 				open.addAll(next);
 			}
