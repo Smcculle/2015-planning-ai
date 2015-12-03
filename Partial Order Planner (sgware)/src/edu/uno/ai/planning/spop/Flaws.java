@@ -67,6 +67,10 @@ public class Flaws implements Iterable<Flaw>, Partial {
     return flaws.iterator();
   }
 
+  public int hashCode() {
+    return toImmutableList().hashCode();
+  }
+
   public Flaws remove(Flaw flaw) {
     return new Flaws(flaws.remove(flaw));
   }

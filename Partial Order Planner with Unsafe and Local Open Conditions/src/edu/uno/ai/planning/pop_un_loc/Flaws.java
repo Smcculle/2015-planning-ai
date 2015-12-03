@@ -62,6 +62,10 @@ public class Flaws implements Iterable<Flaw>, Partial {
     return false;
   }
 
+  public int hashCode() {
+    return toImmutableList().hashCode();
+  }
+
   @Override
   public Iterator<Flaw> iterator() {
     return flaws.iterator();
