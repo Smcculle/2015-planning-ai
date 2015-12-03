@@ -101,13 +101,13 @@ public class PlanSpaceNode {
   }
 
   public final void fix(Flaw flaw, PriorityQueue<PlanSpaceNode> queue) {
-    if (flaw instanceof OpenPreconditionFlaw)
-      fix((OpenPreconditionFlaw) flaw, queue);
+    if (flaw instanceof OpenCondition)
+      fix((OpenCondition) flaw, queue);
     else
       fix((ThreatenedCausalLinkFlaw) flaw, queue);
   }
 
-  private final void fix(OpenPreconditionFlaw flaw,
+  private final void fix(OpenCondition flaw,
                          PriorityQueue<PlanSpaceNode> queue) {
     steps.forEach(step -> {
       fix(flaw, step, queue);
@@ -137,7 +137,7 @@ public class PlanSpaceNode {
     }
   }
 
-  private final void fix(OpenPreconditionFlaw flaw, Step step,
+  private final void fix(OpenCondition flaw, Step step,
                          PriorityQueue<PlanSpaceNode> queue) {
     // Check each effect of the step.
     for (Literal effect : step.effects) {
@@ -161,7 +161,7 @@ public class PlanSpaceNode {
             }
             newOrderings = newOrderings.add(start, step).add(step, end);
             for (Literal precondition : step.preconditions)
-              newFlaws = newFlaws.add(new OpenPreconditionFlaw(step,
+              newFlaws = newFlaws.add(new OpenCondition(step,
                                                                precondition));
           }
           // Create a new causal link.
