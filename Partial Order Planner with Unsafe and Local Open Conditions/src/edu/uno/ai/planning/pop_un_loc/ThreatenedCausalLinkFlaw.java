@@ -13,6 +13,14 @@ public class ThreatenedCausalLinkFlaw implements Flaw {
     this.threat = threat;
   }
 
+  public CausalLink link() {
+    return link;
+  }
+
+  public Step threat() {
+    return threat;
+  }
+
   @Override
   public String toString() {
     return toString(Bindings.EMPTY);
