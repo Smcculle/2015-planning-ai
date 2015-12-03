@@ -6,44 +6,49 @@ import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
 import edu.uno.ai.planning.util.ImmutableList;
+import javaslang.collection.Stack;
+import javaslang.control.Try;
 
 public class Flaws implements Iterable<Flaw>, Partial {
 
-  private final ImmutableList<Flaw> flaws;
+  private final Stack<Flaw> flaws;
 
   public Flaws() {
-    flaws = new ImmutableList<Flaw>();
+    flaws = Stack.empty();
   }
 
   public Flaws(Flaw flaw) {
-    flaws = new ImmutableList<Flaw>(flaw);
+    flaws = Stack.of(flaw);
   }
 
   public Flaws(Step end) {
-    ImmutableList<Flaw> tmp = new ImmutableList<Flaw>();
+    Stack<Flaw> tmp = Stack.empty();
     for (Literal precondition : end.preconditions)
-      tmp = tmp.add(new OpenPreconditionFlaw(end, precondition));
+      tmp = tmp.push(new OpenPreconditionFlaw(end, precondition));
     flaws = tmp;
   }
 
   public Flaws(Flaw... flaws) {
-    this.flaws = new ImmutableList<Flaw>(flaws);
+    Stack<Flaw> tmp = Stack.empty();
+    for (Flaw flaw : flaws)
+      tmp = tmp.push(flaw);
+    this.flaws = tmp;
   }
 
-  public Flaws(ImmutableList<Flaw> flaws) {
-    this.flaws = new ImmutableList<Flaw>(flaws);
+  public Flaws(Iterable<Flaw> flaws) {
+    this.flaws = Stack.ofAll(flaws);
   }
 
   public Flaws add(Flaw flaw) {
-    return new Flaws(flaws.add(flaw));
+    return new Flaws(flaws.push(flaw));
   }
 
   public Flaws addLast(Flaw flaw) {
-    return new Flaws(flaws.addLast(flaw));
+    return new Flaws(flaws.append(flaw));
   }
 
   public Flaw chooseFirstFlaw() {
-    return flaws.first;
+    return Try.of(() -> flaws.head()).orElse(null);
   }
 
   public Flaw chooseFlaw() {
@@ -51,7 +56,7 @@ public class Flaws implements Iterable<Flaw>, Partial {
   }
 
   public Flaw chooseLastFlaw() {
-    return flaws.last();
+    return Try.of(() -> flaws.last()).orElse(null);
   }
 
   @Override
@@ -64,7 +69,7 @@ public class Flaws implements Iterable<Flaw>, Partial {
 
   @Override
   public int hashCode() {
-    return toImmutableList().hashCode();
+    return flaws.hashCode();
   }
 
   @Override
@@ -77,11 +82,11 @@ public class Flaws implements Iterable<Flaw>, Partial {
   }
 
   public int size() {
-    return flaws.length;
+    return flaws.length();
   }
 
   public ImmutableList<Flaw> toImmutableList() {
-    return flaws;
+    return new ImmutableList<Flaw>(flaws);
   }
 
   @Override
