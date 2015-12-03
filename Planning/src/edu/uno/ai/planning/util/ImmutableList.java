@@ -180,6 +180,10 @@ public class ImmutableList<E> implements Iterable<E> {
     }
   }
 
+  public ImmutableList<E> rest() {
+    return rest;
+  }
+
   public int restHashCode() {
     if (restPresent()) {
       return rest.hashCode();
