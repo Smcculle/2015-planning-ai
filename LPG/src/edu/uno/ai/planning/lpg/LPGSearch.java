@@ -1,6 +1,5 @@
 package edu.uno.ai.planning.lpg;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -30,7 +29,7 @@ public class LPGSearch extends Search {
 	private final Problem problem;
 	
 	/** Complete plan graph for the problem */
-	private final PlanGraph graph;
+	private PlanGraph graph;
 	
 	/** The subgraph we are working on */
 	private LPGActionGraph actionGraph;
@@ -76,14 +75,16 @@ public class LPGSearch extends Search {
 	public Plan findPlan(int maxSteps, int maxRestarts)
 	{
 		TotalOrderPlan plan = new TotalOrderPlan();
+		
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
-			if(i+1 % 100 == 0)
-				graph.extend();
-			
+			System.out.printf("i=%d, maxrestarts=%d\n", i, maxRestarts);
+			graph = new PlanGraph(problem, true);
+			graph.extend();
 			actionGraph = new LPGActionGraph(problem, graph);
 			
 			for(int j = 0; j < maxSteps; j++){
+				System.out.printf("j=%d, maxSteps=%d\n", j, maxSteps);
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
 					TotalOrderPlan plan2 = actionGraph.getOrderedTotalPlan(new TotalOrderPlan());
@@ -104,6 +105,7 @@ public class LPGSearch extends Search {
 				}
 
 				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
+				//System.out.printf("inconsistency chosen is %s\n", inconsistency);
 				numInconsistency[j % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
 				if( (j-1) % NOISE_WINDOW == 0)
 					updateNoiseFactor();
@@ -142,8 +144,8 @@ public class LPGSearch extends Search {
 		/* count the neighbors with better quality.  They are sorted, so we can break after finding the cutoff */
 		for (LPGActionGraph neighbor: neighborhood) {
 			if (neighbor.getGraphQuality() == 0) {
-					//System.out.println("quality 0");
-					neighbor.checkGoals();
+					/* found solution - return it */
+					return neighbor;
 			}
 			if (neighbor.getGraphQuality() < currentQuality)
 				count++;
