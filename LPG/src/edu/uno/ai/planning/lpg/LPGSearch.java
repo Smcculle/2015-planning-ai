@@ -17,7 +17,7 @@ public class LPGSearch extends Search {
 	private final static int restarts = 300;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
-	private final static int NOISE_WINDOW = 50;
+	private final static int NOISE_WINDOW = 25;
 	
 	/** noise factor updated if new variance differs by more than the threshold */
 	private final static double VARIANCE_THRESHOLD = 0.25;
@@ -58,8 +58,8 @@ public class LPGSearch extends Search {
 		this.problem = problem;
 		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
-		graph = new PlanGraph(problem, true);
-		graph.extend();
+		//graph = new PlanGraph(problem, true);
+		//graph.extend();
 	}
 	
 	/**
@@ -78,13 +78,13 @@ public class LPGSearch extends Search {
 		
 		outer:
 		for (int i = 0; i < maxRestarts; i++) {
-			System.out.printf("i=%d, maxrestarts=%d\n", i, maxRestarts);
-			graph = new PlanGraph(problem, true);
-			graph.extend();
-			actionGraph = new LPGActionGraph(problem, graph);
+			//System.out.printf("i=%d, maxrestarts=%d\n", i, maxRestarts);
+			//graph = new PlanGraph(problem, true);
+			//graph.extend();
+			actionGraph = newActionGraph();
 			
 			for(int j = 0; j < maxSteps; j++){
-				System.out.printf("j=%d, maxSteps=%d\n", j, maxSteps);
+				//System.out.printf("j=%d, maxSteps=%d\n", j, maxSteps);
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
 					TotalOrderPlan plan2 = actionGraph.getOrderedTotalPlan(new TotalOrderPlan());
@@ -95,7 +95,7 @@ public class LPGSearch extends Search {
 						break outer;
 					}
 					else {
-						actionGraph = new LPGActionGraph(problem, graph);
+						actionGraph = newActionGraph();
 					}
 				}
 				int ic = actionGraph.getInconsistencyCount();
@@ -108,7 +108,7 @@ public class LPGSearch extends Search {
 				//System.out.printf("inconsistency chosen is %s\n", inconsistency);
 				numInconsistency[j % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
 				if( (j-1) % NOISE_WINDOW == 0)
-					updateNoiseFactor();
+					this.noiseFactor = Math.min(0.85, noiseFactor*1.25);
 				
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
 				
@@ -124,6 +124,11 @@ public class LPGSearch extends Search {
 		return plan;
 	}
 	
+	private LPGActionGraph newActionGraph(){
+		graph = new PlanGraph(problem, true);
+		graph.extend();
+		return new LPGActionGraph(problem, graph);
+	}
 	/**
 	 * Chooses a new action graph from the neighborhood based on graphQuality.  Chooses one with quality
 	 * that is not worse (does not increase # of inconsistencies) than the current graph; if there are multiple 
@@ -210,7 +215,7 @@ public class LPGSearch extends Search {
 		
 		/* increase if variance is not changing, ceiling of 1 as it is a probability */
 		if( (variance - lastVariance) < VARIANCE_THRESHOLD )
-			this.noiseFactor = Math.min(1, noiseFactor*1.25);
+			this.noiseFactor = Math.min(0.85, noiseFactor*1.25);
 		else
 			this.noiseFactor = DEFAULT_NOISE_FACTOR;
 		

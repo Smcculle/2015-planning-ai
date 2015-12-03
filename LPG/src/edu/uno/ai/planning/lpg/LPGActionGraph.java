@@ -173,6 +173,10 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 				}
 			}
 			
+			if(chosenInconsistency == null){
+				chosenInconsistency = countInconsistencies();
+			}
+			
 		return chosenInconsistency;
 	}
 	
@@ -770,6 +774,19 @@ public class LPGActionGraph implements Comparable<LPGActionGraph> {
 			return literal.getInitialLevel() == 0; 
 	}
 
+	private LPGInconsistency countInconsistencies() {
+		InconsistencyIterator it = new InconsistencyIterator();
+		int counter = 0;
+		LPGInconsistency inconsistency = null;
+		while(it.hasNext()) {
+			inconsistency = it.next();
+			counter++;
+		}
+		inconsistencyCount = counter;
+		
+		return inconsistency;
+	}
+	
 	/** Iterator to traverse inconsistencies*/
 	private class InconsistencyIterator implements Iterator<LPGInconsistency> {
 
