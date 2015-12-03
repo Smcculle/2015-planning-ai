@@ -73,7 +73,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 						if (wdh.getWeight() < 1.00001) {
 							planning = false;
 						} else {
-							wdh.reduceWeight(.5f);
+							wdh.reduceWeight(1.0f);
 							// requeue open list to update heuristics
 							PriorityQueue<MotionNode<Point>> oldOpen = open;
 							open = new PriorityQueue<MotionNode<Point>>();
@@ -81,23 +81,23 @@ public class AnytimeDStar extends GridMap implements Runnable {
 								mn.setHeuristic(wdh.cost(mn.getLoc(), scenario.getStart()));
 								open.add(mn);
 							}
+							closed.clear();
 						}
 					}
 				}
-				List<MotionNode<Point>> next = currentNode.getSuccessors(scenario, wdh);
+				List<MotionNode<Point>> next = currentNode.getSuccessorsStart(scenario, wdh);
 				for (MotionNode<Point> mn : next) {
 					if (closed.containsKey(mn.getLoc())) {
-						if (history[mn.getLoc().y][mn.getLoc().x] != mn.getCost()) {
-							inconsistent.add(mn);
-						}
+						//if it's been closed this generation do nothing
 					} else if (this.isClear(scenario, mn.getLoc().y, mn.getLoc().x)) {
-						if (mn.getCost() != history[mn.getLoc().y][mn.getLoc().x]) {
-							if (history[mn.getLoc().y][mn.getLoc().x] != Float.POSITIVE_INFINITY) {
+							if (history[mn.getLoc().y][mn.getLoc().x] == Float.POSITIVE_INFINITY) {
 								open.add(mn);
 								expanded += 1;
 								this.mark(mn.getLoc(), (float) mn.getCost());
 							}
-						}
+							else if (mn.getCost() < history[mn.getLoc().y][mn.getLoc().x]) {
+								inconsistent.add(mn);
+							}
 					}
 				}
 			}
@@ -121,10 +121,6 @@ public class AnytimeDStar extends GridMap implements Runnable {
 
 	}
 
-	protected void recalculatePaths(int x, int y) {
-
-	}
-
 	protected void perception(Point p) {
 		if (!knownMap) {
 			for (int dy = -perceptionDistance; dy <= perceptionDistance; dy++) {
@@ -135,7 +131,6 @@ public class AnytimeDStar extends GridMap implements Runnable {
 							this.grid[p.y + dy][p.x + dx] = 1;
 						} else {
 							this.grid[p.y + dy][p.x + dx] = 0;
-							recalculatePaths(p.x + dx, p.y + dy);
 							edgesUpdated = true;
 						}
 
@@ -171,7 +166,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 							continue;
 						}
 						try {
-							if (history[p.y - y][p.x - x] < min) {
+							if (history[p.y + y][p.x + x] < min) {
 								min = history[p.y + y][p.x + x];
 								loc = new Point(p.y + y, p.x + x);
 							}

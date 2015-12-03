@@ -16,12 +16,14 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 		this.cost = cost;
 		this.heuristic = heuristic;
 	}
+
 	protected MotionNode(MotionNode<T> oldNode, T next, double costInc, double heuristic) {
-		location=next;
-		this.actionCost=costInc;
+		location = next;
+		this.actionCost = costInc;
 		this.cost = oldNode.cost + costInc;
 		this.heuristic = heuristic;
 	}
+
 	public double getCost() {
 		return cost;
 	}
@@ -52,7 +54,14 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 		return location;
 	}
 
-	public List<MotionNode<T>> getSuccessors(Scenario s,DistanceHeuristic dh) {
+	public List<MotionNode<T>> getSuccessorsEnd(Scenario s, DistanceHeuristic dh) {
+		return getSuccessors(s,dh,true);
+	}
+	public List<MotionNode<T>> getSuccessorsStart(Scenario s, DistanceHeuristic dh) {
+		return getSuccessors(s,dh,false);
+	}
+
+	protected List<MotionNode<T>> getSuccessors(Scenario s, DistanceHeuristic dh, boolean end) {
 		ArrayList<MotionNode<T>> nextSteps = new ArrayList<>();
 		for (int y = -1; y <= 1; y++) {
 			for (int x = -1; x <= 1; x++) {
@@ -66,8 +75,9 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 				if (x != 0 && y != 0) {
 					costInc = 1.41421;
 				}
-				MotionNode<T> p = new MotionNode<T>(this, step, costInc, dh.cost(step, s.getEnd()));
-				nextSteps.add(p);				
+				MotionNode<T> p = new MotionNode<T>(this, step, costInc,
+						dh.cost(step, end ? s.getEnd() : s.getStart()));
+				nextSteps.add(p);
 			}
 		}
 		return nextSteps;
