@@ -84,7 +84,7 @@ public class PlanSpaceNode {
     if (root.limit == root.visited)
       throw new SearchLimitReachedException();
     // Repair flaw.
-    Flaw flaw = flaws.chooseLastFlaw();
+    Flaw flaw = flaws.chooseFlaw();
     if (flaw instanceof OpenPreconditionFlaw)
       fix((OpenPreconditionFlaw) flaw, queue);
     else
