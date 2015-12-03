@@ -18,6 +18,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	protected PriorityQueue<MotionNode<Point>> open;
 	protected HashMap<Point, MotionNode<Point>> closed;
 	protected ArrayList<MotionNode<Point>> inconsistent;
+	protected PlanRunner runner;
 	protected long visited;
 	protected long expanded;
 	public final int perceptionDistance = 2;
@@ -47,6 +48,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		if (!knownMap){
 			initGrid();
 		}
+		runner=new PlanRunner();
 	}
 
 	protected void initGrid() {
@@ -62,8 +64,8 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	public void run() {
 		planning = true;
 		edgesUpdated = false;
-		while (planning) {
-			while (!open.isEmpty()) {
+		while (planning&&!runner.completed) {
+			while (!open.isEmpty()&&(open.peek().getHeuristic()+open.peek().getCost())<=history[scenario.getStart().y][scenario.getStart().x]+wdh.cost(scenario.getEnd(), scenario.getStart())) {
 				MotionNode<Point> currentNode = open.remove();
 				closed.put(currentNode.getLoc(), currentNode);
 				visited++;
@@ -118,7 +120,9 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	}
 
 	public void startExecuting() {
-
+		if (!runner.running){
+			runner.start();
+		}
 	}
 
 	protected void perception(Point p) {
@@ -143,22 +147,26 @@ public class AnytimeDStar extends GridMap implements Runnable {
 
 	class PlanRunner extends Thread {
 		MotionPlan<Point> plan;
-		boolean completed;
+		boolean completed=false;
 		boolean failed = false;
+		boolean running=false;
 		Point location;
 
 		PlanRunner() {
-			completed = false;
-			failed = false;
 
 		}
 
 		public void run() {
+			completed = false;
+			failed = false;			
 			Point p = scenario.getStart();
 			double totalCost = 0;
+			running=true;
 			while (!p.equals(scenario.getEnd())) {
 				double min = Double.MAX_VALUE;
-				fullPath.add(p);
+				if (fullPath.isEmpty()||!p.equals(fullPath.get(fullPath.size()-1))){
+					fullPath.add(p);
+				}
 				Point loc = p;
 				for (int y = -1; y <= 1; y++) {
 					for (int x = -1; x <= 1; x++) {
@@ -177,7 +185,14 @@ public class AnytimeDStar extends GridMap implements Runnable {
 				}
 				totalCost += p.distance(loc);
 				p = loc;
+				try{
+					sleep(1);
+				}
+				catch (InterruptedException ie){
+				}
 			}
+			completed=true;
+			running=false;
 		}
 	}
 }
