@@ -7,6 +7,8 @@ package edu.uno.ai.motionplanning;
 
 import java.awt.Point;
 
+import edu.uno.ai.motionplanning.Planners.GridMap;
+
 /**
  *
  * @author jgrimm

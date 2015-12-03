@@ -1,7 +1,11 @@
-package edu.uno.ai.motionplanning;
+package edu.uno.ai.motionplanning.Planners;
 
 import java.io.*;
 import java.util.*;
+
+import edu.uno.ai.motionplanning.MotionPlan;
+import edu.uno.ai.motionplanning.Scenario;
+
 import java.awt.geom.Point2D;
 
 public class GridMap {
@@ -68,9 +72,9 @@ public class GridMap {
                 loadedMaps = new WeakHashMap<String, GridMap>();
             }
         }
-        /*if (loadedMaps.containsKey(path)) {
+        if (loadedMaps.containsKey(path)) {
             return loadedMaps.get(path);
-        }*/
+        }
 
         try {
             FileInputStream fs = new FileInputStream(path);

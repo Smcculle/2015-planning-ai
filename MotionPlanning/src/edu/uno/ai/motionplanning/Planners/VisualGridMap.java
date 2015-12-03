@@ -1,4 +1,4 @@
-package edu.uno.ai.motionplanning;
+package edu.uno.ai.motionplanning.Planners;
 import ij.process.*;
 
 public class VisualGridMap extends GridMap{

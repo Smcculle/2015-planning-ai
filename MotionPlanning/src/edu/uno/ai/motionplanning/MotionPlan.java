@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import edu.uno.ai.motionplanning.Heuristics.DistanceHeuristic;
+import edu.uno.ai.motionplanning.Planners.GridMap;
 
 /**
  *

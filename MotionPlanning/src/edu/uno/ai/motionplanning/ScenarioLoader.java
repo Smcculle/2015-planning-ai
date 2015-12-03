@@ -8,6 +8,8 @@ package edu.uno.ai.motionplanning;
 import java.io.*;
 import java.util.*;
 
+import edu.uno.ai.motionplanning.Planners.GridMap;
+
 /**
  *
  * @author jgrimm

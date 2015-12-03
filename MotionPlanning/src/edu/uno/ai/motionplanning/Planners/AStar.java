@@ -23,7 +23,11 @@ public class AStar {
     protected DistanceHeuristic dh;
     protected long visited;
     protected long expanded;
-
+    protected long start;
+    protected long end;
+	protected boolean succeeded;
+	protected String reason="";
+	
     public AStar(Scenario s, DistanceHeuristic dh) {
         scenario = s;
         map = new GridMap(scenario.getMap());
@@ -37,10 +41,14 @@ public class AStar {
     }
 
     public MotionPlan<Point> search() {
+    	succeeded=false;
+    	start=System.nanoTime();
         while (!frontier.isEmpty()) {
             MotionPlan<Point> currentPlan = frontier.remove();
             visited++;
             if (currentPlan.at(scenario.getEnd())) {
+            	succeeded=true;
+            	end=System.nanoTime();
                 return currentPlan;
             }
             List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, map, dh);
@@ -50,10 +58,41 @@ public class AStar {
                 System.out.println("Frontier exhausted after considering "+visited+" states.");
             }            
         }
+        end=System.nanoTime();
         return null;
     }
     
     public GridMap getMap(){
     	return map;
     }
+    
+    public long getVisited(){
+    	return visited;
+    }
+    public long getExpanded(){
+    	return expanded;
+    }
+	public String toResultsString() {
+		String out = "[AStar ";
+		if(succeeded)
+			out += "succeeded";
+		else
+			out += "failed";
+		out += " on " + scenario.getMap().getName() + " in motion; ";
+		out += visited + " visited, " + expanded + " expanded; ";
+		out += getTime();
+		if(reason != null)
+			out += "; " + reason;
+		return out + "]";
+	}
+	
+	public String getTime() {
+		long time=end-start;
+		int nanos =(int)time%1000000;
+		time/=1000000;
+		int minutes = (int) (time / (1000*60));
+		int seconds = (int) (time / 1000) % 60;
+		int milliseconds = (int) (time % 1000);
+		return String.format("%d:%d:%d:%d", minutes, seconds, milliseconds,nanos);
+	}
 }

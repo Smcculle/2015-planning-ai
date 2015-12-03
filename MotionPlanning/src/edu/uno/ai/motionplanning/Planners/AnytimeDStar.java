@@ -17,40 +17,42 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	WeightedDistanceHeuristic wdh;
 	protected PriorityQueue<MotionNode<Point>> open;
 	protected HashMap<Point, MotionNode<Point>> closed;
+	protected ArrayList<MotionNode<Point>> inconsistent;
 	protected long visited;
 	protected long expanded;
 	public final int perceptionDistance = 2;
 	protected boolean planning;
 	protected boolean edgesUpdated;
-	protected MotionPlan<Point> currentSolution;
 	protected Point goal;
 	protected ArrayList<Point> fullPath;
 	protected boolean knownMap;
+
 	public AnytimeDStar(Scenario s, DistanceHeuristic dh, float initialWeight, boolean knownMap) {
-		super(s.getMap().getWidth(), s.getMap().getHeight(), s.getMap().getName() + " known");
+		super(s.getMap());
+		open = new PriorityQueue<MotionNode<Point>>();
+		closed = new HashMap<>();
+		inconsistent = new ArrayList<>();
 		this.scenario = s;
 		this.dh = dh;
 		this.wdh = new WeightedDistanceHeuristic(initialWeight, dh);
 		fullPath = new ArrayList<Point>();
 		setHistory(Float.POSITIVE_INFINITY);
 		mark(scenario.getEnd(), 0);
-		MotionNode<Point> p = new MotionNode<>(scenario.getEnd(),0, wdh.cost(scenario.getEnd(), scenario.getStart()));
+		MotionNode<Point> p = new MotionNode<>(scenario.getEnd(), 0, wdh.cost(scenario.getEnd(), scenario.getStart()));
 		perception(scenario.getStart());
 		open.add(p);
 		visited = 0;
 		expanded = 1;
-		this.knownMap=knownMap;
+		this.knownMap = knownMap;
+		if (!knownMap){
+			initGrid();
+		}
 	}
 
 	protected void initGrid() {
-		for (int y=0;y<grid.length;y++){
-			for (int x=0;x<grid[0].length;x++){
-				if (knownMap){
-					grid[y][x]=(byte)(scenario.getMap().isClear(scenario, y, x)?1:0);
-				}
-				else{
-					grid[y][x]=1;
-				}
+		for (int y = 0; y < grid.length; y++) {
+			for (int x = 0; x < grid[0].length; x++) {
+				grid[y][x] = 1;
 			}
 		}
 
@@ -65,24 +67,49 @@ public class AnytimeDStar extends GridMap implements Runnable {
 				MotionNode<Point> currentNode = open.remove();
 				closed.put(currentNode.getLoc(), currentNode);
 				visited++;
-				if (currentNode.at(scenario.getEnd())) {
+				if (currentNode.at(scenario.getStart())) {
 					startExecuting();
 					if (!edgesUpdated) {
-						if (wdh.getWeight()< 1.00001) {
-							planning=false;
-						}
-						else{ 
+						if (wdh.getWeight() < 1.00001) {
+							planning = false;
+						} else {
 							wdh.reduceWeight(.5f);
-							//requeue open list to update heuristics
+							// requeue open list to update heuristics
+							PriorityQueue<MotionNode<Point>> oldOpen = open;
+							open = new PriorityQueue<MotionNode<Point>>();
+							for (MotionNode<Point> mn : oldOpen) {
+								mn.setHeuristic(wdh.cost(mn.getLoc(), scenario.getStart()));
+								open.add(mn);
+							}
 						}
 					}
 				}
-				List<MotionNode<Point>> next = currentNode.getSuccessors();
-				expanded += next.size();
-				open.addAll(next);
+				List<MotionNode<Point>> next = currentNode.getSuccessors(scenario, wdh);
+				for (MotionNode<Point> mn : next) {
+					if (closed.containsKey(mn.getLoc())) {
+						if (history[mn.getLoc().y][mn.getLoc().x] != mn.getCost()) {
+							inconsistent.add(mn);
+						}
+					} else if (this.isClear(scenario, mn.getLoc().y, mn.getLoc().x)) {
+						if (mn.getCost() != history[mn.getLoc().y][mn.getLoc().x]) {
+							if (history[mn.getLoc().y][mn.getLoc().x] != Float.POSITIVE_INFINITY) {
+								open.add(mn);
+								expanded += 1;
+								this.mark(mn.getLoc(), (float) mn.getCost());
+							}
+						}
+					}
+				}
 			}
-			return;
+			if (!inconsistent.isEmpty()) {
+				open.addAll(inconsistent);
+				inconsistent.clear();
+			} else {
+				planning = false;
+			}
 		}
+		PlanRunner pr = new PlanRunner();
+		pr.run();
 	}
 
 	public void mark(MotionPlan<?> p) {
@@ -125,33 +152,37 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		boolean failed = false;
 		Point location;
 
-		PlanRunner(MotionPlan<Point> mp) {
-			this.plan = mp;
+		PlanRunner() {
 			completed = false;
 			failed = false;
 
 		}
 
 		public void run() {
-			List<Point> steps = plan.planSteps();
-			ArrayList<Point> mySteps = new ArrayList<>(steps);
-			Collections.reverse(mySteps);
-			Point lastPoint = mySteps.get(0);
-			for (Point loc : mySteps) {
-				if (!isClear(scenario, loc.x, loc.y)) {
-					failed = true;
-					return;
+			Point p = scenario.getStart();
+			double totalCost = 0;
+			while (!p.equals(scenario.getEnd())) {
+				double min = Double.MAX_VALUE;
+				fullPath.add(p);
+				Point loc = p;
+				for (int y = -1; y <= 1; y++) {
+					for (int x = -1; x <= 1; x++) {
+						if (x == 0 && y == 0) {
+							continue;
+						}
+						try {
+							if (history[p.y - y][p.x - x] < min) {
+								min = history[p.y + y][p.x + x];
+								loc = new Point(p.y + y, p.x + x);
+							}
+						} catch (Exception e) {
+						}
+					}
+
 				}
-				location = loc;
-				perception(loc);
-				try {
-					sleep((int) (loc.distance(lastPoint) * 50));
-				} catch (InterruptedException ie) {
-					// parent wants us dead. Return
-					return;
-				}
+				totalCost += p.distance(loc);
+				p = loc;
 			}
-			completed = true;
 		}
 	}
 }

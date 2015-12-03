@@ -1,12 +1,13 @@
 package edu.uno.ai.motionplanning;
 
+import edu.uno.ai.motionplanning.Planners.GridMap;
 import edu.uno.ai.planning.*;
 import edu.uno.ai.planning.logic.*;
 import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.util.*;
 import java.util.*;
 public class MotionProblemFactory {
-	public static Problem generateMotionProblem(Scenario s) {
+	public static StateSpaceProblem generateMotionProblem(Scenario s) {
 		String name = s.getMap().getName();
 		Variable[] params = new Variable[2];
 		Variable from = params[0] = new Variable("location", "from");
