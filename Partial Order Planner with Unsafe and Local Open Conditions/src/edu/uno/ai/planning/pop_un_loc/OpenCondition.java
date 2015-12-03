@@ -4,12 +4,12 @@ import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
 
-public class OpenPreconditionFlaw implements Flaw {
+public class OpenCondition implements Flaw {
 
   public final Literal precondition;
   public final Step step;
 
-  OpenPreconditionFlaw(Step step, Literal precondition) {
+  OpenCondition(Step step, Literal precondition) {
     this.step = step;
     this.precondition = precondition;
   }

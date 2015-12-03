@@ -18,6 +18,6 @@ public class UnsafeOpenConditionTest {
   @Test
   public void is_an_open_condition() {
     assertThat(describedClass(),
-               typeCompatibleWith(OpenPreconditionFlaw.class));
+               typeCompatibleWith(OpenCondition.class));
   }
 }

@@ -24,7 +24,7 @@ public class Flaws implements Iterable<Flaw>, Partial {
   public Flaws(Step end) {
     Stack<Flaw> tmp = Stack.empty();
     for (Literal precondition : end.preconditions)
-      tmp = tmp.push(new OpenPreconditionFlaw(end, precondition));
+      tmp = tmp.push(new OpenCondition(end, precondition));
     flaws = tmp;
   }
 

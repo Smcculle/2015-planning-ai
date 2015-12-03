@@ -15,19 +15,19 @@ import edu.uno.ai.planning.logic.Literal;
 
 @RunWith(NestedRunner.class)
 public class OpenPreconditionFlawTest {
-  static Class<OpenPreconditionFlaw> describedClass() {
-    return OpenPreconditionFlaw.class;
+  static Class<OpenCondition> describedClass() {
+    return OpenCondition.class;
   }
 
-  static OpenPreconditionFlaw openPreconditionFlaw() {
-    return new OpenPreconditionFlaw(mock(Step.class), mock(Literal.class));
+  static OpenCondition openCondition() {
+    return new OpenCondition(mock(Step.class), mock(Literal.class));
   }
 
-  OpenPreconditionFlaw openPreconditionFlaw;
+  OpenCondition openCondition;
 
   @Before
   public void beforeExample() {
-    openPreconditionFlaw = openPreconditionFlaw();
+    openCondition = openCondition();
   }
 
   @Test
@@ -38,14 +38,14 @@ public class OpenPreconditionFlawTest {
   public class precondition {
     @Test
     public void is_a_literal() {
-      assertThat(openPreconditionFlaw.precondition(), isA(Literal.class));
+      assertThat(openCondition.precondition(), isA(Literal.class));
     }
   }
 
   public class step {
     @Test
     public void is_a_step() {
-      assertThat(openPreconditionFlaw.step(), isA(Step.class));
+      assertThat(openCondition.step(), isA(Step.class));
     }
   }
 }
