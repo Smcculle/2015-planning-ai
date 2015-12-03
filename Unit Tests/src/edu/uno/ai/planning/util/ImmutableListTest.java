@@ -217,4 +217,52 @@ public class ImmutableListTest {
       }
     }
   }
+
+  public class size {
+    public class when_there_are_no_elements {
+      @Before
+      public void beforeExample() {
+        list = emptyList();
+      }
+
+      @Test
+      public void is_0() {
+        assertThat(list.size(), is(0));
+      }
+    }
+
+    public class when_there_is_one_element {
+      Integer element;
+
+      @Before
+      public void beforeExample() {
+        element = new Integer(1);
+        list = listWith(element);
+      }
+
+      @Test
+      public void is_1() {
+        assertThat(list.size(), is(1));
+      }
+    }
+
+    public class when_there_are_some_elements {
+      Integer first;
+      Integer second;
+      Integer third;
+
+      @Before
+      public void beforeExample() {
+        first = new Integer(1);
+        second = new Integer(2);
+        third = new Integer(3);
+        list = listWith(first, second, third);
+      }
+
+      @Test
+      public void is_3() {
+        assertThat(list.size(), is(3));
+      }
+    }
+  }
 }

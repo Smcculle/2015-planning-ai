@@ -189,9 +189,13 @@ public class ImmutableList<E> implements Iterable<E> {
 
   public String restToString() {
     if (restPresent()) {
-      return rest.toString();
+      return rest.firstToString() + " " + rest.restToString();
     }
     return "";
+  }
+
+  public Integer size() {
+    return new Integer(length);
   }
 
   @Override
