@@ -14,7 +14,7 @@ import com.nitorcreations.junit.runners.NestedRunner;
 import edu.uno.ai.planning.logic.Literal;
 
 @RunWith(NestedRunner.class)
-public class OpenPreconditionFlawTest {
+public class OpenConditionTest {
   static Class<OpenCondition> describedClass() {
     return OpenCondition.class;
   }
