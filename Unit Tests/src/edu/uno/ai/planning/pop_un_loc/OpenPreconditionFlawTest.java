@@ -1,5 +1,6 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,16 +38,14 @@ public class OpenPreconditionFlawTest {
   public class precondition {
     @Test
     public void is_a_literal() {
-      assertThat(openPreconditionFlaw.precondition().getClass(),
-                 typeCompatibleWith(Literal.class));
+      assertThat(openPreconditionFlaw.precondition(), isA(Literal.class));
     }
   }
 
   public class step {
     @Test
     public void is_a_step() {
-      assertThat(openPreconditionFlaw.step().getClass(),
-                 typeCompatibleWith(Step.class));
+      assertThat(openPreconditionFlaw.step(), isA(Step.class));
     }
   }
 }
