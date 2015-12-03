@@ -14,6 +14,14 @@ public class OpenPreconditionFlaw implements Flaw {
     this.precondition = precondition;
   }
 
+  public Literal precondition() {
+    return precondition;
+  }
+
+  public Step step() {
+    return step;
+  }
+
   @Override
   public String toString() {
     return toString(Bindings.EMPTY);
