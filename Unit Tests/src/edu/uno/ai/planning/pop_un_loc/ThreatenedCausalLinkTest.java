@@ -12,21 +12,21 @@ import org.junit.runner.RunWith;
 import com.nitorcreations.junit.runners.NestedRunner;
 
 @RunWith(NestedRunner.class)
-public class ThreatenedCausalLinkFlawTest {
-  static Class<ThreatenedCausalLinkFlaw> describedClass() {
-    return ThreatenedCausalLinkFlaw.class;
+public class ThreatenedCausalLinkTest {
+  static Class<ThreatenedCausalLink> describedClass() {
+    return ThreatenedCausalLink.class;
   }
 
-  static ThreatenedCausalLinkFlaw threatenedCausalLinkFlaw() {
-    return new ThreatenedCausalLinkFlaw(mock(CausalLink.class),
+  static ThreatenedCausalLink threatenedCausalLink() {
+    return new ThreatenedCausalLink(mock(CausalLink.class),
                                         mock(Step.class));
   }
 
-  ThreatenedCausalLinkFlaw threatenedCausalLinkFlaw;
+  ThreatenedCausalLink threatenedCausalLink;
 
   @Before
   public void beforeExample() {
-    threatenedCausalLinkFlaw = threatenedCausalLinkFlaw();
+    threatenedCausalLink = threatenedCausalLink();
   }
 
   @Test
@@ -37,14 +37,14 @@ public class ThreatenedCausalLinkFlawTest {
   public class link {
     @Test
     public void is_a_causal_link() {
-      assertThat(threatenedCausalLinkFlaw.link(), isA(CausalLink.class));
+      assertThat(threatenedCausalLink.link(), isA(CausalLink.class));
     }
   }
 
   public class threat {
     @Test
     public void is_a_step() {
-      assertThat(threatenedCausalLinkFlaw.threat(), isA(Step.class));
+      assertThat(threatenedCausalLink.threat(), isA(Step.class));
     }
   }
 }

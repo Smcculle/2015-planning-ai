@@ -77,7 +77,7 @@ public class PlanSpaceNode {
               // If the effect is identical to the negated label, this is a
               // definite threat.
               if (effect.equals(link.negatedLabelWithBindings(bindings)))
-                flaws = flaws.add(new ThreatenedCausalLinkFlaw(link, step));
+                flaws = flaws.add(new ThreatenedCausalLink(link, step));
             }
           }
         }
@@ -104,7 +104,7 @@ public class PlanSpaceNode {
     if (flaw instanceof OpenCondition)
       fix((OpenCondition) flaw, queue);
     else
-      fix((ThreatenedCausalLinkFlaw) flaw, queue);
+      fix((ThreatenedCausalLink) flaw, queue);
   }
 
   private final void fix(OpenCondition flaw,
@@ -118,7 +118,7 @@ public class PlanSpaceNode {
     });
   }
 
-  private final void fix(ThreatenedCausalLinkFlaw flaw,
+  private final void fix(ThreatenedCausalLink flaw,
                          PriorityQueue<PlanSpaceNode> queue) {
     Flaws newFlaws = flaws.remove(flaw);
     // Promote

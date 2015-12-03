@@ -3,12 +3,12 @@ package edu.uno.ai.planning.pop_un_loc;
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Substitution;
 
-public class ThreatenedCausalLinkFlaw implements Flaw {
+public class ThreatenedCausalLink implements Flaw {
 
   public final CausalLink link;
   public final Step threat;
 
-  public ThreatenedCausalLinkFlaw(CausalLink link, Step threat) {
+  public ThreatenedCausalLink(CausalLink link, Step threat) {
     this.link = link;
     this.threat = threat;
   }
