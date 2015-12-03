@@ -47,6 +47,23 @@ public class ImmutableList<E> implements Iterable<E> {
     this.length = elements.length;
   }
 
+  public ImmutableList(Iterable<E> elements) {
+    Iterator<E> iterator = elements.iterator();
+    if (iterator.hasNext()) {
+      this.first = iterator.next();
+      ImmutableList<E> tmp = new ImmutableList<E>();
+      while (iterator.hasNext()) {
+        tmp = tmp.addLast(iterator.next());
+      }
+      this.rest = tmp;
+      this.length = rest.length + 1;
+    } else {
+      this.first = null;
+      this.rest = null;
+      this.length = 0;
+    }
+  }
+
   public ImmutableList(ImmutableList<E> elements) {
     this.first = elements.first;
     this.rest = elements.rest;
