@@ -110,7 +110,7 @@ public class PlanGraphTest {
 	public void constructorCakeDomain(){
 		// TEST CAKE DOMAIN
 		PlanGraph cakeGraph = createCakePlanGraph();
-		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)cakeGraph.getRootLevel(); 
+		PlanGraphLevelMutex rootLevel = (PlanGraphLevelMutex)cakeGraph.getRootLevel();
 
 		// Test existence
 		assertNotNull(rootLevel);
