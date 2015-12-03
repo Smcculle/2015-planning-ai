@@ -128,6 +128,55 @@ public class ImmutableListTest {
     }
   }
 
+  public class first {
+    public class when_the_list_is_empty {
+      @Before
+      public void beforeExample() {
+        list = emptyList();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(list.first(), is(nullValue()));
+      }
+    }
+
+    public class when_the_list_has_an_element {
+      Integer element;
+
+      @Before
+      public void beforeExample() {
+        element = new Integer(1);
+        list = listWith(element);
+      }
+
+      @Test
+      public void is_that_element() {
+        assertThat(list.first(), equalTo(element));
+      }
+    }
+
+    public class when_the_list_has_some_elements {
+      Integer first;
+      Integer second;
+      Integer third;
+
+      @Before
+      public void beforeExample() {
+        first = new Integer(1);
+        second = new Integer(2);
+        third = new Integer(3);
+
+        list = listWith(first, second, third);
+      }
+
+      @Test
+      public void is_the_most_recently_added_element() {
+        assertThat(list.first(), equalTo(third));
+      }
+    }
+  }
+
   public class last {
     public class when_the_list_is_empty {
       @Before

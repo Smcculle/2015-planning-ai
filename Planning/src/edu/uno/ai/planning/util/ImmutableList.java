@@ -135,6 +135,10 @@ public class ImmutableList<E> implements Iterable<E> {
     return new MyIterator();
   }
 
+  public E first() {
+    return first;
+  }
+
   public int firstHashCode() {
     if (firstPresent()) {
       return first.hashCode();
