@@ -12,6 +12,7 @@ public class GraphPlan extends PlanGraphPlanner {
 
 	@Override
 	protected Search makeSearch(PlanGraph graph) {
+		System.out.println(graph.size());
 		return new DepthFirstSearch(graph);
 	}
 }

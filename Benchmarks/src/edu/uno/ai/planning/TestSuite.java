@@ -9,8 +9,8 @@ public class TestSuite {
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
 		new edu.uno.ai.planning.blackbox.BlackboxPlan(),
+		// new edu.uno.ai.planning.gp.GraphPlan(),
 		/*
-		new edu.uno.ai.planning.gp.GraphPlan(),
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
 		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
 		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
@@ -25,8 +25,8 @@ public class TestSuite {
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
 		// new Benchmark("blocks", "do_nothing"),
 		// new Benchmark("blocks", "easy_stack"),
-		// new Benchmark("blocks", "easy_unstack"),
-		new Benchmark("blocks", "sussman"),
+		new Benchmark("blocks", "easy_unstack"),
+		// new Benchmark("blocks", "sussman"),
 		/*
 		new Benchmark("cake", "have_eat_cake"),
 		new Benchmark("cake", "have_eat_cake"),
