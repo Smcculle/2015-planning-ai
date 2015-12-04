@@ -16,6 +16,6 @@ public abstract class AbstractFlaw implements Flaw {
 
   @Override
   public Boolean isUnsafe() {
-    return true;
+    return false;
   }
 }

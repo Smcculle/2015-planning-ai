@@ -1,5 +1,6 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
@@ -33,6 +34,27 @@ public class OpenConditionTest {
   @Test
   public void is_a_flaw() {
     assertThat(describedClass(), typeCompatibleWith(Flaw.class));
+  }
+
+  public class is_open_condition {
+    @Test
+    public void is_true() {
+      assertThat(openCondition.isOpenCondition(), is(true));
+    }
+  }
+
+  public class is_threat {
+    @Test
+    public void is_false() {
+      assertThat(openCondition.isThreat(), is(false));
+    }
+  }
+
+  public class is_unsafe {
+    @Test
+    public void is_false() {
+      assertThat(openCondition.isUnsafe(), is(false));
+    }
   }
 
   public class precondition {
