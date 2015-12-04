@@ -13,6 +13,11 @@ public class ThreatenedCausalLink extends AbstractFlaw {
     this.threat = threat;
   }
 
+  @Override
+  public Boolean isThreat() {
+    return true;
+  }
+
   public CausalLink link() {
     return link;
   }
