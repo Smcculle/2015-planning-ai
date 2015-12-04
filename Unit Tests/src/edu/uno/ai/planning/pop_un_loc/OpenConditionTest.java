@@ -36,21 +36,21 @@ public class OpenConditionTest {
     assertThat(describedClass(), typeCompatibleWith(Flaw.class));
   }
 
-  public class is_open_condition {
+  public class isOpenCondition {
     @Test
     public void is_true() {
       assertThat(openCondition.isOpenCondition(), is(true));
     }
   }
 
-  public class is_threat {
+  public class isThreat {
     @Test
     public void is_false() {
       assertThat(openCondition.isThreat(), is(false));
     }
   }
 
-  public class is_unsafe {
+  public class isUnsafe {
     @Test
     public void is_false() {
       assertThat(openCondition.isUnsafe(), is(false));
