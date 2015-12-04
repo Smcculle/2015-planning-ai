@@ -13,11 +13,11 @@ public class OpenConditions extends Flaws<OpenCondition> {
     super(end);
   }
 
-  public OpenConditions(OpenCondition... flaws) {
+  public OpenConditions(Iterable<OpenCondition> flaws) {
     super(flaws);
   }
 
-  public OpenConditions(Iterable<OpenCondition> flaws) {
+  public OpenConditions(OpenCondition... flaws) {
     super(flaws);
   }
 }

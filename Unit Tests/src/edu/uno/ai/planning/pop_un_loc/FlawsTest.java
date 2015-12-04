@@ -417,6 +417,60 @@ public class FlawsTest {
     }
   }
 
+  public class toOpenConditions {
+    public class when_there_are_no_open_conditions {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_an_empty_open_conditions() {
+        assertThat(flaws.toOpenConditions(), is(new OpenConditions()));
+      }
+    }
+
+    public class when_there_is_an_open_condition {
+      Flaw flaw;
+      OpenCondition openCondition;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        openCondition = mock(OpenCondition.class);
+        flaws = multipleFlaws(flaw, openCondition);
+      }
+
+      @Test
+      public void is_an_open_conditions_with_that_condition() {
+        assertThat(flaws.toOpenConditions(), contains(openCondition));
+      }
+    }
+
+    public class when_there_are_some_open_conditions {
+      Flaw flaw;
+      OpenCondition firstCondition;
+      OpenCondition secondCondition;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        firstCondition = mock(OpenCondition.class);
+        secondCondition = mock(OpenCondition.class);
+        flaws = multipleFlaws(flaw, firstCondition, secondCondition);
+      }
+
+      @Test
+      public void are_those_open_conditions_in_order() {
+        assertThat(flaws.toOpenConditions(),
+                   contains(secondCondition, firstCondition));
+      }
+    }
+  }
+
   public class toString {
     public class when_there_are_no_flaws {
       @Before
