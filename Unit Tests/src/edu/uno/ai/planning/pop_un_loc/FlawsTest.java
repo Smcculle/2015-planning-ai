@@ -28,19 +28,19 @@ public class FlawsTest {
     return Flaws.class;
   }
 
-  static Flaws noFlaws() {
-    return new Flaws();
+  static Flaws<Flaw> noFlaws() {
+    return new Flaws<Flaw>();
   }
 
-  static Flaws singleFlaw(Flaw flaw) {
-    return new Flaws(flaw);
+  static Flaws<Flaw> singleFlaw(Flaw flaw) {
+    return new Flaws<Flaw>(flaw);
   }
 
-  static Flaws multipleFlaws(Flaw... flaws) {
-    return new Flaws(flaws);
+  static Flaws<Flaw> multipleFlaws(Flaw... flaws) {
+    return new Flaws<Flaw>(flaws);
   }
 
-  Flaws flaws;
+  Flaws<Flaw> flaws;
 
   @Before
   public void setup() {

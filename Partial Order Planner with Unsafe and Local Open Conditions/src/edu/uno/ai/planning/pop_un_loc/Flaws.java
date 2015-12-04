@@ -9,42 +9,42 @@ import edu.uno.ai.planning.util.ImmutableList;
 import javaslang.collection.Stack;
 import javaslang.control.Try;
 
-public class Flaws implements Iterable<Flaw>, Partial {
+public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
 
-  private final Stack<Flaw> flaws;
+  private final Stack<E> flaws;
 
   public Flaws() {
     flaws = Stack.empty();
   }
 
-  public Flaws(Flaw flaw) {
+  public Flaws(E flaw) {
     flaws = Stack.of(flaw);
   }
 
   public Flaws(Step end) {
-    Stack<Flaw> tmp = Stack.empty();
+    Stack<E> tmp = Stack.empty();
     for (Literal precondition : end.preconditions)
-      tmp = tmp.push(new OpenCondition(end, precondition));
+      tmp = tmp.push((E) new OpenCondition(end, precondition));
     flaws = tmp;
   }
 
-  public Flaws(Flaw... flaws) {
-    Stack<Flaw> tmp = Stack.empty();
-    for (Flaw flaw : flaws)
+  public Flaws(E... flaws) {
+    Stack<E> tmp = Stack.empty();
+    for (E flaw : flaws)
       tmp = tmp.push(flaw);
     this.flaws = tmp;
   }
 
-  public Flaws(Iterable<Flaw> flaws) {
+  public Flaws(Iterable<E> flaws) {
     this.flaws = Stack.ofAll(flaws);
   }
 
-  public Flaws add(Flaw flaw) {
-    return new Flaws(flaws.push(flaw));
+  public Flaws<E> add(E flaw) {
+    return new Flaws<E>(flaws.push(flaw));
   }
 
-  public Flaws addLast(Flaw flaw) {
-    return new Flaws(flaws.append(flaw));
+  public Flaws<E> addLast(E flaw) {
+    return new Flaws<E>(flaws.append(flaw));
   }
 
   public Flaw chooseFirstFlaw() {
@@ -73,20 +73,20 @@ public class Flaws implements Iterable<Flaw>, Partial {
   }
 
   @Override
-  public Iterator<Flaw> iterator() {
+  public Iterator<E> iterator() {
     return flaws.iterator();
   }
 
-  public Flaws remove(Flaw flaw) {
-    return new Flaws(flaws.remove(flaw));
+  public Flaws<E> remove(E flaw) {
+    return new Flaws<E>(flaws.remove(flaw));
   }
 
   public int size() {
     return flaws.length();
   }
 
-  public ImmutableList<Flaw> toImmutableList() {
-    return new ImmutableList<Flaw>(flaws);
+  public ImmutableList<E> toImmutableList() {
+    return new ImmutableList<E>(flaws);
   }
 
   @Override
