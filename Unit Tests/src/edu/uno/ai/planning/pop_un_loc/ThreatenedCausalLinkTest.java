@@ -34,21 +34,21 @@ public class ThreatenedCausalLinkTest {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
   }
 
-  public class is_open_condition {
+  public class isOpenCondition {
     @Test
     public void is_false() {
       assertThat(threatenedCausalLink.isOpenCondition(), is(false));
     }
   }
 
-  public class is_threat {
+  public class isThreat {
     @Test
     public void is_true() {
       assertThat(threatenedCausalLink.isThreat(), is(true));
     }
   }
 
-  public class is_unsafe {
+  public class isUnsafe {
     @Test
     public void is_false() {
       assertThat(threatenedCausalLink.isUnsafe(), is(false));
