@@ -3,7 +3,7 @@ package edu.uno.ai.planning.pop_un_loc;
 import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Substitution;
 
-public class ThreatenedCausalLink implements Flaw {
+public class ThreatenedCausalLink extends AbstractFlaw {
 
   public final CausalLink link;
   public final Step threat;

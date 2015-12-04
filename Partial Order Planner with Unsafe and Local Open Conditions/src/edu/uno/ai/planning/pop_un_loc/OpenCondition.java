@@ -4,7 +4,7 @@ import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
 
-public class OpenCondition implements Flaw {
+public class OpenCondition extends AbstractFlaw {
 
   public final Literal precondition;
   public final Step step;
