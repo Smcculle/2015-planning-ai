@@ -7,4 +7,9 @@ public class UnsafeOpenCondition extends OpenCondition implements Flaw {
   public UnsafeOpenCondition(Step step, Literal precondition) {
     super(step, precondition);
   }
+
+  @Override
+  public Boolean isUnsafe() {
+    return true;
+  }
 }
