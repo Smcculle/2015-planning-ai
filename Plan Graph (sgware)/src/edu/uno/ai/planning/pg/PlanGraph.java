@@ -2,7 +2,9 @@ package edu.uno.ai.planning.pg;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.State;
@@ -131,7 +133,7 @@ public class PlanGraph {
 		return literalMap.get(literal);
 	}
 	
-	public StepNode get(StepNode step) {
+	public StepNode get(Step step) {
 		return stepMap.get(step);
 	}
 	
@@ -187,5 +189,13 @@ public class PlanGraph {
 	
 	public boolean hasLeveledOff() {
 		return leveledOff;
+	}
+
+	public List<LiteralNode> getLiteralNodes() {
+		return literalMap.values().stream().collect(Collectors.toList());
+	}
+
+	public List<StepNode> getStepNodes() {
+		return stepMap.values().stream().collect(Collectors.toList());
 	}
 }

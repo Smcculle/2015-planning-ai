@@ -4,6 +4,7 @@ import edu.uno.ai.planning.*;
 import edu.uno.ai.planning.SATPlan.*;
 import edu.uno.ai.planning.logic.Conjunction;
 import edu.uno.ai.planning.logic.Expression;
+import edu.uno.ai.planning.logic.Predication;
 import edu.uno.ai.planning.pg.LiteralNode;
 import edu.uno.ai.planning.pg.Node;
 import edu.uno.ai.planning.pg.PlanGraph;
@@ -40,83 +41,74 @@ public class BlackboxSearch extends Search {
 
 	@Override
 	public Plan findNextSolution() {
+		System.out.println("Plan size " + graph.size());
 		ArrayList<Clause> conjunction = new ArrayList<>();
 		Map<String, Step> stepInstances = new HashMap<>();
-		Set<StepNode> stepsInLevel;
-		Set<LiteralNode> literalsInLevel;
 
-		// (1) Initial state facts at the first level
+		List<LiteralNode> literals = graph.getLiteralNodes();
+		List<StepNode> steps =  graph.getStepNodes();
+
+		// (1) Initial state facts at the first level and goals at the last
 		conjunction.addAll(makeInitState(graph.problem.initial));
+		asStream(graph.goals).forEach(goal ->
+			conjunction.add(new Clause(variable(name(goal, graph.size() - 1)))));
 
-		for (int i = 1; i <= graph.size(); i++) {
+		for (int i = 1; i < graph.size(); i++) {
 			final int level = i;
-			stepsInLevel = new HashSet<>();
-			literalsInLevel = new HashSet<>();
+			List<LiteralNode> literalsInLevel = literals.stream().filter(literal -> literal.exists(level)).collect(Collectors.toList());
+			List<StepNode> stepsInLevel = steps.stream().filter(step -> step.exists(level)).collect(Collectors.toList());
 
-			for (LiteralNode goal : graph.goals) {
-				if (goal.exists(level)) {
-					// (1 cont). Add goal facts.
-					if (level == graph.size()) {
-						conjunction.add(new Clause(variable(name(goal, level))));
-					}
-
-					// (2) Each fact implies disjunction of all steps that have
-					// this fact as an effect.
-					conjunction.addAll(implySteps(goal, level));
-
-					// Remember goal and step for this level
-					literalsInLevel.add(goal);
-					goal.getProducers(level).forEach(stepsInLevel::add);
-				}
-			}
-
-			// Remember instance mapping to actual steps so that we can
-			// later generate the solution.
-			stepsInLevel.forEach(step -> stepInstances.put(name(step, level), step.step));
+			// (2) Each fact implies disjunction of all steps that have this fact as an effect.
+			literalsInLevel.forEach(literal ->
+				conjunction.addAll(implySteps(literal, level)));
 
 			// (3) Each step implies all its preconditions
-			stepsInLevel.forEach(step -> conjunction.addAll(implyPreconditions(step, level)));
+			stepsInLevel.forEach(step -> {
+				conjunction.addAll(implyPreconditions(step, level));
 
-			stepsInLevel.forEach(step -> conjunction.addAll(implyEffects(step, level)));
+				// Remember instance mapping to actual steps so that we can
+				// later generate the solution.
+				stepInstances.put(name(step, level), step.step);
+			});
 
 			// (4) Mutually exclusive steps and facts
-			conjunction.addAll(makeMutexes((Set<Node>)(Set<?>) literalsInLevel, level));
-			conjunction.addAll(makeMutexes((Set<Node>)(Set<?>) stepsInLevel, level));
-
-			System.out.println("======== Level " + level + " ============");
-			literalsInLevel.forEach(System.out::println);
-			stepsInLevel.forEach(System.out::println);
-			System.out.println();
+			conjunction.addAll(makeMutexes((List<Node>)(List<?>) literalsInLevel, level));
+			conjunction.addAll(makeMutexes((List<Node>)(List<?>) stepsInLevel, level));
 		}
 
-		System.out.println("Final conjunction: ");
-		conjunction.forEach(System.out::println);
-
 		SATProblem problem = new SATProblem((ArrayList<ArrayList<BooleanVariable>>)(ArrayList<?>) conjunction, new ArrayList<>());
-		ISATSolver solver = new WalkSAT(100, 100, 0.1);
+		ISATSolver solver = new WalkSAT(20, 10000, 0.1);
 		List<BooleanVariable> solution = solver.getModel(problem);
 
-		System.out.println("");
-		System.out.println("Solution: ");
 		if (solution == null) {
-			System.out.println("eh");
+			return null;
 		} else {
-			solution.stream()
+			Set<String> uniqueSteps = solution.stream()
 				.filter(var -> var.value)
 				.filter(var -> !var.negation)
 				.map(var -> var.name)
-				.sorted()
-//				.map(stepInstances::get)
-				.forEach(System.out::println);
-		}
+				.collect(Collectors.toSet());
 
-		throw new SearchLimitReachedException();
+			return new ListPlan(uniqueSteps.stream()
+				.sorted()
+				.map(stepInstances::get)
+				.filter(step -> step != null)
+				.filter(graph.problem.steps::contains)
+				.collect(Collectors.toList()));
+		}
 	}
 
 	protected ArrayList<Clause> makeInitState(State state) {
-		return new ArrayList<>(asStream(((Conjunction) state.toExpression()).arguments)
-			.map(expression -> new Clause(variable(name(expression, 0))))
-			.collect(Collectors.toList()));
+		Expression expression = state.toExpression();
+		if (expression instanceof Conjunction) {
+			return new ArrayList<>(asStream(((Conjunction) expression).arguments)
+				.map(arg -> new Clause(variable(name(arg, 0))))
+				.collect(Collectors.toList()));
+		} else if (expression instanceof Predication) {
+			return new ArrayList<>(Collections.singletonList(new Clause(variable(name(expression, 0)))));
+		} else {
+			throw new IllegalArgumentException("Initial state in weird format.");
+		}
 	}
 
 	/**
@@ -156,19 +148,12 @@ public class BlackboxSearch extends Search {
 			.collect(Collectors.toList()));
 	}
 
-	protected ArrayList<Clause> implyEffects(StepNode step, final int level) {
-		return new ArrayList<>(asStream(step.getEffects(level))
-			.map(effect ->
-				implication(variable(name(step, level)), variable(name(effect, level))))
-				.collect(Collectors.toList()));
-	}
-
 	/**
 	 * Make mutex for each pair of nodes.
 	 * @param nodes mutually exclusive nodes
 	 * @param level current level
 	 */
-	protected ArrayList<Clause> makeMutexes(Set<Node> nodes, final int level) {
+	protected ArrayList<Clause> makeMutexes(List<Node> nodes, final int level) {
 		ArrayList<Clause> mutexes = new ArrayList<>();
 		Node[] array = nodes.toArray(new Node[nodes.size()]);
 
@@ -219,6 +204,12 @@ public class BlackboxSearch extends Search {
 			return String.join(" v ", stream()
 				.map(var -> (var.negation ? "~" : "") + var.name)
 				.collect(Collectors.toList()));
+		}
+	}
+
+	class ListPlan extends ArrayList<Step> implements Plan {
+		public ListPlan(Collection<Step> steps) {
+			super(steps);
 		}
 	}
 }
