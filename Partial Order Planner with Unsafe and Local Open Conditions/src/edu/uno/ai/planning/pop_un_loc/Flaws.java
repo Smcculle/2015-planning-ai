@@ -85,6 +85,14 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return flaws.length();
   }
 
+  public OpenConditions toOpenConditions() {
+    Stack<OpenCondition> openConditions = Stack.empty();
+    for (Flaw flaw : flaws)
+      if (flaw instanceof OpenCondition)
+        openConditions = openConditions.append((OpenCondition) flaw);
+    return new OpenConditions(openConditions);
+  }
+
   public ImmutableList<E> toImmutableList() {
     return new ImmutableList<E>(flaws);
   }
