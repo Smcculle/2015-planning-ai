@@ -1,5 +1,6 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
@@ -18,8 +19,7 @@ public class ThreatenedCausalLinkTest {
   }
 
   static ThreatenedCausalLink threatenedCausalLink() {
-    return new ThreatenedCausalLink(mock(CausalLink.class),
-                                        mock(Step.class));
+    return new ThreatenedCausalLink(mock(CausalLink.class), mock(Step.class));
   }
 
   ThreatenedCausalLink threatenedCausalLink;
@@ -32,6 +32,27 @@ public class ThreatenedCausalLinkTest {
   @Test
   public void is_a_flaw() {
     assertThat(describedClass(), typeCompatibleWith(Partial.class));
+  }
+
+  public class is_open_condition {
+    @Test
+    public void is_false() {
+      assertThat(threatenedCausalLink.isOpenCondition(), is(false));
+    }
+  }
+
+  public class is_threat {
+    @Test
+    public void is_true() {
+      assertThat(threatenedCausalLink.isThreat(), is(true));
+    }
+  }
+
+  public class is_unsafe {
+    @Test
+    public void is_false() {
+      assertThat(threatenedCausalLink.isUnsafe(), is(false));
+    }
   }
 
   public class link {
