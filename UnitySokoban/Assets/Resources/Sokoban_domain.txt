@@ -1,0 +1,38 @@
+﻿(:domain Sokoban_domain
+  (:action moveplayer
+    :parameters (?x - cell ?y - cell)
+    :precondition 
+	(and
+	  (adjacent ?x ?y)
+	  (not (has_box ?y))
+	  (not (is_solid ?y))
+      (has_player ?x)
+	)
+    :effect  
+	(and
+	  (has_player ?y)
+	  (not (has_player ?x))
+	)
+  )
+
+  (:action pushbox
+    :parameters (?x - cell ?yfrom - cell ?yto - cell)
+    :precondition 
+	( and
+	  (has_player ?x)
+	  (has_box ?yfrom)
+	  (not (has_box ?yto))
+	  (not (is_solid ?yto))
+	  (adjacent ?x ?yfrom)
+	  (adjacent ?yfrom ?yto)
+	  (adjacent_2 ?x ?yto)
+	)
+    :effect 
+	( and
+	  (has_box ?yto)
+	  (not (has_box ?yfrom))
+	  (has_player ?yfrom)
+	  (not (has_player ?x))
+    )
+  )
+)

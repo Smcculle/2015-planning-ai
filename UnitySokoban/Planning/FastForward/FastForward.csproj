@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AEC17492-D926-4898-BE7F-07B17043FF6E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FastForward</RootNamespace>
+    <AssemblyName>FastForward</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\Scripts\Planning\FastForward\FastForwardHeuristic.cs">
+      <Link>FastForwardHeuristic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\FastForward\FastForwardPlanner.cs">
+      <Link>FastForwardPlanner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\FastForward\FastForwardSearch.cs">
+      <Link>FastForwardSearch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\FastForward\Util.cs">
+      <Link>Util.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PlanGraphSGW\PlanGraphSGW.csproj">
+      <Project>{a60aac15-8db1-4f63-b830-e8c5b644764e}</Project>
+      <Name>PlanGraphSGW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Planning\Planning.csproj">
+      <Project>{733d28e2-a5cf-481f-af2f-bfb9ac3fd310}</Project>
+      <Name>Planning</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StateSpaceSearch\StateSpaceSearch.csproj">
+      <Project>{dbf0e0a3-5578-4abb-8053-97f617ea1ede}</Project>
+      <Name>StateSpaceSearch</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

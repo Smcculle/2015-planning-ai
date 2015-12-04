@@ -1,0 +1,56 @@
+(:problem Sokoban_Level_1
+  (:domain Sokoban_domain)
+  (:objects
+    Cell_0_0 - cell
+    Cell_0_1 - cell
+    Cell_0_2 - cell
+    Cell_1_0 - cell
+    Cell_1_1 - cell
+    Cell_1_2 - cell
+    Cell_2_0 - cell
+    Cell_2_1 - cell
+    Cell_2_2 - cell
+  )
+  (:initial
+    (and
+      (has_player Cell_0_0)
+      (has_box Cell_1_1)
+      (is_solid Cell_0_2)
+      (adjacent Cell_0_0 Cell_1_0)
+      (adjacent Cell_0_0 Cell_0_1)
+      (adjacent Cell_0_1 Cell_1_1)
+      (adjacent Cell_0_1 Cell_0_0)
+      (adjacent Cell_0_1 Cell_0_2)
+      (adjacent Cell_0_2 Cell_1_2)
+      (adjacent Cell_0_2 Cell_0_1)
+      (adjacent Cell_1_0 Cell_0_0)
+      (adjacent Cell_1_0 Cell_2_0)
+      (adjacent Cell_1_0 Cell_1_1)
+      (adjacent Cell_1_1 Cell_0_1)
+      (adjacent Cell_1_1 Cell_2_1)
+      (adjacent Cell_1_1 Cell_1_0)
+      (adjacent Cell_1_1 Cell_1_2)
+      (adjacent Cell_1_2 Cell_0_2)
+      (adjacent Cell_1_2 Cell_2_2)
+      (adjacent Cell_1_2 Cell_1_1)
+      (adjacent Cell_2_0 Cell_1_0)
+      (adjacent Cell_2_0 Cell_2_1)
+      (adjacent Cell_2_1 Cell_1_1)
+      (adjacent Cell_2_1 Cell_2_0)
+      (adjacent Cell_2_1 Cell_2_2)
+      (adjacent Cell_2_2 Cell_1_2)
+      (adjacent Cell_2_2 Cell_2_1)
+      (adjacent_2 Cell_0_0 Cell_2_0)
+      (adjacent_2 Cell_0_0 Cell_0_2)
+      (adjacent_2 Cell_0_1 Cell_2_1)
+      (adjacent_2 Cell_0_2 Cell_2_2)
+      (adjacent_2 Cell_1_0 Cell_1_2)
+      (adjacent_2 Cell_2_0 Cell_2_2)
+    )
+  )
+  (:goal
+    (and
+      (has_box Cell_2_2)
+    )
+  )
+)

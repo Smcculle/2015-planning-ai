@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{733D28E2-A5CF-481F-AF2F-BFB9AC3FD310}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Planning</RootNamespace>
+    <AssemblyName>Planning</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Domain.cs">
+      <Link>Domain.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Heuristic.cs">
+      <Link>Heuristic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\List.cs">
+      <Link>IO\List.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\Node.cs">
+      <Link>IO\Node.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\ObjectParser.cs">
+      <Link>IO\ObjectParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\PDDLParser.cs">
+      <Link>IO\PDDLParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\PDDLReader.cs">
+      <Link>IO\PDDLReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\IO\Symbol.cs">
+      <Link>IO\Symbol.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Bindings.cs">
+      <Link>Logic\Bindings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\BooleanExpression.cs">
+      <Link>Logic\BooleanExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Conjunction.cs">
+      <Link>Logic\Conjunction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Constant.cs">
+      <Link>Logic\Constant.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Disjunction.cs">
+      <Link>Logic\Disjunction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Expression.cs">
+      <Link>Logic\Expression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\ExpressionObject.cs">
+      <Link>Logic\ExpressionObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Formula.cs">
+      <Link>Logic\Formula.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\HashBindings.cs">
+      <Link>Logic\HashBindings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\HashSubstitution.cs">
+      <Link>Logic\HashSubstitution.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\HashVarSet.cs">
+      <Link>Logic\HashVarSet.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Literal.cs">
+      <Link>Logic\Literal.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\NAryBooleanExpression.cs">
+      <Link>Logic\NAryBooleanExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\NegatedLiteral.cs">
+      <Link>Logic\NegatedLiteral.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Negation.cs">
+      <Link>Logic\Negation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\NormalForms.cs">
+      <Link>Logic\NormalForms.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Predication.cs">
+      <Link>Logic\Predication.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Substitution.cs">
+      <Link>Logic\Substitution.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Term.cs">
+      <Link>Logic\Term.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Logic\Variable.cs">
+      <Link>Logic\Variable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\MutableState.cs">
+      <Link>MutableState.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Operator.cs">
+      <Link>Operator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Plan.cs">
+      <Link>Plan.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Planner.cs">
+      <Link>Planner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Problem.cs">
+      <Link>Problem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Search.cs">
+      <Link>Search.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Settings.cs">
+      <Link>Settings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\State.cs">
+      <Link>State.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Step.cs">
+      <Link>Step.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Util\ConversionUtil.cs">
+      <Link>Util\ConversionUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Util\ImmutableArray.cs">
+      <Link>Util\ImmutableArray.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Util\ImmutableList.cs">
+      <Link>Util\ImmutableList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\Planning\Util\PriorityQueue.cs">
+      <Link>Util\PriorityQueue.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

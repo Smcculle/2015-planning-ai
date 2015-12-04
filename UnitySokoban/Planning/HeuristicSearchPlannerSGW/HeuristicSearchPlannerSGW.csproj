@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{507C4A1F-AC15-4D0D-84FE-80563FCBE4BC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HeuristicSearchPlannerSGW</RootNamespace>
+    <AssemblyName>HeuristicSearchPlannerSGW</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\AdditiveHeuristic.cs">
+      <Link>AdditiveHeuristic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\CompleteSearch.cs">
+      <Link>CompleteSearch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicComparator.cs">
+      <Link>HeuristicComparator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicNode.cs">
+      <Link>HeuristicNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicPlanner.cs">
+      <Link>HeuristicPlanner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicQueue.cs">
+      <Link>HeuristicQueue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicSearch.cs">
+      <Link>HeuristicSearch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HeuristicSearchPlanner.cs">
+      <Link>HeuristicSearchPlanner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\HSPHeuristic.cs">
+      <Link>HSPHeuristic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\MaxHeuristic.cs">
+      <Link>MaxHeuristic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\Scripts\Planning\HeuristicSearchPlannerSGW\StateHeuristic.cs">
+      <Link>StateHeuristic.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Planning\Planning.csproj">
+      <Project>{733d28e2-a5cf-481f-af2f-bfb9ac3fd310}</Project>
+      <Name>Planning</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StateSpaceSearch\StateSpaceSearch.csproj">
+      <Project>{dbf0e0a3-5578-4abb-8053-97f617ea1ede}</Project>
+      <Name>StateSpaceSearch</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

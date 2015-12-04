@@ -1,0 +1,9 @@
+﻿1. Create and Extend a PlanGraph until all goals are non-mutex
+	- Always show N (level of PlanGraph)
+2. Highlight goals
+3. Check if N = 0?
+	a. If N = 0, Does this level contain "new goals"
+	b. If yes, return true
+4. Highlight New Set of Steps
+5. Highlight "new goals"
+6. Solve for new goals
