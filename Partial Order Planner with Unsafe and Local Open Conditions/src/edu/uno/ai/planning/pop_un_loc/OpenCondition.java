@@ -14,6 +14,11 @@ public class OpenCondition extends AbstractFlaw {
     this.precondition = precondition;
   }
 
+  @Override
+  public Boolean isOpenCondition() {
+    return true;
+  }
+
   public Literal precondition() {
     return precondition;
   }
