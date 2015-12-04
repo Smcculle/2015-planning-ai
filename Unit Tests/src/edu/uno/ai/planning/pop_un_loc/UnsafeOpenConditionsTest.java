@@ -395,6 +395,14 @@ public class UnsafeOpenConditionsTest {
     }
   }
 
+  public class toOpenConditions {
+    @Test
+    public void is_the_caller() {
+      assertThat(unsafeOpenConditions.toOpenConditions(),
+                 is(unsafeOpenConditions));
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_open_conditions {
       @Before
@@ -533,6 +541,28 @@ public class UnsafeOpenConditionsTest {
                    stringContainsInOrder(thirdString, secondString,
                                          firstString));
       }
+    }
+  }
+
+  public class toThreatenedCausalLinks {
+    @Before
+    public void beforeExample() {
+      unsafeOpenConditions = manyUnsafeOpenConditions(mock(UnsafeOpenCondition.class),
+                                                      mock(UnsafeOpenCondition.class));
+    }
+
+    @Test
+    public void is_an_empty_threatened_causal_links() {
+      assertThat(unsafeOpenConditions.toThreatenedCausalLinks(),
+                 is(new ThreatenedCausalLinks()));
+    }
+  }
+
+  public class toUnsafeOpenConditions {
+    @Test
+    public void is_the_caller() {
+      assertThat(unsafeOpenConditions.toUnsafeOpenConditions(),
+                 is(unsafeOpenConditions));
     }
   }
 }
