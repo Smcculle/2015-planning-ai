@@ -435,6 +435,20 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
+  public class toOpenConditions {
+    @Before
+    public void beforeExample() {
+      threatenedCausalLinks = manyThreatenedCausalLinks(mock(ThreatenedCausalLink.class),
+                                                        mock(ThreatenedCausalLink.class));
+    }
+
+    @Test
+    public void is_an_empty_open_conditions() {
+      assertThat(threatenedCausalLinks.toOpenConditions(),
+                 is(new OpenConditions()));
+    }
+  }
+
   public class toString {
     public class when_there_are_no_threatened_causal_links {
       @Before
@@ -536,6 +550,28 @@ public class ThreatenedCausalLinksTest {
                    stringContainsInOrder(thirdString, secondString,
                                          firstString));
       }
+    }
+  }
+
+  public class toThreatenedCausalLinks {
+    @Test
+    public void is_the_caller() {
+      assertThat(threatenedCausalLinks.toThreatenedCausalLinks(),
+                 is(threatenedCausalLinks));
+    }
+  }
+
+  public class toUnsafeOpenConditions {
+    @Before
+    public void beforeExample() {
+      threatenedCausalLinks = manyThreatenedCausalLinks(mock(ThreatenedCausalLink.class),
+                                                        mock(ThreatenedCausalLink.class));
+    }
+
+    @Test
+    public void is_an_empty_unsafe_open_conditions() {
+      assertThat(threatenedCausalLinks.toUnsafeOpenConditions(),
+                 is(new UnsafeOpenConditions()));
     }
   }
 }
