@@ -570,4 +570,59 @@ public class FlawsTest {
       }
     }
   }
+
+  public class toThreatenedCausalLinks {
+    public class when_there_are_no_threatened_causal_links {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_an_empty_threatened_causal_links() {
+        assertThat(flaws.toThreatenedCausalLinks(),
+                   is(new ThreatenedCausalLinks()));
+      }
+    }
+
+    public class when_there_is_a_threatened_causal_link {
+      Flaw flaw;
+      ThreatenedCausalLink link;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        link = mock(ThreatenedCausalLink.class);
+        flaws = multipleFlaws(flaw, link);
+      }
+
+      @Test
+      public void is_that_threatened_causal_link() {
+        assertThat(flaws.toThreatenedCausalLinks(), contains(link));
+      }
+    }
+
+    public class when_there_are_some_threatened_causal_links {
+      Flaw flaw;
+      ThreatenedCausalLink firstLink;
+      ThreatenedCausalLink secondLink;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        firstLink = mock(ThreatenedCausalLink.class);
+        secondLink = mock(ThreatenedCausalLink.class);
+        flaws = multipleFlaws(flaw, firstLink, secondLink);
+      }
+
+      @Test
+      public void are_those_threatened_causal_links_in_order() {
+        assertThat(flaws.toThreatenedCausalLinks(),
+                   contains(secondLink, firstLink));
+      }
+    }
+  }
 }
