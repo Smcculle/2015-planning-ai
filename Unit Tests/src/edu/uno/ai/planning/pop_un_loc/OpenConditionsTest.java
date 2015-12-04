@@ -428,6 +428,13 @@ public class OpenConditionsTest {
     }
   }
 
+  public class toOpenConditions {
+    @Test
+    public void is_the_caller() {
+      assertThat(openConditions.toOpenConditions(), is(openConditions));
+    }
+  }
+
   public class toString {
     public class when_there_are_no_open_conditions {
       @Before
@@ -526,6 +533,58 @@ public class OpenConditionsTest {
         assertThat(openConditions.toString(substitution),
                    stringContainsInOrder(thirdString, secondString,
                                          firstString));
+      }
+    }
+  }
+
+  public class toThreatenedCausalLinks {
+    @Before
+    public void beforeExample() {
+      openConditions = manyOpenConditions(mock(OpenCondition.class),
+                                          mock(OpenCondition.class));
+    }
+
+    @Test
+    public void is_an_empty_threatened_causal_links() {
+      assertThat(openConditions.toThreatenedCausalLinks(),
+                 is(new ThreatenedCausalLinks()));
+    }
+  }
+
+  public class toUnsafeOpenConditions {
+    public class when_there_are_no_unsafe_open_conditions {
+      @Before
+      public void beforeExample() {
+        openConditions = manyOpenConditions(mock(OpenCondition.class));
+      }
+
+      @Test
+      public void is_an_empty_unsafe_open_conditions() {
+        assertThat(openConditions.toUnsafeOpenConditions(),
+                   is(new UnsafeOpenConditions()));
+      }
+    }
+
+    public class when_there_are_some_unsafe_open_conditions {
+      UnsafeOpenCondition firstUnsafeOpenCondition;
+      UnsafeOpenCondition secondUnsafeOpenCondition;
+      OpenCondition thirdOpenCondition;
+
+      @Before
+      public void beforeExample() {
+        firstUnsafeOpenCondition = mock(UnsafeOpenCondition.class);
+        secondUnsafeOpenCondition = mock(UnsafeOpenCondition.class);
+        thirdOpenCondition = mock(OpenCondition.class);
+        openConditions = manyOpenConditions(firstUnsafeOpenCondition,
+                                            secondUnsafeOpenCondition,
+                                            thirdOpenCondition);
+      }
+
+      @Test
+      public void are_those_unsafe_open_conditions_in_order() {
+        assertThat(openConditions.toUnsafeOpenConditions(),
+                   contains(secondUnsafeOpenCondition,
+                            firstUnsafeOpenCondition));
       }
     }
   }

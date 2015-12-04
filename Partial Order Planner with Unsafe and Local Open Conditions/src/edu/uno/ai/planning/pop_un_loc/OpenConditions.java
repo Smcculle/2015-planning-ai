@@ -20,4 +20,9 @@ public class OpenConditions extends Flaws<OpenCondition> {
   public OpenConditions(OpenCondition... flaws) {
     super(flaws);
   }
+
+  @Override
+  public OpenConditions toOpenConditions() {
+    return this;
+  }
 }
