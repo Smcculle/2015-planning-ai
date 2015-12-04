@@ -109,4 +109,12 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
       str += "\n " + flaw.toString(substitution);
     return str;
   }
+
+  public ThreatenedCausalLinks toThreatenedCausalLinks() {
+    Stack<ThreatenedCausalLink> links = Stack.empty();
+    for (Flaw flaw : flaws)
+      if (flaw instanceof ThreatenedCausalLink)
+        links = links.append((ThreatenedCausalLink) flaw);
+    return new ThreatenedCausalLinks(links);
+  }
 }
