@@ -16,8 +16,19 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class BlackboxSearch extends Search {
+	/** How many restarts is WalkSAT allowed to do before quitting */
+	public static final int WALKSAT_TRIES = 10;
+
+	/** How often should WalkSAT pick a random variable instead of using heuristics */
+	public static final double WALKSAT_RANDOMNESS = 0.5;
+
+	/** Fixed seed for WalkSAT to be able to reproduce results */
+	public static final long WALKSAT_SEED = 123456789;
 
 	public final PlanGraph graph;
+	protected int limit = 0;
+	protected int visited = 0;
+	protected int expanded = 0;
 
 	public BlackboxSearch(PlanGraph graph) {
 		super(graph.problem);
@@ -26,17 +37,17 @@ public class BlackboxSearch extends Search {
 
 	@Override
 	public int countVisited() {
-		return 0;
+		return visited;
 	}
 
 	@Override
 	public int countExpanded() {
-		return 0;
+		return expanded;
 	}
 
 	@Override
 	public void setNodeLimit(int limit) {
-
+		this.limit = limit;
 	}
 
 	@Override
@@ -77,10 +88,7 @@ public class BlackboxSearch extends Search {
 			conjunction.addAll(makeMutexes((List<Node>)(List<?>) stepsInLevel, level));
 		}
 
-		SATProblem problem = new SATProblem((ArrayList<ArrayList<BooleanVariable>>)(ArrayList<?>) conjunction, new ArrayList<>());
-		ISATSolver solver = new WalkSAT(10, 1000, 0.5);
-		List<BooleanVariable> solution = solver.getModel(problem);
-
+		List<BooleanVariable> solution = findSolution(conjunction);
 		if (solution == null) {
 			if (graph.hasLeveledOff()) {
 				throw new SearchLimitReachedException();
@@ -89,6 +97,24 @@ public class BlackboxSearch extends Search {
 		} else {
 			return makePlan(solution, stepInstances);
 		}
+	}
+
+	protected List<BooleanVariable> findSolution(ArrayList<Clause> conjunction) {
+		SATProblem problem = new SATProblem((ArrayList<ArrayList<BooleanVariable>>)(ArrayList<?>) conjunction, new ArrayList<>());
+
+		// Blackbox should work with any kind of SAT solver, but WalkSAT is kind
+		// of special so let's not make it complicated.
+		WalkSAT.random = new Random(WALKSAT_SEED);
+		WalkSAT solver = new WalkSAT(WALKSAT_TRIES, limit / WALKSAT_TRIES, WALKSAT_RANDOMNESS);
+
+
+		List<BooleanVariable> solution = solver.getModel(problem);
+		if (solution != null) {
+			expanded = solver.countExpanded();
+			visited = solver.countVisited();
+		}
+
+		return solution;
 	}
 
 	protected Plan makePlan(List<BooleanVariable> solution, Map<String,Step> stepInstances) {
