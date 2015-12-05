@@ -244,6 +244,97 @@ public class FlawsTest {
     }
   }
 
+  public class chooseFlaw_planSpaceNode {
+    PlanSpaceNode planSpaceNode;
+
+    @Before
+    public void beforeExample() {
+      planSpaceNode = mock(PlanSpaceNode.class);
+    }
+
+    public class when_there_are_no_flaws {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(flaws.chooseFlaw(planSpaceNode), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_flaw {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(flaws.chooseFlaw(planSpaceNode), is(flaw));
+      }
+    }
+
+    public class when_there_are_some_flaws {
+      Flaw first;
+      Flaw second;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        flaws = multipleFlaws(first, second);
+      }
+
+      @Test
+      public void is_the_last_added_flaw() {
+        assertThat(flaws.chooseFlaw(planSpaceNode), is(second));
+      }
+    }
+
+    public class when_there_is_an_unsafe_open_condition {
+      Flaw flaw;
+      OpenCondition openCondition;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        openCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(openCondition)).willReturn(true);
+        flaws = multipleFlaws(openCondition, flaw);
+      }
+
+      @Test
+      public void is_that_open_condition() {
+        assertThat(flaws.chooseFlaw(planSpaceNode), is(openCondition));
+      }
+    }
+
+    public class when_there_are_some_unsafe_open_conditions {
+      OpenCondition firstOpenCondition;
+      Flaw flaw;
+      OpenCondition secondOpenCondition;
+
+      @Before
+      public void beforeExample() {
+        firstOpenCondition = mock(OpenCondition.class);
+        flaw = mock(Flaw.class);
+        secondOpenCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(or(eq(firstOpenCondition),
+                                        eq(secondOpenCondition)))).willReturn(true);
+        flaws = multipleFlaws(firstOpenCondition, flaw, secondOpenCondition);
+      }
+
+      @Test
+      public void is_the_last_added_unsafe_open_condition() {
+        assertThat(flaws.chooseFlaw(planSpaceNode), is(secondOpenCondition));
+      }
+    }
+  }
+
   public class chooseLastFlaw {
     public class when_there_are_no_flaws {
       @Before
