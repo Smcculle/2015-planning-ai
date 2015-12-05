@@ -17,9 +17,4 @@ public class UnsafeOpenConditions extends Flaws<UnsafeOpenCondition> {
   public UnsafeOpenConditions(Iterable<UnsafeOpenCondition> flaws) {
     super(flaws);
   }
-
-  @Override
-  public UnsafeOpenConditions toUnsafeOpenConditions() {
-    return this;
-  }
 }

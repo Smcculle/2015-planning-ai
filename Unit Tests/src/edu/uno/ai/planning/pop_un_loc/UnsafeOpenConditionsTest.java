@@ -557,12 +557,4 @@ public class UnsafeOpenConditionsTest {
                  is(new ThreatenedCausalLinks()));
     }
   }
-
-  public class toUnsafeOpenConditions {
-    @Test
-    public void is_the_caller() {
-      assertThat(unsafeOpenConditions.toUnsafeOpenConditions(),
-                 is(unsafeOpenConditions));
-    }
-  }
 }
