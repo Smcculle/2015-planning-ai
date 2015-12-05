@@ -269,7 +269,7 @@ public class PlanSpaceNode {
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
-    fix(flaws.chooseFlaw(), queue);
+    fix(flaws.chooseFlaw(this), queue);
   }
 
   public PlanSpaceRoot root() {
