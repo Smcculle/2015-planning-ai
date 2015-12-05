@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -626,8 +627,15 @@ public class FlawsTest {
     }
   }
 
-  public class toUnsafeOpenConditions {
-    public class when_there_are_no_unsafe_open_conditions {
+  public class toUnsafeOpenConditions_planSpaceNode {
+    PlanSpaceNode planSpaceNode;
+
+    @Before
+    public void beforeExample() {
+      planSpaceNode = mock(PlanSpaceNode.class);
+    }
+
+    public class when_there_are_no_open_conditions {
       Flaw flaw;
 
       @Before
@@ -637,45 +645,67 @@ public class FlawsTest {
       }
 
       @Test
-      public void is_an_empty_open_conditions() {
-        assertThat(flaws.toUnsafeOpenConditions(),
-                   is(new UnsafeOpenConditions()));
+      public void is_an_empty_unsafe_open_conditions() {
+        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+                   is(new OpenConditions()));
       }
     }
 
-    public class when_there_is_an_open_condition {
-      Flaw flaw;
-      UnsafeOpenCondition openCondition;
+    public class when_there_are_no_unsafe_open_conditions {
+      OpenCondition openCondition;
 
       @Before
       public void beforeExample() {
-        flaw = mock(Flaw.class);
-        openCondition = mock(UnsafeOpenCondition.class);
-        flaws = multipleFlaws(flaw, openCondition);
+        openCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(eq(openCondition))).willReturn(false);
+
+        flaws = singleFlaw(openCondition);
       }
 
       @Test
-      public void is_an_open_conditions_with_that_condition() {
-        assertThat(flaws.toUnsafeOpenConditions(), contains(openCondition));
+      public void is_an_empty_unsafe_open_conditions() {
+        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+                   is(new OpenConditions()));
       }
     }
 
-    public class when_there_are_some_open_conditions {
+    public class when_there_is_an_unsafe_open_condition {
       Flaw flaw;
-      UnsafeOpenCondition firstCondition;
-      UnsafeOpenCondition secondCondition;
+      OpenCondition openCondition;
 
       @Before
       public void beforeExample() {
         flaw = mock(Flaw.class);
-        firstCondition = mock(UnsafeOpenCondition.class);
-        secondCondition = mock(UnsafeOpenCondition.class);
+        openCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(eq(openCondition))).willReturn(true);
+        flaws = multipleFlaws(openCondition, flaw);
+      }
+
+      @Test
+      public void is_that_open_condition() {
+        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+                   contains(openCondition));
+      }
+    }
+
+    public class when_there_are_some_unsafe_open_conditions {
+      Flaw flaw;
+      OpenCondition firstCondition;
+      OpenCondition secondCondition;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        firstCondition = mock(OpenCondition.class);
+        secondCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(or(eq(firstCondition),
+                                        eq(secondCondition)))).willReturn(true);
         flaws = multipleFlaws(flaw, firstCondition, secondCondition);
       }
 
       @Test
       public void are_those_open_conditions_in_order() {
-        assertThat(flaws.toUnsafeOpenConditions(),
+        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
                    contains(secondCondition, firstCondition));
       }
     }

@@ -118,11 +118,11 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return new ThreatenedCausalLinks(links);
   }
 
-  public UnsafeOpenConditions toUnsafeOpenConditions() {
-    Stack<UnsafeOpenCondition> openConditions = Stack.empty();
-    for (Flaw flaw : flaws)
-      if (flaw instanceof UnsafeOpenCondition)
-        openConditions = openConditions.append((UnsafeOpenCondition) flaw);
-    return new UnsafeOpenConditions(openConditions);
+  public OpenConditions toUnsafeOpenConditions(PlanSpaceNode planSpaceNode) {
+    Stack<OpenCondition> openConditions = Stack.empty();
+    for (OpenCondition openCondition : toOpenConditions())
+      if (planSpaceNode.isUnsafe(openCondition))
+        openConditions = openConditions.append(openCondition);
+    return new OpenConditions(openConditions);
   }
 }
