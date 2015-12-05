@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -551,30 +552,43 @@ public class OpenConditionsTest {
     }
   }
 
-  public class toUnsafeOpenConditions {
+  public class toUnsafeOpenConditions_planSpaceNode {
+    PlanSpaceNode planSpaceNode;
+
+    @Before
+    public void beforeExample() {
+      planSpaceNode = mock(PlanSpaceNode.class);
+    }
+
     public class when_there_are_no_unsafe_open_conditions {
+      OpenCondition openCondition;
+
       @Before
       public void beforeExample() {
-        openConditions = manyOpenConditions(mock(OpenCondition.class));
+        openCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(openCondition)).willReturn(false);
+        openConditions = manyOpenConditions(openCondition);
       }
 
       @Test
       public void is_an_empty_unsafe_open_conditions() {
-        assertThat(openConditions.toUnsafeOpenConditions(),
+        assertThat(openConditions.toUnsafeOpenConditions(planSpaceNode),
                    is(new UnsafeOpenConditions()));
       }
     }
 
     public class when_there_are_some_unsafe_open_conditions {
-      UnsafeOpenCondition firstUnsafeOpenCondition;
-      UnsafeOpenCondition secondUnsafeOpenCondition;
+      OpenCondition firstUnsafeOpenCondition;
+      OpenCondition secondUnsafeOpenCondition;
       OpenCondition thirdOpenCondition;
 
       @Before
       public void beforeExample() {
-        firstUnsafeOpenCondition = mock(UnsafeOpenCondition.class);
-        secondUnsafeOpenCondition = mock(UnsafeOpenCondition.class);
+        firstUnsafeOpenCondition = mock(OpenCondition.class);
+        secondUnsafeOpenCondition = mock(OpenCondition.class);
         thirdOpenCondition = mock(OpenCondition.class);
+        given(planSpaceNode.isUnsafe(or(eq(firstUnsafeOpenCondition),
+                                        eq(secondUnsafeOpenCondition)))).willReturn(true);
         openConditions = manyOpenConditions(firstUnsafeOpenCondition,
                                             secondUnsafeOpenCondition,
                                             thirdOpenCondition);
@@ -582,7 +596,7 @@ public class OpenConditionsTest {
 
       @Test
       public void are_those_unsafe_open_conditions_in_order() {
-        assertThat(openConditions.toUnsafeOpenConditions(),
+        assertThat(openConditions.toUnsafeOpenConditions(planSpaceNode),
                    contains(secondUnsafeOpenCondition,
                             firstUnsafeOpenCondition));
       }

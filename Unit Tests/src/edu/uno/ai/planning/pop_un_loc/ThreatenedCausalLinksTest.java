@@ -561,16 +561,19 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
-  public class toUnsafeOpenConditions {
+  public class toUnsafeOpenConditions_planSpaceNode {
+    PlanSpaceNode planSpaceNode;
+
     @Before
     public void beforeExample() {
+      planSpaceNode = mock(PlanSpaceNode.class);
       threatenedCausalLinks = manyThreatenedCausalLinks(mock(ThreatenedCausalLink.class),
                                                         mock(ThreatenedCausalLink.class));
     }
 
     @Test
     public void is_an_empty_unsafe_open_conditions() {
-      assertThat(threatenedCausalLinks.toUnsafeOpenConditions(),
+      assertThat(threatenedCausalLinks.toUnsafeOpenConditions(planSpaceNode),
                  is(new UnsafeOpenConditions()));
     }
   }
