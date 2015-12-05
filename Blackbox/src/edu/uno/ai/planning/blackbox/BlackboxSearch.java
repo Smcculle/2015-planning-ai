@@ -42,6 +42,7 @@ public class BlackboxSearch extends Search {
 	@Override
 	public Plan findNextSolution() {
 		System.out.println("Plan size " + graph.size());
+		System.out.println("Plan leveled off " + graph.hasLeveledOff());
 		ArrayList<Clause> conjunction = new ArrayList<>();
 		Map<String, Step> stepInstances = new HashMap<>();
 
@@ -77,25 +78,33 @@ public class BlackboxSearch extends Search {
 		}
 
 		SATProblem problem = new SATProblem((ArrayList<ArrayList<BooleanVariable>>)(ArrayList<?>) conjunction, new ArrayList<>());
-		ISATSolver solver = new WalkSAT(20, 10000, 0.1);
+		ISATSolver solver = new WalkSAT(10, 1000, 0.5);
 		List<BooleanVariable> solution = solver.getModel(problem);
 
 		if (solution == null) {
+			if (graph.hasLeveledOff()) {
+				throw new SearchLimitReachedException();
+			}
 			return null;
 		} else {
-			Set<String> uniqueSteps = solution.stream()
-				.filter(var -> var.value)
-				.filter(var -> !var.negation)
-				.map(var -> var.name)
-				.collect(Collectors.toSet());
-
-			return new ListPlan(uniqueSteps.stream()
-				.sorted()
-				.map(stepInstances::get)
-				.filter(step -> step != null)
-				.filter(graph.problem.steps::contains)
-				.collect(Collectors.toList()));
+			return makePlan(solution, stepInstances);
 		}
+	}
+
+	protected Plan makePlan(List<BooleanVariable> solution, Map<String,Step> stepInstances) {
+		Set<String> uniqueSteps = solution.stream()
+			.filter(var -> var.value) // remove variables that are false
+			.filter(var -> !var.negation) // remove negations
+			.map(var -> var.name)
+			.collect(Collectors.toSet());
+
+		return new ListPlan(uniqueSteps.stream()
+			.sorted()
+			.map(stepInstances::get)
+			.filter(step -> step != null)
+			.filter(graph.problem.steps::contains)
+			.collect(Collectors.toList()));
+
 	}
 
 	protected ArrayList<Clause> makeInitState(State state) {
