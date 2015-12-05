@@ -14,7 +14,7 @@ public class VisualizeCosts {
 	public static void main(String[] args) {
 		 ScenarioLoader sl=new ScenarioLoader(new File("./"),new File("scenarios/"));
 		//ScenarioLoader sl = new ScenarioLoader(new File("y:/GridPlanning/trunk"), new File("y:/GridPlanning/trunk/scenarios"));
-		List<Scenario> complete = sl.loadAllScenarios("JLG/trap.map.scen");
+		List<Scenario> complete = sl.loadAllScenarios();
 		int successes = 0;
 		long allStart = System.currentTimeMillis();
 		for (int i = 0; i < complete.size(); i++) {
@@ -35,6 +35,9 @@ public class VisualizeCosts {
 				}
 				AnytimeDStar anyPathing = new AnytimeDStar(s, new Euclidean(), 2, true);
 				anyPathing.run();
+				anyPathing= new AnytimeDStar(s, new Euclidean(), 2, false);
+				anyPathing.run();
+				
 				ImageProcessor temp = new VisualGridMap(anyPathing).toHistoryImage();
 				temp.resetMinAndMax();
 				if (temp.getMin() < min) {
@@ -63,6 +66,6 @@ public class VisualizeCosts {
 			}
 
 		}
-		System.out.println((System.currentTimeMillis() - allStart) / 1000 + ":" + successes + "/" + complete.size());
+		System.out.println((System.currentTimeMillis() - allStart)  + ":" + successes + "/" + complete.size());
 	}
 }

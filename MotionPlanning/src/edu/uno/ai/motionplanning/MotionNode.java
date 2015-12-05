@@ -9,7 +9,7 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 	protected double cost;
 	protected double heuristic;
 	protected double actionCost;
-	final double EPSILON = 1e-10;
+	public final static double EPSILON = 1e-6;
 
 	public MotionNode(T point, double cost, double heuristic) {
 		location = point;
@@ -93,4 +93,17 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 		}
 	}
 
+	@Override
+	public boolean equals(Object o){
+		if (!(o instanceof MotionNode)){
+			return false;
+		}
+		else {
+			MotionNode<?> mn=(MotionNode<?>)o;
+			if (location.equals(mn.location)){
+				return true;
+			}
+		}
+		return false;
+	}
 }
