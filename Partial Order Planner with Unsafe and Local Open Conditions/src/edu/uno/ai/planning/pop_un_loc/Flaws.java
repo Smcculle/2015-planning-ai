@@ -51,14 +51,21 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return Try.of(() -> flaws.head()).orElse(null);
   }
 
+  public Flaw chooseFirstUnsafeOpenCondition(PlanSpaceNode planSpaceNode) {
+    return toUnsafeOpenConditions(planSpaceNode).chooseFirstFlaw();
+  }
+
   public Flaw chooseFlaw() {
     return chooseFirstFlaw();
   }
 
   public Flaw chooseFlaw(PlanSpaceNode planSpaceNode) {
-    for (OpenCondition openCondition : toUnsafeOpenConditions(planSpaceNode))
-      return openCondition;
-    return chooseFirstFlaw();
+    Flaw result = chooseFirstUnsafeOpenCondition(planSpaceNode);
+    if (result == null) {
+      result = chooseFirstFlaw();
+    }
+
+    return result;
   }
 
   public Flaw chooseLastFlaw() {
