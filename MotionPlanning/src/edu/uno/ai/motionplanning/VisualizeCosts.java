@@ -33,9 +33,7 @@ public class VisualizeCosts {
 					System.out.println(pathing.toResultsString());
 					System.out.println(f + "," + (end - start) + "," + p.getCost());
 				}
-				AnytimeDStar anyPathing = new AnytimeDStar(s, new Euclidean(), 2, true);
-				anyPathing.run();
-				anyPathing= new AnytimeDStar(s, new Euclidean(), 2, false);
+				AnytimeDStar anyPathing= new AnytimeDStar(s, new Euclidean(), 2, true);
 				anyPathing.run();
 				
 				ImageProcessor temp = new VisualGridMap(anyPathing).toHistoryImage();
@@ -53,7 +51,7 @@ public class VisualizeCosts {
 				System.out.println((System.currentTimeMillis() - allStart) + ":" + successes + "/" + (i + 1));
 			}
 
-			ImagePlus ip = new ImagePlus("Costs", is);
+			/*ImagePlus ip = new ImagePlus("Costs", is);
 			// IJ.run(ip, "physics", ""); //set the physics colormap
 			for (int w = 1; w <= is.getSize(); w++) {
 				ImageProcessor big = is.getProcessor(w).resize(600);
@@ -63,7 +61,7 @@ public class VisualizeCosts {
 				String sane = filename.replaceAll("[^a-zA-Z0-9\\_]+", "_") + ".png";
 				FileSaver fs = new FileSaver(new ImagePlus("", cp));
 				fs.saveAsPng(sane);
-			}
+			}*/
 
 		}
 		System.out.println((System.currentTimeMillis() - allStart)  + ":" + successes + "/" + complete.size());

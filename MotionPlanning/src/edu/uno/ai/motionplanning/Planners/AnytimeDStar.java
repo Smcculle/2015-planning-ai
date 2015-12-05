@@ -29,9 +29,11 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	protected Point goal;
 	protected ArrayList<Point> fullPath;
 	protected boolean knownMap;
+	protected boolean seen[][];
 
 	public AnytimeDStar(Scenario s, DistanceHeuristic dh, float initialWeight, boolean knownMap) {
 		super(s.getMap());
+		seen = new boolean[grid.length][grid[0].length];
 		open = new PriorityQueue<MotionNode<Point>>();
 		closed = new HashMap<>();
 		inconsistents = new ArrayList<>();
@@ -64,11 +66,12 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	}
 
 	protected void computeOrImprovePath() {
-		while (!runner.completed&&!open.isEmpty() && (open.peek().getHeuristic()
-				+ open.peek().getCost()) <= history[scenario.getStart().y][scenario.getStart().x]
-						+ wdh.cost(scenario.getEnd(), scenario.getStart())) {
+		while (!runner.completed && !open.isEmpty()
+				&& (open.peek().getHeuristic()
+						+ open.peek().getCost()) <= history[scenario.getStart().y][scenario.getStart().x]
+								+ wdh.cost(scenario.getEnd(), scenario.getStart())) {
 			MotionNode<Point> currentNode = open.remove();
-			float oldCost=history[currentNode.getLoc().y][currentNode.getLoc().x];
+			float oldCost = history[currentNode.getLoc().y][currentNode.getLoc().x];
 			visited++;
 			if (fixInconsistency(currentNode.getLoc())) {
 				closed.put(currentNode.getLoc(), currentNode);
@@ -103,13 +106,13 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			history[p.y][p.x] = (float) rhs;
 			return true;
 		} else {// I really don't understand why they do this.
-			//history[p.y][p.x] = Float.POSITIVE_INFINITY;
+			// history[p.y][p.x] = Float.POSITIVE_INFINITY;
 			return false;
 		}
 	}
 
 	private double rhs(Point p) {
-		if (p.equals(scenario.getEnd())){
+		if (p.equals(scenario.getEnd())) {
 			return 0;
 		}
 		double rhs = Double.POSITIVE_INFINITY;
@@ -126,8 +129,8 @@ public class AnytimeDStar extends GridMap implements Runnable {
 					if (history[p.y + dy][p.x + dx] + costInc < rhs) {
 						rhs = history[p.y + dy][p.x + dx] + costInc;
 					}
-				} catch(Exception e){
-					
+				} catch (Exception e) {
+
 				}
 			}
 		}
@@ -159,12 +162,12 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			inconsistents.clear();
 			computeOrImprovePath();
 			startExecuting();
-			if (wdh.getWeight() <1.01){
-				while (!runner.completed&&changes.isEmpty()){
-					try{
+			if (wdh.getWeight() < 1.01) {
+				while (!runner.completed && changes.isEmpty()) {
+					try {
 						Thread.sleep(1);
+					} catch (InterruptedException ie) {
 					}
-					catch (InterruptedException ie){}
 				}
 			}
 		}
@@ -185,7 +188,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	}
 
 	public void startExecuting() {
-		if (!runner.isAlive()&&!runner.running&&!runner.completed) {
+		if (!runner.isAlive() && !runner.running && !runner.completed) {
 			runner.start();
 		}
 	}
@@ -195,16 +198,18 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			for (int dy = -perceptionDistance; dy <= perceptionDistance; dy++) {
 				for (int dx = -perceptionDistance; dx <= perceptionDistance; dx++) {
 					try {
-						boolean passable = scenario.getMap().isClear(scenario, p.y + dy, p.x + dx);
-						if (passable) {
-							this.grid[p.y + dy][p.x + dx] = 1;
-						} else {
-							this.grid[p.y + dy][p.x + dx] = 0;
-							Point changed = new Point(p.x + dx, p.y + dy);
-							changes.add(new MotionNode<Point>(changed, Float.POSITIVE_INFINITY,
-									Float.POSITIVE_INFINITY));
+						if (!seen[p.y + dy][p.x + dx]) {
+							seen[p.y + dy][p.x + dx]=true;
+							boolean passable = scenario.getMap().isClear(scenario, p.y + dy, p.x + dx);
+							if (passable) {
+								this.grid[p.y + dy][p.x + dx] = 1;
+							} else {
+								this.grid[p.y + dy][p.x + dx] = 0;
+								Point changed = new Point(p.x + dx, p.y + dy);
+								changes.add(new MotionNode<Point>(changed, Float.POSITIVE_INFINITY,
+										Float.POSITIVE_INFINITY));
+							}							
 						}
-
 					} catch (Exception e) {
 					}
 				}
@@ -225,36 +230,34 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			location = scenario.getStart();
 			totalCost = 0;
 		}
-		
+
 		@Override
 		public void run() {
 			completed = false;
 			failed = false;
 			running = true;
-			
+			HashSet<Point> locations = new HashSet<>();
 			while (!location.equals(scenario.getEnd())) {
-				HashSet<Point> locations=new HashSet<>();
 				double min = Double.MAX_VALUE;
 				if (fullPath.isEmpty() || !location.equals(fullPath.get(fullPath.size() - 1))) {
 					fullPath.add(location);
-				} 
-				if (locations.contains(location)){
-					stuck=true;
 				}
-				else {
+				if (locations.contains(location)) {
+					stuck = true;
+				} else {
 					locations.add(location);
-					stuck=false;
+					stuck = false;
 				}
 				Point loc = location;
-				for (int dy = -1; dy <= 1; dy++) {
-					for (int dx = -1; dx <= 1; dx++) {
-						if (dx == 0 && dy == 0) {
+				for (int ny =location.y -1; ny <= location.y+1; ny++) {
+					for (int nx = location.x-1; nx <= location.x+1; nx++) {
+						if (nx == location.x && ny == location.y) {
 							continue;
 						}
 						try {
-							if (scenario.getMap().isClear(scenario, location.y + dy, location.x + dx)&&history[location.y + dy][location.x + dx] < min) {
-								min = history[location.y + dy][location.x + dx];
-								loc = new Point( location.x + dx,location.y + dy);
+							if (scenario.getMap().isClear(scenario,  ny,  nx) && history[ny][nx] < min) {
+								min = history[ny][nx];
+								loc = new Point(nx,ny);
 							}
 						} catch (Exception e) {
 						}
@@ -271,7 +274,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			}
 			completed = true;
 			running = false;
-			System.err.println("Execution complete. Cost: "+totalCost);
+			System.err.println("Execution complete. Cost: " + totalCost);
 		}
 	}
 }

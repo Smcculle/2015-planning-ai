@@ -9,7 +9,7 @@ public class MotionNode<T extends Point2D> implements Comparable<MotionNode<?>> 
 	protected double cost;
 	protected double heuristic;
 	protected double actionCost;
-	public final static double EPSILON = 1e-6;
+	public final static double EPSILON = 1e-4;
 
 	public MotionNode(T point, double cost, double heuristic) {
 		location = point;

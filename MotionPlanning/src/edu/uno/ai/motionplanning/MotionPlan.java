@@ -22,7 +22,7 @@ public class MotionPlan<T extends Point2D> implements Comparable<MotionPlan<?>> 
 	double cost;
 	double heuristic;
 	double actionCost;
-	public final static double EPSILON = 1e-6;
+	public final static double EPSILON = 1e-4;
 
 	public MotionPlan(T start, double heuristic) {
 		path = new ArrayList<>();
