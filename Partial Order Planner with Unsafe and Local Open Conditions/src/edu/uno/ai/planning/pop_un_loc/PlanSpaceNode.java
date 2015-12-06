@@ -301,4 +301,8 @@ public class PlanSpaceNode {
     str += "\n" + flaws.toString(bindings);
     return str;
   }
+
+  public OpenConditions unsafeOpenConditions() {
+    return flaws().unsafeOpenConditions(this);
+  }
 }
