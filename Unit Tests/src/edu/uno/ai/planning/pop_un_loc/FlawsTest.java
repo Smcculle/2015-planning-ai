@@ -590,7 +590,7 @@ public class FlawsTest {
 
       @Test
       public void is_an_empty_open_conditions() {
-        assertThat(flaws.toOpenConditions(), is(new OpenConditions()));
+        assertThat(flaws.openConditions(), is(new OpenConditions()));
       }
     }
 
@@ -607,7 +607,7 @@ public class FlawsTest {
 
       @Test
       public void is_an_open_conditions_with_that_condition() {
-        assertThat(flaws.toOpenConditions(), contains(openCondition));
+        assertThat(flaws.openConditions(), contains(openCondition));
       }
     }
 
@@ -626,7 +626,7 @@ public class FlawsTest {
 
       @Test
       public void are_those_open_conditions_in_order() {
-        assertThat(flaws.toOpenConditions(),
+        assertThat(flaws.openConditions(),
                    contains(secondCondition, firstCondition));
       }
     }

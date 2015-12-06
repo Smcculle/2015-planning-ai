@@ -444,7 +444,7 @@ public class ThreatenedCausalLinksTest {
 
     @Test
     public void is_an_empty_open_conditions() {
-      assertThat(threatenedCausalLinks.toOpenConditions(),
+      assertThat(threatenedCausalLinks.openConditions(),
                  is(new OpenConditions()));
     }
   }

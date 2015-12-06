@@ -398,7 +398,7 @@ public class UnsafeOpenConditionsTest {
   public class toOpenConditions {
     @Test
     public void is_the_caller() {
-      assertThat(unsafeOpenConditions.toOpenConditions(),
+      assertThat(unsafeOpenConditions.openConditions(),
                  is(unsafeOpenConditions));
     }
   }

@@ -90,20 +90,20 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return Try.of(() -> flaws.last()).orElse(null);
   }
 
+  public OpenConditions openConditions() {
+    Stack<OpenCondition> openConditions = Stack.empty();
+    for (Flaw flaw : flaws)
+      if (flaw instanceof OpenCondition)
+        openConditions = openConditions.append((OpenCondition) flaw);
+    return new OpenConditions(openConditions);
+  }
+
   public Flaws<E> remove(E flaw) {
     return new Flaws<E>(flaws.remove(flaw));
   }
 
   public int size() {
     return flaws.length();
-  }
-
-  public OpenConditions toOpenConditions() {
-    Stack<OpenCondition> openConditions = Stack.empty();
-    for (Flaw flaw : flaws)
-      if (flaw instanceof OpenCondition)
-        openConditions = openConditions.append((OpenCondition) flaw);
-    return new OpenConditions(openConditions);
   }
 
   public ImmutableList<E> toImmutableList() {
@@ -133,7 +133,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
 
   public OpenConditions toUnsafeOpenConditions(PlanSpaceNode planSpaceNode) {
     Stack<OpenCondition> openConditions = Stack.empty();
-    for (OpenCondition openCondition : toOpenConditions())
+    for (OpenCondition openCondition : openConditions())
       if (planSpaceNode.isUnsafe(openCondition))
         openConditions = openConditions.append(openCondition);
     return new OpenConditions(openConditions);
