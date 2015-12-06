@@ -388,6 +388,42 @@ public class FlawsTest {
     }
   }
 
+  public class selectBy_criterion {
+    Criterion<Flaw> criterion;
+
+    @Before
+    public void beforeExample() {
+      criterion = mock(Criterion.class);
+    }
+
+    public class when_there_are_no_flaws {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(flaws.selectBy(criterion), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_flaw {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(flaws.selectBy(criterion), is(flaw));
+      }
+    }
+  }
+
   public class selectFor_planSpaceNode {
     PlanSpaceNode planSpaceNode;
 
