@@ -134,25 +134,25 @@ public class WalkSATTest {
 	}
 
 	@Test
-	public void testClausePurification() {
+	public void testClauseUnitPropagation() {
 		Clause clause;
 
-		// Find pure and freeze
+		// Find unit clauses and freeze
 		clause = new Clause(Arrays.asList(new Literal(va), new Literal(vb)));
-		assertFalse(clause.isPure());
-		assertFalse(clause.findPureAndFreeze());
+		assertFalse(clause.isUnit());
+		assertFalse(clause.freezeIfUnitClause());
 		clause = new Clause(Collections.singletonList(new Literal(va)));
-		assertTrue(clause.isPure());
-		assertTrue(clause.findPureAndFreeze());
+		assertTrue(clause.isUnit());
+		assertTrue(clause.freezeIfUnitClause());
 		assertTrue(clause.isSatisfied());
 		assertTrue(va.isSatisfied());
 		assertTrue(va.isFrozen());
 
-		// Find pure and freeze (but it's already frozen and the clause becomes
-		// unsatisfiable)
+		// Find unit clauses and freeze (but it's already frozen and the clause
+		// becomes unsatisfiable)
 		vc.freeze();
 		clause = new Clause(Collections.singletonList(new Literal(vc)));
-		assertTrue(clause.findPureAndFreeze());
+		assertTrue(clause.freezeIfUnitClause());
 		assertFalse(vc.getValue());
 		assertFalse(clause.isSatisfied());
 		assertTrue(clause.isUnsatisfiable());
@@ -166,7 +166,7 @@ public class WalkSATTest {
 
 		// This clause is clearly unsatisfiable but the Clause#isUnsatisfiable
 		// method still returns false. It's purpose is only to detect simple
-		// pure clauses.
+		// unit clauses.
 		clause = new Clause(Arrays.asList(new Literal(va), new Literal(va, NEGATED)));
 		assertFalse(clause.isUnsatisfiable());
 
@@ -238,9 +238,9 @@ public class WalkSATTest {
 		Clause c2 = new Clause(Arrays.asList(new Literal(va), new Literal(vb, NEGATED)));
 		Clause c3 = new Clause(Arrays.asList(new Literal(va), new Literal(vb), new Literal(vc)));
 
-		Problem problem = solver.purify(new Problem(Arrays.asList(c1, c2, c3)));
+		Problem problem = solver.unitPropagation(new Problem(Arrays.asList(c1, c2, c3)));
 		assertThat(problem.clauses.size(), is(0));
-		assertThat(solver.pures.size(), is(3));
+		assertThat(solver.frozenVariables.size(), is(3));
 		assertFalse(va.getValue());
 		assertFalse(vb.getValue());
 		assertTrue(vc.getValue());
@@ -254,14 +254,14 @@ public class WalkSATTest {
 		// Unsatisfiable conjunction
 		Clause c1 = new Clause(Collections.singletonList(new Literal(va, NEGATED)));
 		Clause c2 = new Clause(Collections.singletonList(new Literal(va)));
-		Problem problem = solver.purify(new Problem(Arrays.asList(c1, c2)));
+		Problem problem = solver.unitPropagation(new Problem(Arrays.asList(c1, c2)));
 		assertThat(problem, equalTo(null));
 
 		// Another unsatisfiable conjunction
 		c1 = new Clause(Collections.singletonList(new Literal(va, NEGATED)));
 		c2 = new Clause(Collections.singletonList(new Literal(vb)));
 		Clause c3 = new Clause(Arrays.asList(new Literal(va), new Literal(vb, NEGATED)));
-		problem = solver.purify(new Problem(Arrays.asList(c1, c2, c3)));
+		problem = solver.unitPropagation(new Problem(Arrays.asList(c1, c2, c3)));
 		assertThat(problem, equalTo(null));
 
 	}
@@ -271,11 +271,11 @@ public class WalkSATTest {
 		Clause c1 = new Clause(Collections.singletonList(new Literal(va)));
 		Clause c2 = new Clause(Arrays.asList(new Literal(va, NEGATED), new Literal(vb, NEGATED)));
 		Clause c3 = new Clause(Arrays.asList(new Literal(va, NEGATED), new Literal(vb), new Literal(vc), new Literal(vd)));
-		Problem problem = solver.purify(new Problem(Arrays.asList(c1, c2, c3)));
+		Problem problem = solver.unitPropagation(new Problem(Arrays.asList(c1, c2, c3)));
 		assertThat(problem.clauses.size(), is(1));
 		assertTrue(problem.variables.contains(vc));
 		assertTrue(problem.variables.contains(vd));
-		assertThat(solver.pures.size(), is(2));
+		assertThat(solver.frozenVariables.size(), is(2));
 		assertTrue(va.getValue());
 		assertFalse(vb.getValue());
 		assertTrue(va.isFrozen());
@@ -339,10 +339,10 @@ public class WalkSATTest {
 		Variable c = new Variable("c", true);
 
 		solver.originalVariables = Arrays.asList(A, NotA, B, NotB, NotC);
-		solver.pures = new HashSet<>(Collections.singletonList(c));
+		solver.frozenVariables = new HashSet<>(Collections.singletonList(c));
 
 		// The solution is a union of the variables passed as parameter and also
-		// of the previously calculated pures.
+		// of the previously calculated frozen variables..
 		List<BooleanVariable> solution = solver.convertSolution(new HashSet<>(Arrays.asList(a, b)));
 
 		assertTrue(solution.containsAll(Arrays.asList(A, NotA, B, NotB, NotC)));
@@ -435,8 +435,8 @@ public class WalkSATTest {
 
 	@Test
 	public void getModelForModelWithUnimportantVariables() {
-		// In this example, once the pure variable A is frozen, the whole
-		// conjunction is satisfied and the rest of variables becomes
+		// In this example, once the variable A inside unit clause is frozen,
+		// the whole conjunction is satisfied and the rest of variables becomes
 		// unimportant. Yet we have to make sure that a correct and complete
 		// solution is generated.
 
@@ -458,7 +458,7 @@ public class WalkSATTest {
 	}
 
 	@Test
-	public void getModelForSolvableProblemWithPuresOnly() {
+	public void getModelForSolvableProblemWithUnitClausesOnly() {
 		ArrayList<BooleanVariable> cA = new ArrayList<>(Collections.singletonList(A));
 		ArrayList<BooleanVariable> cNotB = new ArrayList<>(Collections.singletonList(NotB));
 		ArrayList<BooleanVariable> cC = new ArrayList<>(Collections.singletonList(C));

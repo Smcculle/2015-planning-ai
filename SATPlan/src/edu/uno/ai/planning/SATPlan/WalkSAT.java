@@ -21,8 +21,8 @@ public class WalkSAT implements ISATSolver {
 	 **/
 	public final double randomPickProbability;
 
-	/** List of pure variables in the conjunction with the value fixed */
-	protected Set<Variable> pures;
+	/** List of variables in the conjunction with the value fixed during simplification */
+	protected Set<Variable> frozenVariables;
 
 	/** List of variables in the original SAT problem */
 	protected List<BooleanVariable> originalVariables;
@@ -61,12 +61,26 @@ public class WalkSAT implements ISATSolver {
 		variableVisited = 0;
 		variableFlipped = 0;
 
-		// Remove pure literals from the conjunction. If it turns out impossible,
-		// return null (as a failure)
-		problem = purify(problem);
+		// Perform Unit Propagation optimization on the problem. If it turns out
+		// impossible,  return null (as a failure)
+		problem = unitPropagation(problem);
 		if (problem == null) {
 			return null;
 		}
+
+		/*
+		Set<Variable> pures = new HashSet<>(problem.variables);
+		Map<Variable, Boolean> lastVal = new HashMap<>();
+		problem.clauses.forEach(clause -> clause.literals.forEach(literal -> {
+			if (lastVal.get(literal.variable) == null) {
+				lastVal.put(literal.variable, literal.negated);
+			} else if (lastVal.get(literal.variable) != literal.negated) {
+				ures.remove(literal.variable);
+			}
+		}));
+		System.out.println("Variable total: " + problem.variables.size());
+		System.out.println("Pure variable total: " + pures.size());
+		*/
 
 		for (int i = 0; i < maxTries; i++) {
 			problem.randomSolution();
@@ -139,8 +153,8 @@ public class WalkSAT implements ISATSolver {
 	protected List<BooleanVariable> convertSolution(Set<Variable> solution) {
 		Map<String, Variable> lookupTable = new HashMap<>();
 		solution.forEach(variable -> lookupTable.put(variable.name, variable));
-		if (pures != null) {
-			pures.forEach(variable -> lookupTable.put(variable.name, variable));
+		if (frozenVariables != null) {
+			frozenVariables.forEach(variable -> lookupTable.put(variable.name, variable));
 		}
 
 		for (BooleanVariable boolVar : originalVariables) {
@@ -154,32 +168,33 @@ public class WalkSAT implements ISATSolver {
 	}
 
 	/**
-	 * Find and "freeze" pure variables in the problem. "Pure" means that there
-	 * is only variable inside a clause and therefore its value can be
-	 * immediately inferred.
-	 * @param problem the problem that we want to purify
-	 * @return new instance of a problem without pure variables or null if the
+	 * Unit propagation. Find and remove variables inside "unit" clauses, i. e.
+	 * clauses that contain only single literal (variable). The value of such
+	 * a variable can be immediately inferred.
+	 *
+	 * @param problem the problem that want to simplify using unit propagation
+	 * @return new instance of a problem without unit clauses or null if the
 	 * 	problem turns out to be unsatisfiable.
 	 */
-	protected Problem purify(Problem problem) {
+	protected Problem unitPropagation(Problem problem) {
 		List<Clause> clauses = problem.clauses;
 
-		// Keep removing pure variables as long as there are some to be
+		// Keep removing unit clauses as long as there are some to be
 		// removed (removing one variable from all clauses might cause
-		// another variable to become pure as well). This cycle ensures that
+		// another clause to become unit). This cycle ensures that
 		// when it's over, it is not possible to remove any more variables.
 
 		// Each cycle consists of two passes. In the first pass I find all
-		// pure variables and fix their values ("freeze" the variable). In
+		// unit clauses and fix the variable's value ("freeze" the variable). In
 		// the second pass, I remove all frozen variables and empty clauses.
-		while (clauses.stream().anyMatch(Clause::findPureAndFreeze)) {
-			// If a pure formula turned out unsatisfiable, stop the cycle and
+		while (clauses.stream().anyMatch(Clause::freezeIfUnitClause)) {
+			// If a unit clause turned out unsatisfiable, stop the cycle and
 			// return null (the problem has no solution)
 			if (clauses.stream().filter(Clause::isUnsatisfiable).count() > 0) {
 				return null;
 			}
 
-			// Second pass: Remove pure variables (their values have been
+			// Second pass: Remove frozen variables (their values have been
 			// "frozen") and consequently all clauses that became empty.
 			clauses = clauses.stream()
 				.map(Clause::removeFrozen)
@@ -187,21 +202,20 @@ public class WalkSAT implements ISATSolver {
 				.collect(Collectors.toList());
 		}
 
-		Problem purified = new Problem(clauses);
+		Problem simplified = new Problem(clauses);
 
 		// It might have happened that in one of those second passes we
 		// removed a complete satisfied clause that contained a variable
 		// that didn't show up anywhere else. We find those extra lost variables
 		// and freeze them as well. Their value is not important but we
-		// have to remember them (among other pures) so that we can
-		// correctly restore the solution.
+		// have to remember them  so that we can correctly restore the solution.
 		problem.variables.stream()
-			.filter(variable -> !variable.isFrozen() && !purified.variables.contains(variable))
+			.filter(variable -> !variable.isFrozen() && !simplified.variables.contains(variable))
 			.forEach(Variable::freeze);
 
-		// Remember pure variables and their values so that we can add it later
-		// to the solution
-		pures = problem.variables.stream()
+		// Remember frozen variables and their values so that we can add them
+		// later to the solution
+		frozenVariables = problem.variables.stream()
 			.filter(Variable::isFrozen)
 			.collect(Collectors.toSet());
 		return new Problem(clauses);
@@ -266,7 +280,7 @@ class Problem {
 		try {
 			return clauses.stream()
 				.filter(clause -> !clause.satisfied())
-				.findAny().get();
+				.findFirst().get();
 		} catch (NoSuchElementException e) {
 			throw new RuntimeException("No unsatisfied clause. This method should not be called");
 		}
@@ -357,7 +371,7 @@ class Clause {
 	 * @return a randomly picked variable
 	 */
 	public Variable pickRandomVariable() {
-		// Ugly O(n) way. Set should become something with random accet.
+		// Ugly O(n) way. Set should become something with random access
 		int index = WalkSAT.random.nextInt(variables.size());
 		Iterator<Variable> iter = variables.iterator();
 		for (int i = 0; i < index; i++) {
@@ -374,34 +388,35 @@ class Clause {
 		return literals.size() == 0;
 	}
 
-	// ***************** Purification stuff *********************
+	// ***************** Unit propagation & purification *********************
 
 	/**
-	 * Return if the clause is pure, i. e. it contains only one literal.
-	 * @return true if the clause is pure
+	 * Return if the clause is unit clause, i. e. it contains only one literal.
+	 * @return true if the clause is unit clause
 	 */
-	public boolean isPure() {
+	public boolean isUnit() {
 		return literals.size() == 1;
 	}
 
 	/**
-	 * Return true if the clause is unsatisfiable but only in the purification
-	 * context. It doesn't actually check whether the clause is satisfiable,
-	 * it returns false only if the clause is pure, unsatisfied and the variable
-	 * is frozen (cannot be flipped). Then it's clearly unsatisfiable.
+	 * Return true if the clause is unsatisfiable but only in the unit
+	 * propagation context context. It doesn't actually check whether the
+	 * clause is satisfiable, it returns false only if the clause is a unit
+	 * clause, unsatisfied and the variable is frozen (cannot be flipped).
+	 * Then it's clearly unsatisfiable.
 	 * @return true if the clause is unsatisfiable
 	 */
 	public boolean isUnsatisfiable() {
-		return isPure() && !isSatisfied() && literals.get(0).isFrozen();
+		return isUnit() && !isSatisfied() && literals.get(0).isFrozen();
 	}
 
 	/**
-	 * If the clause contains pure literal, try to flip it and freeze
-	 * the variable.
-	 * @return true if there was a pure literal in the clause.
+	 * If this is a unit clause, try to set the satisfying variable value and
+	 * freeze the variable.
+	 * @return true if the clause was unit clause.
 	 */
-	public boolean findPureAndFreeze() {
-		if (!isPure()) {
+	public boolean freezeIfUnitClause() {
+		if (!isUnit()) {
 			return false;
 		}
 
@@ -462,7 +477,7 @@ class Literal {
 		return (variable.isSatisfied() && !negated) || (!variable.isSatisfied() && negated);
 	}
 
-	// ***************** Purification stuff *********************
+	// ***************** Unit propagation & purification  *********************
 
 	/**
 	 * Return if the literal is frozen, i. e. the contained variable is frozen.
@@ -529,7 +544,7 @@ class Variable {
 		setValue(WalkSAT.random.nextBoolean());
 	}
 
-	// ***************** Purification stuff *********************
+	// ***************** Unit propagation & purification *********************
 
 	/**
 	 * Freeze variable which will prevent any further changes (it becomes
