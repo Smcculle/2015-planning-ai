@@ -28,10 +28,14 @@ public class PlanSpaceDefinedSelectionTest {
     return definitionWith(mock(PlanSpaceNode.class), new Flaws<Flaw>());
   }
 
+  PlanSpaceDefinedSelection<Flaw> definitionWith(Flaws<Flaw> flaws) {
+    return definitionWith(mock(PlanSpaceNode.class), flaws);
+  }
+
   PlanSpaceDefinedSelection<Flaw> definitionWith(PlanSpaceNode planSpaceNode,
                                                  Flaws<Flaw> flaws) {
-    planSpaceNode = mock(PlanSpaceNode.class);
-    flaws = new Flaws<Flaw>();
+    this.planSpaceNode = planSpaceNode;
+    this.flaws = flaws;
     return new PlanSpaceDefinedSelection<Flaw>(planSpaceNode, flaws);
   }
 
