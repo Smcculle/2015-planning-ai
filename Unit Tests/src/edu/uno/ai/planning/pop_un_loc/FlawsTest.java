@@ -355,55 +355,6 @@ public class FlawsTest {
     }
   }
 
-  public class chooseLastFlaw {
-    public class when_there_are_no_flaws {
-      @Before
-      public void beforeExample() {
-        flaws = noFlaws();
-      }
-
-      @Test
-      public void is_null() {
-        assertThat(flaws.chooseLastFlaw(), is(nullValue()));
-      }
-    }
-
-    public class when_there_is_a_flaw {
-      Flaw flaw;
-
-      @Before
-      public void beforeExample() {
-        flaw = mock(Flaw.class);
-        flaws = singleFlaw(flaw);
-      }
-
-      @Test
-      public void is_that_flaw() {
-        assertThat(flaws.chooseLastFlaw(), equalTo(flaw));
-      }
-    }
-
-    public class when_there_are_some_flaws {
-      Flaw first;
-      Flaw second;
-      Flaw third;
-
-      @Before
-      public void beforeExample() {
-        first = mock(Flaw.class);
-        second = mock(Flaw.class);
-        third = mock(Flaw.class);
-
-        flaws = multipleFlaws(first, second, third);
-      }
-
-      @Test
-      public void is_the_oldest_flaw() {
-        assertThat(flaws.chooseLastFlaw(), equalTo(first));
-      }
-    }
-  }
-
   public class first {
     public class when_there_are_no_flaws {
       @Before
@@ -449,6 +400,55 @@ public class FlawsTest {
       @Test
       public void is_the_flaw_most_recently_added() {
         assertThat(flaws.first(), equalTo(third));
+      }
+    }
+  }
+
+  public class last {
+    public class when_there_are_no_flaws {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(flaws.last(), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_flaw {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(flaws.last(), equalTo(flaw));
+      }
+    }
+
+    public class when_there_are_some_flaws {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void is_the_oldest_flaw() {
+        assertThat(flaws.last(), equalTo(first));
       }
     }
   }
