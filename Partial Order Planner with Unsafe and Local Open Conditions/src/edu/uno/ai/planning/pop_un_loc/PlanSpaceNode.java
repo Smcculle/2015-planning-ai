@@ -244,6 +244,10 @@ public class PlanSpaceNode {
     }
   }
 
+  public Flaws<Flaw> flaws() {
+    return flaws;
+  }
+
   public void forEachAncestor(Consumer<? super PlanSpaceNode> action) {
     PlanSpaceNode current = parent;
     while (current != null) {
