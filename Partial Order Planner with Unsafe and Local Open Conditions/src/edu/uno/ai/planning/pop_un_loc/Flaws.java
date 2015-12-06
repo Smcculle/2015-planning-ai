@@ -98,15 +98,6 @@ public class Flaws<T extends Flaw> implements Iterable<T>, Partial {
     return selection;
   }
 
-  public Flaw selectFor(PlanSpaceNode planSpaceNode) {
-    Flaw result = unsafeOpenConditions(planSpaceNode).select();
-    if (result == null) {
-      result = select();
-    }
-
-    return result;
-  }
-
   public int size() {
     return flaws.length();
   }
