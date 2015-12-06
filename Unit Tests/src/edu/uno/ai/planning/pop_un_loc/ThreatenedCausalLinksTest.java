@@ -165,7 +165,7 @@ public class ThreatenedCausalLinksTest {
 
       @Test
       public void is_null() {
-        assertThat(threatenedCausalLinks.chooseFirstFlaw(), is(nullValue()));
+        assertThat(threatenedCausalLinks.first(), is(nullValue()));
       }
     }
 
@@ -180,7 +180,7 @@ public class ThreatenedCausalLinksTest {
 
       @Test
       public void is_that_threatened_causal_link() {
-        assertThat(threatenedCausalLinks.chooseFirstFlaw(),
+        assertThat(threatenedCausalLinks.first(),
                    equalTo(unsafeOpenCondition));
       }
     }
@@ -201,7 +201,7 @@ public class ThreatenedCausalLinksTest {
 
       @Test
       public void is_the_threatened_causal_link_most_recently_added() {
-        assertThat(threatenedCausalLinks.chooseFirstFlaw(), equalTo(third));
+        assertThat(threatenedCausalLinks.first(), equalTo(third));
       }
     }
   }
