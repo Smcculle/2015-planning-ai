@@ -90,12 +90,12 @@ public class Flaws<T extends Flaw> implements Iterable<T>, Partial {
   }
 
   public T selectBy(Criterion<T> criterion) {
-    T current = first();
+    T selection = criterion.bestOf(flaws);
 
-    for (T flaw : flaws.remove(current))
-      current = criterion.bestOf(current, flaw);
+    if (selection == null)
+      selection = first();
 
-    return current;
+    return selection;
   }
 
   public Flaw selectFor(PlanSpaceNode planSpaceNode) {
