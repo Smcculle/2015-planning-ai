@@ -22,8 +22,11 @@ public class BlackboxSearch extends Search {
 	/** How often should WalkSAT pick a random variable instead of using heuristics */
 	public static final double WALKSAT_RANDOMNESS = 0.5;
 
-	/** Fixed seed for WalkSAT to be able to reproduce results */
+	/** Fixed seed for WalkSAT to be able to reproduce results. Doesn't really work */
 	public static final long WALKSAT_SEED = 123456789;
+
+	/** How many times should be the node limit for WalkSAT increased */
+	public static final int WALKSAT_NODE_LIMIT_MULTIPLIER = 1;
 
 	public final PlanGraph graph;
 	protected int limit = 0;
@@ -52,8 +55,6 @@ public class BlackboxSearch extends Search {
 
 	@Override
 	public Plan findNextSolution() {
-		System.out.println("Plan size " + graph.size());
-		System.out.println("Plan leveled off " + graph.hasLeveledOff());
 		ArrayList<Clause> conjunction = new ArrayList<>();
 		Map<String, Step> stepInstances = new HashMap<>();
 
@@ -105,7 +106,7 @@ public class BlackboxSearch extends Search {
 		// Blackbox should work with any kind of SAT solver, but WalkSAT is kind
 		// of special so let's not make it complicated.
 		WalkSAT.random = new Random(WALKSAT_SEED);
-		WalkSAT solver = new WalkSAT(WALKSAT_TRIES, limit / WALKSAT_TRIES, WALKSAT_RANDOMNESS);
+		WalkSAT solver = new WalkSAT(WALKSAT_TRIES, WALKSAT_NODE_LIMIT_MULTIPLIER * limit / WALKSAT_TRIES, WALKSAT_RANDOMNESS);
 
 
 		List<BooleanVariable> solution = solver.getModel(problem);

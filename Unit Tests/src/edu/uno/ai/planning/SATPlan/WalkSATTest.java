@@ -477,4 +477,24 @@ public class WalkSATTest {
 		assertTrue(NotB.value);
 		assertTrue(C.value);
 	}
+
+	@Test
+	public void testPureLiteralElimination() {
+		// Conjunction that should completely disappear
+		Clause c1 = new Clause(Collections.singletonList(new Literal(vc, NEGATED)));
+		Clause c2 = new Clause(Arrays.asList(new Literal(va), new Literal(vb, NEGATED)));
+		Clause c3 = new Clause(Arrays.asList(new Literal(va), new Literal(vb), new Literal(vc, NEGATED)));
+
+		Problem problem = solver.pureLiteralElimination(new Problem(Arrays.asList(c1, c2, c3)));
+		assertThat(problem.clauses.size(), is(0));
+		assertThat(solver.frozenVariables.size(), is(3));
+
+		assertTrue(va.getValue());
+		assertThat(vb.getValue(), anyOf(is(true), is(false)));
+		assertFalse(vc.getValue());
+
+		assertTrue(va.isFrozen());
+		assertTrue(vb.isFrozen());
+		assertTrue(vc.isFrozen());
+	}
 }

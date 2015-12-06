@@ -22,7 +22,7 @@ public class WalkSAT implements ISATSolver {
 	public final double randomPickProbability;
 
 	/** List of variables in the conjunction with the value fixed during simplification */
-	protected Set<Variable> frozenVariables;
+	protected Set<Variable> frozenVariables = new HashSet<>();
 
 	/** List of variables in the original SAT problem */
 	protected List<BooleanVariable> originalVariables;
@@ -58,29 +58,16 @@ public class WalkSAT implements ISATSolver {
 		Clause unsatisfiedClause;
 		Variable variable;
 
+		frozenVariables = new HashSet<>();
 		variableVisited = 0;
 		variableFlipped = 0;
 
-		// Perform Unit Propagation optimization on the problem. If it turns out
-		// impossible,  return null (as a failure)
+		// SAT problem optimizations
 		problem = unitPropagation(problem);
 		if (problem == null) {
 			return null;
 		}
-
-		/*
-		Set<Variable> pures = new HashSet<>(problem.variables);
-		Map<Variable, Boolean> lastVal = new HashMap<>();
-		problem.clauses.forEach(clause -> clause.literals.forEach(literal -> {
-			if (lastVal.get(literal.variable) == null) {
-				lastVal.put(literal.variable, literal.negated);
-			} else if (lastVal.get(literal.variable) != literal.negated) {
-				ures.remove(literal.variable);
-			}
-		}));
-		System.out.println("Variable total: " + problem.variables.size());
-		System.out.println("Pure variable total: " + pures.size());
-		*/
+		problem = pureLiteralElimination(problem);
 
 		for (int i = 0; i < maxTries; i++) {
 			problem.randomSolution();
@@ -153,9 +140,7 @@ public class WalkSAT implements ISATSolver {
 	protected List<BooleanVariable> convertSolution(Set<Variable> solution) {
 		Map<String, Variable> lookupTable = new HashMap<>();
 		solution.forEach(variable -> lookupTable.put(variable.name, variable));
-		if (frozenVariables != null) {
-			frozenVariables.forEach(variable -> lookupTable.put(variable.name, variable));
-		}
+		frozenVariables.forEach(variable -> lookupTable.put(variable.name, variable));
 
 		for (BooleanVariable boolVar : originalVariables) {
 			Variable var = lookupTable.get(boolVar.name);
@@ -215,10 +200,55 @@ public class WalkSAT implements ISATSolver {
 
 		// Remember frozen variables and their values so that we can add them
 		// later to the solution
-		frozenVariables = problem.variables.stream()
+		frozenVariables.addAll(problem.variables.stream()
 			.filter(Variable::isFrozen)
-			.collect(Collectors.toSet());
-		return new Problem(clauses);
+			.collect(Collectors.toList()));
+		return simplified;
+	}
+
+	protected Problem pureLiteralElimination(Problem problem) {
+		// We start with the list of all variables and we'll be removing
+		// not pure variables one by one as they get discovered.
+		Set<Variable> pures = new HashSet<>(problem.variables);
+		Map<Variable, Boolean> negation = new HashMap<>();
+
+		// Find pure literals
+		problem.clauses.forEach(clause -> clause.literals.forEach(literal -> {
+			if (negation.get(literal.variable) == null) {
+				negation.put(literal.variable, literal.negated);
+			} else if (negation.get(literal.variable) != literal.negated) {
+				pures.remove(literal.variable);
+			}
+		}));
+
+		// Set and freeze those pure variables
+		pures.forEach(variable -> {
+			variable.setValue(!negation.get(variable));
+			variable.freeze();
+		});
+
+		// Remove clauses that contained pure literals as they are now
+		// satisfied and have no effect whatsoever.
+		List<Clause> clauses = problem.clauses.stream()
+			.filter(clause -> !clause.hasFrozenLiteral())
+			.collect(Collectors.toList());
+
+		Problem simplified = new Problem(clauses);
+
+		// Similarly to Unit Propagation, together with removed clauses some
+		// other variables might have disappeared completely. Their value
+		// doesn't matter but we have to remember them for completeness.
+		problem.variables.stream()
+			.filter(variable -> !variable.isFrozen() && !simplified.variables.contains(variable))
+			.forEach(Variable::freeze);
+
+		// Now we take all frozen variables and remember them so that we can
+		// use them when generating the solution.
+		frozenVariables.addAll(problem.variables.stream()
+			.filter(Variable::isFrozen)
+			.collect(Collectors.toList()));
+
+		return simplified;
 	}
 
 	protected boolean shouldPickRandomly() {
@@ -448,6 +478,14 @@ class Clause {
 				.collect(Collectors.toList());
 			return new Clause(pruned);
 		}
+	}
+
+	/**
+	 * Return if the clause contains a frozen literal.
+	 * @return true if the clause contains a frozen literal.
+	 */
+	public boolean hasFrozenLiteral() {
+		return literals.stream().anyMatch(Literal::isFrozen);
 	}
 }
 
