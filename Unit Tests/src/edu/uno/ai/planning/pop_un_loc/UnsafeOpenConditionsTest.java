@@ -165,7 +165,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_null() {
-        assertThat(unsafeOpenConditions.chooseFirstFlaw(), is(nullValue()));
+        assertThat(unsafeOpenConditions.first(), is(nullValue()));
       }
     }
 
@@ -180,7 +180,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_that_flaw() {
-        assertThat(unsafeOpenConditions.chooseFirstFlaw(),
+        assertThat(unsafeOpenConditions.first(),
                    equalTo(unsafeOpenCondition));
       }
     }
@@ -201,7 +201,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_the_open_condition_most_recently_added() {
-        assertThat(unsafeOpenConditions.chooseFirstFlaw(), equalTo(third));
+        assertThat(unsafeOpenConditions.first(), equalTo(third));
       }
     }
   }

@@ -164,7 +164,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_null() {
-        assertThat(openConditions.chooseFirstFlaw(), is(nullValue()));
+        assertThat(openConditions.first(), is(nullValue()));
       }
     }
 
@@ -179,7 +179,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_that_flaw() {
-        assertThat(openConditions.chooseFirstFlaw(), equalTo(openCondition));
+        assertThat(openConditions.first(), equalTo(openCondition));
       }
     }
 
@@ -199,7 +199,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_the_open_condition_most_recently_added() {
-        assertThat(openConditions.chooseFirstFlaw(), equalTo(third));
+        assertThat(openConditions.first(), equalTo(third));
       }
     }
   }
