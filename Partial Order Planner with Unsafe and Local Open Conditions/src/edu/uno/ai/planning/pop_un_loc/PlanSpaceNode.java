@@ -59,6 +59,10 @@ public class PlanSpaceNode {
     flaws = new Flaws<Flaw>(end);
   }
 
+  public Bindings bindings() {
+    return bindings;
+  }
+
   private final Flaws<Flaw> checkForThreats(ImmutableList<Step> steps,
                                             Bindings bindings,
                                             Orderings orderings,
@@ -305,6 +309,10 @@ public class PlanSpaceNode {
 
   public ImmutableArray<Operator> operators() {
     return root().problem.domain.operators;
+  }
+
+  public ImmutableList<Step> steps() {
+    return steps;
   }
 
   public ThreatenedCausalLinks threatenedCausalLinks() {

@@ -54,6 +54,10 @@ public class Step implements Partial {
     effects = getLiterals(operator.effect.substitute(substitution));
   }
 
+  public ImmutableArray<Literal> effects() {
+    return effects;
+  }
+
   public boolean isStart() {
     return operator == null && preconditions == NO_LITERALS;
   }
@@ -68,6 +72,18 @@ public class Step implements Partial {
       mapping.set(operator.parameters.get(i),
                   substitution.get(parameters.get(i)));
     return operator.makeStep(mapping);
+  }
+
+  public ImmutableArray<Variable> parameters() {
+    return parameters;
+  }
+
+  public ImmutableArray<Literal> preconditions() {
+    return preconditions;
+  }
+
+  public Operator operator() {
+    return operator;
   }
 
   @Override
