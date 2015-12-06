@@ -28,6 +28,12 @@ public class LRThreat extends AbstractLR<ThreatenedCausalLink> {
 
   @Override
   public Integer refinementsOf(ThreatenedCausalLink flaw) {
-    return 0;
+    Integer refinementCount = 0;
+    if (canBePromoted(flaw))
+      refinementCount++;
+    if (canBeDemoted(flaw))
+      refinementCount++;
+
+    return refinementCount;
   }
 }
