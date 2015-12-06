@@ -283,6 +283,10 @@ public class PlanSpaceNode {
     return (PlanSpaceRoot) current;
   }
 
+  public OpenConditions openConditions() {
+    return flaws().openConditions();
+  }
+
   public ImmutableArray<Operator> operators() {
     return root().problem.domain.operators;
   }
