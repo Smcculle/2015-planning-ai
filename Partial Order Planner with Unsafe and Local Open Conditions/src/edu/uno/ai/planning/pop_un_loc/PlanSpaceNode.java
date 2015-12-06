@@ -88,6 +88,10 @@ public class PlanSpaceNode {
     return flaws;
   }
 
+  public Orderings demoteThreat(ThreatenedCausalLink flaw) {
+    return orderings().add(flaw.threat(), flaw.link().head());
+  }
+
   // @NOTE:
   // This will require all other temporary parameters (see checkForThreats) that
   public Boolean isUnsafe(OpenCondition openCondition) {
