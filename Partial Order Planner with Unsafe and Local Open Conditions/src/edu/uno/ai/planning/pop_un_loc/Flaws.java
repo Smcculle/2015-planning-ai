@@ -47,10 +47,6 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return new Flaws<E>(flaws.append(flaw));
   }
 
-  public Flaw chooseFirstUnsafeOpenCondition(PlanSpaceNode planSpaceNode) {
-    return unsafeOpenConditions(planSpaceNode).first();
-  }
-
   @Override
   public boolean equals(Object object) {
     if (object instanceof Flaws) {
@@ -94,9 +90,9 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
   }
 
   public Flaw selectFor(PlanSpaceNode planSpaceNode) {
-    Flaw result = chooseFirstUnsafeOpenCondition(planSpaceNode);
+    Flaw result = unsafeOpenConditions(planSpaceNode).select();
     if (result == null) {
-      result = first();
+      result = select();
     }
 
     return result;
