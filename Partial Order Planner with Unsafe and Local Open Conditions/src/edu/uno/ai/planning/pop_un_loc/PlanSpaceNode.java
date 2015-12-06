@@ -287,6 +287,14 @@ public class PlanSpaceNode {
     return (PlanSpaceRoot) current;
   }
 
+  public Orderings promoteThreat(ThreatenedCausalLink flaw) {
+    return orderings().add(flaw.link().head(), flaw.threat());
+  }
+
+  public Orderings orderings() {
+    return orderings;
+  }
+
   public OpenConditions openConditions() {
     return flaws().openConditions();
   }
