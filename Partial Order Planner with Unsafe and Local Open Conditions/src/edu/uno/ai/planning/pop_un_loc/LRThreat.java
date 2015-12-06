@@ -14,6 +14,12 @@ public class LRThreat extends AbstractLR<ThreatenedCausalLink> {
     return second;
   }
 
+  public Boolean canBeDemoted(ThreatenedCausalLink flaw) {
+    if (planSpaceNode().demoteThreat(flaw) == null)
+      return false;
+    return true;
+  }
+
   public Boolean canBePromoted(ThreatenedCausalLink flaw) {
     if (planSpaceNode().promoteThreat(flaw) == null)
       return false;

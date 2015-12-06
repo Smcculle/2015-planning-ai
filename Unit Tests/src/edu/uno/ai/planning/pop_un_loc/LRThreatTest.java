@@ -43,6 +43,39 @@ public class LRThreatTest {
                typeCompatibleWith(PlanSpaceAwareCriterion.class));
   }
 
+  public class canBeDemoted_flaw {
+    ThreatenedCausalLink flaw;
+
+    @Before
+    public void beforeExample() {
+      flaw = mock(ThreatenedCausalLink.class);
+    }
+
+    public class when_demoting_the_threat_is_valid {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(mock(Orderings.class));
+      }
+
+      @Test
+      public void is_true() {
+        assertThat(lrThreat.canBeDemoted(flaw), is(true));
+      }
+    }
+
+    public class when_demoting_the_threat_is_not_valid {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(null);
+      }
+
+      @Test
+      public void is_false() {
+        assertThat(lrThreat.canBeDemoted(flaw), is(false));
+      }
+    }
+  }
+
   public class canBePromoted_flaw {
     ThreatenedCausalLink flaw;
 
