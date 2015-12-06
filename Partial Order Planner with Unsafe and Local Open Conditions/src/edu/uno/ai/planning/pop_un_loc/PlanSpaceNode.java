@@ -59,10 +59,6 @@ public class PlanSpaceNode {
     flaws = new Flaws<Flaw>(end);
   }
 
-  public Flaw nextFlawToRepair() {
-    return flaws().selectFor(this);
-  }
-
   private final Flaws<Flaw> checkForThreats(ImmutableList<Step> steps,
                                             Bindings bindings,
                                             Orderings orderings,
@@ -274,6 +270,10 @@ public class PlanSpaceNode {
     forEachAncestor(ancestor -> {
       ancestor.expanded++;
     });
+  }
+
+  public Flaw nextFlawToRepair() {
+    return flaws().selectFor(this);
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
