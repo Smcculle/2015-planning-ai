@@ -6,4 +6,6 @@ public interface Criterion<T extends Flaw> {
   public T bestOf(T first, T second);
 
   public T bestOf(T... flaws);
+
+  public T bestOf(Iterable<T> flaws);
 }
