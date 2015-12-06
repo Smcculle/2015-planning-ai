@@ -573,7 +573,7 @@ public class OpenConditionsTest {
       @Test
       public void is_an_empty_unsafe_open_conditions() {
         assertThat(openConditions.unsafeOpenConditions(planSpaceNode),
-                   is(new UnsafeOpenConditions()));
+                   is(new OpenConditions()));
       }
     }
 
