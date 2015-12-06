@@ -106,6 +106,14 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return flaws.length();
   }
 
+  public ThreatenedCausalLinks threatenedCausalLinks() {
+    Stack<ThreatenedCausalLink> links = Stack.empty();
+    for (Flaw flaw : flaws)
+      if (flaw instanceof ThreatenedCausalLink)
+        links = links.append((ThreatenedCausalLink) flaw);
+    return new ThreatenedCausalLinks(links);
+  }
+
   public ImmutableList<E> toImmutableList() {
     return new ImmutableList<E>(flaws);
   }
@@ -121,14 +129,6 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     for (Flaw flaw : flaws)
       str += "\n " + flaw.toString(substitution);
     return str;
-  }
-
-  public ThreatenedCausalLinks toThreatenedCausalLinks() {
-    Stack<ThreatenedCausalLink> links = Stack.empty();
-    for (Flaw flaw : flaws)
-      if (flaw instanceof ThreatenedCausalLink)
-        links = links.append((ThreatenedCausalLink) flaw);
-    return new ThreatenedCausalLinks(links);
   }
 
   public OpenConditions toUnsafeOpenConditions(PlanSpaceNode planSpaceNode) {

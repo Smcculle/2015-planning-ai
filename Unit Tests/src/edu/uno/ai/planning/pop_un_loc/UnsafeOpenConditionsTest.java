@@ -553,7 +553,7 @@ public class UnsafeOpenConditionsTest {
 
     @Test
     public void is_an_empty_threatened_causal_links() {
-      assertThat(unsafeOpenConditions.toThreatenedCausalLinks(),
+      assertThat(unsafeOpenConditions.threatenedCausalLinks(),
                  is(new ThreatenedCausalLinks()));
     }
   }

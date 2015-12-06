@@ -18,7 +18,7 @@ public class ThreatenedCausalLinks extends Flaws<ThreatenedCausalLink> {
   }
 
   @Override
-  public ThreatenedCausalLinks toThreatenedCausalLinks() {
+  public ThreatenedCausalLinks threatenedCausalLinks() {
     return this;
   }
 }

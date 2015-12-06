@@ -156,57 +156,7 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
-  public class chooseFirstFlaw {
-    public class when_there_are_no_threatened_causal_links {
-      @Before
-      public void beforeExample() {
-        threatenedCausalLinks = noThreatenedCausalLinks();
-      }
-
-      @Test
-      public void is_null() {
-        assertThat(threatenedCausalLinks.first(), is(nullValue()));
-      }
-    }
-
-    public class when_there_is_a_threatened_causal_link {
-      ThreatenedCausalLink unsafeOpenCondition;
-
-      @Before
-      public void beforeExample() {
-        unsafeOpenCondition = mock(ThreatenedCausalLink.class);
-        threatenedCausalLinks = singleThreatenedCausalLink(unsafeOpenCondition);
-      }
-
-      @Test
-      public void is_that_threatened_causal_link() {
-        assertThat(threatenedCausalLinks.first(),
-                   equalTo(unsafeOpenCondition));
-      }
-    }
-
-    public class when_there_is_some_threatened_causal_links {
-      ThreatenedCausalLink first;
-      ThreatenedCausalLink second;
-      ThreatenedCausalLink third;
-
-      @Before
-      public void beforeExample() {
-        first = mock(ThreatenedCausalLink.class);
-        second = mock(ThreatenedCausalLink.class);
-        third = mock(ThreatenedCausalLink.class);
-
-        threatenedCausalLinks = manyThreatenedCausalLinks(first, second, third);
-      }
-
-      @Test
-      public void is_the_threatened_causal_link_most_recently_added() {
-        assertThat(threatenedCausalLinks.first(), equalTo(third));
-      }
-    }
-  }
-
-  public class chooseThreatenedCausalLink {
+  public class chooseFlaw {
     public class when_there_are_no_threatened_causal_links {
       @Before
       public void beforeExample() {
@@ -256,7 +206,56 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
-  public class chooseLastThreatenedCausalLink {
+  public class first {
+    public class when_there_are_no_threatened_causal_links {
+      @Before
+      public void beforeExample() {
+        threatenedCausalLinks = noThreatenedCausalLinks();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(threatenedCausalLinks.first(), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_threatened_causal_link {
+      ThreatenedCausalLink unsafeOpenCondition;
+
+      @Before
+      public void beforeExample() {
+        unsafeOpenCondition = mock(ThreatenedCausalLink.class);
+        threatenedCausalLinks = singleThreatenedCausalLink(unsafeOpenCondition);
+      }
+
+      @Test
+      public void is_that_threatened_causal_link() {
+        assertThat(threatenedCausalLinks.first(), equalTo(unsafeOpenCondition));
+      }
+    }
+
+    public class when_there_is_some_threatened_causal_links {
+      ThreatenedCausalLink first;
+      ThreatenedCausalLink second;
+      ThreatenedCausalLink third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(ThreatenedCausalLink.class);
+        second = mock(ThreatenedCausalLink.class);
+        third = mock(ThreatenedCausalLink.class);
+
+        threatenedCausalLinks = manyThreatenedCausalLinks(first, second, third);
+      }
+
+      @Test
+      public void is_the_threatened_causal_link_most_recently_added() {
+        assertThat(threatenedCausalLinks.first(), equalTo(third));
+      }
+    }
+  }
+
+  public class last {
     public class when_there_are_no_threatened_causal_links {
       @Before
       public void beforeExample() {
@@ -280,8 +279,7 @@ public class ThreatenedCausalLinksTest {
 
       @Test
       public void is_that_threatened_causal_link() {
-        assertThat(threatenedCausalLinks.last(),
-                   equalTo(threatenedCausalLink));
+        assertThat(threatenedCausalLinks.last(), equalTo(threatenedCausalLink));
       }
     }
 
@@ -303,6 +301,20 @@ public class ThreatenedCausalLinksTest {
       public void is_the_oldest_threatened_casusal_link() {
         assertThat(threatenedCausalLinks.last(), equalTo(first));
       }
+    }
+  }
+
+  public class openConditions {
+    @Before
+    public void beforeExample() {
+      threatenedCausalLinks = manyThreatenedCausalLinks(mock(ThreatenedCausalLink.class),
+                                                        mock(ThreatenedCausalLink.class));
+    }
+
+    @Test
+    public void is_an_empty_open_conditions() {
+      assertThat(threatenedCausalLinks.openConditions(),
+                 is(new OpenConditions()));
     }
   }
 
@@ -398,6 +410,14 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
+  public class threatenedCausalLinks {
+    @Test
+    public void is_the_caller() {
+      assertThat(threatenedCausalLinks.threatenedCausalLinks(),
+                 is(threatenedCausalLinks));
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_threatened_causal_links {
       @Before
@@ -432,20 +452,6 @@ public class ThreatenedCausalLinksTest {
                                                                     .add(second)
                                                                     .add(third)));
       }
-    }
-  }
-
-  public class toOpenConditions {
-    @Before
-    public void beforeExample() {
-      threatenedCausalLinks = manyThreatenedCausalLinks(mock(ThreatenedCausalLink.class),
-                                                        mock(ThreatenedCausalLink.class));
-    }
-
-    @Test
-    public void is_an_empty_open_conditions() {
-      assertThat(threatenedCausalLinks.openConditions(),
-                 is(new OpenConditions()));
     }
   }
 
@@ -550,14 +556,6 @@ public class ThreatenedCausalLinksTest {
                    stringContainsInOrder(thirdString, secondString,
                                          firstString));
       }
-    }
-  }
-
-  public class toThreatenedCausalLinks {
-    @Test
-    public void is_the_caller() {
-      assertThat(threatenedCausalLinks.toThreatenedCausalLinks(),
-                 is(threatenedCausalLinks));
     }
   }
 
