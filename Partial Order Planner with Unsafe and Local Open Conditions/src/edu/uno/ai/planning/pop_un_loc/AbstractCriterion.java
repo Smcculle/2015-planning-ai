@@ -1,5 +1,7 @@
 package edu.uno.ai.planning.pop_un_loc;
 
+import java.util.Iterator;
+
 public abstract class AbstractCriterion<T extends Flaw>
     implements Criterion<T> {
 
@@ -20,6 +22,17 @@ public abstract class AbstractCriterion<T extends Flaw>
     }
 
     return current;
+  }
+
+  @Override
+  public T bestOf(Iterable<T> flaws) {
+    Iterator<T> iterator = flaws.iterator();
+    T best = iterator.next();
+
+    while (iterator.hasNext())
+      best = bestOf(best, iterator.next());
+
+    return best;
   }
 
 }
