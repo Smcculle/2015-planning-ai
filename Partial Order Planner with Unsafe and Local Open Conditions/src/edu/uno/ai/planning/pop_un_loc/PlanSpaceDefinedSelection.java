@@ -17,4 +17,13 @@ public class PlanSpaceDefinedSelection<T extends Flaw> {
   public PlanSpaceNode planSpaceNode() {
     return planSpaceNode;
   }
+
+  public T selectedBy(Criterion<T> criterion) {
+    T current = flaws.first();
+
+    for (T flaw : flaws.remove(current))
+      current = criterion.bestOf(current, flaw);
+
+    return current;
+  }
 }
