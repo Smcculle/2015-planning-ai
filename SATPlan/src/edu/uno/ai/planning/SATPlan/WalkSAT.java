@@ -97,12 +97,12 @@ public class WalkSAT implements ISATSolver {
 				if (shouldPickRandomly()) {
 					variable = unsatisfiedClause.pickRandomVariable();
 				} else {
-					variableVisited += unsatisfiedClause.literals.size();
+					variableFlipped += unsatisfiedClause.literals.size();
 					variable = problem.pickLeastDamagingVariable(unsatisfiedClause);
 				}
 
 				variable.flip();
-				variableFlipped++;
+				variableVisited++;
 			}
 		}
 		return null;
