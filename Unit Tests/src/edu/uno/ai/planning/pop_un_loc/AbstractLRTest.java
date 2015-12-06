@@ -9,9 +9,9 @@ import org.junit.runner.RunWith;
 import com.nitorcreations.junit.runners.NestedRunner;
 
 @RunWith(NestedRunner.class)
-public class LRTest {
-  static Class<LR> describedClass() {
-    return LR.class;
+public class AbstractLRTest {
+  static Class<AbstractLR> describedClass() {
+    return AbstractLR.class;
   }
 
   @Test
