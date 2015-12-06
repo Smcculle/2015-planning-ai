@@ -55,7 +55,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return false;
   }
 
-  public Flaw first() {
+  public E first() {
     return Try.of(() -> flaws.head()).orElse(null);
   }
 
@@ -69,7 +69,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return flaws.iterator();
   }
 
-  public Flaw last() {
+  public E last() {
     return Try.of(() -> flaws.last()).orElse(null);
   }
 
@@ -85,7 +85,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return new Flaws<E>(flaws.remove(flaw));
   }
 
-  public Flaw select() {
+  public E select() {
     return first();
   }
 
@@ -104,7 +104,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
 
   public ThreatenedCausalLinks threatenedCausalLinks() {
     Stack<ThreatenedCausalLink> links = Stack.empty();
-    for (Flaw flaw : flaws)
+    for (E flaw : flaws)
       if (flaw instanceof ThreatenedCausalLink)
         links = links.append((ThreatenedCausalLink) flaw);
     return new ThreatenedCausalLinks(links);
