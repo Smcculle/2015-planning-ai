@@ -262,7 +262,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_null() {
-        assertThat(openConditions.chooseLastFlaw(), is(nullValue()));
+        assertThat(openConditions.last(), is(nullValue()));
       }
     }
 
@@ -277,7 +277,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_that_flaw() {
-        assertThat(openConditions.chooseLastFlaw(), equalTo(flaw));
+        assertThat(openConditions.last(), equalTo(flaw));
       }
     }
 
@@ -297,7 +297,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_the_oldest_flaw() {
-        assertThat(openConditions.chooseLastFlaw(), equalTo(first));
+        assertThat(openConditions.last(), equalTo(first));
       }
     }
   }

@@ -264,7 +264,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_null() {
-        assertThat(unsafeOpenConditions.chooseLastFlaw(), is(nullValue()));
+        assertThat(unsafeOpenConditions.last(), is(nullValue()));
       }
     }
 
@@ -279,7 +279,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_that_flaw() {
-        assertThat(unsafeOpenConditions.chooseLastFlaw(), equalTo(flaw));
+        assertThat(unsafeOpenConditions.last(), equalTo(flaw));
       }
     }
 
@@ -299,7 +299,7 @@ public class UnsafeOpenConditionsTest {
 
       @Test
       public void is_the_oldest_flaw() {
-        assertThat(unsafeOpenConditions.chooseLastFlaw(), equalTo(first));
+        assertThat(unsafeOpenConditions.last(), equalTo(first));
       }
     }
   }

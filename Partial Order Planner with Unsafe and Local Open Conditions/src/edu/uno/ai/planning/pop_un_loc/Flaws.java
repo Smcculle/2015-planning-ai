@@ -64,10 +64,6 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return result;
   }
 
-  public Flaw chooseLastFlaw() {
-    return Try.of(() -> flaws.last()).orElse(null);
-  }
-
   @Override
   public boolean equals(Object object) {
     if (object instanceof Flaws) {
@@ -88,6 +84,10 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
   @Override
   public Iterator<E> iterator() {
     return flaws.iterator();
+  }
+
+  public Flaw last() {
+    return Try.of(() -> flaws.last()).orElse(null);
   }
 
   public Flaws<E> remove(E flaw) {
