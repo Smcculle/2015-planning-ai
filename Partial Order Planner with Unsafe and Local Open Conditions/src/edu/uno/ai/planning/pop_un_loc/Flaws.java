@@ -9,42 +9,42 @@ import edu.uno.ai.planning.util.ImmutableList;
 import javaslang.collection.Stack;
 import javaslang.control.Try;
 
-public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
+public class Flaws<T extends Flaw> implements Iterable<T>, Partial {
 
-  private final Stack<E> flaws;
+  private final Stack<T> flaws;
 
   public Flaws() {
     flaws = Stack.empty();
   }
 
-  public Flaws(E flaw) {
+  public Flaws(T flaw) {
     flaws = Stack.of(flaw);
   }
 
   public Flaws(Step end) {
-    Stack<E> tmp = Stack.empty();
+    Stack<T> tmp = Stack.empty();
     for (Literal precondition : end.preconditions)
-      tmp = tmp.push((E) new OpenCondition(end, precondition));
+      tmp = tmp.push((T) new OpenCondition(end, precondition));
     flaws = tmp;
   }
 
-  public Flaws(E... flaws) {
-    Stack<E> tmp = Stack.empty();
-    for (E flaw : flaws)
+  public Flaws(T... flaws) {
+    Stack<T> tmp = Stack.empty();
+    for (T flaw : flaws)
       tmp = tmp.push(flaw);
     this.flaws = tmp;
   }
 
-  public Flaws(Iterable<E> flaws) {
+  public Flaws(Iterable<T> flaws) {
     this.flaws = Stack.ofAll(flaws);
   }
 
-  public Flaws<E> add(E flaw) {
-    return new Flaws<E>(flaws.push(flaw));
+  public Flaws<T> add(T flaw) {
+    return new Flaws<T>(flaws.push(flaw));
   }
 
-  public Flaws<E> addLast(E flaw) {
-    return new Flaws<E>(flaws.append(flaw));
+  public Flaws<T> addLast(T flaw) {
+    return new Flaws<T>(flaws.append(flaw));
   }
 
   @Override
@@ -55,7 +55,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return false;
   }
 
-  public E first() {
+  public T first() {
     return Try.of(() -> flaws.head()).orElse(null);
   }
 
@@ -65,11 +65,11 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
   }
 
   @Override
-  public Iterator<E> iterator() {
+  public Iterator<T> iterator() {
     return flaws.iterator();
   }
 
-  public E last() {
+  public T last() {
     return Try.of(() -> flaws.last()).orElse(null);
   }
 
@@ -81,11 +81,11 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return new OpenConditions(openConditions);
   }
 
-  public Flaws<E> remove(E flaw) {
-    return new Flaws<E>(flaws.remove(flaw));
+  public Flaws<T> remove(T flaw) {
+    return new Flaws<T>(flaws.remove(flaw));
   }
 
-  public E select() {
+  public T select() {
     return first();
   }
 
@@ -104,14 +104,14 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
 
   public ThreatenedCausalLinks threatenedCausalLinks() {
     Stack<ThreatenedCausalLink> links = Stack.empty();
-    for (E flaw : flaws)
+    for (T flaw : flaws)
       if (flaw instanceof ThreatenedCausalLink)
         links = links.append((ThreatenedCausalLink) flaw);
     return new ThreatenedCausalLinks(links);
   }
 
-  public ImmutableList<E> toImmutableList() {
-    return new ImmutableList<E>(flaws);
+  public ImmutableList<T> toImmutableList() {
+    return new ImmutableList<T>(flaws);
   }
 
   @Override
