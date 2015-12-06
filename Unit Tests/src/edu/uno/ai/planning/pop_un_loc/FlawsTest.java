@@ -215,55 +215,6 @@ public class FlawsTest {
     }
   }
 
-  public class chooseFlaw {
-    public class when_there_are_no_flaws {
-      @Before
-      public void beforeExample() {
-        flaws = noFlaws();
-      }
-
-      @Test
-      public void is_null() {
-        assertThat(flaws.chooseFlaw(), is(nullValue()));
-      }
-    }
-
-    public class when_there_is_a_flaw {
-      Flaw flaw;
-
-      @Before
-      public void beforeExample() {
-        flaw = mock(Flaw.class);
-        flaws = singleFlaw(flaw);
-      }
-
-      @Test
-      public void is_that_flaw() {
-        assertThat(flaws.chooseFlaw(), equalTo(flaw));
-      }
-    }
-
-    public class when_there_is_some_flaws {
-      Flaw first;
-      Flaw second;
-      Flaw third;
-
-      @Before
-      public void beforeExample() {
-        first = mock(Flaw.class);
-        second = mock(Flaw.class);
-        third = mock(Flaw.class);
-
-        flaws = multipleFlaws(first, second, third);
-      }
-
-      @Test
-      public void is_the_flaw_most_recently_added() {
-        assertThat(flaws.chooseFlaw(), equalTo(third));
-      }
-    }
-  }
-
   public class chooseFlaw_planSpaceNode {
     PlanSpaceNode planSpaceNode;
 
@@ -544,6 +495,55 @@ public class FlawsTest {
       @Test
       public void is_flaws_in_the_same_order_without_the_flaw() {
         assertThat(flaws.remove(flaw), contains(third, first));
+      }
+    }
+  }
+
+  public class select {
+    public class when_there_are_no_flaws {
+      @Before
+      public void beforeExample() {
+        flaws = noFlaws();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(flaws.select(), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_flaw {
+      Flaw flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(Flaw.class);
+        flaws = singleFlaw(flaw);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(flaws.select(), equalTo(flaw));
+      }
+    }
+
+    public class when_there_is_some_flaws {
+      Flaw first;
+      Flaw second;
+      Flaw third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(Flaw.class);
+        second = mock(Flaw.class);
+        third = mock(Flaw.class);
+
+        flaws = multipleFlaws(first, second, third);
+      }
+
+      @Test
+      public void is_the_flaw_most_recently_added() {
+        assertThat(flaws.select(), equalTo(third));
       }
     }
   }

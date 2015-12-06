@@ -155,55 +155,6 @@ public class OpenConditionsTest {
     }
   }
 
-  public class chooseFlaw {
-    public class when_there_are_no_open_conditions {
-      @Before
-      public void beforeExample() {
-        openConditions = noOpenConditions();
-      }
-
-      @Test
-      public void is_null() {
-        assertThat(openConditions.chooseFlaw(), is(nullValue()));
-      }
-    }
-
-    public class when_there_is_an_open_condition {
-      OpenCondition flaw;
-
-      @Before
-      public void beforeExample() {
-        flaw = mock(OpenCondition.class);
-        openConditions = singleOpenCondition(flaw);
-      }
-
-      @Test
-      public void is_that_flaw() {
-        assertThat(openConditions.chooseFlaw(), equalTo(flaw));
-      }
-    }
-
-    public class when_there_are_some_open_conditions {
-      OpenCondition first;
-      OpenCondition second;
-      OpenCondition third;
-
-      @Before
-      public void beforeExample() {
-        first = mock(OpenCondition.class);
-        second = mock(OpenCondition.class);
-        third = mock(OpenCondition.class);
-
-        openConditions = manyOpenConditions(first, second, third);
-      }
-
-      @Test
-      public void is_the_flaw_most_recently_added() {
-        assertThat(openConditions.chooseFlaw(), equalTo(third));
-      }
-    }
-  }
-
   public class first {
     public class when_there_are_no_open_conditions {
       @Before
@@ -346,6 +297,55 @@ public class OpenConditionsTest {
       @Test
       public void is_open_conditions_in_the_same_order_without_the_condition() {
         assertThat(openConditions.remove(flaw), contains(third, first));
+      }
+    }
+  }
+
+  public class select {
+    public class when_there_are_no_open_conditions {
+      @Before
+      public void beforeExample() {
+        openConditions = noOpenConditions();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(openConditions.select(), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_an_open_condition {
+      OpenCondition flaw;
+
+      @Before
+      public void beforeExample() {
+        flaw = mock(OpenCondition.class);
+        openConditions = singleOpenCondition(flaw);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(openConditions.select(), equalTo(flaw));
+      }
+    }
+
+    public class when_there_are_some_open_conditions {
+      OpenCondition first;
+      OpenCondition second;
+      OpenCondition third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(OpenCondition.class);
+        second = mock(OpenCondition.class);
+        third = mock(OpenCondition.class);
+
+        openConditions = manyOpenConditions(first, second, third);
+      }
+
+      @Test
+      public void is_the_flaw_most_recently_added() {
+        assertThat(openConditions.select(), equalTo(third));
       }
     }
   }
