@@ -89,73 +89,7 @@ public class PlanSpaceNode {
   }
 
   public Orderings demoteThreat(ThreatenedCausalLink flaw) {
-    return orderings().add(flaw.threat(), flaw.link().head());
-  }
-
-  // @NOTE:
-  // This will require all other temporary parameters (see checkForThreats) that
-  public Boolean isUnsafe(OpenCondition openCondition) {
-    for (Step step : steps) {
-      for (Literal effect : step.effects) {
-        Bindings newBindings = openCondition.precondition.unify(effect,
-                                                                bindings);
-        if (newBindings != null) {
-          // The tail of the causal link must come before the head.
-          Orderings newOrderings = orderings.add(step, openCondition.step);
-          if (newOrderings != null) {
-            ImmutableList<Step> newSteps = steps;
-            Flaws<Flaw> newFlaws = flaws.remove(openCondition);
-            // If the step is new, add the step, its orderings, and its flaws.
-            if (!steps.contains(step)) {
-              newSteps = newSteps.add(step);
-              Step start = null;
-              Step end = null;
-              for (Step s : steps) {
-                if (s.isStart())
-                  start = s;
-                if (s.isEnd())
-                  end = s;
-              }
-              newOrderings = newOrderings.add(start, step).add(step, end);
-              for (Literal precondition : step.preconditions)
-                newFlaws = newFlaws.add(new OpenCondition(step, precondition));
-            }
-            causalLinks.add(new CausalLink(step, openCondition.precondition,
-                                           openCondition.step));
-
-            // For each causal link...
-            for (CausalLink link : causalLinks) {
-              // Label must be ground to be a definite threat.
-              if (link.negatedLabelWithBindings(newBindings).isGround()) {
-                // For each step...
-                for (Step otherStep : newSteps) {
-                  // It must be possible to order the step between the tail and
-                  // head of
-                  // the causal link.
-                  if (orderings.allowedOrdering(link.tail, otherStep,
-                                                link.head)) {
-                    // For each effect of the step...
-                    for (Literal otherEffect : otherStep.effects) {
-                      otherEffect = otherEffect.substitute(newBindings);
-                      // If the effect is identical to the negated label, this
-                      // is a
-                      // definite threat.
-                      if (otherEffect.equals(link.negatedLabelWithBindings(newBindings)))
-                        return true;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  public Boolean isAtLimit() {
-    return root().isAtLimit();
+    return orderings().add(flaw.threat(), flaw.link().tail());
   }
 
   public void enforceNodeLimit() {
@@ -190,14 +124,14 @@ public class PlanSpaceNode {
                          PriorityQueue<PlanSpaceNode> queue) {
     Flaws<Flaw> newFlaws = flaws.remove(flaw);
     // Promote
-    Orderings promote = orderings.add(flaw.link.head, flaw.threat);
+    Orderings promote = promoteThreat(flaw);
     if (promote != null) {
       PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, promote,
                                                 causalLinks, newFlaws);
       queue.add(newNode);
     }
     // Demote
-    Orderings demote = orderings.add(flaw.threat, flaw.link.tail);
+    Orderings demote = demoteThreat(flaw);
     if (demote != null) {
       PlanSpaceNode newNode = new PlanSpaceNode(this, steps, bindings, demote,
                                                 causalLinks, newFlaws);
@@ -260,7 +194,73 @@ public class PlanSpaceNode {
     }
   }
 
+  public Boolean isAtLimit() {
+    return root().isAtLimit();
+  }
+
   public Boolean isRoot() {
+    return false;
+  }
+
+  // @NOTE:
+  // This will require all other temporary parameters (see checkForThreats) that
+  public Boolean isUnsafe(OpenCondition openCondition) {
+    for (Step step : steps) {
+      for (Literal effect : step.effects) {
+        Bindings newBindings = openCondition.precondition.unify(effect,
+                                                                bindings);
+        if (newBindings != null) {
+          // The tail of the causal link must come before the head.
+          Orderings newOrderings = orderings.add(step, openCondition.step);
+          if (newOrderings != null) {
+            ImmutableList<Step> newSteps = steps;
+            Flaws<Flaw> newFlaws = flaws.remove(openCondition);
+            // If the step is new, add the step, its orderings, and its flaws.
+            if (!steps.contains(step)) {
+              newSteps = newSteps.add(step);
+              Step start = null;
+              Step end = null;
+              for (Step s : steps) {
+                if (s.isStart())
+                  start = s;
+                if (s.isEnd())
+                  end = s;
+              }
+              newOrderings = newOrderings.add(start, step).add(step, end);
+              for (Literal precondition : step.preconditions)
+                newFlaws = newFlaws.add(new OpenCondition(step, precondition));
+            }
+            causalLinks.add(new CausalLink(step, openCondition.precondition,
+                                           openCondition.step));
+
+            // For each causal link...
+            for (CausalLink link : causalLinks) {
+              // Label must be ground to be a definite threat.
+              if (link.negatedLabelWithBindings(newBindings).isGround()) {
+                // For each step...
+                for (Step otherStep : newSteps) {
+                  // It must be possible to order the step between the tail and
+                  // head of
+                  // the causal link.
+                  if (orderings.allowedOrdering(link.tail, otherStep,
+                                                link.head)) {
+                    // For each effect of the step...
+                    for (Literal otherEffect : otherStep.effects) {
+                      otherEffect = otherEffect.substitute(newBindings);
+                      // If the effect is identical to the negated label, this
+                      // is a
+                      // definite threat.
+                      if (otherEffect.equals(link.negatedLabelWithBindings(newBindings)))
+                        return true;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     return false;
   }
 
