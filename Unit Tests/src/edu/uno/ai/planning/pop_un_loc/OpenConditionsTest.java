@@ -432,7 +432,7 @@ public class OpenConditionsTest {
   public class toOpenConditions {
     @Test
     public void is_the_caller() {
-      assertThat(openConditions.toOpenConditions(), is(openConditions));
+      assertThat(openConditions.openConditions(), is(openConditions));
     }
   }
 

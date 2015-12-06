@@ -22,7 +22,7 @@ public class OpenConditions extends Flaws<OpenCondition> {
   }
 
   @Override
-  public OpenConditions toOpenConditions() {
+  public OpenConditions openConditions() {
     return this;
   }
 }
