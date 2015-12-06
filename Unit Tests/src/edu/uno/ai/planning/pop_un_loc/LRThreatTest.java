@@ -4,8 +4,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
@@ -105,6 +103,67 @@ public class LRThreatTest {
       @Test
       public void is_false() {
         assertThat(lrThreat.canBePromoted(flaw), is(false));
+      }
+    }
+  }
+
+  public class refinementsOf_flaw {
+    ThreatenedCausalLink flaw;
+
+    @Before
+    public void beforeExample() {
+      flaw = mock(ThreatenedCausalLink.class);
+    }
+
+    public class when_the_threat_cannot_be_demoted_or_promoted {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(null);
+        given(planSpaceNode.promoteThreat(flaw)).willReturn(null);
+      }
+
+      @Test
+      public void is_0() {
+        assertThat(lrThreat.refinementsOf(flaw), is(0));
+      }
+    }
+
+    public class when_the_threat_can_be_demoted_not_promoted {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(flaw)).willReturn(null);
+      }
+
+      @Test
+      public void is_1() {
+        assertThat(lrThreat.refinementsOf(flaw), is(1));
+      }
+    }
+
+    public class when_the_threat_can_be_promoted_not_demoted {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.promoteThreat(flaw)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(null);
+      }
+
+      @Test
+      public void is_1() {
+        assertThat(lrThreat.refinementsOf(flaw), is(1));
+      }
+    }
+
+    public class when_the_threat_can_be_promoted_or_demoted {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.promoteThreat(flaw)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.demoteThreat(flaw)).willReturn(mock(Orderings.class));
+      }
+
+      @Test
+      public void is_2() {
+        assertThat(lrThreat.refinementsOf(flaw), is(2));
       }
     }
   }
