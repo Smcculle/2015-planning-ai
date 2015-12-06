@@ -559,7 +559,7 @@ public class ThreatenedCausalLinksTest {
     }
   }
 
-  public class toUnsafeOpenConditions_planSpaceNode {
+  public class unsafeOpenConditions_planSpaceNode {
     PlanSpaceNode planSpaceNode;
 
     @Before
@@ -571,7 +571,7 @@ public class ThreatenedCausalLinksTest {
 
     @Test
     public void is_an_empty_unsafe_open_conditions() {
-      assertThat(threatenedCausalLinks.toUnsafeOpenConditions(planSpaceNode),
+      assertThat(threatenedCausalLinks.unsafeOpenConditions(planSpaceNode),
                  is(new UnsafeOpenConditions()));
     }
   }

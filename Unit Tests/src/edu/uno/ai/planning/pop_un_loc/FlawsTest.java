@@ -787,7 +787,7 @@ public class FlawsTest {
     }
   }
 
-  public class toUnsafeOpenConditions_planSpaceNode {
+  public class unsafeOpenConditions_planSpaceNode {
     PlanSpaceNode planSpaceNode;
 
     @Before
@@ -806,7 +806,7 @@ public class FlawsTest {
 
       @Test
       public void is_an_empty_unsafe_open_conditions() {
-        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(flaws.unsafeOpenConditions(planSpaceNode),
                    is(new OpenConditions()));
       }
     }
@@ -824,7 +824,7 @@ public class FlawsTest {
 
       @Test
       public void is_an_empty_unsafe_open_conditions() {
-        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(flaws.unsafeOpenConditions(planSpaceNode),
                    is(new OpenConditions()));
       }
     }
@@ -843,7 +843,7 @@ public class FlawsTest {
 
       @Test
       public void is_that_open_condition() {
-        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(flaws.unsafeOpenConditions(planSpaceNode),
                    contains(openCondition));
       }
     }
@@ -865,7 +865,7 @@ public class FlawsTest {
 
       @Test
       public void are_those_open_conditions_in_order() {
-        assertThat(flaws.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(flaws.unsafeOpenConditions(planSpaceNode),
                    contains(secondCondition, firstCondition));
       }
     }

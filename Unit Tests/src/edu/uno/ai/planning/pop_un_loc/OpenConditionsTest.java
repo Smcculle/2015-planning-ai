@@ -552,7 +552,7 @@ public class OpenConditionsTest {
     }
   }
 
-  public class toUnsafeOpenConditions_planSpaceNode {
+  public class unsafeOpenConditions_planSpaceNode {
     PlanSpaceNode planSpaceNode;
 
     @Before
@@ -572,7 +572,7 @@ public class OpenConditionsTest {
 
       @Test
       public void is_an_empty_unsafe_open_conditions() {
-        assertThat(openConditions.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(openConditions.unsafeOpenConditions(planSpaceNode),
                    is(new UnsafeOpenConditions()));
       }
     }
@@ -596,7 +596,7 @@ public class OpenConditionsTest {
 
       @Test
       public void are_those_unsafe_open_conditions_in_order() {
-        assertThat(openConditions.toUnsafeOpenConditions(planSpaceNode),
+        assertThat(openConditions.unsafeOpenConditions(planSpaceNode),
                    contains(secondUnsafeOpenCondition,
                             firstUnsafeOpenCondition));
       }
