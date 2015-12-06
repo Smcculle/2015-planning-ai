@@ -291,6 +291,10 @@ public class PlanSpaceNode {
     return root().problem.domain.operators;
   }
 
+  public ThreatenedCausalLinks threatenedCausalLinks() {
+    return flaws().threatenedCausalLinks();
+  }
+
   @Override
   public String toString() {
     String str = "=== PARTIAL ORDER PLAN " + id + " ===\nSTEPS:" +
