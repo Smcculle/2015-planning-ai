@@ -12,7 +12,9 @@ public class LROpenCondition extends AbstractLR<OpenCondition> {
 
   @Override
   public OpenCondition bestOf(OpenCondition first, OpenCondition second) {
-    return first;
+    if (refinementsOf(first) <= refinementsOf(second))
+      return first;
+    return second;
   }
 
   public List<Step> possibleSolutions() {
