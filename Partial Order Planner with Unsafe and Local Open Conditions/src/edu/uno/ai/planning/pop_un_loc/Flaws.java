@@ -48,7 +48,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
   }
 
   public Flaw chooseFirstUnsafeOpenCondition(PlanSpaceNode planSpaceNode) {
-    return toUnsafeOpenConditions(planSpaceNode).first();
+    return unsafeOpenConditions(planSpaceNode).first();
   }
 
   public Flaw chooseFlaw() {
@@ -131,7 +131,7 @@ public class Flaws<E extends Flaw> implements Iterable<E>, Partial {
     return str;
   }
 
-  public OpenConditions toUnsafeOpenConditions(PlanSpaceNode planSpaceNode) {
+  public OpenConditions unsafeOpenConditions(PlanSpaceNode planSpaceNode) {
     Stack<OpenCondition> openConditions = Stack.empty();
     for (OpenCondition openCondition : openConditions())
       if (planSpaceNode.isUnsafe(openCondition))
