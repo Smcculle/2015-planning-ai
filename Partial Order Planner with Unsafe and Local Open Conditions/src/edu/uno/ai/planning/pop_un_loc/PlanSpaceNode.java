@@ -273,7 +273,7 @@ public class PlanSpaceNode {
   }
 
   public Flaw nextFlawToRepair() {
-    return flaws().selectFor(this);
+    return flaws().selectBy(new LIFO<Flaw>());
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
