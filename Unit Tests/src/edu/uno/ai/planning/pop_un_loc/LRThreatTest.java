@@ -41,6 +41,62 @@ public class LRThreatTest {
                typeCompatibleWith(PlanSpaceAwareCriterion.class));
   }
 
+  public class bestOf_first_second {
+    ThreatenedCausalLink first;
+    ThreatenedCausalLink second;
+
+    @Before
+    public void beforeExample() {
+      first = mock(ThreatenedCausalLink.class);
+      second = mock(ThreatenedCausalLink.class);
+    }
+
+    public class when_first_has_lower_refinement_count_than_second {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(first)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(first)).willReturn(null);
+        given(planSpaceNode.demoteThreat(second)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(second)).willReturn(mock(Orderings.class));
+      }
+
+      @Test
+      public void is_first() {
+        assertThat(lrThreat.bestOf(first, second), is(first));
+      }
+    }
+
+    public class when_second_has_lower_refinement_count_than_first {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(first)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(first)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.demoteThreat(second)).willReturn(null);
+        given(planSpaceNode.promoteThreat(second)).willReturn(null);
+      }
+
+      @Test
+      public void is_first() {
+        assertThat(lrThreat.bestOf(first, second), is(second));
+      }
+    }
+
+    public class when_they_have_equal_refinement_counts {
+      @Before
+      public void beforeExample() {
+        given(planSpaceNode.demoteThreat(first)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(first)).willReturn(null);
+        given(planSpaceNode.demoteThreat(second)).willReturn(mock(Orderings.class));
+        given(planSpaceNode.promoteThreat(second)).willReturn(null);
+      }
+
+      @Test
+      public void is_first() {
+        assertThat(lrThreat.bestOf(first, second), is(first));
+      }
+    }
+  }
+
   public class canBeDemoted_flaw {
     ThreatenedCausalLink flaw;
 
