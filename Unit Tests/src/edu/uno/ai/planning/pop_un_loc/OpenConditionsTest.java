@@ -155,56 +155,7 @@ public class OpenConditionsTest {
     }
   }
 
-  public class chooseFirstFlaw {
-    public class when_there_are_no_open_conditions {
-      @Before
-      public void beforeExample() {
-        openConditions = noOpenConditions();
-      }
-
-      @Test
-      public void is_null() {
-        assertThat(openConditions.first(), is(nullValue()));
-      }
-    }
-
-    public class when_there_is_a_flaw {
-      OpenCondition openCondition;
-
-      @Before
-      public void beforeExample() {
-        openCondition = mock(OpenCondition.class);
-        openConditions = singleOpenCondition(openCondition);
-      }
-
-      @Test
-      public void is_that_flaw() {
-        assertThat(openConditions.first(), equalTo(openCondition));
-      }
-    }
-
-    public class when_there_is_some_open_conditions {
-      OpenCondition first;
-      OpenCondition second;
-      OpenCondition third;
-
-      @Before
-      public void beforeExample() {
-        first = mock(OpenCondition.class);
-        second = mock(OpenCondition.class);
-        third = mock(OpenCondition.class);
-
-        openConditions = manyOpenConditions(first, second, third);
-      }
-
-      @Test
-      public void is_the_open_condition_most_recently_added() {
-        assertThat(openConditions.first(), equalTo(third));
-      }
-    }
-  }
-
-  public class chooseOpenCondition {
+  public class chooseFlaw {
     public class when_there_are_no_open_conditions {
       @Before
       public void beforeExample() {
@@ -253,7 +204,56 @@ public class OpenConditionsTest {
     }
   }
 
-  public class chooseLastOpenCondition {
+  public class first {
+    public class when_there_are_no_open_conditions {
+      @Before
+      public void beforeExample() {
+        openConditions = noOpenConditions();
+      }
+
+      @Test
+      public void is_null() {
+        assertThat(openConditions.first(), is(nullValue()));
+      }
+    }
+
+    public class when_there_is_a_flaw {
+      OpenCondition openCondition;
+
+      @Before
+      public void beforeExample() {
+        openCondition = mock(OpenCondition.class);
+        openConditions = singleOpenCondition(openCondition);
+      }
+
+      @Test
+      public void is_that_flaw() {
+        assertThat(openConditions.first(), equalTo(openCondition));
+      }
+    }
+
+    public class when_there_is_some_open_conditions {
+      OpenCondition first;
+      OpenCondition second;
+      OpenCondition third;
+
+      @Before
+      public void beforeExample() {
+        first = mock(OpenCondition.class);
+        second = mock(OpenCondition.class);
+        third = mock(OpenCondition.class);
+
+        openConditions = manyOpenConditions(first, second, third);
+      }
+
+      @Test
+      public void is_the_open_condition_most_recently_added() {
+        assertThat(openConditions.first(), equalTo(third));
+      }
+    }
+  }
+
+  public class last {
     public class when_there_are_no_open_conditions {
       @Before
       public void beforeExample() {
@@ -299,6 +299,13 @@ public class OpenConditionsTest {
       public void is_the_oldest_flaw() {
         assertThat(openConditions.last(), equalTo(first));
       }
+    }
+  }
+
+  public class openConditions {
+    @Test
+    public void is_the_caller() {
+      assertThat(openConditions.openConditions(), is(openConditions));
     }
   }
 
@@ -392,6 +399,20 @@ public class OpenConditionsTest {
     }
   }
 
+  public class threatenedCausalLinks {
+    @Before
+    public void beforeExample() {
+      openConditions = manyOpenConditions(mock(OpenCondition.class),
+                                          mock(OpenCondition.class));
+    }
+
+    @Test
+    public void is_an_empty_threatened_causal_links() {
+      assertThat(openConditions.threatenedCausalLinks(),
+                 is(new ThreatenedCausalLinks()));
+    }
+  }
+
   public class toImmutableList {
     public class when_there_are_no_open_conditions {
       @Before
@@ -426,13 +447,6 @@ public class OpenConditionsTest {
                                                              .add(second)
                                                              .add(third)));
       }
-    }
-  }
-
-  public class toOpenConditions {
-    @Test
-    public void is_the_caller() {
-      assertThat(openConditions.openConditions(), is(openConditions));
     }
   }
 
@@ -535,20 +549,6 @@ public class OpenConditionsTest {
                    stringContainsInOrder(thirdString, secondString,
                                          firstString));
       }
-    }
-  }
-
-  public class toThreatenedCausalLinks {
-    @Before
-    public void beforeExample() {
-      openConditions = manyOpenConditions(mock(OpenCondition.class),
-                                          mock(OpenCondition.class));
-    }
-
-    @Test
-    public void is_an_empty_threatened_causal_links() {
-      assertThat(openConditions.toThreatenedCausalLinks(),
-                 is(new ThreatenedCausalLinks()));
     }
   }
 
