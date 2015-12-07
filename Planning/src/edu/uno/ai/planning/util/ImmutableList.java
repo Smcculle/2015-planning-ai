@@ -44,6 +44,28 @@ public class ImmutableList<E> implements Iterable<E> {
 		this.length = 0;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof ImmutableList) {
+			ImmutableList<?> otherList = (ImmutableList<?>) other;
+			if(length == otherList.length) {
+				if(length == 0)
+					return true;
+				else if(first.equals(otherList.first))
+					return rest.equals(otherList.rest);
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		if(length == 0)
+			return 0;
+		else
+			return first.hashCode() + rest.hashCode();
+	}
+	
 	/**
 	 * Returns a new list with the given element added as the first element.
 	 * 

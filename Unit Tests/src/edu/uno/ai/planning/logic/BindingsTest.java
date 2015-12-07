@@ -1,7 +1,11 @@
 package edu.uno.ai.planning.logic;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
 import edu.uno.ai.planning.Settings;
 
@@ -10,11 +14,13 @@ public class BindingsTest {
 	private static final Constant c1 = new Constant(Settings.DEFAULT_TYPE, "c1");
 	private static final Constant c1_ = new Constant(Settings.DEFAULT_TYPE, "c1");
 	private static final Constant c2 = new Constant(Settings.DEFAULT_TYPE, "c2");
+	private static final Constant differentTypeConst = new Constant("different", "c3");
 	private static final Variable v1 = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v1_ = new Variable(Settings.DEFAULT_TYPE, "v1");
 	private static final Variable v2 = new Variable(Settings.DEFAULT_TYPE, "v2");
 	private static final Variable v3 = new Variable(Settings.DEFAULT_TYPE, "v3");
 	private static final Variable v4 = new Variable(Settings.DEFAULT_TYPE, "v4");
+	private static final Variable differentTypeVar = new Variable("different", "v5");
 
 	protected void immutability(Bindings empty) {
 		Bindings bindings = empty.setEqual(v1, c1);
@@ -22,7 +28,7 @@ public class BindingsTest {
 		assertThat(empty.get(v1), is((Term) v1));
 		assertThat(bindings.get(v1), equalTo((Term) c1));
 	}
-	
+
 	protected void setEqual(Bindings empty) {
 		Bindings modified1 = empty.setEqual(v1, c1);
 		assertSame(modified1.get(v1), c1);
@@ -51,9 +57,11 @@ public class BindingsTest {
 	protected void setNotEqual(Bindings empty) {
 		Bindings bindings = empty.setNotEqual(v1, v2).setNotEqual(v1, c1);
 		assertThat(bindings.setEqual(v1, v2), is(nullValue()));
-		assertThat(bindings.setEqual(v2, v1), is(nullValue())); // swapped argument
+		assertThat(bindings.setEqual(v2, v1), is(nullValue())); // swapped
+																// argument
 		assertThat(bindings.setEqual(v1, c1), is(nullValue()));
-		assertThat(bindings.setEqual(c1, v1), is(nullValue())); // swapped argument
+		assertThat(bindings.setEqual(c1, v1), is(nullValue())); // swapped
+																// argument
 	}
 
 	protected void addExistingConstrain(Bindings empty) {
@@ -65,7 +73,8 @@ public class BindingsTest {
 		assertThat(bindings.setEqual(c1, c1), is(bindings));
 		assertThat(bindings.setNotEqual(c1, c2), is(bindings));
 
-		// TODO: bindings are immutable but what if the constrain already exists?
+		// TODO: bindings are immutable but what if the constrain already
+		// exists?
 	}
 
 	protected void transitivity(Bindings empty) {
@@ -84,21 +93,15 @@ public class BindingsTest {
 		assertThat(bindings1.setEqual(v1, v3), is(bindings1));
 		assertThat(bindings1.setNotEqual(v1, v3), is(nullValue()));
 	}
-	
+
 	protected void deepTransitivity(Bindings empty) {
-		Bindings bindings = empty
-				.setEqual(v1, v2).setEqual(v3, v4)
-				.setEqual(v1, c1)
-				.setEqual(v2, v3);
+		Bindings bindings = empty.setEqual(v1, v2).setEqual(v3, v4).setEqual(v1, c1).setEqual(v2, v3);
 
 		assertThat(bindings.get(v4), is((Term) c1));
 	}
 
 	protected void deepTransitivityNotEqual(Bindings empty) {
-		Bindings bindings = empty
-				.setEqual(v1, v2).setEqual(v3, v4)
-				.setEqual(v1, c1)
-				.setNotEqual(v2, v3);
+		Bindings bindings = empty.setEqual(v1, v2).setEqual(v3, v4).setEqual(v1, c1).setNotEqual(v2, v3);
 
 		assertThat(bindings.setEqual(v4, c1), is(nullValue()));
 	}
@@ -112,5 +115,10 @@ public class BindingsTest {
 	protected void setNotEqualTwoInstancesOfTheSameTerm(Bindings empty) {
 		assertThat(empty.setNotEqual(c1, c1_), is(nullValue()));
 		assertThat(empty.setNotEqual(v1, v1_), is(nullValue()));
+	}
+
+	protected void cannotOnlySetEqualSameTypes(Bindings empty) {
+		assertThat(empty.setEqual(differentTypeVar, c1), is(nullValue()));
+		assertThat(empty.setEqual(differentTypeConst, v1), is(nullValue()));
 	}
 }
