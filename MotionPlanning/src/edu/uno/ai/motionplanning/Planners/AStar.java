@@ -51,16 +51,17 @@ public class AStar {
             	end=System.nanoTime();
                 return currentPlan;
             }
-            List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, map, dh);
-            expanded += next.size();
-            frontier.addAll(next);
-            if (frontier.isEmpty()){
-                System.out.println("Frontier exhausted after considering "+visited+" states.");
-            }            
+            updateStates(currentPlan);
         }
         end=System.nanoTime();
         return null;
     }
+
+	protected void updateStates(MotionPlan<Point> currentPlan) {
+		List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, map, dh);
+		expanded += next.size();
+		frontier.addAll(next);
+	}
     
     public GridMap getMap(){
     	return map;
