@@ -268,6 +268,20 @@ public class PlanSpaceNode {
     return false;
   }
 
+  public Flaws<Flaw> localOpenConditions() {
+    Flaws<Flaw> localFlaws = new Flaws<Flaw>();
+
+    for (OpenCondition flaw : flaws().openConditions())
+      if (flaw.step().equals(localStep()))
+        localFlaws = localFlaws.addLast(flaw);
+
+    return localFlaws;
+  }
+
+  public Step localStep() {
+    return steps().first();
+  }
+
   public void markAsVisited() {
     forEachAncestor(ancestor -> {
       ancestor.visited++;
