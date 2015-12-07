@@ -15,7 +15,7 @@ import java.awt.Point;
  *
  * @author jgrimm
  */
-public class AStar {
+public class AStar implements MotionPlanner{
 
     protected Scenario scenario;
     protected GridMap map;
@@ -26,6 +26,7 @@ public class AStar {
     protected long start;
     protected long end;
 	protected boolean succeeded;
+	protected float solutionCost;
 	protected String reason="";
 	
     public AStar(Scenario s, DistanceHeuristic dh) {
@@ -49,6 +50,7 @@ public class AStar {
             if (currentPlan.at(scenario.getEnd())) {
             	succeeded=true;
             	end=System.nanoTime();
+            	solutionCost=(float) currentPlan.getCost();
                 return currentPlan;
             }
             updateStates(currentPlan);
@@ -96,4 +98,20 @@ public class AStar {
 		int milliseconds = (int) (time % 1000);
 		return String.format("%d:%d:%d:%d", minutes, seconds, milliseconds,nanos);
 	}
+
+	@Override
+	public float getSolutionCost() {
+		return solutionCost;
+	}
+
+	@Override
+	public long getFirstSolutionTime() {
+		return end-start;
+	}
+
+	@Override
+	public long getSolutionTime() {
+		return end-start;
+	}
+	
 }
