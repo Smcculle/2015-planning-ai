@@ -27,8 +27,10 @@ public abstract class AbstractCriterion<T extends Flaw>
   @Override
   public T bestOf(Iterable<T> flaws) {
     Iterator<T> iterator = flaws.iterator();
-    T best = iterator.next();
+    if (!iterator.hasNext())
+      return null;
 
+    T best = iterator.next();
     while (iterator.hasNext())
       best = bestOf(best, iterator.next());
 
