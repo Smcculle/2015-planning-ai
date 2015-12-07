@@ -1,16 +1,8 @@
-(:problem link-chain-10-5
-  (:domain link-chain-10)
-   (:initial (and
-  (g1)
-  (g2)
-  (g3)
-  (g4)))
-   (:goal 
- (and
-  (g5)
-  (g4)
-  (g1)
-  (g3)
-  (g2)
- )
-)))
+(:problem link-chain-3-2
+  (:domain link-chain-3)
+  (:objects g0 - g
+            g1 - g
+            g2 - g
+            g3 - g)
+  (:init (and (g0)(g1)))
+  (:goal (and (g2)(g1))))
