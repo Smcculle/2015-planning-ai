@@ -45,5 +45,10 @@ public class TestSuite {
 		new Benchmark("wumpus", "easy_wumpus"),
 		// new Benchmark("wumpus", "medium_wumpus"),
 		// new Benchmark("wumpus", "hard_wumpus"),
+		new Benchmark("gripper", "gripper-2"),
+		// new Benchmark("gripper", "gripper-4"),
+		// new Benchmark("gripper", "gripper-6"),
+		new Benchmark("hanoi", "hanoi-2"),
+		// new Benchmark("hanoi", "hanoi-3"),
 	};
 }
