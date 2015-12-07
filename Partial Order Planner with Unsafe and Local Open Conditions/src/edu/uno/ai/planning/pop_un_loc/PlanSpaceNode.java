@@ -282,10 +282,7 @@ public class PlanSpaceNode {
 
   public Flaw nextFlawToRepair() {
     Flaw selection;
-    selection = flaws().threatenedCausalLinks().selectBy(new LRThreat(this));
-    if (selection == null)
-      selection = flaws().unsafeOpenConditions(this)
-                         .selectBy(new LROpenCondition(this));
+    selection = threatsAndUnsafeFlaws().selectBy(new LR(this));
     if (selection == null)
       selection = flaws().openConditions().selectBy(new LROpenCondition(this));
     if (selection == null)
@@ -326,6 +323,15 @@ public class PlanSpaceNode {
 
   public ThreatenedCausalLinks threatenedCausalLinks() {
     return flaws().threatenedCausalLinks();
+  }
+
+  public Flaws<Flaw> threatsAndUnsafeFlaws() {
+    Flaws<Flaw> flaws = new Flaws<Flaw>();
+    for (Flaw flaw : flaws().threatenedCausalLinks())
+      flaws = flaws.add(flaw);
+    for (Flaw flaw : flaws().unsafeOpenConditions(this))
+      flaws = flaws.add(flaw);
+    return flaws;
   }
 
   @Override
