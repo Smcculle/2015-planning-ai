@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="src" path="src"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Breadth First Search Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FastForward Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Iterative Width Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner with Unsafe and Local Open Conditions"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Plan Graph (sgware)"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Iterative Width Planner (sgware)"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/FastForward Planner"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
