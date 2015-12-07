@@ -20,7 +20,7 @@ public class TestSuite {
 
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
 		new Benchmark("blocks", "do_nothing"),
-		new Benchmark("blocks", "bw-large3"),
+		new Benchmark("blocks", "bw-largest"),
 //		new Benchmark("blocks", "easy_stack"),
 //		new Benchmark("blocks", "easy_unstack"),
 //		new Benchmark("blocks", "sussman"),
