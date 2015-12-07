@@ -284,7 +284,7 @@ public class PlanSpaceNode {
     Flaw selection;
     selection = threatsAndUnsafeFlaws().selectBy(new LR(this));
     if (selection == null)
-      selection = flaws().openConditions().selectBy(new LROpenCondition(this));
+      selection = openConditions().selectBy(new LROpenCondition(this));
     if (selection == null)
       selection = flaws().selectBy(new LIFO<Flaw>());
     return selection;
