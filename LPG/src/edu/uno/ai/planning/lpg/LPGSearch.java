@@ -7,6 +7,7 @@ import java.util.Random;
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
+import edu.uno.ai.planning.SearchLimitReachedException;
 import edu.uno.ai.planning.graphplan.PlanGraph;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
 
@@ -14,13 +15,10 @@ public class LPGSearch extends Search {
 	
 	private final static Random rand = new Random();
 	/** The number of times we will restart if not finding a solution */
-	private final static int restarts = 300;
+	private final static int restarts = 50;
 	
 	/** Updates noise factor after this number of steps has elapsed */ 
 	private final static int NOISE_WINDOW = 25;
-	
-	/** noise factor updated if new variance differs by more than the threshold */
-	private final static double VARIANCE_THRESHOLD = 0.25;
 	
 	/** Default value for noise factor */ 
 	private final static double DEFAULT_NOISE_FACTOR = 0.1;
@@ -31,8 +29,8 @@ public class LPGSearch extends Search {
 	/** Complete plan graph for the problem */
 	private PlanGraph graph;
 	
-	/** The subgraph we are working on */
-	private LPGActionGraph actionGraph;
+	/** The empty subgraph with start/end for reinitialization */
+	private LPGActionGraph emptyGraph;
 	
 	/** Total number of expanded nodes */
 	private int expanded;
@@ -44,22 +42,16 @@ public class LPGSearch extends Search {
 	 * in the last NOISE_WINDOW number of steps */
 	private double noiseFactor;
 	
-	/** compare lastVariance with current variance after NOISE_WINDOW steps */
-	private double lastVariance;
-	
-	/** last noiseWindow number of inconsistencies recorded for variance calculation*/
-	private int[] numInconsistency;
-
 	/** The search limit on visited nodes (-1 if no limit) */
 	private int limit = -1;
 	
 	public LPGSearch(Problem problem) {
 		super(problem);
 		this.problem = problem;
-		numInconsistency = new int[NOISE_WINDOW];
 		noiseFactor = DEFAULT_NOISE_FACTOR;
-		//graph = new PlanGraph(problem, true);
-		//graph.extend();
+		graph = new PlanGraph(problem, true);
+		graph.extend();
+		emptyGraph = new LPGActionGraph(problem, graph);
 	}
 	
 	/**
@@ -70,24 +62,23 @@ public class LPGSearch extends Search {
 	 * @param maxRestarts Max times the search will restart from empty LPGPlanGraph 
 	 * @return A totally ordered plan representing a solution or null if none is found.  
 	 * 
-	 * TODO:  implement needed methods, make private
+	 * 
 	 */
-	public Plan findPlan(int maxSteps, int maxRestarts)
+	private Plan findPlan(int maxSteps, int maxRestarts)
 	{
 		TotalOrderPlan plan = new TotalOrderPlan();
 		
 		outer:
-		for (int i = 0; i < maxRestarts; i++) {
-			//System.out.printf("i=%d, maxrestarts=%d\n", i, maxRestarts);
-			//graph = new PlanGraph(problem, true);
-			//graph.extend();
-			actionGraph = newActionGraph();
+		for (int i = 0; i < maxRestarts + 1; i++) {
+			LPGActionGraph actionGraph = newActionGraph();
 			
 			for(int j = 0; j < maxSteps; j++){
-				//System.out.printf("j=%d, maxSteps=%d\n", j, maxSteps);
 				if(actionGraph.isSolution()){
 					plan = actionGraph.getTotalOrderPlan(plan);
+					
+					/* reorders plan by earliest possible level*/
 					TotalOrderPlan plan2 = actionGraph.getOrderedTotalPlan(new TotalOrderPlan());
+					
 					if (problem.isSolution(plan))
 						break outer;
 					else if(problem.isSolution(plan2)) {
@@ -95,27 +86,26 @@ public class LPGSearch extends Search {
 						break outer;
 					}
 					else {
-						actionGraph = newActionGraph();
+						if (actionGraph.checkGoals() == 0) {
+							/* reached an invalid state, create a new graph */
+							actionGraph = newActionGraph();
+						}
 					}
 				}
-				int ic = actionGraph.getInconsistencyCount();
-				if (ic == 0) {
-					System.out.println(actionGraph.getInconsistencies());
-					throw new RuntimeException();
-				}
-
-				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
-				//System.out.printf("inconsistency chosen is %s\n", inconsistency);
-				numInconsistency[j % NOISE_WINDOW] = actionGraph.getInconsistencyCount();
-				if( (j-1) % NOISE_WINDOW == 0)
-					this.noiseFactor = Math.min(0.85, noiseFactor*1.25);
 				
+				LPGInconsistency inconsistency = actionGraph.chooseInconsistency();
+				
+				if( (j+1) % NOISE_WINDOW == 0) 
+					this.noiseFactor = Math.min(0.85, noiseFactor*1.25);
+								
 				List<LPGActionGraph> neighborhood = actionGraph.makeNeighborhood(inconsistency);
 				
 				if(neighborhood != null) {
-					actionGraph = chooseNewActionGraph(neighborhood);
+					actionGraph = chooseNewActionGraph(neighborhood, actionGraph);
 					expanded += neighborhood.size();
 					visited++;
+					if(visited >= limit)
+						throw new SearchLimitReachedException();
 				}
 				
 			}
@@ -124,11 +114,11 @@ public class LPGSearch extends Search {
 		return plan;
 	}
 	
+	/** Creates a copy of actionGraph from the empty graph */
 	private LPGActionGraph newActionGraph(){
-		graph = new PlanGraph(problem, true);
-		graph.extend();
-		return new LPGActionGraph(problem, graph);
+		return new LPGActionGraph(this.emptyGraph);
 	}
+	
 	/**
 	 * Chooses a new action graph from the neighborhood based on graphQuality.  Chooses one with quality
 	 * that is not worse (does not increase # of inconsistencies) than the current graph; if there are multiple 
@@ -140,7 +130,7 @@ public class LPGSearch extends Search {
 	 * @return A new actionGraph chosen from the neighborhood.
 	 * 
 	 */
-	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood) {
+	private LPGActionGraph chooseNewActionGraph(List<LPGActionGraph> neighborhood, LPGActionGraph actionGraph) {
 		
 		Collections.sort(neighborhood);
 		int currentQuality = actionGraph.getGraphQuality();
@@ -170,10 +160,9 @@ public class LPGSearch extends Search {
 		
 		/* otherwise pick any graph with probability noiseFactor or the best (index 0) with probability 1-noiseFactor */
 		else {
-			double random = rand.nextDouble();
 			
-			if ( random < noiseFactor) {
-				/* choosing randomly between all options, instead of between the first count good options as above */
+			if ( rand.nextDouble() < noiseFactor) {
+				/* choosing randomly between all options, instead of between the better options as above */
 				int next = rand.nextInt(neighborhood.size());
 				return neighborhood.get(next);
 			}
@@ -203,24 +192,5 @@ public class LPGSearch extends Search {
 	public Plan findNextSolution() {
 		return findPlan(limit/restarts, restarts);
 	}
-	
-	/**
-	 * Increases noise factor if current variance is not significantly different 
-	 * than lastVariance since the last noiseWindow number of steps, or sets it to default.
-	 * noiseFactor is always increasing until set to default, so it has range [default, 1].
-	 * 
-	 */
-	private void updateNoiseFactor(){
-		double variance = Statistics.calculateVariance(numInconsistency);
-		
-		/* increase if variance is not changing, ceiling of 1 as it is a probability */
-		if( (variance - lastVariance) < VARIANCE_THRESHOLD )
-			this.noiseFactor = Math.min(0.85, noiseFactor*1.25);
-		else
-			this.noiseFactor = DEFAULT_NOISE_FACTOR;
-		
-		this.lastVariance = variance;
-	}
-	
 }
 

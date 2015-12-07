@@ -2,6 +2,7 @@ package edu.uno.ai.planning.lpg;
 
 import edu.uno.ai.planning.graphplan.PlanGraphLiteral;
 
+
 /**
  * Represents a precondition for a step at (currentLevel + 1) that is not true 
  * at currentLevel.  
@@ -69,6 +70,11 @@ public class UnsupportedPrecondition implements LPGInconsistency {
 	@Override
 	public String toString() {
 		return String.format("%s@%d", unsupportedPrecondition.toString(), this.currentLevel);
+	}
+
+	@Override
+	public int getInitialLevel() {
+		return unsupportedPrecondition.getInitialLevel();
 	}
 	
 }

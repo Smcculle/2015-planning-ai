@@ -2,6 +2,7 @@ package edu.uno.ai.planning.lpg;
 
 import edu.uno.ai.planning.graphplan.PlanGraphStep;
 
+
 /**
  * Represents a pair of steps that are mutually exclusive at currentLevel 
  * in an action graph.  
@@ -83,6 +84,12 @@ public class MutexRelation implements LPGInconsistency {
 	@Override
 	public String toString() {
 		return String.format("%s=%s@%d", mutexStepA.toString(), mutexStepB.toString(), this.currentLevel);
+	}
+
+	@Override
+	public int getInitialLevel() {
+		
+		return Math.max(mutexStepA.getInitialLevel(), mutexStepB.getInitialLevel());
 	}
 	
 }
