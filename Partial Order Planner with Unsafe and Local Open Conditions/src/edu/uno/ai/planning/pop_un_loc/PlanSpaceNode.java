@@ -9,6 +9,8 @@ import edu.uno.ai.planning.logic.Bindings;
 import edu.uno.ai.planning.logic.Expression;
 import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.logic.Substitution;
+import edu.uno.ai.planning.shsp.AdditiveHeuristic;
+import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.util.ImmutableArray;
 import edu.uno.ai.planning.util.ImmutableList;
 
@@ -57,6 +59,10 @@ public class PlanSpaceNode {
     orderings = new Orderings().add(start, end);
     causalLinks = new ImmutableList<>();
     flaws = new Flaws<Flaw>(end);
+  }
+
+  public AdditiveHeuristic additiveHeuristic() {
+    return root().additiveHeuristic();
   }
 
   public Bindings bindings() {
@@ -313,6 +319,10 @@ public class PlanSpaceNode {
     while (!current.isRoot())
       current = current.parent;
     return (PlanSpaceRoot) current;
+  }
+
+  public StateSpaceProblem stateSpaceProblem() {
+    return root().stateSpaceProblem();
   }
 
   public Orderings promoteThreat(ThreatenedCausalLink flaw) {
