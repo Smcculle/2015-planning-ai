@@ -59,4 +59,7 @@ public class Scenario {
         sb.append(optimal);
         return sb.toString();
     }
+    public String getName(){
+    	return board.getName()+" "+group;
+    }
 }

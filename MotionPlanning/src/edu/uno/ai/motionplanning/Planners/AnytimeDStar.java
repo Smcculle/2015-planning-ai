@@ -10,8 +10,9 @@ import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import edu.uno.ai.motionplanning.*;
 import edu.uno.ai.motionplanning.Heuristics.*;
+import edu.uno.ai.planning.SearchLimitReachedException;
 
-public class AnytimeDStar extends GridMap implements Runnable {
+public class AnytimeDStar extends GridMap implements MotionPlanner {
 	Scenario scenario;
 	DistanceHeuristic dh;
 	WeightedDistanceHeuristic wdh;
@@ -22,6 +23,11 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	protected PlanRunner runner;
 	protected long visited;
 	protected long expanded;
+	protected long start;
+	protected long first;
+	protected long end;
+	protected long nodeLimit;
+	protected String reason = null;
 	protected float initialWeight;
 	public final int perceptionDistance = 2;
 	protected boolean planning;
@@ -48,6 +54,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		open.add(p);
 		visited = 0;
 		expanded = 1;
+		nodeLimit = -1;
 		this.knownMap = knownMap;
 		if (!knownMap) {
 			initGrid();
@@ -73,6 +80,11 @@ public class AnytimeDStar extends GridMap implements Runnable {
 			MotionNode<Point> currentNode = open.remove();
 			float oldCost = history[currentNode.getLoc().y][currentNode.getLoc().x];
 			visited++;
+			if (nodeLimit > 0 && visited > nodeLimit) {
+				planning = false;
+				reason = " node limit exceeded.";
+				throw (new SearchLimitReachedException());
+			}
 			if (fixInconsistency(currentNode.getLoc())) {
 				closed.put(currentNode.getLoc(), currentNode);
 			}
@@ -137,39 +149,56 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		return rhs;
 	}
 
-	@Override
 	public void run() {
+		start = System.nanoTime();
 		planning = true;
 		edgesUpdated = false;
-		computeOrImprovePath();
-		startExecuting();
-		while (planning && !runner.completed) {
-			while (!changes.isEmpty()) {
-				updateState(changes.remove());
-			}
-			if (runner.stuck) {
-				wdh = new WeightedDistanceHeuristic(initialWeight, dh);
-				requeueOpen();
-
-			} else if (wdh.getWeight() > 1) {
-				wdh.reduceWeight(0.5f);
-				requeueOpen();
-			}
-			for (MotionNode<Point> inconsistent : inconsistents) {
-				inconsistent.setHeuristic(wdh.cost(inconsistent.getLoc(), scenario.getStart()));
-				open.add(inconsistent);
-			}
-			inconsistents.clear();
+		first = 0;
+		try {
 			computeOrImprovePath();
+			first = System.nanoTime();
 			startExecuting();
-			if (wdh.getWeight() < 1.01) {
-				while (!runner.completed && changes.isEmpty()) {
-					try {
-						Thread.sleep(1);
-					} catch (InterruptedException ie) {
+			while (planning && !runner.completed) {
+				while (!changes.isEmpty()) {
+					updateState(changes.remove());
+				}
+				if (runner.stuck) {
+					wdh = new WeightedDistanceHeuristic(initialWeight, dh);
+					requeueOpen();
+
+				} else if (wdh.getWeight() > 1) {
+					wdh.reduceWeight(0.5f);
+					requeueOpen();
+				}
+				for (MotionNode<Point> inconsistent : inconsistents) {
+					inconsistent.setHeuristic(wdh.cost(inconsistent.getLoc(), scenario.getStart()));
+					open.add(inconsistent);
+				}
+				inconsistents.clear();
+				computeOrImprovePath();
+				startExecuting();
+				if (wdh.getWeight() < 1.01) {
+					while (!runner.completed && changes.isEmpty()) {
+						try {
+							Thread.sleep(1);
+						} catch (InterruptedException ie) {
+						}
 					}
 				}
 			}
+		} catch (SearchLimitReachedException se) {
+			if (first < start) {
+				end = first = System.nanoTime();
+			} else {
+				end = System.nanoTime();
+			}
+			runner.interrupt();
+			try {
+				runner.join();
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+			}
+
 		}
 	}
 
@@ -199,7 +228,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 				for (int dx = -perceptionDistance; dx <= perceptionDistance; dx++) {
 					try {
 						if (!seen[p.y + dy][p.x + dx]) {
-							seen[p.y + dy][p.x + dx]=true;
+							seen[p.y + dy][p.x + dx] = true;
 							boolean passable = scenario.getMap().isClear(scenario, p.y + dy, p.x + dx);
 							if (passable) {
 								this.grid[p.y + dy][p.x + dx] = 1;
@@ -208,7 +237,7 @@ public class AnytimeDStar extends GridMap implements Runnable {
 								Point changed = new Point(p.x + dx, p.y + dy);
 								changes.add(new MotionNode<Point>(changed, Float.POSITIVE_INFINITY,
 										Float.POSITIVE_INFINITY));
-							}							
+							}
 						}
 					} catch (Exception e) {
 					}
@@ -220,7 +249,6 @@ public class AnytimeDStar extends GridMap implements Runnable {
 	class PlanRunner extends Thread {
 		MotionPlan<Point> plan;
 		boolean completed = false;
-		boolean failed = false;
 		boolean running = false;
 		boolean stuck = false;
 		double totalCost;
@@ -234,7 +262,6 @@ public class AnytimeDStar extends GridMap implements Runnable {
 		@Override
 		public void run() {
 			completed = false;
-			failed = false;
 			running = true;
 			HashSet<Point> locations = new HashSet<>();
 			while (!location.equals(scenario.getEnd())) {
@@ -249,15 +276,15 @@ public class AnytimeDStar extends GridMap implements Runnable {
 					stuck = false;
 				}
 				Point loc = location;
-				for (int ny =location.y -1; ny <= location.y+1; ny++) {
-					for (int nx = location.x-1; nx <= location.x+1; nx++) {
+				for (int ny = location.y - 1; ny <= location.y + 1; ny++) {
+					for (int nx = location.x - 1; nx <= location.x + 1; nx++) {
 						if (nx == location.x && ny == location.y) {
 							continue;
 						}
 						try {
-							if (scenario.getMap().isClear(scenario,  ny,  nx) && history[ny][nx] < min) {
+							if (scenario.getMap().isClear(scenario, ny, nx) && history[ny][nx] < min) {
 								min = history[ny][nx];
-								loc = new Point(nx,ny);
+								loc = new Point(nx, ny);
 							}
 						} catch (Exception e) {
 						}
@@ -270,11 +297,83 @@ public class AnytimeDStar extends GridMap implements Runnable {
 				try {
 					sleep(1);
 				} catch (InterruptedException ie) {
+					running = false;
+					return;
 				}
 			}
 			completed = true;
 			running = false;
-			System.err.println("Execution complete. Cost: " + totalCost);
+			end = System.nanoTime();
 		}
+	}
+
+	@Override
+	public long getVisited() {
+		return visited;
+	}
+
+	@Override
+	public long getExpanded() {
+		// TODO Auto-generated method stub
+		return expanded;
+	}
+
+	@Override
+	public String toResultsString() {
+		String out = "[ " + getPlannerName() + " ";
+		if (runner.completed)
+			out += "succeeded";
+		else if (runner.isAlive()){
+			out += "still running";
+		}
+		else {
+			out += "failed";
+		}
+		out += " on " + scenario.getName() + " in motion; ";
+		out += visited + " visited, " + expanded + " expanded; ";
+		out += getTime(end - start);
+		if (reason != null)
+			out += "; " + reason;
+		return out + "]";
+	}
+
+	public String getTime(long time) {
+		int nanos = (int) time % 1000000;
+		time /= 1000000;
+		int minutes = (int) (time / (1000 * 60));
+		int seconds = (int) (time / 1000) % 60;
+		int milliseconds = (int) (time % 1000);
+		return String.format("%d:%d:%d:%d", minutes, seconds, milliseconds, nanos);
+	}
+
+	@Override
+	public float getSolutionCost() {
+		// TODO Auto-generated method stub
+		if (runner.completed) {
+			return (float) runner.totalCost;
+		} else {
+			return Float.POSITIVE_INFINITY;
+		}
+	}
+
+	@Override
+	public long getFirstSolutionTime() {
+		// TODO Auto-generated method stub
+		return first - start;
+	}
+
+	@Override
+	public long getSolutionTime() {
+		// TODO Auto-generated method stub
+		return end - start;
+	}
+
+	@Override
+	public void setNodeLimit(int NodeLimit) {
+		this.nodeLimit = NodeLimit;
+	}
+
+	public String getPlannerName() {
+		return "AnytimeD*";
 	}
 }

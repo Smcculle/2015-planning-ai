@@ -25,6 +25,7 @@ public class AStar implements MotionPlanner{
     protected long expanded;
     protected long start;
     protected long end;
+    protected int nodeLimit;
 	protected boolean succeeded;
 	protected float solutionCost;
 	protected String reason="";
@@ -39,6 +40,7 @@ public class AStar implements MotionPlanner{
         this.dh = dh;
         visited=0;
         expanded=1;
+        nodeLimit=-1;
     }
 
     public MotionPlan<Point> search() {
@@ -47,6 +49,10 @@ public class AStar implements MotionPlanner{
         while (!frontier.isEmpty()) {
             MotionPlan<Point> currentPlan = frontier.remove();
             visited++;
+            if (nodeLimit>0 && visited>nodeLimit){
+            	reason=" node limit exceeded.";
+            	break;
+            }
             if (currentPlan.at(scenario.getEnd())) {
             	succeeded=true;
             	end=System.nanoTime();
@@ -76,16 +82,15 @@ public class AStar implements MotionPlanner{
     	return expanded;
     }
 	public String toResultsString() {
-		String out = "[AStar ";
+		String out = "["+getPlannerName()+" ";
 		if(succeeded)
 			out += "succeeded";
 		else
 			out += "failed";
-		out += " on " + scenario.getMap().getName() + " in motion; ";
+		out += " on " + scenario.getName() + " in motion; ";
 		out += visited + " visited, " + expanded + " expanded; ";
 		out += getTime();
-		if(reason != null)
-			out += "; " + reason;
+		out += "; " + reason;
 		return out + "]";
 	}
 	
@@ -112,6 +117,15 @@ public class AStar implements MotionPlanner{
 	@Override
 	public long getSolutionTime() {
 		return end-start;
+	}
+
+	@Override
+	public void setNodeLimit(int NodeLimit) {
+		this.nodeLimit=NodeLimit;		
+	}
+	@Override
+	public String getPlannerName(){
+		return "A*";
 	}
 	
 }
