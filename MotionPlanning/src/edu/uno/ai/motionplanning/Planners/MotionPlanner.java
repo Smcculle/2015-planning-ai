@@ -1,4 +1,5 @@
 package edu.uno.ai.motionplanning.Planners;
+import edu.uno.ai.motionplanning.*;
 
 public interface MotionPlanner {
 	public long getVisited();
@@ -9,5 +10,7 @@ public interface MotionPlanner {
 	public long getFirstSolutionTime();
 	public long getSolutionTime();
 	public void setNodeLimit(int NodeLimit);
+	public void run();
+	public MotionResults getResult();
 	
 }

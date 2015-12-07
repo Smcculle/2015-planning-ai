@@ -29,6 +29,7 @@ public class AStar implements MotionPlanner{
 	protected boolean succeeded;
 	protected float solutionCost;
 	protected String reason="";
+	protected MotionPlan<Point> solution;
 	
     public AStar(Scenario s, DistanceHeuristic dh) {
         scenario = s;
@@ -41,8 +42,12 @@ public class AStar implements MotionPlanner{
         visited=0;
         expanded=1;
         nodeLimit=-1;
+        solution=null;
     }
 
+    public void run(){
+    	solution=search();
+    }
     public MotionPlan<Point> search() {
     	succeeded=false;
     	start=System.nanoTime();
@@ -127,5 +132,19 @@ public class AStar implements MotionPlanner{
 	public String getPlannerName(){
 		return "A*";
 	}
-	
+
+	public String toString(){
+		return getPlannerName();
+	}
+
+	@Override
+	public MotionResults getResult() {
+		MotionResults mr= new MotionResults();
+		mr.visited=visited;
+		mr.expanded=expanded;
+		mr.time=end-start;
+		mr.solutionCost=solutionCost;
+		return mr;
+		
+	}
 }

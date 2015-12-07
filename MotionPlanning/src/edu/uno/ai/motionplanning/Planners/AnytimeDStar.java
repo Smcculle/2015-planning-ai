@@ -376,4 +376,15 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 	public String getPlannerName() {
 		return "AnytimeD*";
 	}
+	@Override
+	public MotionResults getResult() {
+		MotionResults mr= new MotionResults();
+		mr.visited=visited;
+		mr.expanded=expanded;
+		mr.time=end-start;
+		mr.solutionCost=runner.totalCost;
+		return mr;
+		
+	}
+
 }

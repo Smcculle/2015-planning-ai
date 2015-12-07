@@ -38,7 +38,7 @@ public class VisualizeCosts {
 				// System.out.println(f + "," + (end - start) + "," +
 				// p.getCost());
 			}
-			AnytimeDStar anyPathing = new AnytimeDStar(s, new Euclidean(), 1, true);
+			AnytimeDStar anyPathing = new AnytimeDStar(s, new Euclidean(), 1, false);
 			anyPathing.setNodeLimit(-1);
 			anyPathing.run();
 			System.out.println(anyPathing.toResultsString());

@@ -40,7 +40,7 @@ public class Scenario {
     public float getOptimal(){
         return optimal;
     }
-    public String toString(){
+    public String toLongString(){
         StringBuilder sb=new StringBuilder();
         sb.append(board.getName());
         sb.append(",");
@@ -61,5 +61,8 @@ public class Scenario {
     }
     public String getName(){
     	return board.getName()+" "+group;
+    }
+    public String toString(){
+    	return getName();
     }
 }
