@@ -63,8 +63,11 @@ public class AStarSearch extends Search {
   private static final Plan makeSolution(PlanSpaceNode node) {
     TotalOrderPlan plan = new TotalOrderPlan();
     for (Step step : node.orderings)
-      if (!step.isStart() && !step.isEnd())
-        plan = plan.addStep(step.makeStep(node.bindings));
+      if (!step.isStart() && !step.isEnd()) {
+        try {
+          plan = plan.addStep(step.makeStep(node.bindings));
+        } catch (Exception e) {}
+      }
     return plan;
   }
 
