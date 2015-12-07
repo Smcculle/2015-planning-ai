@@ -59,32 +59,14 @@ public class SubgraphNode {
 	}
 	// old plan
 	public String toString2(){
-//		if (this == null) return "";
-//		String str;
 		StringBuilder str = new StringBuilder();
-//		if (parent == null) str = "Subgraph:";
 		if (parent == null) str.append("Subgraph:");
-//		else str = parent.toString2();
 		else str.append(parent.toString2());
-//		else str.append(parent.toString3());
-//		str += "goals:";
 		str.append(" goals:");
-//		for (LiteralNode l : goals) str += " " + l.literal;
 		for (LiteralNode l : goals) str.append(" " + l.literal);
 		return str.toString();
 	}
 	
-	public String toString3(){
-//		if (this == null) return "";
-//		String str; 
-		StringBuilder str = new StringBuilder();
-		
-//		str = "goals:";
-		str.append("goals:");
-//		for (LiteralNode l : goals) str += " " + l.literal;
-		for (LiteralNode l : goals) str.append(" " + l.literal);
-		return str.toString();
-	}
 	
 	public SubgraphRoot getRoot() {
 		SubgraphNode node = this;
