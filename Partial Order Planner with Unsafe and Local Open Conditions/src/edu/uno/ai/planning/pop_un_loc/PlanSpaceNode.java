@@ -281,7 +281,16 @@ public class PlanSpaceNode {
   }
 
   public Flaw nextFlawToRepair() {
-    return flaws().selectBy(new LIFO<Flaw>());
+    Flaw selection;
+    selection = flaws().threatenedCausalLinks().selectBy(new LRThreat(this));
+    if (selection == null)
+      selection = flaws().unsafeOpenConditions(this)
+                         .selectBy(new LROpenCondition(this));
+    if (selection == null)
+      selection = flaws().openConditions().selectBy(new LROpenCondition(this));
+    if (selection == null)
+      selection = flaws().selectBy(new LIFO<Flaw>());
+    return selection;
   }
 
   public void repairNextFlaw(PriorityQueue<PlanSpaceNode> queue) {
