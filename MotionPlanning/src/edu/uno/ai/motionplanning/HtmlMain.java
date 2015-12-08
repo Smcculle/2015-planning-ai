@@ -30,8 +30,8 @@ public class HtmlMain {
 			results.addRow(scenario);
 			MotionPlanner mp[]=new MotionPlanner[3];
 			mp[0]=new AStar(scenario,new Zero());
-			mp[1]=new AnytimeDStar(scenario, new Euclidean(), 1, true);
-			mp[2]=new BasicThetaStar(scenario, new Euclidean());
+			mp[1]=new AnytimeDStar(scenario, new Euclidean(), 2, true);
+			mp[2]=new BasicThetaStar(scenario, new Zero());
 			if (first){
 				for(MotionPlanner planner : mp) {
 					results.addColumn(planner);
@@ -42,13 +42,15 @@ public class HtmlMain {
 			for (int i=0;i<mp.length;i++){
 				mp[i].run();
 				results.set(scenario, firstPlanners[i], mp[i].getResult());
-				/*if (mp[i] instanceof AStar){
+				/*
+				if (mp[i] instanceof AStar){
 					AStar pathing=(AStar) mp[i];
 					MotionPlan<Point> solution=pathing.getSolution();
 					GridMap solutionMap=pathing.getMap();
 					solution.markSolution(solutionMap);
 					System.out.println(solutionMap.toString());
-				}*/
+				}
+				*/
 				System.out.println(mp[i].toResultsString());
 			}
 		}
@@ -60,16 +62,16 @@ public class HtmlMain {
 		// Problems solved
 		out.write("\n<h2>Solution Cost</h2>");
 		Table<String, String, Double> solved = results.transform(problem -> problem.getName(), planner -> planner.getPlannerName(),result->(double)result.getSolutionCost());
-		addTotals(solved);
+		addAverages(solved);
 		solved.sortColumns(new Comparator<Column<String, Double>>(){
 			@Override
 			public int compare(Column<String, Double> c1, Column<String, Double> c2) {
-				if(c1.label.equals("Total"))
+				if(c1.label.equals("Average"))
 					return 1;
-				else if(c2.label.equals("Total"))
+				else if(c2.label.equals("Average"))
 					return -1;
 				else
-					return (int) (solved.get("Total", c1.label) - solved.get("Total", c2.label));
+					return (int) (solved.get("Average", c1.label) - solved.get("Average", c2.label));
 			}
 		});
 		Table<String, String, Integer> solvedInt = solved.transform(problem -> problem, planner -> planner, s -> s.intValue());
@@ -130,7 +132,7 @@ public class HtmlMain {
 		results.sortColumns(new Comparator<Column<MotionPlanner, MotionResults>>(){
 			@Override
 			public int compare(Column<MotionPlanner, MotionResults> c1, Column<MotionPlanner, MotionResults> c2) {
-				double comparison = solved.get("Total", c1.label.getPlannerName()) - solved.get("Total", c2.label.getPlannerName());
+				double comparison = solved.get("Average", c1.label.getPlannerName()) - solved.get("Average", c2.label.getPlannerName());
 				if(comparison == 0)
 					comparison = visited.get("Average", c1.label.getPlannerName()) - visited.get("Average", c2.label.getPlannerName());
 				if(comparison == 0)

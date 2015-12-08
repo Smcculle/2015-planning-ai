@@ -174,9 +174,9 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 		int nextBlockX;
 		int nextBlockY;
 		while (x != endX) {
-			nextBlockX = (directionX == 1 ? x : x-1);
+			nextBlockX = (directionX == 1 ? x+1 : x-1);
 			x += directionX;
-			nextBlockY = getNextBlock(startX, x, dY_dX); 
+			nextBlockY = startY+getNextBlock(startX, x, dY_dX); 
 			blocks.add(new Point(nextBlockX, nextBlockY));
 		}
 		//then move in Y direction, adding blocks as needed
@@ -184,7 +184,7 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 		while (y != endY) {
 			nextBlockY = (directionY == 1 ? y : y-1);
 			y += directionY;
-			nextBlockX = getNextBlock(startY, y, dX_dY);
+			nextBlockX = startX+getNextBlock(startY, y, dX_dY);
 			blocks.add(new Point(nextBlockX, nextBlockY));
 		}
 		return blocks;

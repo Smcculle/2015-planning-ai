@@ -75,11 +75,10 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 	protected void computeOrImprovePath() {
 		while (!runner.completed && !open.isEmpty()
 				&& (open.peek().getHeuristic()
-						+ open.peek().getCost()) <= history[scenario.getStart().y][scenario.getStart().x]
-								+ wdh.cost(scenario.getEnd(), scenario.getStart())) {
+						+ open.peek().getCost()) <= history[scenario.getStart().y][scenario.getStart().x] //+ wdh.cost(scenario.getEnd(), scenario.getStart())
+								) {
 			MotionNode<Point> currentNode = open.remove();
 			float oldCost = history[currentNode.getLoc().y][currentNode.getLoc().x];
-			visited++;
 			if (nodeLimit > 0 && visited > nodeLimit) {
 				planning = false;
 				reason = " node limit exceeded.";
@@ -96,18 +95,26 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 	}
 
 	protected void updateState(MotionNode<Point> s) {
-		if (this.isClear(scenario, s.getLoc().y, s.getLoc().x) && !s.at(scenario.getEnd())) {
+		if (!s.at(scenario.getEnd())) {
 			double rhs = rhs(s.getLoc());
+			if (!this.isClear(scenario, s.getLoc().y, s.getLoc().x)) {
+				rhs = Float.POSITIVE_INFINITY;
+			}
 			s.setCost(rhs);
-			double diff = rhs - history[s.getLoc().y][s.getLoc().x];
-			open.remove(s);
-			if (!(diff > -MotionNode.EPSILON && diff < MotionNode.EPSILON)) {
-				if (closed.containsKey(s.getLoc())) {
-					inconsistents.add(s);
-				} else {
-					open.add(s);
-					expanded++;
+			try {
+				double diff = rhs - history[s.getLoc().y][s.getLoc().x];
+				open.remove(s);
+				if (!(diff > -MotionNode.EPSILON && diff < MotionNode.EPSILON)) {
+					visited++;
+					if (closed.containsKey(s.getLoc())) {
+						inconsistents.add(s);
+					} else {
+						open.add(s);
+						expanded++;
+					}
 				}
+			} 
+			catch (Exception e) {
 			}
 		}
 	}
@@ -224,17 +231,20 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 
 	protected void perception(Point p) {
 		if (!knownMap) {
-			for (int dy = -perceptionDistance; dy <= perceptionDistance; dy++) {
-				for (int dx = -perceptionDistance; dx <= perceptionDistance; dx++) {
+			for (int ny = p.y - perceptionDistance; ny <= p.y + perceptionDistance; ny++) {
+				for (int nx = p.x - perceptionDistance; nx <= p.x + perceptionDistance; nx++) {
 					try {
-						if (!seen[p.y + dy][p.x + dx]) {
-							seen[p.y + dy][p.x + dx] = true;
-							boolean passable = scenario.getMap().isClear(scenario, p.y + dy, p.x + dx);
+						if (nx < 0 || ny < 0 || nx >= grid[0].length || ny >= grid.length) {
+							continue;
+						}
+						if (!seen[ny][nx]) {
+							seen[ny][nx] = true;
+							boolean passable = scenario.getMap().isClear(scenario, ny, nx);
 							if (passable) {
-								this.grid[p.y + dy][p.x + dx] = 1;
+								this.grid[ny][nx] = 1;
 							} else {
-								this.grid[p.y + dy][p.x + dx] = 0;
-								Point changed = new Point(p.x + dx, p.y + dy);
+								this.grid[ny][nx] = 0;
+								Point changed = new Point(nx, ny);
 								changes.add(new MotionNode<Point>(changed, Float.POSITIVE_INFINITY,
 										Float.POSITIVE_INFINITY));
 							}
@@ -282,7 +292,8 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 							continue;
 						}
 						try {
-							if (scenario.getMap().isClear(scenario, ny, nx) && history[ny][nx] < min) {
+							float histVal = history[ny][nx];
+							if (scenario.getMap().isClear(scenario, ny, nx) && histVal < min) {
 								min = history[ny][nx];
 								loc = new Point(nx, ny);
 							}
@@ -323,10 +334,9 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 		String out = "[ " + getPlannerName() + " ";
 		if (runner.completed)
 			out += "succeeded";
-		else if (runner.isAlive()){
+		else if (runner.isAlive()) {
 			out += "still running";
-		}
-		else {
+		} else {
 			out += "failed";
 		}
 		out += " on " + scenario.getName() + " in motion; ";
@@ -338,7 +348,7 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 	}
 
 	public String getTime(long time) {
-		int nanos = (int) time % 1000000;
+		int nanos = (int) (time % 1000000);
 		time /= 1000000;
 		int minutes = (int) (time / (1000 * 60));
 		int seconds = (int) (time / 1000) % 60;
@@ -358,13 +368,11 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 
 	@Override
 	public long getFirstSolutionTime() {
-		// TODO Auto-generated method stub
 		return first - start;
 	}
 
 	@Override
 	public long getSolutionTime() {
-		// TODO Auto-generated method stub
 		return end - start;
 	}
 
@@ -376,15 +384,16 @@ public class AnytimeDStar extends GridMap implements MotionPlanner {
 	public String getPlannerName() {
 		return "AnytimeD*";
 	}
+
 	@Override
 	public MotionResults getResult() {
-		MotionResults mr= new MotionResults();
-		mr.visited=visited;
-		mr.expanded=expanded;
-		mr.time=end-start;
-		mr.solutionCost=runner.totalCost;
+		MotionResults mr = new MotionResults();
+		mr.visited = visited;
+		mr.expanded = expanded;
+		mr.time = end - start;
+		mr.solutionCost = runner.totalCost;
 		return mr;
-		
+
 	}
 
 }

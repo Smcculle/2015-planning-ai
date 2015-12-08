@@ -105,7 +105,7 @@ public class GridMap {
                 return null;
             }
         } catch (Exception e) {
-
+        	e.printStackTrace(System.err);
             return null;
         }
     }
