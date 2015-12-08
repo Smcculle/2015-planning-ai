@@ -47,7 +47,7 @@ public class Variable extends Term {
 		String name;
 		do {
 			name = this.name + "-" + nextID++;
-		} while(!names.contains(name));
+		} while(names.contains(name));
 		return new Variable(type, name);
 	}
 

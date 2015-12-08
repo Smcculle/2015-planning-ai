@@ -44,6 +44,28 @@ public class ImmutableList<E> implements Iterable<E> {
 		this.length = 0;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof ImmutableList) {
+			ImmutableList<?> otherList = (ImmutableList<?>) other;
+			if(length == otherList.length) {
+				if(length == 0)
+					return true;
+				else if(first.equals(otherList.first))
+					return rest.equals(otherList.rest);
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		if(length == 0)
+			return 0;
+		else
+			return first.hashCode() + rest.hashCode();
+	}
+	
 	/**
 	 * Returns a new list with the given element added as the first element.
 	 * 
@@ -52,6 +74,22 @@ public class ImmutableList<E> implements Iterable<E> {
 	 */
 	public ImmutableList<E> add(E element) {
 		return new ImmutableList<E>(element, this);
+	}
+	
+	/**
+	 * Indicates whether or not the list contains a given element.
+	 * 
+	 * @param element the element to search for
+	 * @return true if the list contains an object {@link Object#equals(Object)} to that element, false otherwise
+	 */
+	public boolean contains(E element) {
+		ImmutableList<E> list = this;
+		while(list.length != 0) {
+			if(list.first.equals(element))
+				return true;
+			list = list.rest;
+		}
+		return false;
 	}
 	
 	@Override
