@@ -7,7 +7,7 @@ public class DurativeStep extends Step {
 	private int duration = Integer.MIN_VALUE;
 	private DurativeType type;
 	
-	public enum DurativeType { START, INVARIANT, END };
+	public enum DurativeType { START, INVARIANT, END, NON };
 	
 	public DurativeStep(String name, Expression precondition, Expression effect, int newDuration, DurativeType newType) {
 		super(name, precondition, effect);
@@ -33,6 +33,10 @@ public class DurativeStep extends Step {
 	
 	public boolean isEnd(){
 		return type == DurativeType.END;
+	}
+	
+	public boolean isNonDurative(){
+		return type == DurativeType.NON;
 	}
 	
 	@Override
