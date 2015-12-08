@@ -26,9 +26,10 @@ public class HtmlMain {
 		MotionPlanner[] firstPlanners=null;
 		for(Scenario scenario : complete) {
 			results.addRow(scenario);
-			MotionPlanner mp[]=new MotionPlanner[2];
+			MotionPlanner mp[]=new MotionPlanner[3];
 			mp[0]=new AStar(scenario,new Euclidean());
 			mp[1]=new AnytimeDStar(scenario, new Euclidean(), 1, true);
+			mp[2]=new BasicThetaStar(scenario, new Euclidean());
 			if (first){
 				for(MotionPlanner planner : mp) {
 					results.addColumn(planner);
