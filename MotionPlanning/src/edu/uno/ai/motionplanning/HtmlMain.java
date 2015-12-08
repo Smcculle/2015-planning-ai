@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import edu.uno.ai.motionplanning.Heuristics.Euclidean;
+import edu.uno.ai.motionplanning.Heuristics.WeightedDistanceHeuristic;
 import edu.uno.ai.motionplanning.Heuristics.Zero;
 import edu.uno.ai.motionplanning.Planners.*;
 import edu.uno.ai.planning.Problem;
@@ -28,10 +29,11 @@ public class HtmlMain {
 		MotionPlanner[] firstPlanners=null;
 		for(Scenario scenario : complete) {
 			results.addRow(scenario);
-			MotionPlanner mp[]=new MotionPlanner[3];
-			mp[0]=new AStar(scenario,new Zero());
-			mp[1]=new AnytimeDStar(scenario, new Euclidean(), 2, true);
-			mp[2]=new BasicThetaStar(scenario, new Zero());
+			MotionPlanner mp[]=new MotionPlanner[4];
+			mp[0]=new AStar(scenario,new Zero(), "Dijkstra");
+			mp[1]=new AStar(scenario,new WeightedDistanceHeuristic(0.4f,new Euclidean()),"A*");			
+			mp[2]=new AnytimeDStar(scenario, new Euclidean(), 2, true);
+			mp[3]=new BasicThetaStar(scenario, new WeightedDistanceHeuristic(0.4f,new Euclidean()));
 			if (first){
 				for(MotionPlanner planner : mp) {
 					results.addColumn(planner);
@@ -74,8 +76,8 @@ public class HtmlMain {
 					return (int) (solved.get("Average", c1.label) - solved.get("Average", c2.label));
 			}
 		});
-		Table<String, String, Integer> solvedInt = solved.transform(problem -> problem, planner -> planner, s -> s.intValue());
-		out.write(solvedInt.toString());
+		Table<String, String, Float> solvedFloat = solved.transform(problem -> problem, planner -> planner, s -> s.floatValue());
+		out.write(solvedFloat.toString());
 		// Nodes visited
 		out.write("\n<h2>Nodes Visited</h2>");
 		Table<String, String, Double> visited = results.transform(problem -> problem.getName(), planner -> planner.getPlannerName(), result -> (double) result.getVisited());

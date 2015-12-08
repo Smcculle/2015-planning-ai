@@ -19,7 +19,7 @@ import edu.uno.ai.motionplanning.Heuristics.*;
 public class Main {
     public static void main(String[] args){
         Random foo=new Random();
-        ScenarioLoader sl=new ScenarioLoader(new File("./"),new File("./scenarios/"));
+        ScenarioLoader sl=new ScenarioLoader(new File("./"),new File("./scenarios/JLG/"));
         List<Scenario> complete=sl.loadAllScenarios();
         System.out.println(complete.size()+" scenarios loaded.");
         System.out.println("KB: " + (double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
@@ -27,7 +27,7 @@ public class Main {
             int caseNum=foo.nextInt(complete.size());
             caseNum=i;
             StateSpaceProblem motionProblem=MotionProblemFactory.generateMotionProblem(complete.get(caseNum));
-            AStar pathing=new AStar(complete.get(caseNum),new WeightedDistanceHeuristic(1.0f,new Euclidean()));
+            AStar pathing=new AStar(complete.get(caseNum),new WeightedDistanceHeuristic(1.0f,new Euclidean()),"A*");
             MotionPlan<?>  p=pathing.search();
             if (p!=null){
                 System.out.println(complete.get(caseNum));

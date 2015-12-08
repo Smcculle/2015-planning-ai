@@ -19,8 +19,6 @@ public class Euclidean implements DistanceHeuristic{
 
     @Override
     public float cost(Point2D p1, Point2D p2) {
-        double xdiff=p1.getX()-p2.getX();
-        double ydiff=p1.getY()-p2.getY();
-        return (float)Math.sqrt(xdiff*xdiff+ydiff*ydiff);
+    	return (float)(p1.distance(p2));
     }
 }

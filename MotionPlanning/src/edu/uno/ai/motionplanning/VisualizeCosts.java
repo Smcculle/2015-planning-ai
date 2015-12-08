@@ -27,7 +27,7 @@ public class VisualizeCosts {
 			double min = Double.POSITIVE_INFINITY;
 			double max = 0;
 			float f = 1.0f;
-			AStar pathing = new AStar(s, new WeightedDistanceHeuristic(f, new Euclidean()));
+			AStar pathing = new AStar(s, new WeightedDistanceHeuristic(f, new Euclidean()), "A*");
 			pathing.setNodeLimit(TestSuite.NODE_LIMIT);
 			long start = System.nanoTime();
 			MotionPlan<?> p = pathing.search();

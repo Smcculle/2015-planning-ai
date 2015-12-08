@@ -10,7 +10,7 @@ import edu.uno.ai.motionplanning.Heuristics.DistanceHeuristic;
 public class BasicThetaStar extends AStar {
 
 	public BasicThetaStar(Scenario s, DistanceHeuristic dh) {
-		super(s, dh);
+		super(s, dh, "BasicTheta*");
 	}
 	
 	@Override
@@ -23,8 +23,5 @@ public class BasicThetaStar extends AStar {
 		frontier.addAll(next);
 	}
 	
-	public String getPlannerName () {
-		return "BasicTheta*";
-	}
 	
 }

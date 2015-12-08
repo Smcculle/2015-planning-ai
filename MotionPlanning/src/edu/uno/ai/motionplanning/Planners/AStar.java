@@ -29,9 +29,10 @@ public class AStar implements MotionPlanner{
 	protected boolean succeeded;
 	protected float solutionCost;
 	protected String reason="";
+	protected String name;
 	protected MotionPlan<Point> solution;
 	
-    public AStar(Scenario s, DistanceHeuristic dh) {
+    public AStar(Scenario s, DistanceHeuristic dh, String name) {
         scenario = s;
         map = new GridMap(scenario.getMap());
         frontier = new PriorityQueue<>();
@@ -43,6 +44,7 @@ public class AStar implements MotionPlanner{
         expanded=1;
         nodeLimit=-1;
         solution=null;
+        this.name=name;
     }
 
     public void run(){
@@ -134,7 +136,7 @@ public class AStar implements MotionPlanner{
 	}
 	@Override
 	public String getPlannerName(){
-		return "A*";
+		return name;
 	}
 
 	public String toString(){
