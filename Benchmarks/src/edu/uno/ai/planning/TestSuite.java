@@ -8,16 +8,16 @@ public class TestSuite {
 	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
-		new edu.uno.ai.planning.bfs.BFSPlanner(),
-		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
-		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.graphplan.Graphplan(),
-		new edu.uno.ai.planning.gp.GraphPlan(),
-		new edu.uno.ai.planning.hsp.HSPlanner(),
-		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
-		new edu.uno.ai.planning.ff.FastForwardPlanner(),
-		new edu.uno.ai.planning.jjsatplan.SATPlan(),
+//		new edu.uno.ai.planning.bfs.BFSPlanner(),
+//		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
+//		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
+//		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
+//		new edu.uno.ai.planning.graphplan.Graphplan(),
+//		new edu.uno.ai.planning.gp.GraphPlan(),
+//		new edu.uno.ai.planning.hsp.HSPlanner(),
+//		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
+//		new edu.uno.ai.planning.ff.FastForwardPlanner(),
+//		new edu.uno.ai.planning.jjsatplan.SATPlan(),
 		new edu.uno.ai.planning.jjblackbox.BlackBoxPlan()
 	};
 	
@@ -39,11 +39,16 @@ public class TestSuite {
 //		new Benchmark("cargo", "deliver_3"),
 //		new Benchmark("cargo", "deliver_4"),
 		new Benchmark("cargo", "deliver_return_1"),
-		new Benchmark("cargo", "deliver_return_2"),
+		new Benchmark("cargo", "deliver_return_2"),		
 //		new Benchmark("cargo", "deliver_return_3"),
 //		new Benchmark("cargo", "deliver_return_4"),
 //		new Benchmark("wumpus", "easy_wumpus"),
 //		new Benchmark("wumpus", "medium_wumpus"),
 //		new Benchmark("wumpus", "hard_wumpus"),
+		new Benchmark("hanoi", "hanoi-2"),
+//		new Benchmark("hanoi", "hanoi-3"),
+		new Benchmark("gripper", "gripper-2"),
+//		new Benchmark("gripper", "gripper-4"),
+		new Benchmark("parking", "parkingA")
 	};
 }
