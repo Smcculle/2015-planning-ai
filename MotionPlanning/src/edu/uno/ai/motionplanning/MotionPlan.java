@@ -124,7 +124,8 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 		boolean canRemoveStep = true;
 		T start = path.get(index-1);
 		T end   = path.get(index+1);
-		for (Point p : blocksToCheck(start,end,s,m)) {
+		Set<Point> toBeChecked=blocksToCheck(start,end,s,m);
+		for (Point p : toBeChecked) {
 			if (!m.isClear(s, p.y, p.x)) {
 				canRemoveStep = false;
 				break;
@@ -147,7 +148,7 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 		int startX = start.x;
 		int endX   = end.x;
 		int startY = start.y;
-		int endY   = end.x;
+		int endY   = end.y;
 		int dX = endX - startX;
 		int dY = endY - startY;
 		double dX_dY;

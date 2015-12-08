@@ -22,7 +22,7 @@ public class HtmlMain {
 	public static void main(String[] args) throws Exception {
 		// Test each planner on each problem.
 		Table<Scenario, MotionPlanner, MotionResults> results = new Table<>();
-		ScenarioLoader sl = new ScenarioLoader(new File("./"), new File("scenarios/JLG/"));
+		ScenarioLoader sl = new ScenarioLoader(new File("./"), new File("scenarios/"));
 		List<Scenario> complete = sl.loadAllScenarios();
 		boolean first=true;
 		MotionPlanner[] firstPlanners=null;
@@ -42,13 +42,13 @@ public class HtmlMain {
 			for (int i=0;i<mp.length;i++){
 				mp[i].run();
 				results.set(scenario, firstPlanners[i], mp[i].getResult());
-				if (mp[i] instanceof AStar){
+				/*if (mp[i] instanceof AStar){
 					AStar pathing=(AStar) mp[i];
 					MotionPlan<Point> solution=pathing.getSolution();
 					GridMap solutionMap=pathing.getMap();
 					solution.markSolution(solutionMap);
 					System.out.println(solutionMap.toString());
-				}
+				}*/
 				System.out.println(mp[i].toResultsString());
 			}
 		}

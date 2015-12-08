@@ -12,101 +12,101 @@ td { text-align: right; }
 <body>
 <h1>Planner Benchmark Results</h1>
 <h2>Solution Cost</h2><table>
-<tr><th></th><th>BasicTheta*</th><th>A*</th><th>AnytimeD*</th><th>Total</th></tr>
-<tr><th>.\maps\JLG\simple.map 1</th><td>4</td><td>5</td><td>5</td><td>15</td></tr>
-<tr><th>.\maps\JLG\simple.map 2</th><td>8</td><td>12</td><td>12</td><td>33</td></tr>
-<tr><th>.\maps\JLG\simple.map 3</th><td>6</td><td>17</td><td>17</td><td>40</td></tr>
-<tr><th>.\maps\JLG\trap.map 1</th><td>8</td><td>101</td><td>101</td><td>212</td></tr>
-<tr><th>.\maps\JLG\trap.map 2</th><td>10</td><td>101</td><td>101</td><td>213</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 1</th><td>9</td><td>21</td><td>21</td><td>52</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 2</th><td>10</td><td>21</td><td>21</td><td>53</td></tr>
+<tr><th></th><th>A*</th><th>AnytimeD*</th><th>BasicTheta*</th><th>Total</th></tr>
+<tr><th>.\maps\JLG\simple.map 1</th><td>5</td><td>5</td><td>5</td><td>16</td></tr>
+<tr><th>.\maps\JLG\simple.map 2</th><td>12</td><td>12</td><td>11</td><td>37</td></tr>
+<tr><th>.\maps\JLG\simple.map 3</th><td>17</td><td>17</td><td>16</td><td>50</td></tr>
+<tr><th>.\maps\JLG\trap.map 1</th><td>101</td><td>101</td><td>101</td><td>304</td></tr>
+<tr><th>.\maps\JLG\trap.map 2</th><td>101</td><td>101</td><td>101</td><td>305</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 1</th><td>21</td><td>21</td><td>20</td><td>64</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 2</th><td>21</td><td>21</td><td>21</td><td>65</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 1</th><td>6</td><td>6</td><td>6</td><td>18</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 2</th><td>6</td><td>6</td><td>6</td><td>20</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 3</th><td>7</td><td>7</td><td>7</td><td>23</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 4</th><td>55</td><td>55</td><td>55</td><td>166</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 5</th><td>52</td><td>52</td><td>52</td><td>157</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>261</td><td>255</td><td>255</td><td>772</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>253</td><td>253</td><td>253</td><td>761</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>253</td><td>252</td><td>252</td><td>759</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>496</td><td>513</td><td>513</td><td>1522</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>500</td><td>516</td><td>516</td><td>1532</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>652</td><td>867</td><td>867</td><td>2386</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>812</td><td>868</td><td>868</td><td>2548</td></tr>
-<tr><th>Total</th><td>3416</td><td>3937</td><td>3937</td><td></td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>255</td><td>255</td><td>262</td><td>772</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>253</td><td>253</td><td>260</td><td>767</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>252</td><td>252</td><td>238</td><td>744</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>513</td><td>513</td><td>510</td><td>1536</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>516</td><td>516</td><td>523</td><td>1555</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>867</td><td>867</td><td>885</td><td>2619</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>868</td><td>868</td><td>915</td><td>2651</td></tr>
+<tr><th>Total</th><td>3937</td><td>3937</td><td>4003</td><td></td></tr>
 </table>
 <h2>Nodes Visited</h2><table>
 <tr><th></th><th>BasicTheta*</th><th>A*</th><th>AnytimeD*</th><th>Average</th></tr>
 <tr><th>.\maps\JLG\simple.map 1</th><td>6</td><td>12</td><td>14</td><td>11</td></tr>
 <tr><th>.\maps\JLG\simple.map 2</th><td>20</td><td>21</td><td>26</td><td>22</td></tr>
-<tr><th>.\maps\JLG\simple.map 3</th><td>24</td><td>26</td><td>26</td><td>25</td></tr>
-<tr><th>.\maps\JLG\trap.map 1</th><td>103</td><td>549</td><td>551</td><td>401</td></tr>
-<tr><th>.\maps\JLG\trap.map 2</th><td>544</td><td>551</td><td>551</td><td>549</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 1</th><td>23</td><td>106</td><td>111</td><td>80</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 2</th><td>100</td><td>111</td><td>111</td><td>107</td></tr>
+<tr><th>.\maps\JLG\simple.map 3</th><td>25</td><td>26</td><td>26</td><td>26</td></tr>
+<tr><th>.\maps\JLG\trap.map 1</th><td>338</td><td>549</td><td>551</td><td>479</td></tr>
+<tr><th>.\maps\JLG\trap.map 2</th><td>541</td><td>551</td><td>551</td><td>548</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 1</th><td>24</td><td>106</td><td>111</td><td>80</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 2</th><td>95</td><td>111</td><td>111</td><td>106</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 1</th><td>7</td><td>103</td><td>89</td><td>66</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>10</td><td>133</td><td>112</td><td>85</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>12</td><td>172</td><td>147</td><td>110</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>183</td><td>5321</td><td>6278</td><td>3927</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>299</td><td>4884</td><td>4232</td><td>3138</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>3738</td><td>58914</td><td>48215</td><td>36956</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>5165</td><td>32937</td><td>58327</td><td>32143</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>6476</td><td>59645</td><td>51852</td><td>39324</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>42954</td><td>148710</td><td>105049</td><td>98904</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>6266</td><td>114475</td><td>153383</td><td>91375</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>85101</td><td>154469</td><td>156256</td><td>131942</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>59081</td><td>153971</td><td>156256</td><td>123103</td></tr>
-<tr><th>Average</th><td>11059</td><td>38690</td><td>39031</td><td></td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>11</td><td>133</td><td>112</td><td>85</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>13</td><td>172</td><td>147</td><td>111</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>189</td><td>5321</td><td>6278</td><td>3929</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>290</td><td>4884</td><td>4232</td><td>3135</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>3740</td><td>58914</td><td>48215</td><td>36956</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>6524</td><td>32937</td><td>58327</td><td>32596</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>6920</td><td>59645</td><td>51852</td><td>39472</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>45414</td><td>148710</td><td>105049</td><td>99724</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>17853</td><td>114475</td><td>153383</td><td>95237</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>87794</td><td>154469</td><td>156256</td><td>132840</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>69615</td><td>153971</td><td>156256</td><td>126614</td></tr>
+<tr><th>Average</th><td>12601</td><td>38690</td><td>39031</td><td></td></tr>
 </table>
 <h2>Nodes Expanded</h2><table>
 <tr><th></th><th>BasicTheta*</th><th>A*</th><th>AnytimeD*</th><th>Average</th></tr>
-<tr><th>.\maps\JLG\simple.map 1</th><td>13</td><td>14</td><td>30</td><td>19</td></tr>
-<tr><th>.\maps\JLG\simple.map 2</th><td>22</td><td>22</td><td>41</td><td>28</td></tr>
-<tr><th>.\maps\JLG\simple.map 3</th><td>26</td><td>26</td><td>41</td><td>31</td></tr>
-<tr><th>.\maps\JLG\trap.map 1</th><td>234</td><td>551</td><td>1876</td><td>887</td></tr>
-<tr><th>.\maps\JLG\trap.map 2</th><td>551</td><td>551</td><td>1876</td><td>993</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 1</th><td>54</td><td>111</td><td>356</td><td>174</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 2</th><td>108</td><td>111</td><td>356</td><td>192</td></tr>
+<tr><th>.\maps\JLG\simple.map 1</th><td>13</td><td>14</td><td>76</td><td>34</td></tr>
+<tr><th>.\maps\JLG\simple.map 2</th><td>22</td><td>22</td><td>119</td><td>54</td></tr>
+<tr><th>.\maps\JLG\simple.map 3</th><td>26</td><td>26</td><td>119</td><td>57</td></tr>
+<tr><th>.\maps\JLG\trap.map 1</th><td>409</td><td>551</td><td>2172</td><td>1044</td></tr>
+<tr><th>.\maps\JLG\trap.map 2</th><td>549</td><td>551</td><td>2169</td><td>1090</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 1</th><td>55</td><td>111</td><td>412</td><td>193</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 2</th><td>106</td><td>111</td><td>409</td><td>209</td></tr>
 <tr><th>.\maps\sc1\WinterConquest.map 1</th><td>24</td><td>152</td><td>409</td><td>195</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>29</td><td>188</td><td>506</td><td>241</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>33</td><td>235</td><td>654</td><td>307</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>338</td><td>5584</td><td>25043</td><td>10322</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>446</td><td>5058</td><td>16705</td><td>7403</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>4286</td><td>59341</td><td>188051</td><td>83893</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>5646</td><td>33122</td><td>227415</td><td>88728</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>6892</td><td>60110</td><td>201412</td><td>89471</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>43537</td><td>148981</td><td>409932</td><td>200817</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>7327</td><td>114961</td><td>596308</td><td>239532</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>85880</td><td>154649</td><td>607049</td><td>282526</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>60045</td><td>154196</td><td>607049</td><td>273763</td></tr>
-<tr><th>Average</th><td>11342</td><td>38840</td><td>151848</td><td></td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>30</td><td>188</td><td>506</td><td>241</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>34</td><td>235</td><td>654</td><td>308</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>345</td><td>5584</td><td>25736</td><td>10555</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>437</td><td>5058</td><td>17567</td><td>7687</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>4286</td><td>59341</td><td>198268</td><td>87298</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>7167</td><td>33122</td><td>240068</td><td>93452</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>7293</td><td>60110</td><td>214166</td><td>93856</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>46035</td><td>148981</td><td>433378</td><td>209465</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>18551</td><td>114961</td><td>628746</td><td>254086</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>88441</td><td>154649</td><td>640308</td><td>294466</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>70335</td><td>154196</td><td>640308</td><td>288280</td></tr>
+<tr><th>Average</th><td>12850</td><td>38840</td><td>160294</td><td></td></tr>
 </table>
 <h2>Time (ns)</h2><table>
-<tr><th></th><th>A*</th><th>BasicTheta*</th><th>AnytimeD*</th><th>Average</th></tr>
-<tr><th>.\maps\JLG\simple.map 1</th><td>1630794</td><td>773562</td><td>7812130</td><td>3405495</td></tr>
-<tr><th>.\maps\JLG\simple.map 2</th><td>842302</td><td>840125</td><td>14522551</td><td>5401659</td></tr>
-<tr><th>.\maps\JLG\simple.map 3</th><td>871851</td><td>1045412</td><td>17547123</td><td>6488129</td></tr>
-<tr><th>.\maps\JLG\trap.map 1</th><td>8967030</td><td>3092380</td><td>116190668</td><td>42750026</td></tr>
-<tr><th>.\maps\JLG\trap.map 2</th><td>3146190</td><td>4732192</td><td>108101088</td><td>38659823</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 1</th><td>282426</td><td>197823</td><td>18068118</td><td>6182789</td></tr>
-<tr><th>.\maps\JLG\trapsmall.map 2</th><td>279316</td><td>304199</td><td>17855365</td><td>6146293</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 1</th><td>163608</td><td>303266</td><td>7536547</td><td>2667807</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>156454</td><td>552722</td><td>6232348</td><td>2313841</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>179782</td><td>164852</td><td>7964852</td><td>2769829</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>6393468</td><td>3344013</td><td>86500466</td><td>32079316</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>5078694</td><td>2295179</td><td>56863141</td><td>21412338</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>79946190</td><td>32704199</td><td>480192534</td><td>197614308</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>28990357</td><td>27669362</td><td>620338103</td><td>225665941</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>71674339</td><td>38658476</td><td>517283048</td><td>209205288</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>197689891</td><td>258664697</td><td>1169597201</td><td>541983930</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>131768897</td><td>33939658</td><td>1667507621</td><td>611072059</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>358811819</td><td>648411509</td><td>1944204977</td><td>983809435</td></tr>
-<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>307731260</td><td>605998444</td><td>1841702021</td><td>918477242</td></tr>
-<tr><th>Average</th><td>63400246</td><td>87562741</td><td>458211574</td><td></td></tr>
+<tr><th></th><th>BasicTheta*</th><th>A*</th><th>AnytimeD*</th><th>Average</th></tr>
+<tr><th>.\maps\JLG\simple.map 1</th><td>934059</td><td>1632037</td><td>9716019</td><td>4094038</td></tr>
+<tr><th>.\maps\JLG\simple.map 2</th><td>999689</td><td>829549</td><td>19635148</td><td>7154795</td></tr>
+<tr><th>.\maps\JLG\simple.map 3</th><td>1189114</td><td>938725</td><td>21555832</td><td>7894557</td></tr>
+<tr><th>.\maps\JLG\trap.map 1</th><td>7797201</td><td>8159564</td><td>118985381</td><td>44980715</td></tr>
+<tr><th>.\maps\JLG\trap.map 2</th><td>2101711</td><td>3123795</td><td>115697978</td><td>40307828</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 1</th><td>139658</td><td>139658</td><td>19253189</td><td>6510835</td></tr>
+<tr><th>.\maps\JLG\trapsmall.map 2</th><td>252255</td><td>104510</td><td>18221150</td><td>6192638</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 1</th><td>63453</td><td>121618</td><td>6548989</td><td>2244687</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 2</th><td>55677</td><td>159564</td><td>6566096</td><td>2260446</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 3</th><td>120685</td><td>245723</td><td>8162986</td><td>2843131</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 4</th><td>2143701</td><td>6336236</td><td>90990046</td><td>33156661</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 5</th><td>854744</td><td>9968896</td><td>68027683</td><td>26283774</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 6</th><td>27208709</td><td>79941213</td><td>-845980049</td><td>1185379056</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 7</th><td>15966096</td><td>29760808</td><td>1725761786</td><td>2022151995</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 8</th><td>24423950</td><td>80089891</td><td>271519796</td><td>1557000311</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 9</th><td>83301400</td><td>204195334</td><td>1154435993</td><td>-951011523</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 10</th><td>63070918</td><td>155488025</td><td>2114773741</td><td>-653878204</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 11</th><td>143645412</td><td>248307931</td><td>-689718594</td><td>-99255084</td></tr>
+<tr><th>.\maps\sc1\WinterConquest.map 12</th><td>95507620</td><td>260177605</td><td>2144037815</td><td>-598414752</td></tr>
+<tr><th>Average</th><td>24725055</td><td>57353720</td><td>1239897904</td><td></td></tr>
 </table>
 <h2>Final Ranking</h2>
 <ol>
-<li>BasicTheta*</li>
 <li>A*</li>
 <li>AnytimeD*</li>
+<li>BasicTheta*</li>
 <ol>
 </body>
