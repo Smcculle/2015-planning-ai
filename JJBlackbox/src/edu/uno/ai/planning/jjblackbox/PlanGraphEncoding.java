@@ -43,12 +43,6 @@ public class PlanGraphEncoding {
         conjunction.add(createMutexConjunction(new ArrayList<>(planGraph.getStepNodes()), planGraph.size()));
         conjunction.add(createMutexConjunction(new ArrayList<>(planGraph.getLiteralNodes()), planGraph.size()));
 
-//        System.out.println("cnf size is " + conjunction.size());
-//        conjunction.add(createStepMutexRelation(new ArrayList<>(planGraph.getStepNodes()), planGraph.size()));
-
-//        System.out.println("\nSteps Imply Preconditions:");
-//        System.out.println(conjunction.toString());
-
         return conjunction;
     }
 
@@ -135,41 +129,20 @@ public class PlanGraphEncoding {
 
     public SATConjunction createMutexConjunction(List<Node> nodes, int planGraphSize){
         SATConjunction conjunction = new SATConjunction();
-
         List<Node> copyOfNodes = new ArrayList<>(nodes);
-
         for (int levelCounter = 1; levelCounter < planGraphSize; levelCounter++){
             final int finalLevelCounter = levelCounter;
             List<Node> outerNodesForThisLevel =  nodes.stream().filter(x->x.exists(finalLevelCounter)).collect(Collectors.toList());
-            for(Node outerNode : outerNodesForThisLevel){
-//                System.out.println("Node is " + outerNode + " at level " + finalLevelCounter);
+            for(Node outerNode : outerNodesForThisLevel){                
                 List<Node> innerNodesForThisLevel = copyOfNodes.stream().filter(x->x.exists(finalLevelCounter)).collect(Collectors.toList());
-                for(Node innerNode : innerNodesForThisLevel){
-//                    System.out.println("Checking " + innerNode + " with " + outerNode + " at level " + finalLevelCounter);
+                for(Node innerNode : innerNodesForThisLevel){                    
                     if ((innerNode.mutex(outerNode, finalLevelCounter) || outerNode.mutex(innerNode, finalLevelCounter))){
-
-//                        System.out.println("added");
-
                         SATClause disjunction = new SATClause();
-
-//                        if (innerNode instanceof StepNode){
-//                            StepNode step = (StepNode)innerNode;
-//
-//
-//
-//                        }
-
-//                        System.out.println("mutext is " + innerNode);
-
                         disjunction.add(BooleanVariable.createNegated(innerNode.toString(), finalLevelCounter));
                         disjunction.add(BooleanVariable.createNegated(outerNode.toString(), finalLevelCounter));
 
                         conjunction.add(disjunction);
-
-
                     }
-
-
                 }
             }
         }

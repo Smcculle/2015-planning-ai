@@ -10,7 +10,7 @@ public class SATSolver {
 	public static int nodesVisited;
 
 	public static ArrayList<BooleanVariable> getModel(SATProblem problem, ArrayList<BooleanVariable> variableList, int limit){
-		nodesExpanded = 0;
+		nodesExpanded = 1;
 		nodesVisited = 0;
 		solution.clear();
 

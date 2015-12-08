@@ -17,7 +17,7 @@ public class TestSuite {
 //		new edu.uno.ai.planning.hsp.HSPlanner(),
 //		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
 //		new edu.uno.ai.planning.ff.FastForwardPlanner(),
-//		new edu.uno.ai.planning.jjsatplan.SATPlan(),
+		new edu.uno.ai.planning.jjsatplan.SATPlan(),
 		new edu.uno.ai.planning.jjblackbox.BlackBoxPlan()
 	};
 	
@@ -27,7 +27,7 @@ public class TestSuite {
 		new Benchmark("blocks", "easy_stack"),
 		new Benchmark("blocks", "easy_unstack"),
 		new Benchmark("blocks", "sussman"),
-		new Benchmark("cake", "have_eat_cake"),
+//		new Benchmark("cake", "have_eat_cake"),
 		new Benchmark("blocks", "reverse_2"),
 		new Benchmark("blocks", "reverse_4"),
 //		new Benchmark("blocks", "reverse_6"),
@@ -47,8 +47,8 @@ public class TestSuite {
 //		new Benchmark("wumpus", "hard_wumpus"),
 		new Benchmark("hanoi", "hanoi-2"),
 //		new Benchmark("hanoi", "hanoi-3"),
-		new Benchmark("gripper", "gripper-2"),
+//		new Benchmark("gripper", "gripper-2"),
 //		new Benchmark("gripper", "gripper-4"),
-		new Benchmark("parking", "parkingA")
+//		new Benchmark("parking", "parkingA")		
 	};
 }
