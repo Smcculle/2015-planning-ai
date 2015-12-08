@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Benchmarks"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/LPG"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
