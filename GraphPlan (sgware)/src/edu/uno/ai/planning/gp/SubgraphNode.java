@@ -15,7 +15,7 @@ public class SubgraphNode {
 	public final int level;
 	public final ImmutableList<LiteralNode> goals;
 	int descendants = 0;
-	private final StepPermutationIterator permutations;
+	protected final StepPermutationIterator permutations;
 	
 	SubgraphNode(PlanGraph graph) {
 		this.parent = null;
@@ -97,7 +97,7 @@ public class SubgraphNode {
 		}
 	}
 	
-	private static final boolean anyMutex(ImmutableList<LiteralNode> literals, int level) {
+	protected static final boolean anyMutex(ImmutableList<LiteralNode> literals, int level) {
 		ImmutableList<LiteralNode> first = literals;
 		while(first.length > 1) {
 			ImmutableList<LiteralNode> second = first.rest;

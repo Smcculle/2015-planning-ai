@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import edu.uno.ai.planning.Domain;
+import edu.uno.ai.planning.DurativeDomain;
 import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.io.TemporalParser;
 
@@ -38,7 +39,7 @@ public class TemporalParserTest {
 		Domain satellite = null;
 		try{
 			File pddlFile = new File(STS_DOMAIN);
-			satellite = parser.parse(pddlFile, Domain.class);
+			satellite = parser.parse(pddlFile, DurativeDomain.class);
 		}catch(IOException ex){ 
 			err = ex.getMessage();
 		}

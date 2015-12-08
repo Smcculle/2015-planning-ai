@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="LPGP/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Plan Graph (sgware)"/>
+	<classpathentry kind="lib" path="lib/lpsolve55j.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="LPGP/native"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

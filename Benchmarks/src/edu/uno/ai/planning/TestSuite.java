@@ -12,8 +12,8 @@ public class TestSuite {
 //		new edu.uno.ai.planning.iw.IteratedWidthPlanner(),
 //		new edu.uno.ai.planning.pop.PartialOrderPlanner(),
 //		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
-		new edu.uno.ai.planning.graphplan.LPGraphPlan(),
-		new edu.uno.ai.planning.graphplan.Graphplan(),
+		new edu.uno.ai.planning.pg.LPGraphPlan(),
+//		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
 //		new edu.uno.ai.planning.hsp.HSPlanner(),
 //		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
@@ -44,5 +44,6 @@ public class TestSuite {
 		new Benchmark("wumpus", "easy_wumpus"),
 		new Benchmark("wumpus", "medium_wumpus"),
 		new Benchmark("wumpus", "hard_wumpus"),
+		new Benchmark("simple_timed_sat", "simple_sat_1")
 	};
 }

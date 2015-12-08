@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import edu.uno.ai.planning.Domain;
+import edu.uno.ai.planning.DurativeDomain;
 import edu.uno.ai.planning.DurativeOperator;
 import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.logic.Conjunction;
@@ -92,7 +93,7 @@ public class TemporalParser extends Parser {
 	private static final ObjectParser<Domain> DOMAIN_PARSER = new ObjectParser<Domain>() {
 
 		@Override
-		public Domain parse(Node node, Parser parser) {
+		public DurativeDomain parse(Node node, Parser parser) {
 			node.asList(2, -1).first.asSymbol(DOMAIN_KEYWORD);
 			String name = node.asList().first.next.asSymbol().value;
 			Node constantsList = node.asList().find(CONSTANTS_KEYWORD);
@@ -116,9 +117,36 @@ public class TemporalParser extends Parser {
 				child = child.next;
 			}
 			Operator[] operators = ops.toArray(new Operator[ops.size()]);
-			return new Domain(name, constants, operators);
+			return new DurativeDomain(name, constants, operators);
 		}
 	};
+	
+	/** Parses problems */
+//	private static final ObjectParser<Problem> PROBLEM_PARSER = new ObjectParser<Problem>() {
+//
+//		@Override
+//		public Problem parse(Node node, Parser parser) {
+//			node.asList(3, -1).first.asSymbol(PROBLEM_KEYWORD);
+//			String name = node.asList().first.next.asSymbol().value;
+//			Domain domain = parser.require(node.asList().first.next.next.asList(2, 2).first.next.asSymbol().value, Domain.class);
+//			parser.defineAll(domain.constants);
+//			List objectsList = node.asList().find(OBJECTS_KEYWORD);
+//			Constant[] objects = new Constant[0];
+//			if(objectsList != null)
+//				objects = parser.parse(objectsList, Constant[].class);
+//			parser.defineAll(objects);
+//			ArrayList<Constant> obj = new ArrayList<>();
+//			for(Constant d : domain.constants)
+//				obj.add(d);
+//			for(Constant p : objects)
+//				obj.add(p);
+//			objects = obj.toArray(new Constant[obj.size()]);
+//			MutableState initial = new MutableState();
+//			parser.parse(node.asList().find(INITIAL_STATE_KEYWORD).first.next, Expression.class).impose(initial);
+//			Expression goal = parser.parse(node.asList().find(GOAL_KEYWORD).first.next, Expression.class);
+//			return new Problem(name, domain, objects, initial, goal);
+//		}
+//	};
 	
 	/**
 	 * Create Durative Start Action from names, duration, condition node, and effect node

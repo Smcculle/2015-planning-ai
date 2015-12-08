@@ -1,11 +1,11 @@
-package edu.uno.ai.planning.graphplan;
+package edu.uno.ai.planning.pg;
 
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
 
-public class LPGraphPlanSearch extends GraphPlanSearch {
+public class LPPlanGraphSearch extends Search {
 
 	private final LPPlanGraphPlanner planner;
 	private final LPPlanGraph graph;
@@ -14,17 +14,12 @@ public class LPGraphPlanSearch extends GraphPlanSearch {
 	private int visited = 0;
 	private int expanded = 0;
 	
-	public LPGraphPlanSearch(LPPlanGraphPlanner planner, Problem problem) {
+	public LPPlanGraphSearch(LPPlanGraphPlanner planner, Problem problem) {
 		super(problem);
 		this.planner = planner;
 		this.graph = new LPPlanGraph(problem);
+		this.graph.initialize(problem.initial);
 	}
-	
-//	public LPGraphPlanSearch(LPGraphPlan planner, LPPlanGraph graph){
-//		super(graph.getProblem());
-//		this.planner = planner;
-//		this.graph = graph;
-//	}
 
 	@Override
 	public int countVisited() {
@@ -49,8 +44,7 @@ public class LPGraphPlanSearch extends GraphPlanSearch {
 
 	@Override
 	public Plan findNextSolution() {
-		System.out.println("Start Search");
-		while(!graph.containsGoal(graph.getGoal()) && !graph.isLeveledOff())
+		while(!graph.goalAchieved() && !graph.hasLeveledOff())
 			graph.extend();
 		while(true) {
 			if(search == null) {
@@ -66,10 +60,8 @@ public class LPGraphPlanSearch extends GraphPlanSearch {
 				search = null;
 				graph.extend();
 			}
-			else{
-				System.out.println("End Search");
+			else
 				return plan;
-			}
 		}
 	}
 }

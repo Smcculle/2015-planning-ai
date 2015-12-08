@@ -52,7 +52,7 @@ public class PlanGraph {
 		this(new StateSpaceProblem(problem), mutexes);
 	}
 	
-	private final void addEdgesForStep(StepNode stepNode) {
+	protected void addEdgesForStep(StepNode stepNode) {
 		stepMap.put(stepNode.step, stepNode);
 		forEachLiteral(stepNode.step.precondition.toDNF(), literal -> {
 			LiteralNode literalNode = getLiteralNode(literal);
