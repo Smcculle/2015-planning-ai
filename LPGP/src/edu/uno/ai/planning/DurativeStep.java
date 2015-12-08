@@ -2,7 +2,7 @@ package edu.uno.ai.planning;
 
 import edu.uno.ai.planning.logic.Expression;
 
-public class DurativeStep extends Step {
+public class DurativeStep extends Step {  
 
 	private int duration = Integer.MIN_VALUE;
 	private DurativeType type;
@@ -33,6 +33,11 @@ public class DurativeStep extends Step {
 	
 	public boolean isEnd(){
 		return type == DurativeType.END;
+	}
+	
+	@Override
+	public String toString(){
+		return super.toString() + " Duration: " + getDuration(); 
 	}
 	
 }
