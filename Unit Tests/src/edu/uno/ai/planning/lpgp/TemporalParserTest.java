@@ -39,12 +39,13 @@ public class TemporalParserTest {
 		Domain satellite = null;
 		try{
 			File pddlFile = new File(STS_DOMAIN);
-			satellite = parser.parse(pddlFile, DurativeDomain.class);
+			satellite = parser.parse(pddlFile, Domain.class);
 		}catch(IOException ex){ 
 			err = ex.getMessage();
 		}
 		assertTrue(err.equals(""));
 		assertNotNull(satellite);
+		assertTrue(satellite instanceof DurativeDomain);
 		// Make sure we have all expected operators
 		assertEquals(15,satellite.operators.length);
 		// Make sure expected operators exist by name

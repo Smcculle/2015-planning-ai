@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uno.ai.planning.Domain;
-import edu.uno.ai.planning.DurativeDomain;
 import edu.uno.ai.planning.DurativeOperator;
 import edu.uno.ai.planning.Operator;
 import edu.uno.ai.planning.io.TemporalParser;
@@ -29,7 +28,7 @@ public class DurativeOperatorTest {
 		TemporalParser parser = new TemporalParser();
 		try{
 			File pddlFile = new File("benchmarks/simple_timed_sat.pddl");
-			satellite = parser.parse(pddlFile, DurativeDomain.class);
+			satellite = parser.parse(pddlFile, Domain.class);
 		}catch(IOException ex){ 
 			err = ex.getMessage();
 		}

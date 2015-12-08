@@ -19,6 +19,9 @@ import org.junit.runners.Suite;
 	edu.uno.ai.planning.graphplan.PlanGraphStepTest.class,
 	edu.uno.ai.planning.graphplan.PlanGraphLiteralTest.class,
 	edu.uno.ai.planning.graphplan.GraphPlanTest.class,
+	edu.uno.ai.planning.lpgp.DurativeDomainTest.class,
+	edu.uno.ai.planning.lpgp.DurativeProblemTest.class,
+	edu.uno.ai.planning.lpgp.DurativeOperatorTest.class
 })
 public class AllTests {
 	/* nothing */}
