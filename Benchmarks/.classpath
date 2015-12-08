@@ -4,8 +4,17 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Breadth First Search Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Partial Order Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Plan Graph (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Iterative Width Planner (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FastForward Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LPG"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
