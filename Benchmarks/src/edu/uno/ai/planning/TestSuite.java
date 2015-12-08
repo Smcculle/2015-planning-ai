@@ -17,7 +17,8 @@ public class TestSuite {
 		new edu.uno.ai.planning.hsp.HSPlanner(),
 		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
 		new edu.uno.ai.planning.ff.FastForwardPlanner(),
-		new edu.uno.ai.planning.jjsatplan.SATPlan()
+		new edu.uno.ai.planning.jjsatplan.SATPlan(),
+		new edu.uno.ai.planning.jjblackbox.BlackBoxPlan()
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{

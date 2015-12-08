@@ -6,8 +6,8 @@ import java.util.ListIterator;
 public class SATSolver {
 	/** Contains the Boolean Variables when they are given a value */
 	protected static ArrayList<BooleanVariable> solution = new ArrayList<BooleanVariable>();
-	protected static int nodesExpanded;
-	protected static int nodesVisited;
+	public static int nodesExpanded;
+	public static int nodesVisited;
 
 	public static ArrayList<BooleanVariable> getModel(SATProblem problem, ArrayList<BooleanVariable> variableList, int limit){
 		nodesExpanded = 0;
