@@ -109,6 +109,10 @@ public class AStar implements MotionPlanner{
 		return String.format("%d:%d:%d:%d", minutes, seconds, milliseconds,nanos);
 	}
 
+	public MotionPlan<Point> getSolution(){
+		return solution;
+	}
+
 	@Override
 	public float getSolutionCost() {
 		return solutionCost;

@@ -17,7 +17,7 @@ public class BasicThetaStar extends AStar {
 	protected void updateStates (MotionPlan<Point> currentPlan) {
 		List<MotionPlan<Point>> next = currentPlan.nextSteps(scenario, map, dh);
 		for (MotionPlan<Point> mp : next) {
-			mp.removeStep(mp.getParent(), scenario, map, dh);
+			mp.removeStep(currentPlan.getLoc(), scenario, map, dh);
 		}
 		expanded += next.size();
 		frontier.addAll(next);

@@ -133,10 +133,11 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 		//remove step if possible
 		if (canRemoveStep) {
 			T mid = path.get(index);
-			double costToRemove = dh.cost(start,mid) + dh.cost(mid,end);
+			double costToRemove = start.distance(mid) + mid.distance(end);
 			cost -= costToRemove;
 			path.remove(index);
-			cost += dh.cost(start,end);
+			actionCost=start.distance(end);
+			cost += actionCost;
 		}	
 		return canRemoveStep;
 	}

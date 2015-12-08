@@ -146,7 +146,7 @@ public class GridMap {
         sb.append("\n");
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[y].length; x++) {
-                if (grid[y][x] < 0) {
+                if (grid[y][x] <= 0) {
                     sb.append("*");
                 } else if (grid[y][x] == 2) {
                     sb.append("W");
