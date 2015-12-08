@@ -20,7 +20,8 @@ public class Main {
     public static void main(String[] args){
         Random foo=new Random();
         ScenarioLoader sl=new ScenarioLoader(new File("./"),new File("./scenarios/JLG/"));
-        List<Scenario> complete=sl.loadAllScenarios();
+        List<Scenario> complete=sl.loadAllScenarios("trapsmall.map.scen");
+        complete.addAll(sl.loadAllScenarios("simple.map.scen"));
         System.out.println(complete.size()+" scenarios loaded.");
         System.out.println("KB: " + (double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
         for(int i=0;i<complete.size();i++){
