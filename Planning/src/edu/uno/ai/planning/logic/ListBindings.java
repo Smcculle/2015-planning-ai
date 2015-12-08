@@ -78,9 +78,6 @@ public class ListBindings implements Bindings {
 
 	@Override
 	public Bindings setEqual(Term t1, Term t2) {
-		if(t1.type != t2.type){
-			return null;
-		}
 		if (t1.equals(t2)) {
 			return this;
 		}
