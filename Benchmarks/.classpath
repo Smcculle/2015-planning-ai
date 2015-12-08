@@ -15,6 +15,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Heuristic Search Planner (sgware)"/>
+	<classpathentry kind="src" path="/SATPlan-DPLL"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LPG"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
