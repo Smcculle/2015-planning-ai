@@ -5,5 +5,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/GraphPlan (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Plan Graph (sgware)"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Planning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SATPlan"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/State Space Search"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
