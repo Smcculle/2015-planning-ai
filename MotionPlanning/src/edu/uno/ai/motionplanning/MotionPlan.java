@@ -189,7 +189,7 @@ public class MotionPlan<T extends Point> implements Comparable<MotionPlan<?>> {
 	}
 	
 	private boolean withinEpsilon(double value, double target) {
-		return (Math.abs(value - EPSILON) > Math.abs(value - target));
+		return ( Math.abs(value - target) < EPSILON);
 	}
 	
 	private int getNextBlock(int startCoord, int currentCoord, double changePerIncrement) {
