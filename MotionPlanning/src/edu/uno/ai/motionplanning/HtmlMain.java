@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import edu.uno.ai.motionplanning.Heuristics.Euclidean;
+import edu.uno.ai.motionplanning.Heuristics.Zero;
 import edu.uno.ai.motionplanning.Planners.*;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Result;
@@ -27,7 +28,7 @@ public class HtmlMain {
 		for(Scenario scenario : complete) {
 			results.addRow(scenario);
 			MotionPlanner mp[]=new MotionPlanner[3];
-			mp[0]=new AStar(scenario,new Euclidean());
+			mp[0]=new AStar(scenario,new Zero());
 			mp[1]=new AnytimeDStar(scenario, new Euclidean(), 1, true);
 			mp[2]=new BasicThetaStar(scenario, new Euclidean());
 			if (first){
@@ -60,7 +61,7 @@ public class HtmlMain {
 				else if(c2.label.equals("Total"))
 					return -1;
 				else
-					return (int) (solved.get("Total", c2.label) - solved.get("Total", c1.label));
+					return (int) (solved.get("Total", c1.label) - solved.get("Total", c2.label));
 			}
 		});
 		Table<String, String, Integer> solvedInt = solved.transform(problem -> problem, planner -> planner, s -> s.intValue());
@@ -121,7 +122,7 @@ public class HtmlMain {
 		results.sortColumns(new Comparator<Column<MotionPlanner, MotionResults>>(){
 			@Override
 			public int compare(Column<MotionPlanner, MotionResults> c1, Column<MotionPlanner, MotionResults> c2) {
-				double comparison = solved.get("Total", c2.label.getPlannerName()) - solved.get("Total", c1.label.getPlannerName());
+				double comparison = solved.get("Total", c1.label.getPlannerName()) - solved.get("Total", c2.label.getPlannerName());
 				if(comparison == 0)
 					comparison = visited.get("Average", c1.label.getPlannerName()) - visited.get("Average", c2.label.getPlannerName());
 				if(comparison == 0)
