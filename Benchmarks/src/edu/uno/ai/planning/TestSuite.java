@@ -19,6 +19,7 @@ public class TestSuite {
 		new edu.uno.ai.planning.ff.FastForwardPlanner(),
 		new edu.uno.ai.planning.jjsatplan.SATPlan(),
 		new edu.uno.ai.planning.lpg.LPGPlanner(),
+		new edu.uno.ai.planning.fd.FastDownwardPlanner()
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
