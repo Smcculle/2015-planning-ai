@@ -23,7 +23,6 @@ public class TestSuite {
 	};
 	
 	public static final Benchmark[] BENCHMARKS = new Benchmark[]{
-		new Benchmark("cake", "have_eat_cake"),
 		new Benchmark("blocks", "do_nothing"),
 		new Benchmark("blocks", "easy_stack"),
 		new Benchmark("blocks", "easy_unstack"),
