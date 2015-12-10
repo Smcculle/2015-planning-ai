@@ -9,7 +9,7 @@ import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Result;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.table.*;
+import edu.uno.ai.planning.table.*; 
 
 public class Main {
 

@@ -14,11 +14,11 @@ public class TestSuite {
 		new edu.uno.ai.planning.spop.PartialOrderPlanner(),
 		new edu.uno.ai.planning.graphplan.Graphplan(),
 		new edu.uno.ai.planning.gp.GraphPlan(),
+		new edu.uno.ai.planning.jjsatplan.SATPlan(),
+		new edu.uno.ai.planning.lpg.LPGPlanner(),
 		new edu.uno.ai.planning.hsp.HSPlanner(),
 		new edu.uno.ai.planning.shsp.HeuristicSearchPlanner(),
 		new edu.uno.ai.planning.ff.FastForwardPlanner(),
-		new edu.uno.ai.planning.jjsatplan.SATPlan(),
-		new edu.uno.ai.planning.lpg.LPGPlanner(),
 		new edu.uno.ai.planning.fd.FastDownwardPlanner()
 	};
 	

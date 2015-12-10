@@ -218,6 +218,7 @@ public class SATSolver {
 		return Boolean.TRUE;
 	}
 
+	@SuppressWarnings("serial")
 	protected static Boolean satisfiable(SATProblem problem, ArrayList<BooleanVariable> variableList, int limit){
 		ListIterator<ArrayList<BooleanVariable>> con = problem.conjunction.listIterator();
 		ArrayList<BooleanVariable> disjunction;

@@ -17,7 +17,6 @@ public class LANode {
 	
 	private static Map<PlanGraphLiteral, PlanGraphStep> pStepMap;
 	private static PlanGraph graph;
-	private static int maxLevel = -1;
 	
 	public Set<PlanGraphLiteral> facts;
 	public Set<PlanGraphStep> pSteps;
@@ -39,16 +38,14 @@ public class LANode {
 		this.next = next;
 		facts = new HashSet<PlanGraphLiteral>();
 		pSteps = new HashSet<PlanGraphStep>();
-		maxLevel++;
-		//System.out.println("levels = " + maxLevel);
 	}
 	
 	public void setPMap(Map<PlanGraphLiteral, PlanGraphStep> pStepMap) {
-		this.pStepMap = pStepMap;
+		LANode.pStepMap = pStepMap;
 	}
 	
 	public void setGraph(PlanGraph graph) {
-		this.graph = graph;
+		LANode.graph = graph;
 	}
 
 	

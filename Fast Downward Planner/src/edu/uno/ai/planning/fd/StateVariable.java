@@ -7,7 +7,6 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 
 import edu.uno.ai.planning.MutableState;
 import edu.uno.ai.planning.State;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.fd.Assignment;
 import edu.uno.ai.planning.fd.Atom;
 import edu.uno.ai.planning.logic.Bindings;

@@ -1,13 +1,9 @@
 package edu.uno.ai.planning.fd;
 
 import edu.uno.ai.planning.Plan;
-import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
 import edu.uno.ai.planning.Step;
-import edu.uno.ai.planning.logic.Constant;
-import edu.uno.ai.planning.ss.StateSpaceProblem;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
-import edu.uno.ai.planning.util.ImmutableArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,14 +55,7 @@ public class FDSearch extends Search{
 		this.root = new FDRoot(this);
 		root.heuristic = Double.POSITIVE_INFINITY;
 		queue.add(root);
-		
-		ArrayList<StateVariable> restrictedVarSet = new ArrayList<StateVariable>();
 	
-	}
-	
-	private boolean currentlyHanldes(MPTProblem problem2) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	// Build domain transition graphs for each variable
@@ -113,23 +102,11 @@ public class FDSearch extends Search{
 			}
 		}
 	}
-	/**
-	 * Collects ancestors of the given variable in the graph: This function explodes and so is not being used.
-	 * @param CG
-	 * @param var
-	 * @param ancestors
-	 */
-	private static final void collectVariableAncestors(DirectedGraph<StateVariable, WeightedEdge> CG, StateVariable var, ArrayList<StateVariable> ancestors, int depth){
-		if(!ancestors.contains(var))
-			ancestors.add(var);
-		for(WeightedEdge e : CG.incomingEdgesOf(var)){
-			collectVariableAncestors(CG, CG.getEdgeSource(e), ancestors, depth+1);
-		}
-	}
 
 	/**
 	 * Prune the causal graph to remove cycles
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void pruneCausalGraph(){
 		// Compute the strongly connected components of the causal graph. 
 		List<Set<StateVariable>> stronglyConnected = (new StrongConnectivityInspector(CG)).stronglyConnectedSets();
@@ -232,7 +209,6 @@ public class FDSearch extends Search{
 	 * @return the plan to change the variable accordingly
 	 */
 	public double solve_relaxed_plan(Assignment goal, MPTState state, ArrayList<StateVariable> restrictedVarSet){
-		TotalOrderMPTPlan plan = new TotalOrderMPTPlan();
 
 		/** Useful vars */
 		StateVariable variable = goal.variable;

@@ -1,8 +1,6 @@
 package edu.uno.ai.planning.lpgplus;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -10,14 +8,8 @@ import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Problem;
 import edu.uno.ai.planning.Search;
 import edu.uno.ai.planning.SearchLimitReachedException;
-import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.graphplan.PlanGraph;
-import edu.uno.ai.planning.graphplan.PlanGraphLiteral;
-import edu.uno.ai.planning.graphplan.PlanGraphStep;
-import edu.uno.ai.planning.logic.Expression;
-import edu.uno.ai.planning.logic.Literal;
 import edu.uno.ai.planning.ss.TotalOrderPlan;
-import edu.uno.ai.planning.util.ConversionUtil;
 
 public class LASearch extends Search {
 	
@@ -59,8 +51,6 @@ public class LASearch extends Search {
 		noiseFactor = DEFAULT_NOISE_FACTOR;
 		graph = new PlanGraph(problem, true);
 		graph.extend();
-//		graph.extend();
-//		graph.extend();
 		laGraph = new LAGraph(problem, graph);
 		
 	}
@@ -87,20 +77,10 @@ public class LASearch extends Search {
 			for(int j = 0; j < maxSteps; j++){
 				if(isSolution(lag)){
 					plan = getPlan(lag);
-					
-					/* reorders plan by earliest possible level*/
-					//TotalOrderPlan plan2 = actionGraph.getOrderedTotalPlan(new TotalOrderPlan());
-					
 					if (problem.isSolution(plan))
 						break outer;
 					else
 						lag.checkFacts();
-//					else {
-//						if (actionGraph.checkGoals() == 0) {
-//							/* reached an invalid state, create a new graph */
-//							actionGraph = newActionGraph();
-//						}
-//					}
 				}
 				
 				UnsupportedPrecondition inconsistency = lag.chooseInconsistency3();
@@ -124,7 +104,6 @@ public class LASearch extends Search {
 		return plan;
 	}
 	
-	//TODO 
 	private boolean isSolution(LAGraph lag) {
 		return lag.quality==0;
 	}
@@ -132,11 +111,6 @@ public class LASearch extends Search {
 	private TotalOrderPlan getPlan(LAGraph lag) {
 		return lag.getPlan();
 	}
-	
-	private void newLAGraph() {
-		
-	}
-
 	
 	/**
 	 * Chooses a new action graph from the neighborhood based on graphQuality.  Chooses one with quality

@@ -3,7 +3,7 @@ package edu.uno.ai.planning.jjsatplan;
 import edu.uno.ai.planning.Planner;
 import edu.uno.ai.planning.Problem;
 
-public class SATPlan extends Planner{
+public class SATPlan extends Planner<SATModelSearch> {
 
 	/**
 	 * Constructs a new partial order planner with a given name.

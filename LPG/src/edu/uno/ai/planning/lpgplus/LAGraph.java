@@ -32,7 +32,7 @@ public class LAGraph implements Comparable<LAGraph> {
 	private List<PlanGraphLiteral> goalLiterals;
 	
 	public LAGraph(Problem problem, PlanGraph graph) {
-		this.graph = graph;
+		LAGraph.graph = graph;
 		goalLiterals = new ArrayList<PlanGraphLiteral>();
 		laGraph = new LinkedList<LANode>();
 		this.iqueue = new PriorityQueue<UnsupportedPrecondition>(inconsistencyComperator());
@@ -162,7 +162,6 @@ public class LAGraph implements Comparable<LAGraph> {
 	}
 	
 	public UnsupportedPrecondition chooseInconsistency2() {
-		int counter = 0;
 		int lastlevel = 0;
 		PlanGraphLiteral next = null;
 		for(int i = 0; i < inconsistencies.size(); i++) {
@@ -171,7 +170,6 @@ public class LAGraph implements Comparable<LAGraph> {
 			while(it.hasNext()){ 
 				next = it.next();
 				lastlevel = i;
-				counter++;
 			}
 		}
 		return new UnsupportedPrecondition(next, lastlevel);
