@@ -5,7 +5,7 @@ import edu.uno.ai.planning.Planner;
 public class TestSuite {
 
 	public static final int NODE_LIMIT = 10000;
-	public static final long TIME_LIMIT = Planner.NO_TIME_LIMIT;
+	public static final long TIME_LIMIT = 900000;
 
 	public static final Planner<?>[] PLANNERS = new Planner[]{
 		new edu.uno.ai.planning.bfs.BFSPlanner(),
